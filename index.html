@@ -6,13 +6,13 @@
     <meta name="theme-color" content="#09090b">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Chemistry Master V16</title>
+    <title>Chemistry Master V20</title>
 
     <style>
         /* --- ASSETS --- */
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&family=Inter:wght@400;600;800&display=swap');
 
-        /* --- STABLE UI TOKENS --- */
+        /* --- UI TOKENS (CLEAN DARK) --- */
         :root {
             --bg-body: #09090b;       
             --bg-card: #ffffff;       
@@ -102,6 +102,15 @@
             will-change: transform; transform-style: flat;
         }
 
+        /* Context Card (Deep Dive) Styling */
+        .card.context-card {
+            background: #1e293b; 
+            border: 1px solid #334155;
+        }
+        .card.context-card p { color: #fff; }
+        .card.context-card .card-list li { color: #94a3b8; }
+        .card.context-card .card-list li::before { color: #38bdf8; }
+
         .card p {
             font-size: 1.3rem; font-weight: 800;
             color: var(--text-main); line-height: 1.35;
@@ -119,14 +128,14 @@
             font-size: 1.2rem; position: absolute; left: -1rem; top: -2px;
         }
 
-        /* Chem formatting support */
+        /* Scientific formatting */
         sub { font-size: 0.7em; vertical-align: sub; }
         sup { font-size: 0.7em; vertical-align: super; }
 
         .card-id {
             position: absolute; bottom: 1.5rem;
             font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
-            color: #d4d4d8; pointer-events: none; width: 100%; text-align: center;
+            color: #cbd5e1; pointer-events: none; width: 100%; text-align: center;
         }
 
         /* --- FOOTER --- */
@@ -146,7 +155,7 @@
         .ctrl.left { grid-column: 1; grid-row: 2; }
         .ctrl.right { grid-column: 3; grid-row: 2; }
         .icon { font-size: 1.8rem; line-height: 1; margin-bottom: 4px; }
-        .label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+        .label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; transition: all 0.2s; }
 
         /* --- VIEWS --- */
         .view {
@@ -159,7 +168,7 @@
 
         .btn-main {
             background: #fff; color: #000; border: none;
-            padding: 1.2rem 3rem; font-size: 1rem; font-weight: 800;
+            padding: 1.2rem 3rem; font-size: 1rem; font-weight: 700;
             border-radius: 100px; cursor: pointer; margin-top: 2rem;
         }
 
@@ -211,6 +220,7 @@
         .rev-count { color: var(--text-sub); font-family: 'JetBrains Mono'; font-size: 0.8rem; }
 
         .hidden { display: none !important; }
+        #debug-log { position:absolute; bottom:10px; right:10px; font-size:10px; color:#333; pointer-events:none;}
     </style>
 </head>
 <body>
@@ -219,9 +229,9 @@
         <div id="ui-overlay"></div>
 
         <section id="view-start" class="view active">
-            <div style="color:var(--accent); border:1px solid var(--accent); padding:4px 8px; border-radius:4px; font-family:'JetBrains Mono'; font-size:0.7rem; margin-bottom:1rem;">MODULE V16.0</div>
+            <div style="color:var(--accent); border:1px solid var(--accent); padding:4px 8px; border-radius:4px; font-family:'JetBrains Mono'; font-size:0.7rem; margin-bottom:1rem;">SYSTEM V20.0</div>
             <h1 style="font-size:3rem; font-weight:800; color:#fff; text-align:center; margin-bottom:1rem;">CHEMISTRY<br>MASTER</h1>
-            <p style="color:#a1a1aa; text-align:center; margin-bottom:3rem;">Scientific Notation • Deep Logic</p>
+            <p style="color:#a1a1aa; text-align:center; margin-bottom:3rem;">Full Database • Infinite Mode</p>
             <button class="btn-main" onclick="APP.start('CORE')">START QUIZ</button>
         </section>
 
@@ -234,7 +244,7 @@
             <div class="stage" id="card-stack"></div>
             <footer class="footer">
                 <div class="ctrl up"><span class="icon">↑</span><span class="label" id="lbl-up">TRUE</span></div>
-                <div class="ctrl left"><span class="icon">←</span><span class="label" id="lbl-left">SKIP</span></div>
+                <div class="ctrl left"><span class="icon">←</span><span class="label" id="lbl-left">CONTEXT</span></div>
                 <div class="ctrl down"><span class="icon">↓</span><span class="label" id="lbl-down">FALSE</span></div>
                 <div class="ctrl right"><span class="icon">→</span><span class="label" id="lbl-right">UNSURE</span></div>
             </footer>
@@ -242,21 +252,18 @@
 
         <section id="view-summary" class="view">
             <h2 style="font-size:1.5rem; color:#fff; margin-bottom:2rem;">RESULTS</h2>
-            
             <div class="chart-container" id="chart-pie">
                 <div class="chart-hole">
                     <span style="font-size:2.5rem; font-weight:800; color:#fff;" id="chart-score">0</span>
                     <span style="font-size:0.7rem; color:#71717a;">POINTS</span>
                 </div>
             </div>
-            
             <div class="topic-grid">
                 <button class="btn-topic" onclick="APP.start('ATOMS_HARD')"><strong>ATOMIC THEORY</strong><span>Adv • 10 Qs</span></button>
-                <button class="btn-topic" onclick="APP.start('BONDS_HARD')"><strong>BONDING</strong><span>Adv • 10 Qs</span></button>
+                <button class="btn-topic" onclick="APP.start('BONDS_HARD')"><strong>ORG. BONDING</strong><span>Adv • 10 Qs</span></button>
                 <button class="btn-topic" onclick="APP.start('SOLUTIONS_HARD')"><strong>SOLUTIONS</strong><span>Adv • 10 Qs</span></button>
-                <button class="btn-topic" onclick="APP.start('CORE')"><strong>RESTART</strong><span>Core Level</span></button>
+                <button class="btn-topic" onclick="APP.start('INFINITE')"><strong>INFINITE MODE</strong><span>Procedural</span></button>
             </div>
-            
             <div id="review-cta" class="hidden" style="margin-top:2rem;">
                 <button class="btn-main" style="background:#ef4444; color:#fff; padding:1rem 2rem; font-size:0.9rem;" onclick="APP.startReview()">REVIEW MISTAKES</button>
             </div>
@@ -264,9 +271,7 @@
 
         <section id="view-review" class="view">
             <div id="review-card-container" class="review-card">
-                <div class="rev-q-box" id="rev-q-box">
-                    <p class="rev-q-text" id="rev-q"></p>
-                </div>
+                <div class="rev-q-box" id="rev-q-box"><p class="rev-q-text" id="rev-q"></p></div>
                 <div class="rev-a-box"><div class="rev-badge">CORRECT SOLUTION</div><p class="rev-sol" id="rev-sol"></p></div>
             </div>
             <div class="rev-nav">
@@ -274,74 +279,125 @@
                 <button class="btn-main" style="margin:0; padding:0.8rem 2rem;" onclick="APP.nextReview()">NEXT</button>
             </div>
         </section>
+        
+        <div id="debug-log">System Ready</div>
     </div>
 
     <script>
-        // *** CRITICAL: REPLACE THIS URL WITH YOUR GOOGLE APPS SCRIPT URL ***
-        const API_URL = "REPLACE_THIS_WITH_YOUR_DEPLOYED_WEB_APP_URL"; 
-
+        // *** GOOGLE SHEET CONFIGURATION ***
         const CONFIG = {
+            API_URL: "REPLACE_THIS_WITH_YOUR_WEB_APP_URL", 
             THRESHOLD: 75,
             COLORS: { UP:'#22c55e', DOWN:'#ef4444', RIGHT:'#eab308', LEFT:'#64748b' },
             CHART: {'ATOM':'#3b82f6', 'BOND':'#8b5cf6', 'SOLN':'#ec4899', 'REAC':'#f59e0b', 'TABL':'#10b981'}
         };
 
-        // --- IMPROVED CHEMISTRY DATABASE (HTML TAGS INCLUDED) ---
+        // --- FULL QUESTION DATABASE (45 QUESTIONS + SUB-POINTS) ---
         const DECKS = {
             CORE: [
-                { id: "c1", topic: "Structure", type: "ATOM", text: "Protons and Neutrons reside in the nucleus.", subs: ["Does nucleus contain mass?", "Electrons orbit in shells.", "Is the core positive?"], explanation: "Correct. The nucleus contains the heavy particles (p<sup>+</sup> & n<sup>0</sup>).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-                { id: "c2", topic: "Charge", type: "ATOM", text: "An electron (e<sup>-</sup>) carries a positive charge.", subs: ["Protons are +1.", "Neutrons are 0.", "Attraction vs Repulsion."], explanation: "False. Electrons are Negative (e<sup>-</sup>). Protons are Positive (p<sup>+</sup>).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
-                { id: "c3", topic: "Identity", type: "ATOM", text: "Changing the Proton count changes the element.", subs: ["Atomic Number = Z.", "Neutrons change Mass (A).", "Electrons change Charge."], explanation: "Correct. Proton count (Z) defines the element's identity.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-                { id: "c4", topic: "Trends", type: "TABL", text: "Elements in the same vertical Group behave similarly.", subs: ["Same valence e<sup>-</sup>.", "Li, Na, K are Alkali.", "Trends go down columns."], explanation: "Correct. They have same valence electron configuration.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-                { id: "c6", topic: "Valence", type: "TABL", text: "Carbon (Group 14) has 6 valence electrons.", subs: ["Group 14 = 4 valence.", "Atomic # is 6.", "Config: 1s<sup>2</sup>2s<sup>2</sup>2p<sup>2</sup>."], explanation: "False. Group 14 elements have 4 valence electrons.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
-                { id: "c7", topic: "Bonding", type: "BOND", text: "Ionic bonds involve <b>sharing</b> electrons.", subs: ["Metal + Non-metal.", "Transfer vs Share.", "Na<sup>+</sup> and Cl<sup>-</sup>."], explanation: "False. Ionic bonds <b>transfer</b> electrons. Covalent bonds share.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
-                { id: "c8", topic: "Bonding", type: "BOND", text: "Water (H<sub>2</sub>O) contains covalent bonds.", subs: ["Non-metal + Non-metal.", "Oxygen needs 2 e<sup>-</sup>.", "Polar molecule."], explanation: "Correct. Oxygen shares electrons with Hydrogen.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-                { id: "c9", topic: "Reaction", type: "REAC", text: "Atoms are destroyed in chemical reactions.", subs: ["Law of Conservation.", "Mass In = Mass Out.", "Rearrangement only."], explanation: "False. Matter is conserved, only rearranged.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
-                { id: "c10", topic: "Balancing", type: "REAC", text: "H<sub>2</sub> + O<sub>2</sub> &rarr; H<sub>2</sub>O is balanced.", subs: ["Left: 2H, 2O.", "Right: 2H, 1O.", "Count the atoms."], explanation: "False. Needs 2H<sub>2</sub> + O<sub>2</sub> &rarr; 2H<sub>2</sub>O.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
-                { id: "c12", topic: "Moles", type: "SOLN", text: "1 Mole &approx; 6.022 &times; 10<sup>23</sup> particles.", subs: ["Avogadro's Number.", "The Chemist's Dozen.", "Count atoms by weighing."], explanation: "Correct. This is Avogadro's constant ($N_A$).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-                { id: "c13", topic: "Acids", type: "SOLN", text: "pH of 2 indicates a strong Base.", subs: ["Scale 0 to 14.", "0-6 is Acidic.", "High [H<sup>+</sup>]."], explanation: "False. Low pH is Acidic. High pH is Basic.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
-                { id: "c14", topic: "Neutral", type: "SOLN", text: "Pure water is neutral at pH 7.", subs: ["[H<sup>+</sup>] = [OH<sup>-</sup>].", "Midpoint of scale.", "Safe to drink."], explanation: "Correct. 7 is the neutral midpoint.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-                { id: "c15", topic: "Mixture", type: "SOLN", text: "In salt water, salt is the <b>solvent</b>.", subs: ["Solute gets dissolved.", "Solvent does dissolving.", "Water is universal solvent."], explanation: "False. Water is the solvent, salt is the solute.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 }
+                { id: "c1", topic: "Structure", type: "ATOM", text: "Protons and Neutrons reside in the nucleus.", subs: ["Does nucleus contain mass?", "Where are electrons?", "Is nucleus dense?"], explanation: "Correct. The nucleus contains the heavy particles (protons & neutrons).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+                { id: "c2", topic: "Charge", type: "ATOM", text: "An electron carries a positive electrical charge.", subs: ["Protons are positive.", "Neutrons are neutral.", "What is electron charge?"], explanation: "False. Electrons are Negative. Protons are Positive.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
+                { id: "c3", topic: "Identity", type: "ATOM", text: "Changing proton count changes the element.", subs: ["Protons = Identity.", "Neutrons = Isotope.", "Electrons = Ion."], explanation: "Correct. Proton count is the atomic number.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+                { id: "c4", topic: "Organization", type: "TABL", text: "Elements in the same vertical Group behave similarly.", subs: ["Same valence electrons?", "Same size?", "Same color?"], explanation: "Correct. They have same valence electron count.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+                { id: "c5", topic: "Noble Gases", type: "TABL", text: "Noble Gases are highly reactive.", subs: ["Group 18.", "Full outer shells?", "Do they want electrons?"], explanation: "False. Full shells make them stable/inert.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
+                { id: "c6", topic: "Valence", type: "TABL", text: "Carbon (Group 14) has 6 valence electrons.", subs: ["Group 14.", "Atomic Number is 6.", "Valence is outer shell."], explanation: "False. Group 14 elements have 4 valence electrons.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
+                { id: "c7", topic: "Mechanics", type: "BOND", text: "Ionic bonds involve sharing electrons.", subs: ["Metal + Non-metal.", "Stealing vs Sharing.", "Formation of ions?"], explanation: "False. Ionic bonds transfer electrons. Covalent share.", labels:["SHARED", "TRANSFER"], up:"Shared", down:"Transfer", correct:"down", w:1 },
+                { id: "c8", topic: "Molecules", type: "BOND", text: "Water (H2O) is a covalent molecule.", subs: ["Non-metal + Non-metal?", "Is there a metal?", "Are electrons shared?"], explanation: "Correct. Oxygen shares electrons with Hydrogen.", labels:["COVALENT", "IONIC"], up:"Covalent", down:"Ionic", correct:"up", w:1 },
+                { id: "c9", topic: "Conservation", type: "REAC", text: "Atoms are destroyed in chemical reactions.", subs: ["Law of Conservation.", "Matter created/destroyed?", "Just rearranged?"], explanation: "False. Matter is conserved, only rearranged.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
+                { id: "c10", topic: "Balancing", type: "REAC", text: "H2 + O2 -> H2O is balanced.", subs: ["Left: 2H, 2O.", "Right: 2H, 1O.", "Are atoms equal?"], explanation: "False. Needs 2H2 + O2 -> 2H2O.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
+                { id: "c11", topic: "Energy", type: "REAC", text: "Exothermic reactions release heat.", subs: ["Exo = Out.", "Endo = In.", "Feel hot or cold?"], explanation: "Correct. Energy exits the system.", labels:["EXO", "ENDO"], up:"Exo", down:"Endo", correct:"up", w:1 },
+                { id: "c12", topic: "Units", type: "SOLN", text: "A Mole is approx 6.022 x 10^23 particles.", subs: ["Avogadro's Number.", "Chemist's Dozen.", "Is it a huge number?"], explanation: "Correct. Avogadro's constant.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+                { id: "c13", topic: "Acids", type: "SOLN", text: "pH of 2 indicates a strong Base.", subs: ["0-6 is Acidic.", "7 is Neutral.", "8-14 is Basic."], explanation: "False. Low pH is Acidic. High is Basic.", labels:["ACIDIC", "BASIC"], up:"Acidic", down:"Basic", correct:"down", w:1 },
+                { id: "c14", topic: "Neutrality", type: "SOLN", text: "Pure water is neutral at pH 7.", subs: ["H+ equals OH-?", "Midpoint of scale.", "Safe to drink?"], explanation: "Correct. 7 is neutral.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+                { id: "c15", topic: "Mixtures", type: "SOLN", text: "In salt water, salt is the solvent.", subs: ["Solute gets dissolved.", "Solvent does dissolving.", "Which is the liquid?"], explanation: "False. Water is solvent, salt is solute.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 }
             ],
             ATOMS_HARD: [
-                { id: "ah1", topic: "Quantum", type: "ATOM", image: "https://placehold.co/600x400/3b82f6/ffffff?text=Orbitals", text: "The <b>4s</b> orbital fills before <b>3d</b>.", subs: ["Aufbau Principle.", "n+l Rule.", "Energy levels overlap."], explanation: "True. 4s (n=4, l=0) is lower energy than 3d (n=3, l=2).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "ah2", topic: "Isotopes", type: "ATOM", text: "Isotopes differ in Proton count.", subs: ["$^{12}$C vs $^{13}$C.", "Mass Number (A).", "Same Element?"], explanation: "False. Isotopes differ in <b>Neutrons</b>.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-                { id: "ah3", topic: "Config", type: "ATOM", text: "A <b>d-subshell</b> holds max 14 electrons.", subs: ["s=2, p=6.", "d has 5 orbitals.", "f=14?"], explanation: "False. d-orbitals hold 10 e<sup>-</sup>. f-orbitals hold 14.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-                { id: "ah4", topic: "Trends", type: "ATOM", text: "Atomic radius <b>decreases</b> left-to-right.", subs: ["Effective Nuclear Charge.", "Protons pull harder.", "Shells stay same."], explanation: "True. Stronger nucleus pulls electrons in closer.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "ah5", topic: "Ions", type: "ATOM", text: "Cations (M<sup>+</sup>) are larger than neutral atoms.", subs: ["Loss of electron.", "Less repulsion.", "Shell loss?"], explanation: "False. Cations shrink significantly upon electron loss.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "ah1", topic: "Quantum", type: "ATOM", image: "https://placehold.co/600x400/3b82f6/ffffff?text=Orbitals", text: "The 4s orbital fills before 3d.", subs: ["Aufbau Principle.", "n+l Rule.", "Energy levels overlap."], explanation: "True. 4s is lower energy.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "ah2", topic: "Isotopes", type: "ATOM", text: "Isotopes differ in proton count.", subs: ["Mass vs Identity.", "Protons vs Neutrons.", "Same element?"], explanation: "False. They differ in Neutrons.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "ah3", topic: "Config", type: "ATOM", text: "A d-subshell holds max 14 electrons.", subs: ["s=2, p=6.", "d has 5 orbitals.", "f=14?"], explanation: "False. d-orbitals hold 10 e<sup>-</sup>. f-orbitals hold 14.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "ah4", topic: "Trends", type: "ATOM", text: "Atomic radius decreases left-to-right.", subs: ["Effective Nuclear Charge.", "Protons pull harder.", "Shells stay same."], explanation: "True. Stronger nucleus pulls electrons in closer.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "ah5", topic: "Ions", type: "ATOM", text: "Cations are larger than neutral atoms.", subs: ["Loss of electron.", "Less repulsion.", "Shell loss?"], explanation: "False. Cations shrink significantly upon electron loss.", labels:["LARGER", "SMALLER"], up:"Larger", down:"Smaller", correct:"down", w:2 },
+                { id: "ah6", topic: "Ionization", type: "ATOM", text: "Ionization energy increases down a group.", subs: ["More shells.", "Shielding effect.", "Easier to remove?"], explanation: "False. It decreases as atoms get larger.", labels:["INCREASE", "DECREASE"], up:"Increase", down:"Decrease", correct:"down", w:2 },
                 { id: "ah7", topic: "Pauli", type: "ATOM", text: "Two e<sup>-</sup> in one orbital must have opposite spins.", subs: ["Exclusion Principle.", "Up and Down arrows.", "Quantum numbers."], explanation: "True. Pauli Exclusion Principle forbids identical quantum states.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "ah8", topic: "Isoelectronic", type: "ATOM", text: "Na<sup>+</sup> and Ne are isoelectronic.", subs: ["Na (11) loses 1.", "Ne has 10.", "Same electron count?"], explanation: "True. Both have exactly 10 electrons ($1s^2 2s^2 2p^6$).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "ah8", topic: "Isoelectronic", type: "ATOM", text: "Na+ and Ne are isoelectronic.", subs: ["Na (11) loses 1.", "Ne has 10.", "Same electron count?"], explanation: "True. Both have exactly 10 electrons ($1s^2 2s^2 2p^6$).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
                 { id: "ah9", topic: "Anomalies", type: "ATOM", text: "Chromium is [Ar] 4s<sup>2</sup> 3d<sup>4</sup>.", subs: ["Half-filled stability?", "Electron promotion?", "Actual: 4s<sup>1</sup> 3d<sup>5</sup>."], explanation: "False. It promotes to 4s<sup>1</sup> 3d<sup>5</sup> for stability.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
                 { id: "ah10", topic: "Quantum", type: "ATOM", text: "Angular momentum (<b>l</b>) defines shape.", subs: ["n = size.", "l = shape (s,p,d,f).", "m = orientation."], explanation: "True. l=0 is spherical, l=1 is dumbbell.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 }
             ],
             BONDS_HARD: [
-                { id: "bh1", topic: "VSEPR", type: "BOND", image: "https://placehold.co/600x400/8b5cf6/ffffff?text=Water+Structure", text: "Water (H<sub>2</sub>O) geometry is Tetrahedral.", subs: ["Electronic vs Molecular.", "2 Lone Pairs on O.", "Bent shape?"], explanation: "False. Electronic is tetrahedral, but Molecular Geometry is <b>Bent</b>.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-                { id: "bh2", topic: "Polarity", type: "BOND", text: "BF<sub>3</sub> is non-polar despite polar bonds.", subs: ["Trigonal Planar.", "Symmetry cancels?", "No lone pairs."], explanation: "True. Symmetric dipoles cancel out.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "bh3", topic: "Forces", type: "BOND", text: "H-bonds are stronger than Covalent bonds.", subs: ["Inter vs Intra.", "Boiling vs Breaking.", "Bond strength."], explanation: "False. Covalent bonds are ~10x stronger than H-bonds.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-                { id: "bh4", topic: "Lattice", type: "BOND", text: "MgO has higher lattice energy than NaCl.", subs: ["Mg<sup>2+</sup> vs Na<sup>+</sup>.", "Coulomb's Law.", "Charge product."], explanation: "True. +2/-2 charges attract much stronger than +1/-1.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "bh5", topic: "Sigma", type: "BOND", text: "Double bond = 1 Sigma (&sigma;) + 1 Pi (&pi;).", subs: ["Head-on overlap.", "Side-on overlap.", "Bond count."], explanation: "True. The first bond is Sigma, the second is Pi.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "bh6", topic: "Resonance", type: "BOND", text: "Ozone (O<sub>3</sub>) has equal bond lengths.", subs: ["Resonance hybrid.", "Delocalized e<sup>-</sup>.", "1.5 bond order?"], explanation: "True. The bonds are an average (hybrid) of single and double.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "bh1", topic: "VSEPR", type: "BOND", image: "https://upload.wikimedia.org/wikipedia/commons/1/1c/Water_molecule_3D.svg", text: "Water (H<sub>2</sub>O) geometry is Tetrahedral.", subs: ["Electronic vs Molecular.", "2 Lone Pairs on O.", "Bent shape?"], explanation: "False. Electronic is tetrahedral, but Molecular Geometry is <b>Bent</b>.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "bh2", topic: "Organic", type: "BOND", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Benzene_Structure.png/640px-Benzene_Structure.png", text: "Benzene contains alternating single/double bonds.", subs: ["Resonance.", "Delocalization.", "Bond lengths equal?"], explanation: "False. Bonds are identical (1.5 order) due to resonance.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "bh3", topic: "Organic", type: "BOND", text: "Ethene (C<sub>2</sub>H<sub>4</sub>) contains a Pi bond.", subs: ["Double bond C=C.", "Sigma + Pi.", "Orbital overlap."], explanation: "True. The double bond consists of one Sigma and one Pi bond.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "bh4", topic: "Polarity", type: "BOND", text: "BF<sub>3</sub> is non-polar despite polar bonds.", subs: ["Trigonal Planar.", "Symmetry cancels?", "No lone pairs."], explanation: "True. Symmetric dipoles cancel out.", labels:["POLAR", "NON-POLAR"], up:"Polar", down:"Non-Polar", correct:"down", w:2 },
+                { id: "bh5", topic: "Forces", type: "BOND", text: "H-bonds are stronger than Covalent bonds.", subs: ["Inter vs Intra.", "Boiling vs Breaking.", "Bond strength."], explanation: "False. Covalent bonds are ~10x stronger than H-bonds.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "bh6", topic: "Resonance", type: "BOND", text: "Ozone (O<sub>3</sub>) has equal bond lengths.", subs: ["Resonance hybrid.", "Delocalized e<sup>-</sup>.", "1.5 bond order?"], explanation: "True. The double bond character is delocalized.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
                 { id: "bh7", topic: "Order", type: "BOND", text: "N<sub>2</sub> has a bond order of 2.", subs: ["Nitrogen gas.", "Triple bond?", "Share 6 electrons?"], explanation: "False. Nitrogen has a <b>Triple Bond</b> (Order 3).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-                { id: "bh8", topic: "Formal", type: "BOND", text: "Formal Charge assumes equal sharing.", subs: ["Bookkeeping.", "Ignore electronegativity.", "Lewis structures."], explanation: "True. It ignores electronegativity differences.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "bh9", topic: "Coordinate", type: "BOND", text: "In NH<sub>4</sub><sup>+</sup>, H provides the shared e<sup>-</sup>.", subs: ["Ammonium.", "Dative bond.", "N gives lone pair?"], explanation: "False. Nitrogen provides the lone pair for the 4th bond.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 }
+                { id: "bh8", topic: "Organic", type: "BOND", text: "Methane (CH<sub>4</sub>) has bond angles of 90&deg;.", subs: ["Tetrahedral.", "Sp3 hybridization.", "109.5 degrees."], explanation: "False. Tetrahedral geometry implies 109.5&deg;.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "bh9", topic: "Coordinate", type: "BOND", text: "In NH<sub>4</sub><sup>+</sup>, H provides the shared e<sup>-</sup>.", subs: ["Ammonium.", "Dative bond.", "N gives lone pair?"], explanation: "False. Nitrogen provides the lone pair for the 4th bond.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "bh10", topic: "Metallic", type: "BOND", text: "Metals conduct due to 'sea of electrons'.", subs: ["Delocalized.", "Mobile charge.", "Free movement."], explanation: "True. Electrons move freely carrying charge.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 }
             ],
             SOLUTIONS_HARD: [
-                { id: "sh1", topic: "Colligative", type: "SOLN", text: "Adding Salt <b>decreases</b> boiling point.", subs: ["Vapor pressure lowering.", "BP Elevation.", "FP Depression."], explanation: "False. Solutes <b>elevate</b> the boiling point.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "sh1", topic: "Colligative", type: "SOLN", text: "Salt decreases water's boiling point.", subs: ["Vapor pressure lowering.", "BP Elevation.", "FP Depression."], explanation: "False. Solutes <b>elevate</b> the boiling point.", labels:["INCREASE", "DECREASE"], up:"Increase", down:"Decrease", correct:"down", w:2 },
                 { id: "sh2", topic: "Units", type: "SOLN", text: "Molarity (M) changes with temperature.", subs: ["M = mol/L.", "Volume expands with heat.", "Molality (m) is constant."], explanation: "True. Volume changes with T, so Molarity changes.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
                 { id: "sh3", topic: "Buffers", type: "SOLN", text: "Buffers resist changes in pH.", subs: ["Weak acid + conj base.", "Neutralization.", "Blood pH stability."], explanation: "True. They consume added H<sup>+</sup> or OH<sup>-</sup>.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "sh4", topic: "Solubility", type: "SOLN", text: "Gas solubility <b>increases</b> with heat.", subs: ["Warm soda goes flat.", "Kinetic energy.", "Gas escapes?"], explanation: "False. Gases are <b>less</b> soluble at high temps.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "sh4", topic: "Solubility", type: "SOLN", text: "Gas solubility increases with heat.", subs: ["Warm soda goes flat.", "Kinetic energy.", "Gas escapes?"], explanation: "False. Gases are <b>less</b> soluble at high temps.", labels:["INCREASE", "DECREASE"], up:"Increase", down:"Decrease", correct:"down", w:2 },
                 { id: "sh5", topic: "Factor", type: "SOLN", text: "Van't Hoff factor (i) for CaCl<sub>2</sub> is 3.", subs: ["Dissociation.", "Ca<sup>2+</sup> + 2Cl<sup>-</sup>.", "Count ions."], explanation: "True. 1 Ca + 2 Cl = 3 particles.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "sh6", topic: "Osmosis", type: "SOLN", text: "Water moves to <b>lower</b> solute concentration.", subs: ["Dilute to Concentrated.", "Osmotic pressure.", "Trying to equalize."], explanation: "False. Water moves to <b>HIGHER</b> solute concentration.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "sh6", topic: "Osmosis", type: "SOLN", text: "Water moves to lower solute concentration.", subs: ["Dilute to Concentrated.", "Osmotic pressure.", "Trying to equalize."], explanation: "False. Water moves to <b>HIGHER</b> solute concentration.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
                 { id: "sh8", topic: "Thermo", type: "SOLN", text: "Enthalpy (&Delta;H) is path independent.", subs: ["State function.", "Hess's Law.", "Route doesn't matter."], explanation: "True. It is a State Function.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "sh9", topic: "Equilibrium", type: "SOLN", text: "Adding product shifts equilibrium Right.", subs: ["Le Chatelier.", "Stress relief.", "Consume excess."], explanation: "False. It shifts <b>Left</b> to consume the excess product.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 }
+                { id: "sh9", topic: "Equilibrium", type: "SOLN", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Le_Chatelier_Principle.png/640px-Le_Chatelier_Principle.png", text: "Adding product shifts equilibrium Right.", subs: ["Le Chatelier.", "Stress relief.", "Consume excess."], explanation: "False. It shifts <b>Left</b> to consume the excess product.", labels:["RIGHT", "LEFT"], up:"Right", down:"Left", correct:"down", w:2 },
+                { id: "sh10", topic: "Electrolyte", type: "SOLN", text: "Strong electrolytes partially dissociate.", subs: ["Strong vs Weak.", "Full dissociation?", "Conductivity."], explanation: "False. Strong electrolytes fully dissociate.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "sh7", topic: "SuperSat", type: "SOLN", text: "Supersaturated solutions are unstable.", subs: ["More solute than max.", "Seed crystal.", "Precipitation."], explanation: "True. A seed crystal causes precipitation.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 }
             ]
         };
 
+        // --- INFINITE MODE ENGINE ---
+        const ELEMENTS = [
+            { sym: "H", name: "Hydrogen", group: 1, val: 1, metal: false },
+            { sym: "He", name: "Helium", group: 18, val: 8, metal: false },
+            { sym: "Li", name: "Lithium", group: 1, val: 1, metal: true },
+            { sym: "C", name: "Carbon", group: 14, val: 4, metal: false },
+            { sym: "N", name: "Nitrogen", group: 15, val: 5, metal: false },
+            { sym: "O", name: "Oxygen", group: 16, val: 6, metal: false },
+            { sym: "Na", name: "Sodium", group: 1, val: 1, metal: true },
+            { sym: "Cl", name: "Chlorine", group: 17, val: 7, metal: false },
+            { sym: "Fe", name: "Iron", group: 8, val: 2, metal: true }
+        ];
+
+        function generateQuestion() {
+            const type = Math.random() > 0.5 ? "METAL" : "VALENCE";
+            const el = ELEMENTS[Math.floor(Math.random() * ELEMENTS.length)];
+            
+            if (type === "METAL") {
+                return {
+                    id: "gen_" + Date.now(), topic: "Elements", type: "TABL",
+                    text: `Is <b>${el.name} (${el.sym})</b> a Metal?`,
+                    subs: [`Group ${el.group}.`, "Shiny/Conductive?", "Periodic Table side?"],
+                    explanation: `${el.name} is a ${el.metal ? "Metal" : "Non-metal"}.`,
+                    labels: ["YES", "NO"], up: "Yes", down: "No", correct: el.metal ? "up" : "down", w: 1
+                };
+            } else {
+                const guess = Math.random() > 0.5 ? el.val : (el.val + 1);
+                const isCorrect = (guess === el.val);
+                return {
+                    id: "gen_" + Date.now(), topic: "Valence", type: "TABL",
+                    text: `${el.name} has <b>${guess}</b> valence electrons.`,
+                    subs: [`Group ${el.group}.`, "Outer shell count.", "Octet rule."],
+                    explanation: `${el.name} is in Group ${el.group}, so it has ${el.val} valence e-.`,
+                    labels: ["TRUE", "FALSE"], up: "True", down: "False", correct: isCorrect ? "up" : "down", w: 1
+                };
+            }
+        }
+
         const APP = {
-            deck: [], idx: 0, answers: {}, activeEl: null, reviewDeck: [], reviewIdx: 0,
+            deck: [], idx: 0, answers: {}, activeEl: null, reviewDeck: [], reviewIdx: 0, mode: '',
 
             start(key) {
-                this.deck = [...DECKS[key]]; this.idx=0; this.answers={}; this.reviewDeck=[];
+                this.mode = key; this.idx = 0; this.answers = {}; this.reviewDeck = [];
+                if (key === 'INFINITE') {
+                    this.deck = [];
+                    for(let i=0; i<5; i++) this.deck.push(generateQuestion());
+                } else {
+                    this.deck = [...DECKS[key] || DECKS['CORE']];
+                }
                 document.getElementById('view-start').classList.remove('active');
                 document.getElementById('view-summary').classList.remove('active');
                 document.getElementById('view-game').classList.add('active');
@@ -350,18 +406,23 @@
             },
 
             render() {
+                if (this.mode === 'INFINITE' && (this.deck.length - this.idx) < 3) this.deck.push(generateQuestion());
+                
                 const stack = document.getElementById('card-stack'); stack.innerHTML='';
-                if(this.idx>=this.deck.length) return this.finish();
+                if (this.mode !== 'INFINITE' && this.idx >= this.deck.length) return this.finish();
+
                 const buffer = this.deck.slice(this.idx, this.idx + 2).reverse();
                 buffer.forEach((q,i)=>{
                     const realIdx = this.idx + (buffer.length - 1 - i);
-                    const el = document.createElement('div'); el.className='card';
+                    const el = document.createElement('div'); el.className = 'card';
                     
+                    if (q.isContext) el.classList.add('context-card');
+
                     let subHTML = `<ul class="card-list">`;
                     if(q.subs) q.subs.forEach(s=>subHTML+=`<li>${s}</li>`);
                     subHTML+=`</ul>`;
 
-                    el.innerHTML = `<p>${q.text}</p>${subHTML}<div class="card-id">${q.id}</div>`;
+                    el.innerHTML = `<p>${q.text}</p>${subHTML}<div class="card-id">${q.isContext ? "CONTEXT" : q.id}</div>`;
                     
                     if(realIdx===this.idx) { el.style.zIndex=100; this.activeEl=el; PHYSICS.bind(el); }
                     else { el.style.zIndex=90; el.style.transform='translate(-50%,-50%) scale(0.95) translateY(20px)'; el.style.opacity=0.5; }
@@ -372,13 +433,15 @@
 
             updateUI() {
                 const q = this.deck[this.idx];
-                document.getElementById('ui-topic').textContent=q.topic;
-                document.getElementById('ui-type').textContent=q.type;
-                document.getElementById('ui-progress').style.width=((this.idx/this.deck.length)*100)+'%';
-                document.getElementById('lbl-up').textContent=q.up;
-                document.getElementById('lbl-down').textContent=q.down;
-                document.getElementById('lbl-left').textContent=q.left;
-                document.getElementById('lbl-right').textContent=q.right;
+                document.getElementById('ui-topic').textContent = q.topic;
+                document.getElementById('ui-type').textContent = q.type;
+                
+                let pct = this.mode === 'INFINITE' ? 100 : ((this.idx/this.deck.length)*100);
+                document.getElementById('ui-progress').style.width = `${pct}%`;
+
+                const labels = q.labels || ["TRUE", "FALSE"];
+                document.getElementById('lbl-up').textContent = q.isContext ? "GOT IT" : labels[0];
+                document.getElementById('lbl-down').textContent = q.isContext ? "SKIP" : labels[1];
             },
 
             finish() {
@@ -386,19 +449,18 @@
                 document.getElementById('view-summary').classList.add('active');
                 const score = Object.values(this.answers).reduce((a,b)=>a+b.score,0);
                 const mistakes = Object.values(this.answers).filter(a=>!a.correct && a.dir!=='left');
-                document.getElementById('chart-score').textContent=score;
+                document.getElementById('chart-score').textContent = score;
                 this.renderChart();
                 if(mistakes.length>0) {
                     document.getElementById('review-cta').classList.remove('hidden');
                     this.reviewDeck = mistakes.map(a=>a.q);
                 }
-                
-                // DATA SYNC
-                if(API_URL && API_URL.startsWith("http")) {
-                    fetch(API_URL, {
-                        method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'},
-                        body:JSON.stringify({answers:this.answers, score, timestamp:new Date().toISOString()})
-                    });
+                if(CONFIG.API_URL.startsWith('http')) {
+                    document.getElementById('debug-log').textContent = "Syncing...";
+                    fetch(CONFIG.API_URL, { 
+                        method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, 
+                        body:JSON.stringify({answers:this.answers, score, timestamp:new Date().toISOString()}) 
+                    }).then(() => document.getElementById('debug-log').textContent="Synced");
                 }
             },
 
@@ -417,13 +479,22 @@
                 chart.style.background = `conic-gradient(${grad.join(', ')})`;
             },
 
+            injectContext() {
+                const currentQ = this.deck[this.idx];
+                const contextCard = {
+                    id: "ctx_" + currentQ.id, topic: "Deep Dive", type: "INFO",
+                    text: `Context: ${currentQ.explanation}`, subs: ["Swipe UP to continue."],
+                    isContext: true, labels: ["GOT IT", "SKIP"], up: "Got It", down: "Skip", correct: "up", w: 0
+                };
+                this.deck.splice(this.idx + 1, 0, contextCard);
+            },
+
             startReview() {
                 this.reviewIdx=0;
                 document.getElementById('view-summary').classList.remove('active');
                 document.getElementById('view-review').classList.add('active');
                 this.renderReview();
             },
-
             renderReview() {
                 if(this.reviewIdx>=this.reviewDeck.length) {
                     document.getElementById('view-review').classList.remove('active');
@@ -433,16 +504,14 @@
                 const q = this.reviewDeck[this.reviewIdx];
                 const box = document.getElementById('rev-q-box');
                 const existing = box.querySelector('img'); if(existing) existing.remove();
-                
                 if(q.image) {
                     const img = document.createElement('img'); img.src=q.image; img.className='rev-img';
                     box.insertBefore(img, document.getElementById('rev-q'));
                 }
-                document.getElementById('rev-q').innerHTML=q.text; // Use innerHTML for formatting
+                document.getElementById('rev-q').innerHTML=q.text;
                 document.getElementById('rev-sol').innerHTML=q.explanation;
                 document.getElementById('rev-count').textContent=`${this.reviewIdx+1} / ${this.reviewDeck.length}`;
             },
-
             nextReview() { this.reviewIdx++; this.renderReview(); }
         };
 
@@ -454,7 +523,8 @@
             end(e) { if(!this.dragging) return; this.dragging=false; window.removeEventListener('touchmove',this.move.bind(this)); window.removeEventListener('mousemove',this.move.bind(this)); window.removeEventListener('touchend',this.end.bind(this)); window.removeEventListener('mouseup',this.end.bind(this)); const dx=(e.changedTouches?e.changedTouches[0]:e).clientX-this.startX; const dy=(e.changedTouches?e.changedTouches[0]:e).clientY-this.startY; if(Math.abs(dy)>CONFIG.THRESHOLD && Math.abs(dy)>Math.abs(dx)) this.commit(dy<0?'up':'down'); else if(Math.abs(dx)>CONFIG.THRESHOLD) this.commit(dx>0?'right':'left'); else this.reset(); },
             feedback(dx, dy) { const ax=Math.abs(dx), ay=Math.abs(dy); let color='', cls=''; if(ay>ax) { color=dy<0?CONFIG.COLORS.UP:CONFIG.COLORS.DOWN; cls=dy<0?'up':'down'; } else { color=dx>0?CONFIG.COLORS.RIGHT:CONFIG.COLORS.LEFT; cls=dx>0?'right':'left'; } const intense = Math.min(Math.max(ax, ay)/CONFIG.THRESHOLD, 1); this.overlay.style.backgroundColor=color; this.overlay.style.opacity=intense*0.5; document.querySelectorAll('.ctrl').forEach(c=>{ c.classList.remove('active'); c.style.color=''; }); if(intense>0.2) { const btn=document.querySelector(`.ctrl.${cls}`); btn.classList.add('active'); btn.style.color=color; } },
             reset() { this.el.style.transition='transform 0.3s cubic-bezier(0.2,0.8,0.2,1)'; this.el.style.transform='translate(-50%,-50%)'; this.overlay.style.opacity=0; document.querySelectorAll('.ctrl').forEach(c=>{ c.classList.remove('active'); c.style.color=''; }); },
-            commit(dir) { const q=APP.deck[APP.idx]; const score=dir===q.correct?10*q.w:(dir==='left'?0:-5); APP.answers[q.id]={dir,score,correct:dir===q.correct,q}; let tx=0, ty=0; const d=800; if(dir==='up') ty=-d; if(dir==='down') ty=d; if(dir==='left') tx=-d; if(dir==='right') tx=d; this.el.style.transition='transform 0.4s ease-in'; this.el.style.transform=`translate(-50%,-50%) translate(${tx}px,${ty}px) rotate(${tx*0.1}deg)`; this.overlay.style.opacity=0; document.querySelectorAll('.ctrl').forEach(c=>{ c.classList.remove('active'); c.style.color=''; }); setTimeout(()=>{ this.el.remove(); APP.idx++; APP.render(); },300); }
+            commit(dir) { const q=APP.deck[APP.idx]; if(dir==='left' && !q.isContext) { APP.injectContext(); this.flyAway(dir); return; } const score=dir===q.correct?10*q.w:(dir==='left'?0:-5); if(!q.isContext) APP.answers[q.id]={dir,score,correct:dir===q.correct,q}; this.flyAway(dir); },
+            flyAway(dir) { let tx=0, ty=0; const d=800; if(dir==='up') ty=-d; if(dir==='down') ty=d; if(dir==='left') tx=-d; if(dir==='right') tx=d; this.el.style.transition='transform 0.4s ease-in'; this.el.style.transform=`translate(-50%,-50%) translate(${tx}px,${ty}px) rotate(${tx*0.1}deg)`; this.overlay.style.opacity=0; document.querySelectorAll('.ctrl').forEach(c=>{ c.classList.remove('active'); c.style.color=''; }); setTimeout(()=>{ this.el.remove(); APP.idx++; APP.render(); },300); }
         };
 
         document.body.addEventListener('touchmove', e => e.preventDefault(), {passive:false});
