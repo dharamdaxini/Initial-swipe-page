@@ -43,20 +43,23 @@
         .legend {
             display: flex;
             justify-content: space-around;
-            padding: 1rem;
+            padding: 1.5rem 1rem;
             font-size: 0.75rem;
             color: var(--color-subtext);
             text-transform: uppercase;
             letter-spacing: 0.05em;
             font-weight: 600;
             z-index: 10;
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
         }
 
         .legend-item .icon {
             display: block;
             text-align: center;
             font-size: 1.2rem;
-            margin-bottom: 2px;
+            margin-bottom: 4px;
         }
 
         /* --- APP CONTAINER --- */
@@ -70,14 +73,15 @@
             width: 100%;
             max-width: 480px;
             margin: 0 auto;
+            padding-bottom: 4rem; /* Balance visual weight without buttons */
         }
 
         /* --- CARD STACK --- */
         #card-stack {
             position: relative;
-            width: 90%;
+            width: 85%;
             aspect-ratio: 3/4;
-            max-height: 60svh;
+            max-height: 65svh;
         }
 
         .card {
@@ -87,13 +91,13 @@
             width: 100%;
             height: 100%;
             background: var(--color-card);
-            border-radius: 16px;
+            border-radius: 20px;
             box-shadow: var(--shadow-card);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 2rem;
+            padding: 2.5rem;
             text-align: center;
             cursor: grab;
             touch-action: none;
@@ -105,47 +109,20 @@
         .card:active { cursor: grabbing; }
 
         .card h3 {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             text-transform: uppercase;
             color: var(--color-subtext);
-            margin-bottom: 1rem;
-            letter-spacing: 0.1em;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.15em;
+            font-weight: 700;
         }
 
         .card p {
-            font-size: 1.25rem;
-            line-height: 1.5;
+            font-size: 1.35rem;
+            line-height: 1.6;
             font-weight: 500;
+            color: var(--color-text);
         }
-
-        /* --- CONTROLS --- */
-        .controls {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 2rem;
-            width: 90%;
-            justify-content: space-between;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 12px 0;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-            background: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: transform 0.1s, background 0.2s;
-        }
-
-        .btn:active { transform: scale(0.96); }
-
-        .btn-skip { color: var(--color-skip); border: 1px solid var(--color-skip); }
-        .btn-false { color: var(--color-false); border: 1px solid var(--color-false); }
-        .btn-plausible { color: var(--color-plausible); border: 1px solid var(--color-plausible); }
-        .btn-true { color: var(--color-true); border: 1px solid var(--color-true); }
 
         /* --- SUMMARY VIEW --- */
         #summary-view {
@@ -174,15 +151,17 @@
             margin-bottom: 0.75rem;
             border-radius: 8px;
             font-size: 0.9rem;
-            border-left: 4px solid transparent;
+            border-left: 5px solid transparent;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
         .confirmation-zone {
-            height: 150px;
+            height: 140px;
             display: flex;
             justify-content: center;
             align-items: center;
             position: relative;
+            margin-bottom: 1rem;
         }
 
         #confirmation-card {
@@ -190,7 +169,7 @@
             height: 100%;
             background: #1e293b;
             color: white;
-            border-radius: 12px;
+            border-radius: 16px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -198,6 +177,7 @@
             box-shadow: var(--shadow-card);
             touch-action: none;
             position: absolute;
+            cursor: grab;
         }
 
         .confirm-legend {
@@ -205,8 +185,10 @@
             justify-content: space-between;
             width: 80%;
             margin-top: 1rem;
-            font-size: 0.8rem;
-            opacity: 0.7;
+            font-size: 0.75rem;
+            opacity: 0.6;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .hidden { display: none; }
@@ -223,21 +205,14 @@
 
     <main id="app-container">
         <div id="card-stack" aria-live="polite"></div>
-
-        <nav class="controls">
-            <button class="btn btn-skip" data-action="left">Skip</button>
-            <button class="btn btn-false" data-action="down">Reject</button>
-            <button class="btn btn-plausible" data-action="right">Plausible</button>
-            <button class="btn btn-true" data-action="up">Accept</button>
-        </nav>
     </main>
 
     <section id="summary-view" class="hidden">
-        <h2>Session Summary</h2>
+        <h2 style="font-size:1.2rem; margin-bottom:1.5rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-subtext);">Session Summary</h2>
         <div id="summary-list"></div>
         <div class="confirmation-zone">
             <div id="confirmation-card">
-                <p><strong>SWIPE TO FINALIZE</strong></p>
+                <p style="font-weight:600; font-size:1.1rem;">SWIPE TO FINALIZE</p>
                 <div class="confirm-legend">
                     <span>← Cancel</span>
                     <span>Submit →</span>
@@ -263,7 +238,7 @@
             answers: {},
             activeCard: null,
             startX: 0, startY: 0, currentX: 0, currentY: 0,
-            threshold: 100,
+            threshold: 100, // Distance required to commit
             timestampStart: new Date().toISOString()
         };
 
@@ -274,14 +249,14 @@
 
         function init() {
             renderStack();
+            // Removed button listeners
+            // Kept keyboard listeners for debugging/desktop
             attachKeyboardListeners();
-            attachButtonListeners();
         }
 
         function renderStack() {
             stackEl.innerHTML = '';
             [...QUESTIONS].reverse().forEach((q, index) => {
-                const trueIndex = QUESTIONS.length - 1 - index;
                 const card = document.createElement('div');
                 card.classList.add('card');
                 card.style.zIndex = QUESTIONS.length - index;
@@ -293,7 +268,7 @@
         }
 
         function updateTopCard() {
-            const topCard = stackEl.lastElementChild; // Last element is visually on top due to reverse render
+            const topCard = stackEl.lastElementChild;
             if (topCard && APP.currentIndex < QUESTIONS.length) {
                 APP.activeCard = topCard;
                 topCard.style.pointerEvents = 'auto';
@@ -315,7 +290,6 @@
             APP.startY = e.clientY;
             APP.activeCard.style.transition = 'none';
 
-            // FIXED: Using APP.activeCard instead of undefined 'card' variable
             APP.activeCard.addEventListener('pointermove', handlePointerMove);
             APP.activeCard.addEventListener('pointerup', handlePointerUp);
             APP.activeCard.addEventListener('pointercancel', handlePointerUp);
@@ -328,6 +302,7 @@
             APP.currentX = deltaX;
             APP.currentY = deltaY;
             
+            // Rotation adds physical feel
             const rotate = deltaX * 0.05;
             APP.activeCard.style.transform = `translate(${deltaX}px, ${deltaY}px) rotate(${rotate}deg)`;
             updateVisualFeedback(deltaX, deltaY);
@@ -336,19 +311,29 @@
         function updateVisualFeedback(dx, dy) {
             const absX = Math.abs(dx), absY = Math.abs(dy);
             let color = '';
+            
+            // Prioritize the dominant axis
             if (absY > absX) {
+                // Vertical (Up/Down)
                 color = dy < 0 ? 'var(--color-true)' : 'var(--color-false)';
             } else {
+                // Horizontal (Left/Right)
                 color = dx > 0 ? 'var(--color-plausible)' : 'var(--color-skip)';
             }
-            APP.activeCard.style.boxShadow = `0 0 20px ${color}`;
+            
+            // Only show glow if moving significantly
+            const opacity = Math.min((Math.max(absX, absY) / APP.threshold), 1);
+            if (opacity > 0.2) {
+                APP.activeCard.style.boxShadow = `0 0 30px ${color}`;
+            } else {
+                APP.activeCard.style.boxShadow = 'var(--shadow-card)';
+            }
         }
 
         function handlePointerUp(e) {
             if (APP.currentState !== STATE.DRAGGING) return;
             APP.currentState = STATE.ANIMATING;
             
-            // Cleanup listeners
             APP.activeCard.removeEventListener('pointermove', handlePointerMove);
             APP.activeCard.removeEventListener('pointerup', handlePointerUp);
             APP.activeCard.removeEventListener('pointercancel', handlePointerUp);
@@ -357,14 +342,19 @@
             const absX = Math.abs(dx), absY = Math.abs(dy);
             
             let decision = null;
-            if (absY > absX && absY > APP.threshold) decision = dy < 0 ? 'up' : 'down';
-            else if (absX > absY && absX > APP.threshold) decision = dx > 0 ? 'right' : 'left';
+            
+            // Logic: Must exceed threshold AND be the dominant axis
+            if (absY > absX && absY > APP.threshold) {
+                decision = dy < 0 ? 'up' : 'down';
+            } else if (absX > absY && absX > APP.threshold) {
+                decision = dx > 0 ? 'right' : 'left';
+            }
             
             decision ? commitSwipe(decision) : resetCard();
         }
 
         function resetCard() {
-            APP.activeCard.style.transition = 'transform 0.3s ease-out, box-shadow 0.2s';
+            APP.activeCard.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s';
             APP.activeCard.style.transform = 'translate(0, 0) rotate(0)';
             APP.activeCard.style.boxShadow = 'var(--shadow-card)';
             setTimeout(() => APP.currentState = STATE.IDLE, 300);
@@ -375,8 +365,8 @@
             APP.answers[qId] = direction;
             
             let transX = 0, transY = 0;
-            if (direction === 'up') transY = -1000;
-            if (direction === 'down') transY = 1000;
+            if (direction === 'up') transY = -1200;
+            if (direction === 'down') transY = 1200;
             if (direction === 'left') transX = -1000;
             if (direction === 'right') transX = 1000;
             
@@ -388,17 +378,7 @@
                 APP.currentIndex++;
                 APP.currentState = STATE.IDLE;
                 updateTopCard();
-            }, 400);
-        }
-
-        function attachButtonListeners() {
-            document.querySelectorAll('.btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    if (APP.currentState !== STATE.IDLE || !APP.activeCard) return;
-                    APP.currentState = STATE.ANIMATING;
-                    commitSwipe(e.target.dataset.action);
-                });
-            });
+            }, 350);
         }
 
         function attachKeyboardListeners() {
@@ -415,16 +395,18 @@
         function finishDeck() {
             APP.currentState = STATE.SUMMARY;
             document.getElementById('app-container').style.display = 'none';
+            document.querySelector('.legend').style.display = 'none'; // Hide main legend
+
             const mapping = { up: "ACCEPTED", down: "REJECTED", right: "PLAUSIBLE", left: "SKIPPED" };
             const colors = { up: "var(--color-true)", down: "var(--color-false)", right: "var(--color-plausible)", left: "var(--color-skip)" };
             
             summaryList.innerHTML = QUESTIONS.map(q => {
                 const c = APP.answers[q.id];
-                return `<div class="summary-item" style="border-left-color: ${colors[c]}"><strong>${q.type}</strong><br>${q.text}<br><span style="color:${colors[c]}">${mapping[c]}</span></div>`;
+                return `<div class="summary-item" style="border-left-color: ${colors[c]}"><strong>${q.type}</strong><br>${q.text}<br><span style="color:${colors[c]}; font-weight:700; font-size:0.8rem; margin-top:0.5rem; display:block;">${mapping[c]}</span></div>`;
             }).join('');
             
             summaryView.classList.remove('hidden');
-            setTimeout(() => summaryView.classList.add('visible'), 10);
+            setTimeout(() => summaryView.classList.add('visible'), 50);
             initConfirmationSwipe();
         }
 
@@ -459,11 +441,21 @@
         }
 
         function submitData() {
+            const payload = {
+                answers: APP.answers,
+                device: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+                timestamp: new Date().toISOString(),
+                duration_ms: new Date() - new Date(APP.timestampStart)
+            };
+            console.log("--- SUBMISSION PAYLOAD ---", payload);
+
             confirmCard.innerHTML = "<h3>SUBMITTED</h3>";
             confirmCard.style.background = "#22c55e";
             confirmCard.style.transform = "translateX(0)";
+            confirmCard.style.cursor = "default";
         }
 
+        // Boot
         init();
     </script>
 </body>
