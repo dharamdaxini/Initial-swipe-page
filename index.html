@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Strategic Convergence 2026</title>
+    <meta name="description" content="Intelligence-grade situational awareness test.">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="legend">
+        <div class="legend-item"><span class="icon">↑</span> True</div>
+        <div class="legend-item"><span class="icon">→</span> Plausible</div>
+        <div class="legend-item"><span class="icon">↓</span> False</div>
+        <div class="legend-item"><span class="icon">←</span> Skip</div>
+    </header>
+
+    <main id="app-container">
+        
+        <div id="card-stack" aria-live="polite">
+            </div>
+
+        <nav class="controls">
+            <button class="btn btn-skip" data-action="left" aria-label="Skip (Left)">Skip</button>
+            <button class="btn btn-false" data-action="down" aria-label="Reject (Down)">Reject</button>
+            <button class="btn btn-plausible" data-action="right" aria-label="Plausible (Right)">Plausible</button>
+            <button class="btn btn-true" data-action="up" aria-label="Accept (Up)">Accept</button>
+        </nav>
+
+    </main>
+
+    <section id="summary-view" class="hidden" aria-hidden="true">
+        <h2>Session Summary</h2>
+        <div id="summary-list"></div>
+        
+        <div class="confirmation-zone">
+            <div id="confirmation-card">
+                <p><strong>SWIPE TO FINALIZE</strong></p>
+                <div class="confirm-legend">
+                    <span>← Cancel</span>
+                    <span>Submit →</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>

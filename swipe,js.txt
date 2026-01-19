@@ -1,0 +1,366 @@
+/**
+ * SENIOR FRONTEND SYSTEMS ENGINEER
+ * TOPIC: India’s Strategic Convergence – January 2026
+ * ARCHITECTURE: Finite State Machine (FSM)
+ */
+
+/* --- DATA MODEL --- */
+
+const QUESTIONS = [
+    {
+        id: "q1_fact",
+        type: "FACT RECALL",
+        text: "The Dholera semiconductor fabrication facility is fully operational and shipping commercial wafers to domestic automotive partners.",
+        correct: "up" // Factually true by Jan 2026 projection
+    },
+    {
+        id: "q2_context",
+        type: "CONTEXT",
+        text: "The integration of the Unified Logistics Interface Platform (ULIP) has successfully decoupled India's supply chain efficiency from crude oil price volatility.",
+        correct: "right" // Plausible/Partially true, but decoupling is strong word
+    },
+    {
+        id: "q3_causal",
+        type: "REASONING",
+        text: "Recent INR bilateral trade settlements with Gulf nations are driven primarily by a strategic mandate to bypass SWIFT, rather than organic economic demand.",
+        correct: "right" // Nuanced: It's both, but strategic mandate is a heavy driver.
+    },
+    {
+        id: "q4_global",
+        type: "COMPARATIVE",
+        text: "India’s Digital Public Infrastructure (DPI) export volume to the Global South now exceeds the value of its physical infrastructure lines of credit.",
+        correct: "up" // High probability trend by 2026
+    },
+    {
+        id: "q5_trap",
+        type: "MISINFORMATION",
+        text: "Following the 2025 review, the Indian Rupee was officially inducted into the IMF Special Drawing Rights (SDR) basket.",
+        correct: "down" // False. Aspiration exists, but criteria not met by Jan 2026.
+    }
+];
+
+/* --- STATE MANAGEMENT --- */
+
+const STATE = {
+    IDLE: 'IDLE',
+    DRAGGING: 'DRAGGING',
+    ANIMATING: 'ANIMATING',
+    SUMMARY: 'SUMMARY'
+};
+
+const APP = {
+    currentState: STATE.IDLE,
+    currentIndex: 0,
+    answers: {}, // Stores qId: decision
+    activeCard: null,
+    startX: 0,
+    startY: 0,
+    currentX: 0,
+    currentY: 0,
+    threshold: 100, // px to commit
+    timestampStart: null
+};
+
+/* --- DOM ELEMENTS --- */
+const stackEl = document.getElementById('card-stack');
+const summaryView = document.getElementById('summary-view');
+const summaryList = document.getElementById('summary-list');
+const confirmCard = document.getElementById('confirmation-card');
+
+/* --- INITIALIZATION --- */
+
+function init() {
+    APP.timestampStart = new Date().toISOString();
+    renderStack();
+    attachKeyboardListeners();
+    attachButtonListeners();
+}
+
+/* --- RENDER LOGIC --- */
+
+function renderStack() {
+    stackEl.innerHTML = '';
+    // Render in reverse order so first index is on top visually
+    [...QUESTIONS].reverse().forEach((q, index) => {
+        const trueIndex = QUESTIONS.length - 1 - index;
+        const card = createCardElement(q, trueIndex);
+        stackEl.appendChild(card);
+    });
+    updateTopCard();
+}
+
+function createCardElement(question, index) {
+    const el = document.createElement('div');
+    el.classList.add('card');
+    el.style.zIndex = QUESTIONS.length - index;
+    el.dataset.index = index;
+    el.innerHTML = `
+        <h3>${question.type}</h3>
+        <p>${question.text}</p>
+    `;
+    return el;
+}
+
+function updateTopCard() {
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(c => c.style.pointerEvents = 'none'); // Disable background cards
+    
+    const topCard = stackEl.querySelector(`.card[data-index="${APP.currentIndex}"]`);
+    if (topCard) {
+        APP.activeCard = topCard;
+        topCard.style.pointerEvents = 'auto';
+        attachPointerEvents(topCard);
+    } else {
+        finishDeck();
+    }
+}
+
+/* --- SWIPE PHYSICS & LOGIC --- */
+
+function attachPointerEvents(card) {
+    card.addEventListener('pointerdown', handlePointerDown);
+}
+
+function handlePointerDown(e) {
+    if (APP.currentState !== STATE.IDLE) return;
+    
+    APP.currentState = STATE.DRAGGING;
+    APP.activeCard.setPointerCapture(e.pointerId);
+    
+    APP.startX = e.clientX;
+    APP.startY = e.clientY;
+    
+    APP.activeCard.style.transition = 'none'; // Remove transition for 1:1 movement
+    
+    card.addEventListener('pointermove', handlePointerMove);
+    card.addEventListener('pointerup', handlePointerUp);
+    card.addEventListener('pointercancel', handlePointerUp);
+}
+
+function handlePointerMove(e) {
+    if (APP.currentState !== STATE.DRAGGING) return;
+
+    const deltaX = e.clientX - APP.startX;
+    const deltaY = e.clientY - APP.startY;
+    
+    APP.currentX = deltaX;
+    APP.currentY = deltaY;
+
+    // Rotation logic based on X movement
+    const rotate = deltaX * 0.05;
+
+    APP.activeCard.style.transform = `translate(${deltaX}px, ${deltaY}px) rotate(${rotate}deg)`;
+
+    // Visual Feedback (Background Color/Opacity)
+    updateVisualFeedback(deltaX, deltaY);
+}
+
+function updateVisualFeedback(dx, dy) {
+    // Determine dominant axis
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
+    
+    let color = '';
+    let opacity = 0;
+
+    if (absY > absX) {
+        // Vertical Swipe
+        if (dy < 0) { color = 'var(--color-true)'; } // UP
+        else { color = 'var(--color-false)'; } // DOWN
+        opacity = Math.min(absY / (APP.threshold * 1.5), 0.6);
+    } else {
+        // Horizontal Swipe
+        if (dx > 0) { color = 'var(--color-plausible)'; } // RIGHT
+        else { color = 'var(--color-skip)'; } // LEFT
+        opacity = Math.min(absX / (APP.threshold * 1.5), 0.6);
+    }
+
+    APP.activeCard.style.boxShadow = `0 0 20px ${color}`;
+}
+
+function handlePointerUp(e) {
+    if (APP.currentState !== STATE.DRAGGING) return;
+    
+    APP.currentState = STATE.ANIMATING;
+    APP.activeCard.removeEventListener('pointermove', handlePointerMove);
+    APP.activeCard.removeEventListener('pointerup', handlePointerUp);
+    
+    const dx = APP.currentX;
+    const dy = APP.currentY;
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
+
+    // Decision Logic
+    let decision = null;
+
+    if (absY > absX && absY > APP.threshold) {
+        decision = dy < 0 ? 'up' : 'down';
+    } else if (absX > absY && absX > APP.threshold) {
+        decision = dx > 0 ? 'right' : 'left';
+    }
+
+    if (decision) {
+        commitSwipe(decision);
+    } else {
+        resetCard();
+    }
+}
+
+function resetCard() {
+    APP.activeCard.style.transition = 'transform 0.3s ease-out, box-shadow 0.2s';
+    APP.activeCard.style.transform = 'translate(0, 0) rotate(0)';
+    APP.activeCard.style.boxShadow = 'var(--shadow-card)';
+    
+    setTimeout(() => {
+        APP.currentState = STATE.IDLE;
+    }, 300);
+}
+
+function commitSwipe(direction) {
+    const qId = QUESTIONS[APP.currentIndex].id;
+    APP.answers[qId] = direction;
+
+    // Animation vectors
+    let transX = 0, transY = 0;
+    switch(direction) {
+        case 'up': transY = -1000; break;
+        case 'down': transY = 1000; break;
+        case 'left': transX = -1000; break;
+        case 'right': transX = 1000; break;
+    }
+
+    APP.activeCard.style.transition = 'transform 0.4s ease-in';
+    APP.activeCard.style.transform = `translate(${transX}px, ${transY}px) rotate(${transX * 0.05}deg)`;
+
+    setTimeout(() => {
+        APP.activeCard.remove();
+        APP.currentIndex++;
+        APP.currentState = STATE.IDLE;
+        updateTopCard();
+    }, 400);
+}
+
+/* --- FALLBACK CONTROLS --- */
+
+function attachButtonListeners() {
+    document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            if (APP.currentState !== STATE.IDLE) return;
+            const action = e.target.dataset.action;
+            if (APP.activeCard) {
+                // Simulate visual start then commit
+                APP.currentState = STATE.ANIMATING;
+                commitSwipe(action);
+            }
+        });
+    });
+}
+
+function attachKeyboardListeners() {
+    document.addEventListener('keydown', (e) => {
+        if (APP.currentState !== STATE.IDLE || !APP.activeCard) return;
+        
+        const keyMap = {
+            'ArrowUp': 'up',
+            'ArrowDown': 'down',
+            'ArrowLeft': 'left',
+            'ArrowRight': 'right'
+        };
+
+        if (keyMap[e.key]) {
+            APP.currentState = STATE.ANIMATING;
+            commitSwipe(keyMap[e.key]);
+        }
+    });
+}
+
+/* --- SUMMARY & CONFIRMATION --- */
+
+function finishDeck() {
+    APP.currentState = STATE.SUMMARY;
+    document.getElementById('app-container').style.display = 'none'; // Hide stack
+    
+    // Generate Summary List
+    const mapping = { up: "ACCEPTED", down: "REJECTED", right: "PLAUSIBLE", left: "SKIPPED" };
+    const colors = { up: "var(--color-true)", down: "var(--color-false)", right: "var(--color-plausible)", left: "var(--color-skip)" };
+
+    summaryList.innerHTML = QUESTIONS.map(q => {
+        const choice = APP.answers[q.id];
+        return `
+            <div class="summary-item" style="border-left-color: ${colors[choice]}">
+                <strong>${q.type}:</strong> ${q.text}<br>
+                <span style="color:${colors[choice]}; font-weight:bold; font-size:0.8rem; margin-top:5px; display:block;">
+                    DECISION: ${mapping[choice]}
+                </span>
+            </div>
+        `;
+    }).join('');
+
+    summaryView.classList.remove('hidden');
+    setTimeout(() => summaryView.classList.add('visible'), 10); // Fade in
+    
+    initConfirmationSwipe();
+}
+
+/* --- CONFIRMATION SWIPE LOGIC --- */
+
+function initConfirmationSwipe() {
+    let startX = 0;
+    
+    confirmCard.addEventListener('pointerdown', (e) => {
+        startX = e.clientX;
+        confirmCard.setPointerCapture(e.pointerId);
+        confirmCard.style.transition = 'none';
+        
+        confirmCard.onpointermove = (ev) => {
+            const dx = ev.clientX - startX;
+            confirmCard.style.transform = `translateX(${dx}px)`;
+            
+            // Visual cues
+            if (dx > 50) confirmCard.style.background = '#22c55e'; // Green submit
+            else if (dx < -50) confirmCard.style.background = '#ef4444'; // Red cancel
+            else confirmCard.style.background = '#1e293b';
+        };
+        
+        confirmCard.onpointerup = (ev) => {
+            const dx = ev.clientX - startX;
+            confirmCard.onpointermove = null;
+            confirmCard.onpointerup = null;
+            
+            if (dx > 100) {
+                // Submit
+                confirmCard.style.transform = `translateX(100vw)`;
+                submitData();
+            } else if (dx < -100) {
+                // Cancel/Reload
+                confirmCard.style.transform = `translateX(-100vw)`;
+                location.reload();
+            } else {
+                // Snap back
+                confirmCard.style.transition = 'transform 0.3s ease, background 0.3s';
+                confirmCard.style.transform = `translateX(0)`;
+                confirmCard.style.background = '#1e293b';
+            }
+        };
+    });
+}
+
+function submitData() {
+    const payload = {
+        answers: APP.answers,
+        device: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+        timestamp: new Date().toISOString(),
+        duration_ms: new Date() - new Date(APP.timestampStart)
+    };
+
+    console.log("--- SUBMISSION PAYLOAD ---");
+    console.log(JSON.stringify(payload, null, 2));
+    
+    // UI Feedback
+    confirmCard.innerHTML = "<h3>SUBMITTED</h3>";
+    confirmCard.style.background = "#22c55e";
+    confirmCard.style.transform = "translateX(0)";
+}
+
+// Start
+init();
