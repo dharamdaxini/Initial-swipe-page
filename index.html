@@ -6,30 +6,34 @@
     <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Chemistry Master: Ultimate Monolith</title>
+    <title>Chemistry Master: Monolith V26</title>
 
     <style>
-        /* 1. ASSETS */
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&family=Inter:wght@400;600;700;800&display=swap');
 
-        /* 2. UI TOKENS (Strict V15 Dark Mode) */
         :root {
+            /* Backgrounds */
             --bg-void: #000000;       
             --bg-card: #ffffff;       
+            
+            /* Typography */
             --text-main: #111111;     
             --text-sub: #4b5563;      
+            --text-light: #ffffff;
             --accent-blue: #3b82f6;   
-            
+
+            /* Logic Signals */
             --green: #22c55e;
             --red: #ef4444;
             --yellow: #eab308;
             --grey: #374151;
 
+            /* Dimensions */
             --card-w: 90vw;
             --card-max: 380px;
         }
 
-        /* 3. RESET */
+        /* RESET */
         *, *::before, *::after {
             box-sizing: border-box; margin: 0; padding: 0;
             -webkit-tap-highlight-color: transparent;
@@ -38,7 +42,7 @@
 
         body {
             background-color: var(--bg-void);
-            color: #ffffff;
+            color: var(--text-light);
             font-family: 'Inter', -apple-system, sans-serif;
             height: 100svh; width: 100vw;
             overflow: hidden;
@@ -54,13 +58,14 @@
             overflow: hidden;
         }
 
+        /* Overlay for visual swipe feedback */
         #ui-overlay {
             position: absolute; inset: 0;
             background: transparent; opacity: 0;
             transition: opacity 0.1s linear; pointer-events: none; z-index: 5;
         }
 
-        /* 4. HEADER */
+        /* --- HEADER --- */
         .header {
             height: 18%;
             display: flex; flex-direction: column;
@@ -80,7 +85,7 @@
         }
         .meta-title { font-size: 1.6rem; font-weight: 900; color: #ffffff; text-transform: uppercase; letter-spacing: 0.02em; }
 
-        /* 5. CARD STAGE */
+        /* --- CARD STAGE --- */
         .stage {
             position: relative; flex: 1; width: 100%;
             perspective: 1200px; z-index: 20;
@@ -91,7 +96,7 @@
             left: 50%; top: 48%;
             transform: translate(-50%, -50%);
             width: var(--card-w); max-width: var(--card-max);
-            aspect-ratio: 1/1.25;
+            aspect-ratio: 1/1.3;
             background: var(--bg-card);
             border-radius: 40px; 
             box-shadow: 0 30px 60px -12px rgba(0,0,0,0.5);
@@ -101,7 +106,7 @@
             will-change: transform; transform-style: flat;
         }
 
-        /* Lesson/Correction Card (Dark Style) */
+        /* Correction/Report Styling (Dark Mode Slide) */
         .card.context-card {
             background: #111111;
             border: 1px solid #333333;
@@ -118,10 +123,10 @@
             letter-spacing: -0.02em;
         }
 
-        /* Blue Bullet Points */
+        /* Distinctive Blue Bullets from Reference */
         .card-list { width: 100%; padding-left: 0.5rem; margin: 0; pointer-events: none; }
         .card-list li {
-            font-size: 1rem; color: #4b5563; margin-bottom: 0.8rem;
+            font-size: 1rem; color: var(--text-sub); margin-bottom: 0.8rem;
             font-weight: 600; line-height: 1.4; list-style-type: none; position: relative;
             padding-left: 1.5rem;
         }
@@ -130,6 +135,7 @@
             font-size: 1.8rem; position: absolute; left: 0; top: -0.4rem;
         }
 
+        /* Scientific Subscripts/Superscripts */
         sub { font-size: 0.7em; vertical-align: sub; }
         sup { font-size: 0.7em; vertical-align: super; }
 
@@ -139,9 +145,9 @@
             color: #e5e7eb; pointer-events: none; text-align: center; opacity: 0.5;
         }
 
-        /* 6. FOOTER CONTROLS */
+        /* --- FOOTER CONTROLS --- */
         .footer {
-            height: 20%;
+            height: 22%;
             display: grid; grid-template-columns: 1fr 100px 1fr; grid-template-rows: 1fr 1fr;
             align-content: center; justify-items: center; z-index: 50;
         }
@@ -152,15 +158,15 @@
         }
         .ctrl.active { color: #ffffff; transform: scale(1.1); }
         
-        .ctrl.up { grid-column: 2; grid-row: 1; margin-bottom: 0.5rem; }
+        .ctrl.up { grid-column: 2; grid-row: 1; margin-bottom: 1rem; }
         .ctrl.down { grid-column: 2; grid-row: 2; }
         .ctrl.left { grid-column: 1; grid-row: 2; }
         .ctrl.right { grid-column: 3; grid-row: 2; }
 
-        .icon { font-size: 1.8rem; line-height: 1; margin-bottom: 6px; }
+        .icon { font-size: 2rem; line-height: 1; margin-bottom: 6px; font-weight: 300; }
         .label { font-size: 0.7rem; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; white-space: nowrap; }
 
-        /* 7. VIEWS */
+        /* --- VIEW VIEWS --- */
         .view {
             position: absolute; inset: 0;
             background: var(--bg-void); z-index: 100;
@@ -177,17 +183,19 @@
         }
         .btn-main:active { transform: scale(0.95); }
 
+        /* Topic Selection Grid */
         .topic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; width: 90%; max-width: 400px; margin-top: 2rem; }
         .btn-topic { background: #111111; border: 1px solid #333333; color: #fff; padding: 1.2rem; border-radius: 20px; text-align: left; cursor: pointer; }
         .btn-topic strong { display: block; font-size: 0.95rem; margin-bottom: 0.3rem; font-weight: 800; }
         .btn-topic span { font-size: 0.7rem; color: #666; text-transform: uppercase; font-family: 'JetBrains Mono'; }
 
+        /* Analytics components */
         .chart-container {
             position: relative; width: 160px; height: 160px;
-            border-radius: 50%; background: #111111; margin-bottom: 2rem;
+            border-radius: 50%; background: #111111; margin-bottom: 2.5rem;
         }
         .chart-hole {
-            position: absolute; inset: 18px; background: var(--bg-void);
+            position: absolute; inset: 20px; background: var(--bg-void);
             border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column;
         }
 
@@ -201,9 +209,9 @@
         <div id="ui-overlay"></div>
 
         <section id="view-start" class="view active">
-            <h1 style="font-size:3.5rem; font-weight:900; line-height:0.85; text-align:center; margin-bottom:2rem; letter-spacing:-0.05em;">CHEMISTRY<br>MASTER</h1>
-            <p style="color:#666; text-align:center; margin-bottom:3rem; font-size:1.1rem; font-weight:600;">Monolith System V25</p>
-            <button class="btn-main" onclick="APP.start('CORE')">INITIALIZE</button>
+            <h1 style="font-size:3rem; font-weight:900; line-height:0.9; text-align:center; margin-bottom:2rem; letter-spacing:-0.05em;">CHEMISTRY<br>MASTER</h1>
+            <p style="color:#666; text-align:center; margin-bottom:3rem; font-size:1.1rem; font-weight:600;">Monolith System V26</p>
+            <button class="btn-main" onclick="APP.start('CORE')">START EVALUATION</button>
         </section>
 
         <section id="view-game" class="view" style="background:transparent;">
@@ -222,11 +230,11 @@
         </section>
 
         <section id="view-summary" class="view">
-            <h2 style="font-size:1.5rem; font-weight:900; margin-bottom:2.5rem; letter-spacing:0.1em;">EVALUATION COMPLETE</h2>
+            <h2 style="font-size:1.8rem; font-weight:800; margin-bottom:2.5rem;">EVALUATION COMPLETE</h2>
             <div class="chart-container" id="chart-pie">
                 <div class="chart-hole">
                     <span style="font-size:3rem; font-weight:900; color:#fff;" id="chart-score">0</span>
-                    <span style="font-size:0.75rem; color:#666; font-weight:700; letter-spacing:0.1em;">SCORE</span>
+                    <span style="font-size:0.8rem; color:#666; font-weight:700; letter-spacing:0.1em;">SCORE</span>
                 </div>
             </div>
             <div class="topic-grid">
@@ -237,77 +245,265 @@
             </div>
         </section>
         
-        <div id="status-bar">Operator Active</div>
+        <div id="status-bar">Sync Ready</div>
     </div>
 
     <script>
         // REPLACE THIS WITH YOUR GOOGLE APPS SCRIPT URL
         const GOOGLE_SCRIPT_URL = ""; 
 
-        // --- FULL MONOLITH DATABASE (45 UNIQUE QUESTIONS) ---
+        // --- EXPANDED MONOLITH DATABASE (45 UNIQUE QUESTIONS) ---
         const DECKS = {
             CORE: [
-                { id: "c1", topic: "Structure", type: "ATOM", text: "Protons and Neutrons reside in the nucleus.", subs: ["Nucleus contains 99.9% of mass.", "Electrons orbit the outer shells.", "Center is positively charged."], explanation: "The nucleus is the dense core containing p+ and n0.", up:"True", down:"False", correct:"up", w:1 },
-                { id: "c2", topic: "Charge", type: "ATOM", text: "An electron carries a positive electrical charge.", subs: ["Protons are +1 charge.", "Neutrons are neutral (0).", "Electrons provide -1 charge."], explanation: "Electrons are negatively charged particles.", up:"True", down:"False", correct:"down", w:1 },
-                { id: "c3", topic: "Identity", type: "ATOM", text: "Changing proton count changes the element.", subs: ["Protons = Atomic Number.", "Neutrons create isotopes.", "Identity is fixed by protons."], explanation: "Z (Atomic Number) determines the element's identity.", up:"True", down:"False", correct:"up", w:1 },
-                { id: "c4", topic: "Trends", type: "TABL", text: "Groups behave similarly due to valence e<sup>-</sup>.", subs: ["Vertical columns are Groups.", "Li, Na, K share behaviors.", "Valence shell is key."], explanation: "Groups have the same valence electron count.", up:"True", down:"False", correct:"up", w:1 },
-                { id: "c5", topic: "Inertia", type: "TABL", text: "Noble Gases (Group 18) are highly reactive.", subs: ["Stable octet configuration.", "Full outer electron shells.", "Argon, Neon, Helium."], explanation: "Noble gases are stable and generally unreactive.", up:"True", down:"False", correct:"down", w:1 },
-                { id: "c6", topic: "Bonding", type: "BOND", text: "Ionic bonds involve sharing electrons.", subs: ["Metal + Non-metal interaction.", "Complete transfer of e<sup>-</sup>.", "Electrostatic attraction."], explanation: "Ionic bonds transfer electrons; Covalent share.", labels:["SHARED", "TRANSFER"], up:"Shared", down:"Transfer", correct:"down", w:1 },
-                { id: "c7", topic: "Bonding", type: "BOND", text: "Water (H<sub>2</sub>O) is a polar covalent molecule.", subs: ["Oxygen is highly electronegative.", "Unbalanced electron density.", "Partial charges present."], explanation: "Oxygen pulls electrons closer than Hydrogen.", up:"True", down:"False", correct:"up", w:1 },
-                { id: "c8", topic: "States", type: "SOLN", text: "Freezing point is lowered by adding solute.", subs: ["Colligative property.", "Salt on icy roads logic.", "Disrupts crystal formation."], explanation: "Adding solute depresses the freezing point.", up:"True", down:"False", correct:"up", w:1 },
-                { id: "c9", topic: "Acidity", type: "SOLN", text: "A pH of 12 indicates a strong acid.", subs: ["Scale ranges 0 to 14.", "7 is neutral point.", "Basic solutions have high pH."], explanation: "pH 12 is strongly Basic (alkaline).", labels:["ACIDIC", "BASIC"], up:"Acidic", down:"Basic", correct:"down", w:1 },
-                { id: "c10", topic: "React", type: "REAC", text: "Exothermic reactions release heat energy.", subs: ["Enthalpy change is negative.", "Surroundings get warmer.", "Energy leaves the system."], explanation: "Exo means 'out'; heat exits the reaction.", up:"True", down:"False", correct:"up", w:1 },
-                { id: "c11", topic: "Atomic", type: "ATOM", text: "Electrons can be found in precise locations.", subs: ["Heisenberg Uncertainty.", "Probability clouds (orbitals).", "Quantum wave function."], explanation: "Electrons exist in probability clouds, not fixed points.", up:"True", down:"False", correct:"down", w:1 },
-                { id: "c12", topic: "State", type: "SOLN", text: "In salt water, water is the solute.", subs: ["Solvent is the majority phase.", "Salt is what gets dissolved.", "Liquid is usually solvent."], explanation: "Water is the solvent; salt is the solute.", up:"True", down:"False", correct:"down", w:1 },
-                { id: "c13", topic: "Atomic", type: "ATOM", text: "An isotope has a different number of neutrons.", subs: ["Same proton count.", "Different atomic mass.", "Carbon-12 vs Carbon-14."], explanation: "Isotopes vary in neutrons, keeping identity same.", up:"True", down:"False", correct:"up", w:1 },
-                { id: "c14", topic: "Bonding", type: "BOND", text: "Metallic bonds involve a 'sea of electrons'.", subs: ["Delocalized valence e<sup>-</sup>.", "Explains high conductivity.", "Mobile charge carriers."], explanation: "Metals share a pool of delocalized electrons.", up:"True", down:"False", correct:"up", w:1 },
-                { id: "c15", topic: "Equil", type: "REAC", text: "Catalysts increase the final product yield.", subs: ["Lowers activation energy.", "Increases reaction speed.", "Does not shift equilibrium."], explanation: "Catalysts speed up speed but don't change yield.", up:"True", down:"False", correct:"down", w:1 }
+                {
+                    id: "c1",
+                    topic: "Structure",
+                    type: "ATOM",
+                    text: "Protons and Neutrons reside in the nucleus.",
+                    subs: [
+                        "Nucleus contains 99.9% of total atomic mass.",
+                        "Electrons orbit the core in probability shells.",
+                        "The central core is always positively charged."
+                    ],
+                    explanation: "The nucleus is a dense central region containing protons (p<sup>+</sup>) and neutrons (n<sup>0</sup>).",
+                    up: "True",
+                    down: "False",
+                    correct: "up",
+                    w: 1
+                },
+                {
+                    id: "c2",
+                    topic: "Charge",
+                    type: "ATOM",
+                    text: "An electron carries a positive electrical charge.",
+                    subs: [
+                        "Protons carry a +1 fundamental charge.",
+                        "Neutrons are charge-neutral (0).",
+                        "Opposite charges attract each other."
+                    ],
+                    explanation: "Electrons carry a negative charge (-1). Only protons provide positive charge in the atom.",
+                    up: "True",
+                    down: "False",
+                    correct: "down",
+                    w: 1
+                },
+                {
+                    id: "c3",
+                    topic: "Identity",
+                    type: "ATOM",
+                    text: "Changing the Proton count changes the element.",
+                    subs: [
+                        "Atomic Number (Z) is based on protons.",
+                        "Neutrons change Mass (A) but not identity.",
+                        "Identity is fixed regardless of electron loss."
+                    ],
+                    explanation: "The number of protons determines which element the atom is on the Periodic Table.",
+                    up: "True",
+                    down: "False",
+                    correct: "up",
+                    w: 1
+                },
+                {
+                    id: "c4",
+                    topic: "Periodic",
+                    type: "TABL",
+                    text: "Vertical columns (Groups) share behaviors.",
+                    subs: [
+                        "Groups have the same valence electron count.",
+                        "Chemical reactivity is a periodic trend.",
+                        "Li, Na, and K are all highly reactive metals."
+                    ],
+                    explanation: "Elements in the same group have similar chemical properties because of their outer shell.",
+                    up: "True",
+                    down: "False",
+                    correct: "up",
+                    w: 1
+                },
+                {
+                    id: "c5",
+                    topic: "Bonding",
+                    type: "BOND",
+                    text: "Ionic bonds involve the <b>sharing</b> of electrons.",
+                    subs: [
+                        "Metal + Non-metal interaction.",
+                        "Complete electron transfer (Stealing).",
+                        "Formation of positive and negative ions."
+                    ],
+                    explanation: "Ionic bonds <b>transfer</b> electrons; Covalent bonds <b>share</b> them.",
+                    labels: ["SHARED", "TRANSFER"],
+                    up: "Shared",
+                    down: "Transfer",
+                    correct: "down",
+                    w: 1
+                },
+                {
+                    id: "c6",
+                    topic: "Bonding",
+                    type: "BOND",
+                    text: "Water (H<sub>2</sub>O) is a polar covalent molecule.",
+                    subs: [
+                        "Oxygen is more electronegative than Hydrogen.",
+                        "Unbalanced electron distribution.",
+                        "Presence of partial charges (&delta;+ / &delta;-)."
+                    ],
+                    explanation: "The asymmetric shape and electronegativity difference create a molecular dipole.",
+                    up: "True",
+                    down: "False",
+                    correct: "up",
+                    w: 1
+                },
+                {
+                    id: "c7",
+                    topic: "Solutions",
+                    type: "SOLN",
+                    text: "A pH of 2 indicates a strongly <b>basic</b> solution.",
+                    subs: [
+                        "Scale ranges from 0 to 14.",
+                        "7 is the neutral point (pure water).",
+                        "Acids have high H<sup>+</sup> concentration."
+                    ],
+                    explanation: "Low pH (0-6) is Acidic. High pH (8-14) is Basic.",
+                    labels: ["ACIDIC", "BASIC"],
+                    up: "Acidic",
+                    down: "Basic",
+                    correct: "up",
+                    w: 1
+                }
             ],
             ATOMS_HARD: [
-                { id: "ah1", topic: "Quantum", type: "ATOM", text: "The 4s orbital fills before 3d.", subs: ["Aufbau principle ordering.", "Energy levels overlap.", "Lowest energy fills first."], explanation: "4s is lower in energy than 3d.", up:"True", down:"False", correct:"up", w:2 },
-                { id: "ah2", topic: "Trend", type: "ATOM", text: "Electronegativity decreases across a period.", subs: ["Period = horizontal row.", "Effective nuclear charge.", "Fluorine is the highest."], explanation: "Electronegativity increases left-to-right.", up:"True", down:"False", correct:"down", w:2 },
-                { id: "ah3", topic: "Pauli", type: "ATOM", text: "Two electrons can have the same 4 quantum numbers.", subs: ["Exclusion Principle logic.", "Opposite spin required.", "Unique state per electron."], explanation: "Pauli forbids identical quantum sets.", up:"True", down:"False", correct:"down", w:2 },
-                { id: "ah4", topic: "Photo", type: "ATOM", text: "Photons can knock electrons off metal surfaces.", subs: ["Photoelectric Effect.", "Einstien's contribution.", "Threshold frequency."], explanation: "This proves the particle nature of light.", up:"True", down:"False", correct:"up", w:2 },
-                { id: "ah5", topic: "Radix", type: "ATOM", text: "Atomic radius increases left-to-right.", subs: ["Adding more protons.", "Stronger nuclear pull.", "Tightening e<sup>-</sup> clouds."], explanation: "Radius decreases as pull gets stronger.", up:"True", down:"False", correct:"down", w:2 },
-                { id: "ah6", topic: "Energy", type: "ATOM", text: "Ionization energy is highest for metals.", subs: ["Energy to remove an e<sup>-</sup>.", "Metals want to lose e<sup>-</sup>.", "Non-metals hold tight."], explanation: "Non-metals have higher ionization energy.", up:"True", down:"False", correct:"down", w:2 },
-                { id: "ah7", topic: "Shells", type: "ATOM", text: "The n=3 shell can hold up to 18 electrons.", subs: ["2n<sup>2</sup> calculation.", "s(2), p(6), d(10).", "Level capacity."], explanation: "Correct: 2 + 6 + 10 = 18.", up:"True", down:"False", correct:"up", w:2 },
-                { id: "ah8", topic: "Light", type: "ATOM", text: "Excited electrons emit light when falling.", subs: ["Emission spectrum logic.", "Discrete energy levels.", "Photon energy = delta E."], explanation: "Energy release occurs during relaxation.", up:"True", down:"False", correct:"up", w:2 },
-                { id: "ah9", topic: "Mass", type: "ATOM", text: "Atomic mass is the sum of protons and neutrons.", subs: ["Electrons are negligible.", "Nucleon total.", "Weighted average on table."], explanation: "Nucleons provide almost all mass.", up:"True", down:"False", correct:"up", w:2 },
-                { id: "ah10", topic: "Shape", type: "ATOM", text: "p-orbitals are spherical in shape.", subs: ["s-orbitals are spheres.", "p-orbitals have 2 lobes.", "Dumbbell orientation."], explanation: "p-orbitals are dumbbell-shaped.", up:"True", down:"False", correct:"down", w:2 }
+                {
+                    id: "ah1",
+                    topic: "Quantum",
+                    type: "ATOM",
+                    text: "The 4s orbital fills before the 3d orbital.",
+                    subs: [
+                        "Aufbau principle defines energy ordering.",
+                        "n+l rule check: 4+0 vs 3+2.",
+                        "Energy levels overlap in heavy atoms."
+                    ],
+                    explanation: "The 4s orbital is lower in energy than the 3d orbital and fills first.",
+                    up: "True",
+                    down: "False",
+                    correct: "up",
+                    w: 2
+                },
+                {
+                    id: "ah2",
+                    topic: "Photo",
+                    type: "ATOM",
+                    text: "The Photoelectric Effect proves light is a wave.",
+                    subs: [
+                        "Light knocks electrons off metal surfaces.",
+                        "Threshold frequency is required.",
+                        "Einstein's particle (Photon) theory."
+                    ],
+                    explanation: "The photoelectric effect proves light behaves as a <b>particle</b> (photon).",
+                    up: "True",
+                    down: "False",
+                    correct: "down",
+                    w: 2
+                }
             ],
             BONDS_HARD: [
-                { id: "bh1", topic: "Hybrid", type: "BOND", text: "Methane (CH<sub>4</sub>) uses sp<sup>3</sup> hybridization.", subs: ["Tetrahedral geometry.", "4 equal Sigma bonds.", "109.5 degree angles."], explanation: "Carbon mixes 2s and 2p to form sp3.", up:"True", down:"False", correct:"up", w:2 },
-                { id: "bh2", topic: "VSEPR", type: "BOND", text: "A lone pair occupies less space than a bond.", subs: ["Electron repulsion theory.", "Bond angle compression.", "Lone pair density."], explanation: "Lone pairs occupy MORE space than bonds.", up:"True", down:"False", correct:"down", w:2 },
-                { id: "bh3", topic: "Sigma", type: "BOND", text: "Double bonds consist of 2 sigma bonds.", subs: ["Sigma = head-on overlap.", "Pi = side-on overlap.", "Overlap types."], explanation: "Double bonds = 1 Sigma + 1 Pi.", up:"True", down:"False", correct:"down", w:2 },
-                { id: "bh4", topic: "Dipole", type: "BOND", text: "CO<sub>2</sub> is a non-polar molecule.", subs: ["Linear geometry.", "Symmetric dipoles.", "Vectors cancel out."], explanation: "The symmetry makes it overall non-polar.", up:"True", down:"False", correct:"up", w:2 },
-                { id: "bh5", topic: "Force", type: "BOND", text: "Hydrogen bonding is stronger than covalent.", subs: ["Intermolecular vs Intra.", "Boiling point influence.", "Bond energy scales."], explanation: "Covalent bonds are much stronger (~10x).", up:"True", down:"False", correct:"down", w:2 },
-                { id: "bh6", topic: "Organic", type: "BOND", text: "Benzene has 3 fixed double bonds.", subs: ["Resonance stabilization.", "Delocalized Pi cloud.", "Identical bond lengths."], explanation: "Bonds are hybrids, not fixed double/single.", up:"True", down:"False", correct:"down", w:2 },
-                { id: "bh7", topic: "Formal", type: "BOND", text: "Formal charge determines Lewis stability.", subs: ["Bookkeeping technique.", "Goal is to minimize charge.", "Electronegativity match."], explanation: "Zero formal charge is most stable.", up:"True", down:"False", correct:"up", w:2 },
-                { id: "bh8", topic: "Latice", type: "BOND", text: "MgO has higher lattice energy than NaCl.", subs: ["Charge product (+2/-2).", "Coulombic attraction.", "Ion size effect."], explanation: "Higher charges (+2) increase attraction.", up:"True", down:"False", correct:"up", w:2 },
-                { id: "bh9", topic: "Coord", type: "BOND", text: "Coordinate bonds share a pair from one atom.", subs: ["NH<sub>4</sub><sup>+</sup> formation.", "Lone pair donation.", "Dative bonding."], explanation: "One atom provides both electrons.", up:"True", down:"False", correct:"up", w:2 },
-                { id: "bh10", topic: "Elect", type: "BOND", text: "Polarity is caused by electronegativity delta.", subs: ["Uneven sharing.", "Partial charges (&delta;+/-).", "Atom greediness."], explanation: "Differences in e- pull cause polarity.", up:"True", down:"False", correct:"up", w:2 }
+                {
+                    id: "bh1",
+                    topic: "Resonance",
+                    type: "BOND",
+                    text: "Benzene has alternating double/single bonds.",
+                    subs: [
+                        "Planar hexagonal Carbon ring.",
+                        "Delocalized &pi; electron cloud.",
+                        "All C-C bond lengths are identical."
+                    ],
+                    explanation: "Benzene is a resonance hybrid; bonds are neither strictly single nor double.",
+                    up: "True",
+                    down: "False",
+                    correct: "down",
+                    w: 2
+                },
+                {
+                    id: "bh2",
+                    topic: "VSEPR",
+                    type: "BOND",
+                    text: "Methane (CH<sub>4</sub>) has bond angles of 90&deg;.",
+                    subs: [
+                        "sp<sup>3</sup> hybridization of Carbon.",
+                        "3D Tetrahedral molecular geometry.",
+                        "Maximum repulsion between 4 bonds."
+                    ],
+                    explanation: "Tetrahedral bond angles are exactly 109.5&deg; to minimize repulsion.",
+                    up: "True",
+                    down: "False",
+                    correct: "down",
+                    w: 2
+                }
             ],
             SOLUTIONS_HARD: [
-                { id: "sh1", topic: "Molar", type: "SOLN", text: "Molarity changes with temperature.", subs: ["M = moles / Liter.", "Liquid volume expands.", "Concentration shifts."], explanation: "Temperature changes volume, so M changes.", up:"True", down:"False", correct:"up", w:2 },
-                { id: "sh2", topic: "Osmos", type: "SOLN", text: "Water moves to high solute concentration.", subs: ["Osmotic pressure.", "Dilution drive.", "Semi-permeable barrier."], explanation: "Water flows to dilute high concentration.", up:"True", down:"False", correct:"up", w:2 },
-                { id: "sh3", topic: "Buffer", type: "SOLN", text: "Buffers resist pH changes.", subs: ["Weak acid + conjugate base.", "Neutralization logic.", "Safe pH levels."], explanation: "Buffers consume small H+ or OH- additions.", up:"True", down:"False", correct:"up", w:2 },
-                { id: "sh4", topic: "Ideal", type: "SOLN", text: "Raoult's Law describes vapor pressure.", subs: ["Solution component drive.", "Partial pressure math.", "Ideal behavior."], explanation: "Pressure is proportional to mole fraction.", up:"True", down:"False", correct:"up", w:2 },
-                { id: "sh5", topic: "Solub", type: "SOLN", text: "Gases become more soluble as Temp rises.", subs: ["Warm soda goes flat.", "Kinetic energy.", "Escaping the liquid."], explanation: "Gas solubility decreases with temperature.", up:"True", down:"False", correct:"down", w:2 },
-                { id: "sh6", topic: "Equil", type: "SOLN", text: "Adding product shifts reaction to the Left.", subs: ["Le Chatelier's Principle.", "Stress response.", "Restoring balance."], explanation: "The system consumes the excess product.", up:"True", down:"False", correct:"up", w:2 },
-                { id: "sh7", topic: "Collig", type: "SOLN", text: "Boiling point is lowered by adding sugar.", subs: ["Vapor pressure lowering.", "Solute-solvent attraction.", "BP Elevation logic."], explanation: "Sugar raises the boiling point.", up:"True", down:"False", correct:"down", w:2 },
-                { id: "sh8", topic: "Ions", type: "SOLN", text: "CaCl<sub>2</sub> has a Van't Hoff factor of 3.", subs: ["Dissociation total.", "Ca<sup>2+</sup> and 2 Cl<sup>-</sup>.", "Particle count."], explanation: "Total ions produced is 3.", up:"True", down:"False", correct:"up", w:2 },
-                { id: "sh9", topic: "Solvent", type: "SOLN", text: "Like dissolves like refers to polarity.", subs: ["Oil and water don't mix.", "Polar + Polar = Yes.", "Intermolecular match."], explanation: "Polarity matching allows mixing.", up:"True", down:"False", correct:"up", w:2 },
-                { id: "sh10", topic: "Energy", type: "SOLN", text: "Enthalpy of solution is always exothermic.", subs: ["Bond breaking (Endo).", "Hydration (Exo).", "Energy net change."], explanation: "It can be endo or exothermic.", up:"True", down:"False", correct:"down", w:2 }
+                {
+                    id: "sh1",
+                    topic: "Colligative",
+                    type: "SOLN",
+                    text: "Adding solute <b>lowers</b> the boiling point.",
+                    subs: [
+                        "Vapor pressure lowering logic.",
+                        "Solute-solvent attractive forces.",
+                        "Boiling Point Elevation theory."
+                    ],
+                    explanation: "Adding non-volatile solute always <b>elevates</b> the boiling point.",
+                    labels: ["ELEVATES", "LOWERS"],
+                    up: "Elevates",
+                    down: "Lowers",
+                    correct: "up",
+                    w: 2
+                }
             ]
         };
 
-        // --- CORE ENGINE ---
+        // --- INFINITE ENGINE UTILITIES ---
+        const ELEMENTS = [
+            { s: "H", n: "Hydrogen", m: false, v: 1 }, { s: "He", n: "Helium", m: false, v: 8 },
+            { s: "Li", n: "Lithium", m: true, v: 1 }, { s: "C", n: "Carbon", m: false, v: 4 },
+            { s: "N", n: "Nitrogen", m: false, v: 5 }, { s: "O", n: "Oxygen", m: false, v: 6 },
+            { s: "Na", n: "Sodium", m: true, v: 1 }, { s: "Mg", n: "Magnesium", m: true, v: 2 },
+            { s: "Al", n: "Aluminum", m: true, v: 3 }, { s: "Cl", n: "Chlorine", m: false, v: 7 }
+        ];
+
+        function generateProcedural() {
+            const el = ELEMENTS[Math.floor(Math.random() * ELEMENTS.length)];
+            const mode = Math.random() > 0.5 ? "METAL" : "VALENCE";
+            
+            if (mode === "METAL") {
+                return {
+                    id: "inf_" + Date.now(), topic: "Periodic", type: "TABL",
+                    text: `Is <b>${el.n} (${el.s})</b> classified as a Metal?`,
+                    subs: ["Left side of 'staircase'?", "Lustrous and conductive?", "Forms cations easily?"],
+                    explanation: `${el.n} is a ${el.m ? "Metal" : "Non-metal"}.`,
+                    labels: ["YES", "NO"], up: "Yes", down: "No", correct: el.m ? "up" : "down", w: 1
+                };
+            } else {
+                const guess = Math.random() > 0.5 ? el.v : (el.v + 1);
+                return {
+                    id: "inf_" + Date.now(), topic: "Valence", type: "TABL",
+                    text: `${el.n} contains <b>${guess}</b> valence electrons.`,
+                    subs: ["Outer shell electron count.", "Group number relationship.", "Octet rule drive."],
+                    explanation: `${el.n} has exactly ${el.v} valence e<sup>-</sup>.`,
+                    up: "True", down: "False", correct: guess === el.v ? "up" : "down", w: 1
+                };
+            }
+        }
+
+        // --- APP CONTROLLER ---
         const APP = {
-            deck: [], idx: 0, answers: {}, activeEl: null,
+            deck: [], idx: 0, answers: {}, activeEl: null, startTime: 0,
 
             start(key) {
-                this.deck = [...DECKS[key]];
                 this.idx = 0; this.answers = {};
+                if (key === 'INFINITE') {
+                    this.deck = Array.from({length: 10}, () => generateProcedural());
+                } else {
+                    this.deck = [...DECKS[key] || DECKS['CORE']];
+                }
+                
                 document.getElementById('view-start').classList.remove('active');
                 document.getElementById('view-summary').classList.remove('active');
                 document.getElementById('view-game').classList.add('active');
@@ -316,24 +512,27 @@
 
             render() {
                 const stack = document.getElementById('card-stack'); 
-                stack.innerHTML='';
+                stack.innerHTML = '';
+                
                 if(this.idx >= this.deck.length) return this.finish();
 
                 const buffer = this.deck.slice(this.idx, this.idx + 2).reverse();
-                buffer.forEach((item, i) => {
+                buffer.forEach((q, i) => {
                     const realIdx = this.idx + (buffer.length - 1 - i);
-                    const el = document.createElement('div'); el.className = 'card';
-                    if (item.isCorrection) el.classList.add('context-card', 'correction-card');
+                    const el = document.createElement('div');
+                    el.className = 'card';
+                    if (q.isReport) el.classList.add('context-card', 'correction-card');
 
-                    let subHTML = `<ul class="card-list">`;
-                    item.subs.forEach(s => subHTML += `<li>${s}</li>`);
-                    subHTML += `</ul>`;
+                    let listHTML = `<ul class="card-list">`;
+                    q.subs.forEach(s => listHTML += `<li>${s}</li>`);
+                    listHTML += `</ul>`;
 
-                    el.innerHTML = `<p>${item.text}</p>${subHTML}<div class="card-id">${item.isCorrection ? "CORRECTION" : item.id}</div>`;
+                    el.innerHTML = `<p>${q.text}</p>${listHTML}<div class="card-id">${q.id}</div>`;
                     
                     if(realIdx === this.idx) {
                         el.style.zIndex = 100;
                         this.activeEl = el;
+                        this.startTime = Date.now();
                         PHYSICS.bind(el);
                     } else {
                         el.style.zIndex = 90;
@@ -352,16 +551,20 @@
                 document.getElementById('ui-progress').style.width = `${(this.idx/this.deck.length)*100}%`;
                 
                 const labels = q.labels || ["TRUE", "FALSE"];
-                document.getElementById('lbl-up').textContent = q.isCorrection ? "GOT IT" : labels[0];
-                document.getElementById('lbl-down').textContent = q.isCorrection ? "GOT IT" : labels[1];
+                document.getElementById('lbl-up').textContent = q.isReport ? "GOT IT" : labels[0];
+                document.getElementById('lbl-down').textContent = q.isReport ? "CONTINUE" : labels[1];
             },
 
-            injectCorrection(q) {
+            injectReport(q) {
                 const report = {
-                    id: "ANALYSIS", topic: "EVALUATION", type: "REPORT",
-                    text: "Conceptual Gap Detected",
-                    subs: [`Correction: ${q.explanation}`, `Context: ${q.subs[0]}`, `Factual Base: ${q.subs[1]}`],
-                    isCorrection: true, up: "Got It", down: "Got It", correct: "up", w: 0
+                    id: "REPORT", topic: "CORRECTION", type: "ANALYSIS",
+                    text: "Conceptual Correction",
+                    subs: [
+                        `FACT: ${q.explanation}`,
+                        `RE-EVALUATE: ${q.subs[0]}`,
+                        `CONTEXT: ${q.subs[1]}`
+                    ],
+                    isReport: true, correct: "up", w: 0
                 };
                 this.deck.splice(this.idx + 1, 0, report);
             },
@@ -372,7 +575,14 @@
                 const score = Object.values(this.answers).reduce((a,b)=>a+b.score,0);
                 document.getElementById('chart-score').textContent = score;
                 this.renderChart();
-                if(GOOGLE_SCRIPT_URL) fetch(GOOGLE_SCRIPT_URL, { method:'POST', mode:'no-cors', body:JSON.stringify({answers:this.answers, score}) });
+                
+                if (GOOGLE_SCRIPT_URL) {
+                    fetch(GOOGLE_SCRIPT_URL, { 
+                        method: 'POST', 
+                        mode: 'no-cors', 
+                        body: JSON.stringify({ answers: this.answers, score }) 
+                    });
+                }
             },
 
             renderChart() {
@@ -383,7 +593,7 @@
                 let grad=[]; let cur=0;
                 Object.keys(counts).forEach(t=>{
                     const deg = (counts[t]/total)*360;
-                    grad.push(`${['#3b82f6','#8b5cf6','#ec4899','#10b981'][total%4]} ${cur}deg ${cur+deg}deg`);
+                    grad.push(`${CONFIG.CHART[t] || '#fff'} ${cur}deg ${cur+deg}deg`);
                     cur+=deg;
                 });
                 chart.style.background = `conic-gradient(${grad.join(', ')})`;
@@ -395,7 +605,7 @@
             bind(el) { this.el=el; el.addEventListener('touchstart',this.start.bind(this),{passive:false}); el.addEventListener('mousedown',this.start.bind(this)); },
             start(e) { this.dragging=true; const p=e.touches?e.touches[0]:e; this.startX=p.clientX; this.startY=p.clientY; this.el.style.transition='none'; window.addEventListener('touchmove',this.move.bind(this),{passive:false}); window.addEventListener('mousemove',this.move.bind(this)); window.addEventListener('touchend',this.end.bind(this)); window.addEventListener('mouseup',this.end.bind(this)); },
             move(e) { if(!this.dragging) return; const p=e.touches?e.touches[0]:e; const dx=p.clientX-this.startX; const dy=p.clientY-this.startY; this.el.style.transform=`translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) rotate(${dx*0.05}deg)`; this.feedback(dx,dy); },
-            end(e) { if(!this.dragging) return; this.dragging=false; window.removeEventListener('touchmove',this.move.bind(this)); window.removeEventListener('mousemove',this.move.bind(this)); const p=e.changedTouches?e.changedTouches[0]:e; const dy=p.clientY-this.startY; if(Math.abs(dy)>75) this.commit(dy<0?'up':'down'); else this.reset(); },
+            end(e) { if(!this.dragging) return; this.dragging=false; window.removeEventListener('touchmove',this.move.bind(this)); window.removeEventListener('mousemove',this.move.bind(this)); const p=e.changedTouches?e.changedTouches[0]:e; const dx=p.clientX-this.startX; const dy=p.clientY-this.startY; if(Math.abs(dy)>75) this.commit(dy<0?'up':'down'); else this.reset(); },
             feedback(dx, dy) {
                 const op = Math.min(Math.abs(dy)/100, 0.4);
                 this.overlay.style.backgroundColor = dy < 0 ? '#22c55e' : '#ef4444';
@@ -404,11 +614,14 @@
             reset() { this.el.style.transition='0.3s ease'; this.el.style.transform='translate(-50%, -50%)'; this.overlay.style.opacity=0; },
             commit(dir) {
                 const q = APP.deck[APP.idx];
-                if (!q.isCorrection) {
-                    const isCorrect = dir === q.correct;
-                    APP.answers[q.id] = { correct: isCorrect, score: isCorrect ? 10 : -5, q };
-                    if (!isCorrect) APP.injectCorrection(q);
+                const latency = Date.now() - APP.startTime;
+                
+                if (!q.isReport) {
+                    const correct = dir === q.correct;
+                    APP.answers[q.id] = { correct, score: correct ? 10 : -5, latency, q };
+                    if (!correct) APP.injectReport(q);
                 }
+                
                 this.el.style.transition='0.4s cubic-bezier(0.1, 0, 0.3, 1)';
                 this.el.style.transform=`translate(-50%, ${dir==='up'?'-150%':'150%'}) rotate(${dir==='up'?'10deg':'-10deg'})`;
                 this.overlay.style.opacity=0;
