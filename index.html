@@ -3,117 +3,385 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#18181b">
+    <meta name="theme-color" content="#09090b">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Strategic Convergence 2026</title>
+    <title>Strategic Convergence 2026: Operator Exam</title>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap');
-        
+        /* IMPORT FONTS */
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600;800&display=swap');
+
+        /* CSS VARIABLES - THEME CONFIGURATION */
         :root {
-            --bg-deep: #09090b; --bg-surface: #18181b; --bg-card: #ffffff;
-            --text-primary: #f4f4f5; --text-secondary: #a1a1aa; --text-inverse: #18181b;
-            --accent-brand: #3b82f6; --accent-success: #22c55e; --accent-danger: #ef4444; 
-            --accent-warning: #eab308; --accent-neutral: #71717a;
-            --shadow-card: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            /* COLORS: Backgrounds */
+            --bg-deep: #09090b;
+            --bg-surface: #18181b;
+            --bg-overlay: rgba(0, 0, 0, 0.8);
+            
+            /* COLORS: Cards */
+            --card-bg: #ffffff;
+            --card-border: #e4e4e7;
+            
+            /* COLORS: Typography */
+            --text-primary: #f4f4f5;
+            --text-secondary: #a1a1aa;
+            --text-tertiary: #52525b;
+            --text-on-card: #18181b;
+
+            /* COLORS: Semantics (Swipe Indicators) */
+            --color-up: #22c55e;    /* Success/True */
+            --color-down: #ef4444;  /* Danger/False */
+            --color-left: #64748b;  /* Neutral/Skip */
+            --color-right: #eab308; /* Warning/Unsure */
+
+            /* DIMENSIONS */
+            --header-height: 15%;
+            --footer-height: 25%;
+            --card-width: 90%;
+            --card-max-width: 380px;
+            
+            /* ANIMATION & PHYSICS */
+            --transition-smooth: cubic-bezier(0.2, 0.8, 0.2, 1);
+            --transition-snap: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            
+            /* SHADOWS */
+            --shadow-card-resting: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-card-active: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --shadow-desktop: 0 0 100px rgba(0,0,0,0.8);
         }
 
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; touch-action: none; user-select: none; -webkit-user-select: none; }
-        body { font-family: 'Inter', sans-serif; background-color: #000; color: var(--text-primary); height: 100svh; width: 100vw; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+        /* RESET & GLOBAL BEHAVIOR */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            /* CRITICAL: Disables browser handling of gestures */
+            touch-action: none; 
+            user-select: none;
+            -webkit-user-select: none;
+        }
 
-        #app-shell { position: relative; width: 100%; height: 100%; max-width: 450px; max-height: 900px; background-color: var(--bg-deep); display: flex; flex-direction: column; overflow: hidden; }
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-        /* VIEWS */
-        .view { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 1.5rem; opacity: 0; pointer-events: none; transform: scale(0.95); transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); z-index: 1; }
-        .view.active { opacity: 1; pointer-events: auto; transform: scale(1); z-index: 10; }
+        /* APP SHELL: The main phone container */
+        #app-shell {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 450px;
+            max-height: 950px;
+            background-color: var(--bg-deep);
+            display: grid;
+            grid-template-rows: var(--header-height) 1fr var(--footer-height);
+            box-shadow: var(--shadow-desktop);
+            overflow: hidden;
+        }
 
-        /* START SCREEN */
-        #view-start { justify-content: center; align-items: center; text-align: center; background: radial-gradient(circle at top right, #27272a 0%, #09090b 60%); }
-        .logo-mark { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--accent-brand); padding: 0.5rem 1rem; border: 1px solid var(--accent-brand); border-radius: 100px; margin-bottom: 2rem; }
-        h1.title-hero { font-size: 2.5rem; font-weight: 800; margin-bottom: 1rem; background: linear-gradient(to bottom right, #fff, #a1a1aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        button.btn-primary { background: var(--text-primary); color: var(--bg-deep); border: none; padding: 1rem 2.5rem; font-size: 1.1rem; font-weight: 700; border-radius: 100px; cursor: pointer; transition: transform 0.1s; }
-        button.btn-primary:active { transform: scale(0.96); }
+        /* * --- ZONE 1: HEADER --- 
+         */
+        #ui-header {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding-bottom: 1.5rem;
+            z-index: 20;
+            pointer-events: none; /* Let touches pass through */
+        }
 
-        /* GAME SCREEN */
-        #view-game { display: grid; grid-template-rows: 15% 1fr 25%; padding: 0; }
-        .game-header { display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 1rem; z-index: 20; }
-        .progress-bar-container { width: 80%; height: 4px; background: #27272a; border-radius: 10px; margin-bottom: 1rem; overflow: hidden; }
-        .progress-bar-fill { height: 100%; background: var(--accent-brand); width: 0%; transition: width 0.3s ease; }
-        .topic-badge { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-secondary); margin-bottom: 0.25rem; }
-        .type-heading { font-size: 1.25rem; font-weight: 800; text-transform: uppercase; }
+        .progress-track {
+            width: 60px;
+            height: 4px;
+            background: #27272a;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
 
-        .card-stack-container { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; perspective: 1200px; }
-        .card { position: absolute; width: 85%; aspect-ratio: 1/1.1; background: var(--bg-card); border-radius: 24px; box-shadow: var(--shadow-card); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem; text-align: center; will-change: transform; transform-style: preserve-3d; top: 50%; left: 50%; margin-top: -55%; margin-left: -42.5%; }
-        .card p { font-size: 1.4rem; font-weight: 600; color: var(--text-inverse); pointer-events: none; margin: 0; line-height: 1.4; }
+        .progress-fill {
+            height: 100%;
+            background: var(--color-up);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
 
-        .game-footer { display: grid; grid-template-columns: 1fr 80px 1fr; grid-template-rows: 1fr 1fr; align-content: center; justify-items: center; padding-bottom: 2rem; z-index: 20; }
-        .control-item { display: flex; flex-direction: column; align-items: center; color: var(--text-secondary); transition: transform 0.1s; }
-        .control-item.up { grid-column: 2; grid-row: 1; margin-bottom: 0.5rem; } .control-item.down { grid-column: 2; grid-row: 2; margin-top: 0.5rem; }
-        .control-item.left { grid-column: 1; grid-row: 2; } .control-item.right { grid-column: 3; grid-row: 2; }
-        .control-icon { font-size: 1.8rem; display: block; line-height: 1; } .control-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; }
+        .header-topic {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-secondary);
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
 
-        /* SUMMARY SCREEN */
-        #view-summary { overflow-y: auto; background: var(--bg-surface); padding: 2rem 1.5rem; }
-        .score-display { background: #27272a; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-around; }
-        .stat-val { font-size: 2rem; font-weight: 800; display: block; } .stat-lbl { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; }
-        .history-card { background: #27272a; padding: 1rem; border-radius: 12px; border-left: 4px solid #71717a; margin-bottom: 1rem; }
-        .history-card.correct { border-left-color: var(--accent-success); } .history-card.incorrect { border-left-color: var(--accent-danger); }
+        .header-type {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* * --- ZONE 2: CARD STACK (The Interactive Layer) --- 
+         */
+        #card-stack {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+            z-index: 10;
+        }
+
+        .card {
+            position: absolute;
+            width: var(--card-width);
+            max-width: var(--card-max-width);
+            aspect-ratio: 1/1.1;
+            background: var(--card-bg);
+            border-radius: 28px;
+            box-shadow: var(--shadow-card-resting);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2.5rem;
+            text-align: center;
+            
+            /* Performance Optimizations */
+            will-change: transform, opacity;
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+            transform: translate3d(0,0,0); /* Hardware Acceleration Force */
+        }
+
+        .card p {
+            font-size: 1.4rem;
+            line-height: 1.45;
+            font-weight: 600;
+            color: var(--text-on-card);
+            pointer-events: none; /* Text shouldn't block card drag */
+        }
+
+        .card-meta {
+            position: absolute;
+            bottom: 2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            color: #d4d4d8;
+            pointer-events: none;
+        }
+
+        /* Visual State: Card being dragged */
+        .card.dragging {
+            box-shadow: var(--shadow-card-active);
+            cursor: grabbing;
+        }
+
+        /* * --- ZONE 3: FOOTER (Controls) --- 
+         */
+        #ui-footer {
+            display: grid;
+            grid-template-columns: 1fr 80px 1fr;
+            grid-template-rows: 1fr 1fr;
+            align-content: center;
+            justify-items: center;
+            z-index: 20;
+            padding-bottom: 2rem;
+            pointer-events: none;
+        }
+
+        .legend-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.1s linear, color 0.1s linear;
+        }
+
+        /* Grid Positioning */
+        .legend-item.up    { grid-column: 2; grid-row: 1; margin-bottom: 0.5rem; }
+        .legend-item.down  { grid-column: 2; grid-row: 2; margin-top: 0.5rem; }
+        .legend-item.left  { grid-column: 1; grid-row: 2; }
+        .legend-item.right { grid-column: 3; grid-row: 2; }
+
+        .legend-icon {
+            font-size: 1.8rem;
+            margin-bottom: 4px;
+            display: block;
+            line-height: 1;
+            color: var(--text-secondary);
+        }
+
+        .legend-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-tertiary);
+        }
+
+        /* * --- SCREENS: START & SUMMARY --- 
+         */
+        .screen-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-deep);
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
         
-        .fab-container { position: absolute; bottom: 2rem; left: 0; right: 0; display: flex; justify-content: center; pointer-events: none; }
-        .slider-confirm { width: 80%; height: 60px; background: #3f3f46; border-radius: 100px; position: relative; pointer-events: auto; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .slider-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 600; color: rgba(255,255,255,0.3); pointer-events: none; }
-        .slider-knob { width: 60px; height: 60px; background: var(--text-primary); border-radius: 50%; position: absolute; top: 0; left: 0; display: flex; align-items: center; justify-content: center; color: var(--bg-deep); font-size: 1.2rem; box-shadow: 2px 0 5px rgba(0,0,0,0.2); touch-action: none; }
+        .screen-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Start Screen */
+        .title-hero {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            text-align: center;
+            margin-bottom: 1rem;
+            letter-spacing: -0.05em;
+        }
+        
+        .btn-main {
+            background: var(--text-primary);
+            color: var(--bg-deep);
+            border: none;
+            padding: 1.2rem 3rem;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 100px;
+            cursor: pointer;
+            margin-top: 2rem;
+        }
+
+        /* Summary Screen */
+        .stats-grid {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        .stat-box { text-align: center; }
+        .stat-val { font-size: 2.5rem; font-weight: 800; color: var(--text-primary); display: block;}
+        .stat-lbl { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; }
+
+        /* DEBUG CONSOLE (Bottom Right) */
+        #debug-console {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-family: monospace;
+            font-size: 10px;
+            color: #333;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* UTILS */
+        .hidden { display: none !important; }
+
     </style>
 </head>
 <body>
 
     <div id="app-shell">
-        <section id="view-start" class="view active">
-            <div class="logo-mark">STRATEGIC CONVERGENCE</div>
-            <h1 class="title-hero">Operator<br>Exam 2026</h1>
-            <p style="color:#a1a1aa; margin-bottom:3rem; max-width:300px;">30-question assessment testing situational awareness, timeline realism, and convergence logic.</p>
-            <button class="btn-primary" onclick="APP.transitionToGame()">INITIATE</button>
+
+        <section id="screen-start" class="screen-overlay active">
+            <h1 class="title-hero">Strategic<br>Convergence</h1>
+            <p style="color:var(--text-secondary); text-align:center; max-width:300px; line-height:1.5;">
+                Operator Exam 2026.<br>30 Questions.<br>Swipe to decide.
+            </p>
+            <button class="btn-main" onclick="GAME.start()">INITIATE SEQUENCE</button>
         </section>
 
-        <section id="view-game" class="view">
-            <header class="game-header">
-                <div class="progress-bar-container"><div class="progress-bar-fill" id="ui-progress"></div></div>
-                <span class="topic-badge" id="ui-topic">TOPIC</span>
-                <span class="type-heading" id="ui-type">TYPE</span>
-            </header>
-            <div class="card-stack-container" id="card-stack"></div>
-            <footer class="game-footer" id="ui-footer">
-                <div class="control-item up"><span class="control-icon">↑</span><span class="control-label" id="lbl-up">True</span></div>
-                <div class="control-item left"><span class="control-icon">←</span><span class="control-label" id="lbl-left">Skip</span></div>
-                <div class="control-item down"><span class="control-icon">↓</span><span class="control-label" id="lbl-down">False</span></div>
-                <div class="control-item right"><span class="control-icon">→</span><span class="control-label" id="lbl-right">Unsure</span></div>
-            </footer>
-        </section>
+        <header id="ui-header">
+            <div class="progress-track"><div class="progress-fill" id="ui-progress"></div></div>
+            <span class="header-topic" id="ui-topic">Topic</span>
+            <span class="header-type" id="ui-type">Type</span>
+        </header>
 
-        <section id="view-summary" class="view">
-            <h2 class="type-heading" style="text-align:center; margin-bottom:1.5rem;">Mission Report</h2>
-            <div class="score-display">
-                <div style="text-align:center"><span class="stat-val" id="stat-score">0</span><span class="stat-lbl">Points</span></div>
-                <div style="text-align:center"><span class="stat-val" id="stat-acc">0%</span><span class="stat-lbl">Accuracy</span></div>
+        <div id="card-stack">
             </div>
-            <div id="history-list" style="padding-bottom:100px;"></div>
-            <div class="fab-container">
-                <div class="slider-confirm" id="slider-confirm">
-                    <div class="slider-text">SLIDE TO SUBMIT</div>
-                    <div class="slider-knob" id="slider-knob">➜</div>
+
+        <footer id="ui-footer">
+            <div class="legend-item up">
+                <span class="legend-icon">↑</span>
+                <span class="legend-label" id="lbl-up">True</span>
+            </div>
+            <div class="legend-item left">
+                <span class="legend-icon">←</span>
+                <span class="legend-label" id="lbl-left">Skip</span>
+            </div>
+            <div class="legend-item down">
+                <span class="legend-icon">↓</span>
+                <span class="legend-label" id="lbl-down">False</span>
+            </div>
+            <div class="legend-item right">
+                <span class="legend-icon">→</span>
+                <span class="legend-label" id="lbl-right">Unsure</span>
+            </div>
+        </footer>
+
+        <section id="screen-summary" class="screen-overlay">
+            <h2 class="header-type" style="margin-bottom:2rem;">Mission Report</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-val" id="res-score">0</span>
+                    <span class="stat-lbl">Points</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val" id="res-acc">0%</span>
+                    <span class="stat-lbl">Accuracy</span>
                 </div>
             </div>
+            <p style="color:var(--text-secondary); margin-bottom:2rem;">Syncing results...</p>
+            <button class="btn-main" onclick="location.reload()">RESTART</button>
         </section>
+
+        <div id="debug-console">v2.0 Ready</div>
+
     </div>
 
     <script>
+        /**
+         * CONFIGURATION
+         */
         const CONFIG = {
             API_URL: "https://script.google.com/macros/s/AKfycbz_ziu5Dezrz35J2FksQtNEYuZ5Kk6TrQvg3pM5O5eBYUDzWCCtqlGWwZj8D-TBQLFw/exec",
-            THRESHOLD: 80, 
-            COLORS: { UP: '#22c55e', DOWN: '#ef4444', RIGHT: '#eab308', LEFT: '#64748b' }
+            SWIPE_THRESHOLD: 80, // Pixels needed to commit a swipe
+            ROTATION_STRENGTH: 0.05,
+            COLORS: {
+                UP: '#22c55e', DOWN: '#ef4444', RIGHT: '#eab308', LEFT: '#64748b', NEUTRAL: '#71717a'
+            }
         };
 
-        const QUESTION_BANK = [
+        /**
+         * DATA: 30 Questions
+         */
+        const QUESTIONS = [
             { id: "s1", topic: "Strategic", type: "FACT", text: "Dholera fab is shipping 28nm commercial wafers.", up:"True", down:"False", right:"Plausible", left:"Skip", correct:"up", w:1 },
             { id: "s2", topic: "Strategic", type: "CONTEXT", text: "India's molten salt reactor prototype is grid-connected.", up:"Yes", down:"No", right:"Unsure", left:"Skip", correct:"right", w:2 },
             { id: "s3", topic: "Strategic", type: "TRAP", text: "India formally joined the G7 as a permanent member in 2025.", up:"True", down:"False", right:"Observer", left:"Skip", correct:"down", w:1 },
@@ -122,220 +390,305 @@
             { id: "e1", topic: "Trade", type: "CONTEXT", text: "Rupee trade settlement volume with UAE exceeded $50B.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
             { id: "e2", topic: "Trade", type: "TRAP", text: "India signed a full FTA with the United States.", up:"True", down:"False", right:"Mini-deal", left:"Skip", correct:"down", w:1 },
             { id: "e3", topic: "Infra", type: "FACT", text: "Mumbai-Ahmedabad Bullet Train is fully operational.", up:"True", down:"False", right:"Partial", left:"Skip", correct:"right", w:1 },
-            { id: "g1", topic: "Neighbors", type: "CONTEXT", text: "Pakistan trade normalization talks have officially resumed.", up:"True", down:"False", right:"Backchannel", left:"Skip", correct:"right", w:2 },
-            { id: "g2", topic: "Ocean", type: "FACT", text: "Indian Navy has 3 operational Aircraft Carriers.", up:"True", down:"False", right:"Two", left:"Skip", correct:"down", w:1 }
+            { id: "e4", topic: "Infra", type: "REASONING", text: "Dedicated Freight Corridor (EDFC) is 100% complete.", up:"True", down:"False", right:"Almost", left:"Skip", correct:"up", w:1 },
+            { id: "e5", topic: "Digital", type: "FACT", text: "Oteher nations adopting UPI has crossed 15 countries.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+            { id: "e6", topic: "Digital", type: "CONTEXT", text: "Digital Rupee (e-Rupee) retail usage exceeds cash in metro cities.", up:"True", down:"False", right:"Plausible", left:"Skip", correct:"down", w:2 },
+            { id: "e7", topic: "Mfg", type: "FACT", text: "Apple exports from India have surpassed $20 Billion.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+            { id: "e8", topic: "Mfg", type: "TRAP", text: "Tesla has opened a Gigafactory in Gujarat.", up:"True", down:"False", right:"Announced", left:"Skip", correct:"right", w:1 },
+            { id: "e9", topic: "Agri", type: "REASONING", text: "Drone-as-a-Service for agriculture is now a subsidized scheme.", up:"True", down:"False", right:"Pilot", left:"Skip", correct:"up", w:1 },
+            { id: "e10", topic: "Startup", type: "FACT", text: "India has produced 150th Unicorn.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 }
         ];
 
-        const STORE = {
-            state: { deck: [], currentIndex: 0, answers: {} },
-            init() { this.state.deck = [...QUESTION_BANK].sort(() => Math.random() - 0.5); },
-            saveAnswer(qId, dir) {
-                const q = this.state.deck.find(x => x.id === qId);
-                let score = dir === q.correct ? 10 * q.w : (dir === 'left' ? 0 : -5);
-                this.state.answers[qId] = { dir, score, correct: dir === q.correct, q };
-            }
+        /**
+         * STATE MANAGEMENT
+         */
+        const STATE = {
+            deck: [],
+            currentIndex: 0,
+            answers: {},
+            activeCard: null
         };
 
-        const APP = {
-            dom: { 
-                start: document.getElementById('view-start'), game: document.getElementById('view-game'), summary: document.getElementById('view-summary'),
-                stack: document.getElementById('card-stack'), progress: document.getElementById('ui-progress'), topic: document.getElementById('ui-topic'), type: document.getElementById('ui-type')
+        /**
+         * GAME ENGINE
+         */
+        const GAME = {
+            init() {
+                // Prepare deck
+                STATE.deck = [...QUESTIONS]; // Optional: .sort(() => Math.random() - 0.5) to shuffle
+                console.log("System Initialized");
             },
-            transitionToGame() {
-                STORE.init();
-                this.dom.start.classList.remove('active');
-                this.dom.game.classList.add('active');
+
+            start() {
+                this.init();
+                document.getElementById('screen-start').classList.remove('active');
                 this.renderStack();
             },
-            renderStack() {
-                this.dom.stack.innerHTML = '';
-                const deck = STORE.state.deck;
-                const idx = STORE.state.currentIndex;
-                if (idx >= deck.length) return this.finishGame();
 
-                // Render next 2 cards
-                const visible = deck.slice(idx, idx + 2).reverse();
-                visible.forEach((q, i) => {
-                    const realIdx = idx + (visible.length - 1 - i);
+            renderStack() {
+                const stackEl = document.getElementById('card-stack');
+                stackEl.innerHTML = ''; // Clear
+
+                const idx = STATE.currentIndex;
+                if (idx >= STATE.deck.length) return this.finish();
+
+                // Render in reverse so Top card is last in DOM (on top of z-index)
+                // We render 2 cards max for performance
+                const buffer = STATE.deck.slice(idx, idx + 2).reverse();
+
+                buffer.forEach((q, i) => {
+                    const realIndex = idx + (buffer.length - 1 - i);
+                    const isTop = (realIndex === idx);
+                    
                     const el = document.createElement('div');
-                    el.className = 'card';
-                    if (realIdx === idx) { el.id = 'active-card'; el.style.zIndex = 100; }
-                    else { el.style.transform = 'scale(0.95) translateY(10px)'; el.style.opacity = 0.5; el.style.zIndex = 90; }
-                    el.innerHTML = `<p>${q.text}</p>`;
-                    this.dom.stack.appendChild(el);
+                    el.classList.add('card');
+                    el.dataset.id = q.id;
+                    
+                    if (isTop) {
+                        el.style.zIndex = 100;
+                        STATE.activeCard = el; // Reference for Physics
+                    } else {
+                        el.style.zIndex = 50;
+                        el.style.transform = 'scale(0.95) translateY(10px)';
+                        el.style.opacity = '0.5';
+                    }
+
+                    el.innerHTML = `
+                        <p>${q.text}</p>
+                        <div class="card-meta">ID: ${q.id}</div>
+                    `;
+
+                    stackEl.appendChild(el);
                 });
+
                 this.updateUI();
-            },
-            updateUI() {
-                const q = STORE.state.deck[STORE.state.currentIndex];
-                this.dom.topic.textContent = q.topic;
-                this.dom.type.textContent = q.type;
-                this.dom.progress.style.width = `${(STORE.state.currentIndex / STORE.state.deck.length) * 100}%`;
                 
+                // CRITICAL: Bind Touch Events to the new Top Card
+                if (STATE.activeCard) {
+                    TOUCH.bind(STATE.activeCard);
+                }
+            },
+
+            updateUI() {
+                const q = STATE.deck[STATE.currentIndex];
+                if (!q) return;
+
+                document.getElementById('ui-topic').textContent = q.topic;
+                document.getElementById('ui-type').textContent = q.type;
+                
+                const pct = ((STATE.currentIndex) / STATE.deck.length) * 100;
+                document.getElementById('ui-progress').style.width = `${pct}%`;
+
+                // Update Footer Labels
                 document.getElementById('lbl-up').textContent = q.up;
                 document.getElementById('lbl-down').textContent = q.down;
                 document.getElementById('lbl-left').textContent = q.left;
                 document.getElementById('lbl-right').textContent = q.right;
+            },
 
-                PHYSICS.bind(document.getElementById('active-card'));
-            },
-            finishGame() {
-                this.dom.game.classList.remove('active');
-                this.dom.summary.classList.add('active');
-                this.renderSummary();
-            },
-            renderSummary() {
-                const answers = Object.values(STORE.state.answers);
-                const score = answers.reduce((a, b) => a + b.score, 0);
-                const acc = Math.round((answers.filter(a => a.correct).length / STORE.state.deck.length) * 100);
+            finish() {
+                document.getElementById('screen-summary').classList.add('active');
                 
-                document.getElementById('stat-score').textContent = score;
-                document.getElementById('stat-acc').textContent = acc + '%';
-                
-                const list = document.getElementById('history-list');
-                answers.forEach(a => {
-                    const div = document.createElement('div');
-                    div.className = `history-card ${a.correct ? 'correct' : 'incorrect'}`;
-                    div.innerHTML = `<span style="font-size:0.7rem; color:#a1a1aa; text-transform:uppercase">${a.q.topic}</span><p style="margin:0.5rem 0; font-size:0.9rem">${a.q.text}</p><div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight:700"><span>YOU: ${a.dir.toUpperCase()}</span><span>${a.score} PTS</span></div>`;
-                    list.appendChild(div);
-                });
-                SLIDER.init();
-            }
-        };
+                // Calc Score
+                const answers = Object.values(STATE.answers);
+                const totalScore = answers.reduce((acc, curr) => acc + curr.score, 0);
+                const correctCount = answers.filter(a => a.correct).length;
+                const accuracy = Math.round((correctCount / STATE.deck.length) * 100);
 
-        const PHYSICS = {
-            card: null, startX: 0, startY: 0, isDragging: false,
-            bind(el) {
-                if(!el) return;
-                this.card = el;
-                el.addEventListener('touchstart', this.start.bind(this), {passive:false});
-                el.addEventListener('mousedown', this.start.bind(this));
-            },
-            start(e) {
-                if(e.touches && e.touches.length > 1) return;
-                this.isDragging = true;
-                const p = e.touches ? e.touches[0] : e;
-                this.startX = p.clientX; this.startY = p.clientY;
-                this.card.style.transition = 'none';
-                window.addEventListener('touchmove', this.move.bind(this), {passive:false});
-                window.addEventListener('touchend', this.end.bind(this));
-                window.addEventListener('mousemove', this.move.bind(this));
-                window.addEventListener('mouseup', this.end.bind(this));
-            },
-            move(e) {
-                if(!this.isDragging) return;
-                e.preventDefault();
-                const p = e.touches ? e.touches[0] : e;
-                const dx = p.clientX - this.startX;
-                const dy = p.clientY - this.startY;
-                this.card.style.transform = `translate(${dx}px, ${dy}px) rotate(${dx * 0.05}deg)`;
-                this.animateUI(dx, dy);
-            },
-            end(e) {
-                if(!this.isDragging) return;
-                this.isDragging = false;
-                window.removeEventListener('touchmove', this.move.bind(this));
-                window.removeEventListener('touchend', this.end.bind(this));
-                window.removeEventListener('mousemove', this.move.bind(this));
-                window.removeEventListener('mouseup', this.end.bind(this));
+                document.getElementById('res-score').textContent = totalScore;
+                document.getElementById('res-acc').textContent = accuracy + "%";
 
-                const p = e.changedTouches ? e.changedTouches[0] : e;
-                const dx = p.clientX - this.startX;
-                const dy = p.clientY - this.startY;
-                
-                if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > CONFIG.THRESHOLD) this.commit(dy < 0 ? 'up' : 'down');
-                else if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > CONFIG.THRESHOLD) this.commit(dx > 0 ? 'right' : 'left');
-                else this.reset();
+                this.sync(totalScore, answers);
             },
-            animateUI(dx, dy) {
-                const footer = document.getElementById('ui-footer');
-                const items = footer.querySelectorAll('.control-item');
-                let cls = '';
-                if(Math.abs(dy) > Math.abs(dx)) cls = dy < 0 ? 'up' : 'down';
-                else cls = dx > 0 ? 'right' : 'left';
-                items.forEach(i => {
-                    if(i.classList.contains(cls)) { i.style.transform = 'scale(1.2)'; i.style.color = CONFIG.COLORS[cls.toUpperCase()]; }
-                    else { i.style.transform = 'scale(1)'; i.style.color = '#71717a'; }
-                });
-            },
-            reset() {
-                this.card.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)';
-                this.card.style.transform = 'translate(0,0) rotate(0)';
-                document.querySelectorAll('.control-item').forEach(i => { i.style.transform = ''; i.style.color = ''; });
-            },
-            commit(dir) {
-                const qId = STORE.state.deck[STORE.state.currentIndex].id;
-                STORE.saveAnswer(qId, dir);
-                
-                let tx=0, ty=0; const d = 800;
-                if(dir==='up') ty=-d; if(dir==='down') ty=d; if(dir==='left') tx=-d; if(dir==='right') tx=d;
-                
-                this.card.style.transition = 'transform 0.4s ease-in';
-                this.card.style.transform = `translate(${tx}px, ${ty}px) rotate(${tx*0.1}deg)`;
-                document.querySelectorAll('.control-item').forEach(i => { i.style.transform = ''; i.style.color = ''; });
-                
-                setTimeout(() => {
-                    this.card.remove();
-                    STORE.state.currentIndex++;
-                    APP.renderStack();
-                }, 300);
-            }
-        };
 
-        const SLIDER = {
-            knob: null, container: null, startX: 0, active: false,
-            init() {
-                this.knob = document.getElementById('slider-knob');
-                this.container = document.getElementById('slider-confirm');
-                this.knob.addEventListener('touchstart', this.start.bind(this), {passive:false});
-                this.knob.addEventListener('mousedown', this.start.bind(this));
-            },
-            start(e) {
-                this.active = true;
-                this.startX = (e.touches ? e.touches[0] : e).clientX;
-                window.addEventListener('touchmove', this.move.bind(this), {passive:false});
-                window.addEventListener('touchend', this.end.bind(this));
-                window.addEventListener('mousemove', this.move.bind(this));
-                window.addEventListener('mouseup', this.end.bind(this));
-            },
-            move(e) {
-                if(!this.active) return;
-                const x = (e.touches ? e.touches[0] : e).clientX - this.startX;
-                const max = this.container.offsetWidth - this.knob.offsetWidth;
-                const safe = Math.max(0, Math.min(x, max));
-                this.knob.style.transform = `translateX(${safe}px)`;
-                if(safe >= max - 5) { this.active = false; this.submit(); }
-            },
-            end() {
-                if(!this.active) return;
-                this.active = false;
-                this.knob.style.transition = 'transform 0.3s ease';
-                this.knob.style.transform = 'translateX(0)';
-                setTimeout(()=>this.knob.style.transition = 'none', 300);
-            },
-            submit() {
-                const txt = this.container.querySelector('.slider-text');
-                txt.textContent = "SYNCING...";
-                this.knob.style.background = CONFIG.COLORS.UP;
-                
+            sync(score, answers) {
+                const payload = {
+                    score: score,
+                    answers: answers,
+                    timestamp: new Date().toISOString()
+                };
+
                 fetch(CONFIG.API_URL, {
-                    method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ answers: STORE.state.answers, score: document.getElementById('stat-score').textContent, timestamp: new Date().toISOString() })
-                }).then(() => {
-                    txt.textContent = "SUBMITTED";
-                    this.container.style.background = CONFIG.COLORS.UP;
-                }).catch(() => {
-                    txt.textContent = "ERROR";
-                    this.container.style.background = CONFIG.COLORS.DOWN;
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "text/plain" },
+                    body: JSON.stringify(payload)
+                }).then(() => console.log("Data Synced"));
+            }
+        };
+
+        /**
+         * TOUCH & PHYSICS ENGINE (The "Heavy Duty" Logic)
+         */
+        const TOUCH = {
+            target: null,
+            startX: 0,
+            startY: 0,
+            isDragging: false,
+
+            bind(el) {
+                this.target = el;
+                // Unbind previous to prevent memory leaks? (Browser handles mostly, but good practice)
+                // Bind new
+                el.addEventListener('touchstart', this.onStart.bind(this), { passive: false });
+                el.addEventListener('mousedown', this.onStart.bind(this));
+            },
+
+            onStart(e) {
+                // Prevent Default to stop scrolling IMMEDIATELY
+                if (e.cancelable) e.preventDefault();
+                
+                this.isDragging = true;
+                
+                const pt = e.touches ? e.touches[0] : e;
+                this.startX = pt.clientX;
+                this.startY = pt.clientY;
+
+                this.target.classList.add('dragging');
+                this.target.style.transition = 'none'; // Instant movement
+
+                // Bind Global Move/End (Capture even if finger leaves card)
+                document.addEventListener('touchmove', this.onMove.bind(this), { passive: false });
+                document.addEventListener('touchend', this.onEnd.bind(this));
+                document.addEventListener('mousemove', this.onMove.bind(this));
+                document.addEventListener('mouseup', this.onEnd.bind(this));
+                
+                document.getElementById('debug-console').textContent = "Input: Dragging";
+            },
+
+            onMove(e) {
+                if (!this.isDragging) return;
+                if (e.cancelable) e.preventDefault(); // HARD BLOCK SCROLLING
+
+                const pt = e.touches ? e.touches[0] : e;
+                const dx = pt.clientX - this.startX;
+                const dy = pt.clientY - this.startY;
+
+                // Physics: Translate & Rotate
+                const rotation = dx * CONFIG.ROTATION_STRENGTH;
+                this.target.style.transform = `translate(${dx}px, ${dy}px) rotate(${rotation}deg)`;
+
+                // Visuals: Scale Arrows
+                this.updateArrows(dx, dy);
+            },
+
+            onEnd(e) {
+                if (!this.isDragging) return;
+                this.isDragging = false;
+                this.target.classList.remove('dragging');
+
+                // Cleanup
+                document.removeEventListener('touchmove', this.onMove.bind(this));
+                document.removeEventListener('touchend', this.onEnd.bind(this));
+                document.removeEventListener('mousemove', this.onMove.bind(this));
+                document.removeEventListener('mouseup', this.onEnd.bind(this));
+
+                // Determine Throw
+                // Use changedTouches for the lifting finger
+                const pt = e.changedTouches ? e.changedTouches[0] : e;
+                const dx = pt.clientX - this.startX;
+                const dy = pt.clientY - this.startY;
+
+                const absX = Math.abs(dx);
+                const absY = Math.abs(dy);
+
+                let direction = null;
+
+                if (absY > absX && absY > CONFIG.SWIPE_THRESHOLD) {
+                    direction = dy < 0 ? 'up' : 'down';
+                } else if (absX > absY && absX > CONFIG.SWIPE_THRESHOLD) {
+                    direction = dx > 0 ? 'right' : 'left';
+                }
+
+                if (direction) {
+                    this.commit(direction);
+                } else {
+                    this.reset();
+                }
+                
+                document.getElementById('debug-console').textContent = "Input: Idle";
+            },
+
+            updateArrows(dx, dy) {
+                const absX = Math.abs(dx);
+                const absY = Math.abs(dy);
+                const footer = document.getElementById('ui-footer');
+                const items = footer.querySelectorAll('.legend-item');
+                
+                let activeClass = '';
+                let activeColor = '';
+
+                if (absY > absX) {
+                    if (dy < 0) { activeClass = 'up'; activeColor = CONFIG.COLORS.UP; }
+                    else { activeClass = 'down'; activeColor = CONFIG.COLORS.DOWN; }
+                } else {
+                    if (dx > 0) { activeClass = 'right'; activeColor = CONFIG.COLORS.RIGHT; }
+                    else { activeClass = 'left'; activeColor = CONFIG.COLORS.LEFT; }
+                }
+
+                // Apply styles
+                items.forEach(item => {
+                    const icon = item.querySelector('.legend-icon');
+                    if (item.classList.contains(activeClass)) {
+                        item.style.transform = 'scale(1.2)';
+                        icon.style.color = activeColor;
+                    } else {
+                        item.style.transform = 'scale(1)';
+                        icon.style.color = CONFIG.COLORS.NEUTRAL;
+                    }
+                });
+            },
+
+            reset() {
+                this.target.style.transition = `transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)`;
+                this.target.style.transform = 'translate(0,0) rotate(0)';
+                this.clearArrows();
+            },
+
+            commit(dir) {
+                const q = STATE.deck[STATE.currentIndex];
+                
+                // Scoring
+                let score = 0;
+                let isCorrect = (dir === q.correct);
+                if (isCorrect) score = 10 * q.w;
+                else if (dir === 'left') score = 0;
+                else score = -5;
+
+                STATE.answers[q.id] = { dir, score, correct: isCorrect };
+
+                // Fly away animation
+                let tx = 0, ty = 0;
+                const dist = 1000;
+                if (dir === 'up') ty = -dist;
+                if (dir === 'down') ty = dist;
+                if (dir === 'left') tx = -dist;
+                if (dir === 'right') tx = dist;
+
+                this.target.style.transition = 'transform 0.3s ease-in';
+                this.target.style.transform = `translate(${tx}px, ${ty}px) rotate(${tx * 0.1}deg)`;
+
+                this.clearArrows();
+
+                setTimeout(() => {
+                    this.target.remove();
+                    STATE.currentIndex++;
+                    GAME.renderStack();
+                }, 300);
+            },
+
+            clearArrows() {
+                const items = document.querySelectorAll('.legend-item');
+                items.forEach(item => {
+                    item.style.transform = '';
+                    item.querySelector('.legend-icon').style.color = '';
                 });
             }
         };
-        
-        // Prevent scroll bounce
+
+        // --- PREVENT SCROLL BOUNCE ON IOS ---
         document.body.addEventListener('touchmove', function(e) { e.preventDefault(); }, { passive: false });
-    </script>
-</body>
-</html>
+
     </script>
 </body>
 </html>
