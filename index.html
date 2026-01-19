@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#09090b">
-    <title>Chemistry Master V17</title>
+    <title>Chemistry Master V18</title>
 
     <style>
         /* --- ASSETS --- */
@@ -49,6 +49,7 @@
             max-width: 480px;
             display: flex; flex-direction: column;
             background: var(--bg-body);
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
             overflow: hidden;
         }
 
@@ -82,25 +83,19 @@
 
         /* --- CARD STACK --- */
         .stage {
-            position: relative; 
-            flex: 1; 
-            width: 100%;
-            perspective: 1000px; 
-            z-index: 20;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: relative; flex: 1; width: 100%;
+            perspective: 1000px; z-index: 20;
+            display: flex; align-items: center; justify-content: center;
         }
 
         .card {
             position: absolute;
             left: 50%; top: 50%;
             transform: translate(-50%, -50%);
+            width: var(--card-w); max-width: var(--card-max);
+            /* Standard Size */
+            max-height: 55vh; aspect-ratio: 3/4;
             
-            width: var(--card-w); 
-            max-width: var(--card-max);
-            
-            /* Initial State */
             background: var(--bg-card);
             border-radius: 24px;
             box-shadow: 0 20px 40px -5px rgba(0,0,0,0.3);
@@ -109,37 +104,20 @@
             padding: 2rem; text-align: left;
             
             will-change: transform; transform-style: flat;
-            transition: transform 0.1s linear; /* Fast response */
+            transition: transform 0.1s linear;
         }
+
+        /* Sub-Card Variation */
+        .card.sub-card {
+            border: 2px solid var(--blue);
+            background: #eff6ff; /* Light Blue Tint */
+        }
+        .card.sub-card .meta-tag { color: var(--blue); font-weight: 800; }
 
         .card p {
             font-size: 1.3rem; font-weight: 800;
             color: var(--text-main); line-height: 1.35;
-            pointer-events: none; margin-bottom: 0; text-align: center; width: 100%;
-            transition: margin 0.3s ease;
-        }
-
-        /* Revealed State */
-        .card.reveal p { margin-bottom: 1.5rem; }
-        
-        .card-list { 
-            width: 100%; padding-left: 1rem; margin: 0; pointer-events: none; 
-            opacity: 0; max-height: 0; overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        
-        .card.reveal .card-list {
-            opacity: 1; max-height: 200px; /* Allow expansion */
-            margin-bottom: 1rem;
-        }
-
-        .card-list li {
-            font-size: 0.85rem; color: var(--text-sub); margin-bottom: 0.6rem;
-            font-weight: 500; line-height: 1.4; list-style-type: none; position: relative;
-        }
-        .card-list li::before {
-            content: "•"; color: var(--accent); font-weight: bold;
-            font-size: 1.2rem; position: absolute; left: -1rem; top: -2px;
+            pointer-events: none; margin-bottom: 1rem; text-align: center; width: 100%;
         }
 
         .card-id {
@@ -160,13 +138,16 @@
             display: flex; flex-direction: column; align-items: center;
             color: #52525b; transition: 0.15s;
         }
-        .ctrl.active { color: #fff; transform: scale(1.3); text-shadow: 0 0 15px currentColor; }
+        .ctrl.active { color: #fff; transform: scale(1.3); }
         .ctrl.up { grid-column: 2; grid-row: 1; margin-bottom: 0.5rem; }
         .ctrl.down { grid-column: 2; grid-row: 2; margin-top: 0.5rem; }
         .ctrl.left { grid-column: 1; grid-row: 2; }
         .ctrl.right { grid-column: 3; grid-row: 2; }
         .icon { font-size: 1.8rem; line-height: 1; margin-bottom: 4px; }
         .label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+
+        /* Hidden when in Sub-Mode */
+        .footer.sub-mode .ctrl.left { opacity: 0.2; pointer-events: none; } /* Disable Left Swipe in Sub-Mode */
 
         /* --- VIEWS --- */
         .view {
@@ -179,7 +160,7 @@
 
         .btn-main {
             background: #fff; color: #000; border: none;
-            padding: 1.2rem 3rem; font-size: 1rem; font-weight: 700;
+            padding: 1.2rem 3rem; font-size: 1rem; font-weight: 800;
             border-radius: 100px; cursor: pointer; margin-top: 2rem;
         }
 
@@ -205,6 +186,7 @@
             border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column;
         }
 
+        /* --- REVIEW --- */
         #view-review .review-card {
             background: #fff; color: #000; width: 90%; height: 70%;
             border-radius: 24px; padding: 2rem; display: flex; flex-direction: column;
@@ -235,9 +217,9 @@
         <div id="ui-overlay"></div>
 
         <section id="view-start" class="view active">
-            <div style="color:var(--accent); border:1px solid var(--accent); padding:4px 8px; border-radius:4px; font-family:'JetBrains Mono'; font-size:0.7rem; margin-bottom:1rem;">MODULE V16.0</div>
+            <div style="color:var(--accent); border:1px solid var(--accent); padding:4px 8px; border-radius:4px; font-family:'JetBrains Mono'; font-size:0.7rem; margin-bottom:1rem;">MODULE V18.0</div>
             <h1 style="font-size:3rem; font-weight:800; color:#fff; text-align:center; margin-bottom:1rem;">CHEMISTRY<br>MASTER</h1>
-            <p style="color:#a1a1aa; text-align:center; margin-bottom:3rem;">Tactical Context Engine</p>
+            <p style="color:#a1a1aa; text-align:center; margin-bottom:3rem;">Swipe Left to Dive Deep</p>
             <button class="btn-main" onclick="APP.start('CORE')">START QUIZ</button>
         </section>
 
@@ -248,9 +230,9 @@
                 <span class="meta-title" id="ui-type">CONCEPT</span>
             </header>
             <div class="stage" id="card-stack"></div>
-            <footer class="footer">
+            <footer class="footer" id="game-footer">
                 <div class="ctrl up"><span class="icon">↑</span><span class="label" id="lbl-up">True</span></div>
-                <div class="ctrl left"><span class="icon">?</span><span class="label" id="lbl-left">SUB-Q</span></div>
+                <div class="ctrl left"><span class="icon">?</span><span class="label" id="lbl-left">DEEP DIVE</span></div>
                 <div class="ctrl down"><span class="icon">↓</span><span class="label" id="lbl-down">False</span></div>
                 <div class="ctrl right"><span class="icon">→</span><span class="label" id="lbl-right">Unsure</span></div>
             </footer>
@@ -293,7 +275,7 @@
     <script>
         const CONFIG = {
             API_URL: "https://script.google.com/macros/s/AKfycbz_ziu5Dezrz35J2FksQtNEYuZ5Kk6TrQvg3pM5O5eBYUDzWCCtqlGWwZj8D-TBQLFw/exec",
-            THRESHOLD: 60, // Lowered for easier left/right trigger
+            THRESHOLD: 60, // SENSITIVITY TUNED
             COLORS: { UP:'#22c55e', DOWN:'#ef4444', RIGHT:'#eab308', LEFT:'#3b82f6' },
             CHART: {'ATOM':'#3b82f6', 'BOND':'#8b5cf6', 'SOLN':'#ec4899', 'REAC':'#f59e0b', 'TABL':'#10b981'}
         };
@@ -316,42 +298,9 @@
                 { id: "c14", topic: "Neutrality", type: "SOLN", text: "Pure water is neutral at pH 7.", subs: ["H+ equals OH-?", "Midpoint of scale.", "Safe to drink?"], explanation: "Correct. 7 is neutral.", up:"True", down:"False", right:"Unsure", correct:"up", w:1 },
                 { id: "c15", topic: "Mixtures", type: "SOLN", text: "In salt water, salt is the solvent.", subs: ["Solute gets dissolved.", "Solvent does dissolving.", "Which is the liquid?"], explanation: "False. Water is solvent, salt is solute.", up:"True", down:"False", right:"Unsure", correct:"down", w:1 }
             ],
-            ATOMS_HARD: [
-                { id: "ah1", topic: "Quantum", type: "ATOM", image: "https://placehold.co/600x400/3b82f6/ffffff?text=Orbitals", text: "The 4s orbital fills before 3d.", subs: ["Aufbau Principle.", "Lower Energy Level?", "n+l rule."], explanation: "True. 4s is lower energy.", up:"True", down:"False", right:"Unsure", correct:"up", w:2 },
-                { id: "ah2", topic: "Isotopes", type: "ATOM", text: "Isotopes differ in proton count.", subs: ["Same Element?", "Different Mass?", "Protons vs Neutrons."], explanation: "False. They differ in Neutrons.", up:"True", down:"False", right:"Unsure", correct:"down", w:2 },
-                { id: "ah3", topic: "Config", type: "ATOM", text: "d-subshell holds max 14 electrons.", subs: ["s=2, p=6.", "d=10?", "f=14?"], explanation: "False. d holds 10. f holds 14.", up:"True", down:"False", right:"Unsure", correct:"down", w:2 },
-                { id: "ah4", topic: "Trends", type: "ATOM", text: "Atomic radius decreases left-to-right.", subs: ["More protons.", "Same shielding.", "Stronger pull?"], explanation: "True. Stronger nucleus pulls electrons in.", up:"True", down:"False", right:"Unsure", correct:"up", w:2 },
-                { id: "ah7", topic: "Pauli", type: "ATOM", text: "Two electrons in same orbital must have opposite spins.", subs: ["Exclusion Principle.", "Up and Down arrows.", "Quantum numbers."], explanation: "True. Pauli Exclusion Principle.", up:"True", down:"False", right:"Unsure", correct:"up", w:2 },
-                { id: "ah8", topic: "Isoelectronic", type: "ATOM", text: "Na+ and Ne are isoelectronic.", subs: ["Na has 11, loses 1.", "Ne has 10.", "Same electron count?"], explanation: "True. Both have 10 electrons.", up:"True", down:"False", right:"Unsure", correct:"up", w:2 },
-                { id: "ah9", topic: "Anomalies", type: "ATOM", text: "Chromium has a [Ar] 4s2 3d4 config.", subs: ["Half-filled stability?", "Electron promotion?", "4s1 3d5?"], explanation: "False. It promotes to 4s1 3d5 for stability.", up:"True", down:"False", right:"Unsure", correct:"down", w:2 },
-                { id: "ah10", topic: "Quantum", type: "ATOM", text: "Angular momentum quantum number (l) defines shape.", subs: ["n = size.", "l = shape.", "ml = orientation."], explanation: "True. l=0 is spherical, l=1 is dumbbell.", up:"True", down:"False", right:"Unsure", correct:"up", w:2 },
-                { id: "ah5", topic: "Ions", type: "ATOM", text: "Cations are larger than neutral atoms.", subs: ["Lose electron.", "Less repulsion.", "Smaller radius?"], explanation: "False. Cations shrink upon electron loss.", up:"True", down:"False", right:"Unsure", correct:"down", w:2 },
-                { id: "ah6", topic: "Ionization", type: "ATOM", text: "Ionization energy increases down a group.", subs: ["More shells.", "More shielding.", "Easier to remove?"], explanation: "False. It decreases as atoms get larger.", up:"True", down:"False", right:"Unsure", correct:"down", w:2 }
-            ],
-            BONDS_HARD: [
-                { id: "bh1", topic: "VSEPR", type: "BOND", image: "https://placehold.co/600x400/8b5cf6/ffffff?text=Water+Structure", text: "This molecular shape is Tetrahedral.", subs: ["Central atom O.", "2 Bonds, 2 Lone Pairs.", "Bent shape?"], explanation: "False. Water is Bent due to lone pairs.", up:"True", down:"False", right:"Unsure", correct:"down", w:2 },
-                { id: "bh2", topic: "Polarity", type: "BOND", text: "BF3 is non-polar despite polar bonds.", subs: ["Trigonal Planar.", "Symmetry cancels?", "No lone pairs."], explanation: "True. Symmetry cancels dipoles.", up:"True", down:"False", right:"Unsure", correct:"up", w:2 },
-                { id: "bh3", topic: "Forces", type: "BOND", text: "H-bonds are stronger than covalent bonds.", subs: ["Intermolecular vs Intra.", "Breaking water vs boiling.", "Bond strength."], explanation: "False. Covalent are much stronger.", up:"True", down:"False", right:"Unsure", correct:"down", w:2 },
-                { id: "bh5", topic: "Sigma", type: "BOND", text: "Double bond = 1 Sigma + 1 Pi.", subs: ["Head-on overlap.", "Side-on overlap.", "Bond count."], explanation: "True. First is sigma, second is pi.", up:"True", down:"False", right:"Unsure", correct:"up", w:2 },
-                { id: "bh4", topic: "Lattice", type: "BOND", text: "MgO has higher lattice energy than NaCl.", subs: ["Mg (+2), O (-2).", "Na (+1), Cl (-1).", "Charge product."], explanation: "True. +2/-2 charges attract stronger than +1/-1.", up:"True", down:"False", right:"Unsure", correct:"up", w:2 },
-                { id: "bh6", topic: "Resonance", type: "BOND", text: "Ozone (O3) has equal bond lengths.", subs: ["Resonance hybrid.", "Delocalized electrons.", "1.5 bond order?"], explanation: "True. The double bond character is delocalized.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "bh7", topic: "Order", type: "BOND", text: "N2 has a bond order of 2.", subs: ["Nitrogen gas.", "Triple bond?", "Share 6 electrons?"], explanation: "False. Nitrogen has a triple bond (Order 3).", up:"True", down:"False", right:"Unsure", correct:"down", w:2 },
-                { id: "bh8", topic: "Formal", type: "BOND", text: "Formal charge assumes equal sharing.", subs: ["Bookkeeping method.", "Ignore electronegativity.", "Lewis structures."], explanation: "True. It ignores electronegativity differences.", up:"True", down:"False", right:"Unsure", correct:"up", w:2 },
-                { id: "bh9", topic: "Coordinate", type: "BOND", text: "In NH4+, H provides the shared electrons.", subs: ["Ammonium ion.", "Coordinate covalent.", "N gives lone pair?"], explanation: "False. Nitrogen provides the lone pair for the 4th bond.", up:"True", down:"False", right:"Unsure", correct:"down", w:2 },
-                { id: "bh10", topic: "Metallic", type: "BOND", text: "Metals conduct due to 'sea of electrons'.", subs: ["Delocalized e-.", "Mobile charge.", "Free movement."], explanation: "True. Electrons move freely carrying charge.", up:"True", down:"False", right:"Unsure", correct:"up", w:2 }
-            ],
-            SOLUTIONS_HARD: [
-                { id: "sh1", topic: "Colligative", type: "SOLN", text: "Salt decreases water's boiling point.", subs: ["Vapor pressure lowering.", "Boiling elevation?", "Freezing depression."], explanation: "False. Salt elevates boiling point.", up:"True", down:"False", right:"Unsure", correct:"down", w:2 },
-                { id: "sh2", topic: "Units", type: "SOLN", text: "Molarity changes with temperature.", subs: ["Molarity = mol/L.", "Volume expands with heat.", "Molality = mol/kg."], explanation: "True. Volume changes, so Molarity changes.", up:"True", down:"False", right:"Unsure", correct:"up", w:2 },
-                { id: "sh3", topic: "Buffers", type: "SOLN", text: "Buffers resist pH change.", subs: ["Weak acid + conj base.", "Neutralize added acid.", "Maintain stability."], explanation: "True. They neutralize added acid/base.", up:"True", down:"False", right:"Unsure", correct:"up", w:2 },
-                { id: "sh4", topic: "Solubility", type: "SOLN", text: "Gas solubility increases with heat.", subs: ["Warm soda goes flat.", "Kinetic energy.", "Gas escapes?"], explanation: "False. Gases escape warm liquids.", up:"True", down:"False", right:"Unsure", correct:"down", w:2 },
-                { id: "sh5", topic: "Factor", type: "SOLN", text: "Van't Hoff factor (i) for CaCl2 is 3.", subs: ["Dissociation.", "Ca + Cl + Cl.", "Number of ions."], explanation: "True. Ca + Cl + Cl = 3 particles.", up:"True", down:"False", right:"Unsure", correct:"up", w:2 },
-                { id: "sh6", topic: "Osmosis", type: "SOLN", text: "Water moves to lower solute concentration.", subs: ["Dilute to Concentrated.", "Osmotic pressure.", "Equilibrium."], explanation: "False. Water moves to HIGHER solute concentration to dilute it.", up:"True", down:"False", right:"Unsure", correct:"down", w:2 },
-                { id: "sh7", topic: "SuperSat", type: "SOLN", text: "Supersaturated solutions are unstable.", subs: ["More solute than max.", "Seed crystal.", "Precipitation."], explanation: "True. A seed crystal causes precipitation.", up:"True", down:"False", right:"Unsure", correct:"up", w:2 },
-                { id: "sh8", topic: "Hess", type: "SOLN", text: "Enthalpy change is path independent.", subs: ["State function.", "Start vs End.", "Route doesn't matter."], explanation: "True. Hess's Law.", up:"True", down:"False", right:"Unsure", correct:"up", w:2 },
-                { id: "sh9", topic: "LeChatelier", type: "SOLN", text: "Adding product shifts equilibrium right.", subs: ["Stress relief.", "Consume excess.", "Shift away."], explanation: "False. It shifts Left to consume excess product.", up:"True", down:"False", right:"Unsure", correct:"down", w:2 },
-                { id: "sh10", topic: "Electrolyte", type: "SOLN", text: "Strong electrolytes partially dissociate.", subs: ["Strong vs Weak.", "Full dissociation?", "Conductivity."], explanation: "False. Strong electrolytes fully dissociate.", up:"True", down:"False", right:"Unsure", correct:"down", w:2 }
-            ]
+            ATOMS_HARD: [ { id: "ah1", topic: "Quantum", type: "ATOM", text: "The 4s orbital fills before 3d.", subs: ["Aufbau.", "Energy levels."], explanation: "True.", up:"True", down:"False", right:"Unsure", correct:"up", w:2 } ],
+            BONDS_HARD: [ { id: "bh1", topic: "VSEPR", type: "BOND", text: "This molecular shape is Tetrahedral.", subs: ["Lone pairs?", "Bond angles."], explanation: "False.", up:"True", down:"False", right:"Unsure", correct:"down", w:2 } ],
+            SOLUTIONS_HARD: [ { id: "sh1", topic: "Colligative", type: "SOLN", text: "Salt decreases boiling point.", subs: ["Vapor pressure."], explanation: "False.", up:"True", down:"False", right:"Unsure", correct:"down", w:2 } ]
         };
 
         const APP = {
@@ -370,17 +319,34 @@
                 const stack = document.getElementById('card-stack'); stack.innerHTML='';
                 if(this.idx>=this.deck.length) return this.finish();
                 const buffer = this.deck.slice(this.idx, this.idx + 2).reverse();
+                
                 buffer.forEach((q,i)=>{
                     const realIdx = this.idx + (buffer.length - 1 - i);
-                    const el = document.createElement('div'); el.className='card';
+                    const el = document.createElement('div');
                     
-                    let subHTML = `<ul class="card-list">`;
-                    if(q.subs) q.subs.forEach(s=>subHTML+=`<li>${s}</li>`);
-                    subHTML+=`</ul>`;
-
-                    el.innerHTML = `<p>${q.text}</p>${subHTML}<div class="card-id">${q.id}</div>`;
+                    // CARD RENDER LOGIC
+                    if (q.type === 'SUB') {
+                        el.className = 'card sub-card';
+                        el.innerHTML = `
+                            <div class="meta-tag">CONTEXT CLUE</div>
+                            <p style="font-size:1.1rem; margin-bottom:0;">${q.text}</p>
+                            <div class="card-id">Swipe to Dismiss</div>
+                        `;
+                    } else {
+                        el.className = 'card';
+                        let imgHTML = q.image ? `<img src="${q.image}" class="card-visual">` : '';
+                        el.innerHTML = `${imgHTML}<p>${q.text}</p><div class="card-id">${q.id}</div>`;
+                    }
                     
-                    if(realIdx===this.idx) { el.style.zIndex=100; this.activeEl=el; PHYSICS.bind(el); }
+                    if(realIdx===this.idx) { 
+                        el.style.zIndex=100; this.activeEl=el; PHYSICS.bind(el); 
+                        // Hide Sub-Q button if already in Sub-Mode
+                        if(q.type === 'SUB' || q.isRevealed) {
+                            document.getElementById('game-footer').classList.add('sub-mode');
+                        } else {
+                            document.getElementById('game-footer').classList.remove('sub-mode');
+                        }
+                    }
                     else { el.style.zIndex=90; el.style.transform='translate(-50%,-50%) scale(0.95) translateY(20px)'; el.style.opacity=0.5; }
                     stack.appendChild(el);
                 });
@@ -392,9 +358,6 @@
                 document.getElementById('ui-topic').textContent=q.topic;
                 document.getElementById('ui-type').textContent=q.type;
                 document.getElementById('ui-progress').style.width=((this.idx/this.deck.length)*100)+'%';
-                document.getElementById('lbl-up').textContent=q.up;
-                document.getElementById('lbl-down').textContent=q.down;
-                document.getElementById('lbl-right').textContent=q.right;
             },
 
             finish() {
@@ -408,15 +371,11 @@
                     document.getElementById('review-cta').classList.remove('hidden');
                     this.reviewDeck = mistakes.map(a=>a.q);
                 }
-                fetch(CONFIG.API_URL, {
-                    method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'},
-                    body:JSON.stringify({answers:this.answers, score, timestamp:new Date().toISOString()})
-                });
             },
 
             renderChart() {
                 const counts={}; let total=0;
-                Object.values(this.answers).forEach(a=>{ if(a.correct){ counts[a.q.type]=(counts[a.q.type]||0)+1; total++; }});
+                Object.values(this.answers).forEach(a=>{ if(a.correct && a.q.type !== 'SUB'){ counts[a.q.type]=(counts[a.q.type]||0)+1; total++; }});
                 const chart = document.getElementById('chart-pie');
                 if(total===0) { chart.style.background='#27272a'; return; }
                 let grad=[]; let cur=0;
@@ -481,18 +440,49 @@
             },
             reset() { this.el.style.transition='transform 0.3s cubic-bezier(0.2,0.8,0.2,1)'; this.el.style.transform='translate(-50%,-50%)'; this.overlay.style.opacity=0; document.querySelectorAll('.ctrl').forEach(c=>{ c.classList.remove('active'); c.style.color=''; }); },
             commit(dir) { 
-                if (dir === 'left') {
-                    this.el.style.transition='transform 0.3s cubic-bezier(0.2,0.8,0.2,1)';
-                    this.el.style.transform='translate(-50%,-50%)';
-                    this.el.classList.add('reveal'); 
-                    this.overlay.style.opacity=0;
-                    document.querySelectorAll('.ctrl').forEach(c=>{ c.classList.remove('active'); c.style.color=''; });
-                    return; 
+                const q = APP.deck[APP.idx];
+
+                // 1. Handle Sub-Card Dismissal (Any swipe works)
+                if (q.type === 'SUB') {
+                    let tx=0, ty=0; const d=800;
+                    if(dir==='left') tx=-d; else if(dir==='right') tx=d; else if(dir==='up') ty=-d; else ty=d;
+                    this.el.style.transition='transform 0.4s ease-in';
+                    this.el.style.transform=`translate(-50%,-50%) translate(${tx}px,${ty}px) rotate(${tx*0.1}deg)`;
+                    setTimeout(()=>{ this.el.remove(); APP.idx++; APP.render(); },300);
+                    return;
                 }
-                const q=APP.deck[APP.idx]; const score=dir===q.correct?10*q.w:-5; 
+
+                // 2. Handle "Deep Dive" Trigger (Swipe Left on Main Card)
+                if (dir === 'left' && !q.isRevealed) {
+                    // Fly out Left
+                    this.el.style.transition='transform 0.4s ease-in';
+                    this.el.style.transform=`translate(-50%,-50%) translate(-800px,0)`;
+                    
+                    // Inject Sub-Cards
+                    const subCards = q.subs.map((s, i) => ({
+                        id: q.id + "_s" + i,
+                        topic: q.topic,
+                        type: "SUB",
+                        text: s,
+                        up:"Ok", down:"Ok", right:"Ok", left:"Ok"
+                    }));
+                    
+                    // Re-insert Main Card at end of subs (marked revealed)
+                    const mainCardReturn = {...q, isRevealed: true};
+                    
+                    // Splice into deck
+                    APP.deck.splice(APP.idx + 1, 0, ...subCards, mainCardReturn);
+                    
+                    setTimeout(()=>{ this.el.remove(); APP.idx++; APP.render(); },300);
+                    return;
+                }
+
+                // 3. Handle Normal Answer
+                const score=dir===q.correct?10*q.w:-5; 
                 APP.answers[q.id]={dir,score,correct:dir===q.correct,q}; 
                 let tx=0, ty=0; const d=800; 
                 if(dir==='up') ty=-d; if(dir==='down') ty=d; if(dir==='right') tx=d; 
+                
                 this.el.style.transition='transform 0.4s ease-in'; 
                 this.el.style.transform=`translate(-50%,-50%) translate(${tx}px,${ty}px) rotate(${tx*0.1}deg)`; 
                 this.overlay.style.opacity=0; 
