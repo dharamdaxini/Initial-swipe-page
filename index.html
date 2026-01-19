@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#09090b">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Chemistry Fundamentals</title>
+    <title>Strategic Convergence 2026</title>
 
     <style>
         /* 1. ASSETS */
@@ -14,14 +14,14 @@
 
         /* 2. TOKENS */
         :root {
-            --bg-void: #0f172a; /* Deep Slate Blue for Science feel */
-            --bg-glass: rgba(30, 41, 59, 0.7);
+            --bg-void: #020617;
+            --bg-glass: rgba(30, 41, 59, 0.8);
             --bg-card: #ffffff;
             
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
-            --text-card: #1e293b;
-            --text-sub: #64748b;
+            --text-card: #0f172a;
+            --text-accent: #38bdf8;
 
             /* Signals */
             --signal-up: #22c55e;
@@ -30,15 +30,14 @@
             --signal-right: #eab308;
 
             --card-w: 90vw;
-            --card-max-w: 360px;
+            --card-max-w: 380px;
         }
 
         /* 3. RESET */
         *, *::before, *::after {
             box-sizing: border-box; margin: 0; padding: 0;
             -webkit-tap-highlight-color: transparent;
-            touch-action: none;
-            user-select: none;
+            touch-action: none; user-select: none;
         }
 
         body {
@@ -61,7 +60,6 @@
             box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
 
-        /* DYNAMIC BG */
         #ui-overlay {
             position: absolute; inset: 0;
             background: transparent; opacity: 0;
@@ -82,16 +80,16 @@
             background: rgba(255,255,255,0.1);
             border-radius: 10px; margin-bottom: 1rem; overflow: hidden;
         }
-        .progress-fill { height: 100%; background: #38bdf8; width: 0%; transition: width 0.3s; }
+        .progress-fill { height: 100%; background: var(--text-accent); width: 0%; transition: width 0.3s; }
 
         .meta-tag {
             font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
-            color: #94a3b8; margin-bottom: 0.25rem;
+            color: var(--text-secondary); margin-bottom: 0.25rem;
             background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 4px;
         }
-        .meta-title { font-size: 1.1rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: #e2e8f0; }
+        .meta-title { font-size: 1.1rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-primary); }
 
-        /* 6. CARD STACK */
+        /* 6. GAME CARD STACK */
         .stage {
             position: relative;
             flex: 1; width: 100%;
@@ -121,15 +119,10 @@
             pointer-events: none; margin-bottom: 1rem;
         }
 
-        /* NEW: Sub-question style */
         .card-sub {
-            font-size: 0.9rem;
-            color: var(--text-sub);
-            font-weight: 500;
-            line-height: 1.5;
-            padding-top: 1rem;
-            border-top: 1px solid #e2e8f0;
-            width: 80%;
+            font-size: 0.9rem; color: #64748b; font-weight: 500;
+            line-height: 1.5; padding-top: 1rem;
+            border-top: 1px solid #e2e8f0; width: 80%;
             pointer-events: none;
         }
 
@@ -163,7 +156,7 @@
         .icon { font-size: 1.8rem; line-height: 1; margin-bottom: 2px; }
         .label { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
 
-        /* 8. VIEWS */
+        /* 8. VIEWS & BUTTONS */
         .view {
             position: absolute; inset: 0;
             background: var(--bg-void); z-index: 100;
@@ -173,11 +166,67 @@
         .view.active { opacity: 1; pointer-events: auto; }
 
         .btn-main {
-            background: #38bdf8; color: #0f172a; border: none;
+            background: var(--text-accent); color: #0f172a; border: none;
             padding: 1rem 3rem; font-size: 1rem; font-weight: 800;
             border-radius: 100px; cursor: pointer;
             box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+            margin-top: 1rem;
         }
+        
+        .btn-secondary {
+            background: transparent; color: var(--text-secondary); border: 1px solid var(--text-secondary);
+            padding: 0.8rem 2rem; font-size: 0.9rem; font-weight: 600;
+            border-radius: 100px; cursor: pointer; margin-top: 1rem;
+        }
+
+        /* 9. REVIEW MODE STYLES (NEW) */
+        #view-review .review-card {
+            background: #fff;
+            color: #000;
+            width: 90%;
+            height: 70%;
+            border-radius: 24px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .rev-q-box {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border-bottom: 2px dashed #e2e8f0;
+            margin-bottom: 1rem;
+        }
+        
+        .rev-q-text { font-size: 1.2rem; font-weight: 700; color: #1e293b; }
+
+        .rev-a-box {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .rev-badge {
+            align-self: flex-start;
+            background: #dcfce7; color: #166534;
+            font-size: 0.7rem; font-weight: 800; padding: 4px 8px; border-radius: 4px;
+            margin-bottom: 0.5rem; letter-spacing: 0.05em;
+        }
+
+        .rev-sol { font-size: 1rem; color: #334155; line-height: 1.5; }
+        
+        .rev-nav {
+            display: flex; justify-content: space-between; align-items: center;
+            width: 90%; margin-top: 1.5rem;
+        }
+        
+        .rev-count { color: var(--text-secondary); font-family: 'JetBrains Mono'; font-size: 0.8rem; }
 
         .hidden { display: none !important; }
     </style>
@@ -188,9 +237,9 @@
         <div id="ui-overlay"></div>
 
         <section id="view-start" class="view active">
-            <div style="color:#38bdf8; border:1px solid #38bdf8; padding:4px 8px; border-radius:4px; font-family:'JetBrains Mono'; font-size:0.7rem; margin-bottom:1rem;">MODULE: CHEMISTRY</div>
+            <div style="color:var(--text-accent); border:1px solid var(--text-accent); padding:4px 8px; border-radius:4px; font-family:'JetBrains Mono'; font-size:0.7rem; margin-bottom:1rem;">CHEMISTRY MODULE V4.0</div>
             <h1 style="font-size:3rem; font-weight:900; line-height:0.9; text-align:center; margin-bottom:1rem;">CORE<br>CONCEPTS</h1>
-            <p style="color:#94a3b8; margin-bottom:3rem; text-align:center;">Atoms • Bonds • Reactions</p>
+            <p style="color:var(--text-secondary); margin-bottom:3rem; text-align:center;">Atoms • Bonds • Solutions</p>
             <button class="btn-main" onclick="APP.start()">BEGIN</button>
         </section>
 
@@ -200,9 +249,7 @@
                 <span class="meta-tag" id="ui-topic">TOPIC</span>
                 <span class="meta-title" id="ui-type">CONCEPT</span>
             </header>
-
             <div class="stage" id="card-stack"></div>
-
             <footer class="footer">
                 <div class="ctrl up"><span class="icon">↑</span><span class="label" id="lbl-up">True</span></div>
                 <div class="ctrl left"><span class="icon">←</span><span class="label" id="lbl-left">Skip</span></div>
@@ -213,12 +260,33 @@
 
         <section id="view-summary" class="view">
             <h2 style="font-size:1.5rem; margin-bottom:2rem;">ANALYSIS COMPLETE</h2>
-            <div style="display:flex; gap:2rem; margin-bottom:3rem; text-align:center;">
-                <div><span style="font-size:3rem; font-weight:800; display:block;" id="res-score">0</span><span style="color:#64748b; font-size:0.7rem;">POINTS</span></div>
-                <div><span style="font-size:3rem; font-weight:800; display:block;" id="res-acc">0%</span><span style="color:#64748b; font-size:0.7rem;">ACCURACY</span></div>
+            <div style="display:flex; gap:2rem; margin-bottom:2rem; text-align:center;">
+                <div><span style="font-size:3rem; font-weight:800; display:block;" id="res-score">0</span><span style="color:var(--text-secondary); font-size:0.7rem;">POINTS</span></div>
+                <div><span style="font-size:3rem; font-weight:800; display:block;" id="res-acc">0%</span><span style="color:var(--text-secondary); font-size:0.7rem;">ACCURACY</span></div>
             </div>
-            <button class="btn-main" onclick="location.reload()">RESTART</button>
+            
+            <div id="review-cta" class="hidden">
+                <p style="color:var(--signal-down); margin-bottom:1rem; text-align:center;">Mistakes Detected.</p>
+                <button class="btn-main" style="background:var(--signal-down); color:#fff;" onclick="APP.startReview()">REVIEW MISTAKES</button>
+            </div>
+            
+            <button class="btn-secondary" onclick="location.reload()">RESTART QUIZ</button>
         </section>
+
+        <section id="view-review" class="view">
+            <div id="review-card-container" class="review-card">
+                <div class="rev-q-box"><p class="rev-q-text" id="rev-q"></p></div>
+                <div class="rev-a-box">
+                    <div class="rev-badge">SOLUTION</div>
+                    <p class="rev-sol" id="rev-sol"></p>
+                </div>
+            </div>
+            <div class="rev-nav">
+                <span class="rev-count" id="rev-count">1 / 5</span>
+                <button class="btn-main" style="margin:0; padding:0.8rem 2rem;" onclick="APP.nextReview()">NEXT</button>
+            </div>
+        </section>
+
     </div>
 
     <script>
@@ -228,36 +296,28 @@
             COLORS: { UP:'#22c55e', DOWN:'#ef4444', RIGHT:'#eab308', LEFT:'#64748b' }
         };
 
-        // --- 15 LOCKED CHEMISTRY QUESTIONS + SUB-QUESTIONS ---
+        // --- QUESTIONS with EXPLANATIONS ---
         const QUESTIONS = [
-            // LEVEL 1: ATOMS
-            { id: "c1", topic: "Structure", type: "ATOM", text: "Protons and Neutrons reside in the nucleus.", sub: "Electrons orbit the outside.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-            { id: "c2", topic: "Charge", type: "ATOM", text: "An electron carries a positive electrical charge.", sub: "Think about protons vs electrons.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
-            { id: "c3", topic: "Identity", type: "ATOM", text: "Changing the number of protons changes the element itself.", sub: "Carbon (6) vs Nitrogen (7).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-            
-            // LEVEL 2: PERIODIC TABLE
-            { id: "c4", topic: "Organization", type: "TABLE", text: "Elements in the same vertical Group behave similarly.", sub: "Example: Lithium and Sodium.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-            { id: "c5", topic: "Noble Gases", type: "TABLE", text: "Group 18 elements (Noble Gases) are highly reactive.", sub: "Do they have full outer shells?", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
-            { id: "c6", topic: "Valence", type: "TABLE", text: "Carbon (Group 14) has 6 valence electrons.", sub: "Check the Group number hint.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-
-            // LEVEL 3: BONDING
-            { id: "c7", topic: "Mechanics", type: "BONDING", text: "Ionic bonds involve the sharing of electrons.", sub: "Sharing vs Transferring.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-            { id: "c8", topic: "Molecules", type: "BONDING", text: "Water (H2O) is a covalent molecule.", sub: "Does oxygen share or steal?", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-            
-            // LEVEL 4: REACTIONS
-            { id: "c9", topic: "Conservation", type: "REACTION", text: "In a chemical reaction, atoms are created and destroyed.", sub: "Law of Conservation of Mass.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-            { id: "c10", topic: "Balancing", type: "REACTION", text: "The equation H2 + O2 -> H2O is balanced.", sub: "Count the Oxygen atoms.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-            { id: "c11", topic: "Energy", type: "REACTION", text: "Exothermic reactions release heat energy.", sub: "Exo (Out) vs Endo (In).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-
-            // LEVEL 5: MOLES & SOLUTIONS
-            { id: "c12", topic: "Units", type: "MOLE", text: "A 'Mole' represents approx 6.022 x 10^23 particles.", sub: "Avogadro's Number.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:3 },
-            { id: "c13", topic: "Acids", type: "SOLUTIONS", text: "A pH of 2 indicates a strong Base.", sub: "Scale: 0 (Acid) to 14 (Base).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-            { id: "c14", topic: "Neutrality", type: "SOLUTIONS", text: "Pure water has a neutral pH of 7.", sub: "Right in the middle.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-            { id: "c15", topic: "Mixtures", type: "SOLUTIONS", text: "In salt water, salt is the 'Solvent'.", sub: "Solute vs Solvent.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 }
+            { id: "c1", topic: "Structure", type: "ATOM", text: "Protons and Neutrons reside in the nucleus.", sub: "Electrons orbit the outside.", explanation: "Correct. The nucleus contains the heavy particles (protons & neutrons), while electrons orbit in shells.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+            { id: "c2", topic: "Charge", type: "ATOM", text: "An electron carries a positive electrical charge.", sub: "Think about protons vs electrons.", explanation: "False. Electrons are Negative (-). Protons are Positive (+).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
+            { id: "c3", topic: "Identity", type: "ATOM", text: "Changing the number of protons changes the element itself.", sub: "Carbon (6) vs Nitrogen (7).", explanation: "Correct. The proton count (Atomic Number) defines the element's identity.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+            { id: "c4", topic: "Organization", type: "TABLE", text: "Elements in the same vertical Group behave similarly.", sub: "Example: Lithium and Sodium.", explanation: "Correct. Elements in the same Group have the same number of valence electrons, leading to similar reactions.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+            { id: "c5", topic: "Noble Gases", type: "TABLE", text: "Group 18 elements (Noble Gases) are highly reactive.", sub: "Do they have full outer shells?", explanation: "False. Noble Gases have full outer shells, making them extremely stable and unreactive.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
+            { id: "c6", topic: "Valence", type: "TABLE", text: "Carbon (Group 14) has 6 valence electrons.", sub: "Check the Group number hint.", explanation: "False. Carbon is in Group 14, so it has 4 valence electrons.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+            { id: "c7", topic: "Mechanics", type: "BONDING", text: "Ionic bonds involve the sharing of electrons.", sub: "Sharing vs Transferring.", explanation: "False. Ionic bonds transfer electrons. Covalent bonds share them.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+            { id: "c8", topic: "Molecules", type: "BONDING", text: "Water (H2O) is a covalent molecule.", sub: "Does oxygen share or steal?", explanation: "Correct. Oxygen and Hydrogen share electrons to form water.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+            { id: "c9", topic: "Conservation", type: "REACTION", text: "In a chemical reaction, atoms are created and destroyed.", sub: "Law of Conservation of Mass.", explanation: "False. Atoms are merely rearranged. Matter is conserved.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+            { id: "c10", topic: "Balancing", type: "REACTION", text: "The equation H2 + O2 -> H2O is balanced.", sub: "Count the Oxygen atoms.", explanation: "False. Left has 2 Oxygens, Right has 1. It should be 2H2 + O2 -> 2H2O.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+            { id: "c11", topic: "Energy", type: "REACTION", text: "Exothermic reactions release heat energy.", sub: "Exo (Out) vs Endo (In).", explanation: "Correct. Exothermic reactions release energy (heat) into the surroundings.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+            { id: "c12", topic: "Units", type: "MOLE", text: "A 'Mole' represents approx 6.022 x 10^23 particles.", sub: "Avogadro's Number.", explanation: "Correct. This is Avogadro's constant, the chemist's 'dozen'.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:3 },
+            { id: "c13", topic: "Acids", type: "SOLUTIONS", text: "A pH of 2 indicates a strong Base.", sub: "Scale: 0 (Acid) to 14 (Base).", explanation: "False. pH < 7 is Acidic. pH > 7 is Basic. 2 is strongly Acidic.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+            { id: "c14", topic: "Neutrality", type: "SOLUTIONS", text: "Pure water has a neutral pH of 7.", sub: "Right in the middle.", explanation: "Correct. 7 is the midpoint of the pH scale, representing neutrality.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+            { id: "c15", topic: "Mixtures", type: "SOLUTIONS", text: "In salt water, salt is the 'Solvent'.", sub: "Solute vs Solvent.", explanation: "False. The Salt is the Solute (dissolved). Water is the Solvent (dissolver).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 }
         ];
 
         const APP = {
             deck: [], idx: 0, answers: {}, activeEl: null,
+            reviewDeck: [], reviewIdx: 0,
 
             start() {
                 this.deck = [...QUESTIONS]; 
@@ -276,7 +336,6 @@
                     const realIdx = this.idx + (buffer.length - 1 - i);
                     const el = document.createElement('div');
                     el.className = 'card';
-                    // Injecting Sub-question here
                     el.innerHTML = `<p>${q.text}</p><div class="card-sub">${q.sub}</div><div class="card-id">${q.id}</div>`;
                     
                     if(realIdx === this.idx) {
@@ -308,14 +367,46 @@
                 document.getElementById('view-game').classList.remove('active');
                 document.getElementById('view-summary').classList.add('active');
                 const score = Object.values(this.answers).reduce((a,b)=>a+b.score,0);
+                const mistakes = Object.values(this.answers).filter(a => !a.correct && a.dir !== 'left');
                 const acc = Math.round((Object.values(this.answers).filter(a=>a.correct).length/this.deck.length)*100);
+                
                 document.getElementById('res-score').textContent = score;
                 document.getElementById('res-acc').textContent = acc + '%';
+
+                if (mistakes.length > 0) {
+                    document.getElementById('review-cta').classList.remove('hidden');
+                    this.reviewDeck = mistakes.map(a => a.q);
+                }
                 
                 fetch(CONFIG.API_URL, {
                     method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'text/plain'},
                     body: JSON.stringify({ answers: this.answers, score, timestamp: new Date().toISOString() })
                 });
+            },
+
+            startReview() {
+                this.reviewIdx = 0;
+                document.getElementById('view-summary').classList.remove('active');
+                document.getElementById('view-review').classList.add('active');
+                this.renderReview();
+            },
+
+            renderReview() {
+                if (this.reviewIdx >= this.reviewDeck.length) {
+                    // Back to Summary
+                    document.getElementById('view-review').classList.remove('active');
+                    document.getElementById('view-summary').classList.add('active');
+                    return;
+                }
+                const q = this.reviewDeck[this.reviewIdx];
+                document.getElementById('rev-q').textContent = q.text;
+                document.getElementById('rev-sol').textContent = q.explanation;
+                document.getElementById('rev-count').textContent = `${this.reviewIdx + 1} / ${this.reviewDeck.length}`;
+            },
+
+            nextReview() {
+                this.reviewIdx++;
+                this.renderReview();
             }
         };
 
@@ -402,7 +493,7 @@
             commit(dir) {
                 const q = APP.deck[APP.idx];
                 const score = dir===q.correct ? 10*q.w : (dir==='left'?0:-5);
-                APP.answers[q.id] = { dir, score, correct: dir===q.correct };
+                APP.answers[q.id] = { dir, score, correct: dir===q.correct, q: q }; // Save Q for review
 
                 let tx=0, ty=0; const d=800;
                 if(dir==='up') ty=-d; if(dir==='down') ty=d; if(dir==='left') tx=-d; if(dir==='right') tx=d;
