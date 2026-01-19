@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#09090b">
-    <title>Chemistry Master V22</title>
+    <title>Chemistry Master: Live</title>
 
     <style>
         /* --- ASSETS --- */
@@ -12,61 +12,209 @@
 
         /* --- TOKENS --- */
         :root {
-            --bg-body: #09090b; --bg-card: #ffffff; --text-main: #18181b; --text-sub: #71717a; --accent: #3b82f6;
-            --green: #22c55e; --red: #ef4444; --yellow: #eab308; --blue: #3b82f6;
-            --card-w: 85vw; --card-max: 360px;
+            --bg-body: #09090b;       
+            --bg-card: #ffffff;       
+            --text-main: #18181b;     
+            --text-sub: #71717a;      
+            --accent: #3b82f6;        
+            
+            --green: #22c55e;
+            --red: #ef4444;
+            --yellow: #eab308;
+            --blue: #3b82f6;
+
+            --card-w: 85vw;
+            --card-max: 360px;
         }
 
         /* --- RESET --- */
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; touch-action: none; user-select: none; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg-body); color: #f4f4f5; font-family: 'Inter', sans-serif; height: 100svh; width: 100vw; overflow: hidden; display: flex; justify-content: center; align-items: center; }
-        #app-shell { position: relative; width: 100%; height: 100%; max-width: 480px; display: flex; flex-direction: column; background: var(--bg-body); box-shadow: 0 0 50px rgba(0,0,0,0.5); overflow: hidden; }
-        #ui-overlay { position: absolute; inset: 0; background: transparent; opacity: 0; transition: opacity 0.1s linear; pointer-events: none; z-index: 5; }
+        *, *::before, *::after {
+            box-sizing: border-box; margin: 0; padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: none; user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: #f4f4f5;
+            font-family: 'Inter', sans-serif;
+            height: 100svh; width: 100vw;
+            overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        #app-shell {
+            position: relative;
+            width: 100%; height: 100%;
+            max-width: 480px;
+            display: flex; flex-direction: column;
+            background: var(--bg-body);
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+        #ui-overlay {
+            position: absolute; inset: 0;
+            background: transparent; opacity: 0;
+            transition: opacity 0.1s linear; pointer-events: none; z-index: 5;
+        }
 
         /* --- HEADER --- */
-        .header { height: 15%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 2vh; z-index: 50; pointer-events: none; }
-        .progress-bar { width: 60px; height: 4px; background: #27272a; border-radius: 10px; margin-bottom: 0.75rem; overflow: hidden; }
+        .header {
+            height: 15%;
+            display: flex; flex-direction: column;
+            justify-content: flex-end; align-items: center;
+            padding-bottom: 2vh;
+            z-index: 50;
+            pointer-events: none;
+        }
+
+        .progress-bar {
+            width: 60px; height: 4px;
+            background: #27272a; border-radius: 10px; margin-bottom: 0.75rem; overflow: hidden;
+        }
         .progress-fill { height: 100%; background: #fff; width: 0%; transition: width 0.3s ease; }
-        .meta-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-sub); margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.1em; }
+
+        .meta-tag {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+            color: var(--text-sub); margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.1em;
+        }
         .meta-title { font-size: 1.1rem; font-weight: 800; color: #fff; text-transform: uppercase; }
 
-        /* --- CARD --- */
-        .stage { position: relative; flex: 1; width: 100%; perspective: 1000px; z-index: 20; display: flex; align-items: center; justify-content: center; }
-        .card { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: var(--card-w); max-width: var(--card-max); max-height: 55vh; aspect-ratio: 3/4; background: var(--bg-card); border-radius: 24px; box-shadow: 0 20px 40px -5px rgba(0,0,0,0.3); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem; text-align: left; will-change: transform; transform-style: flat; transition: transform 0.1s linear; }
-        .card.sub-card { border: 3px solid var(--blue); background: #f0f9ff; }
+        /* --- CARD STACK --- */
+        .stage {
+            position: relative; flex: 1; width: 100%;
+            perspective: 1000px; z-index: 20;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .card {
+            position: absolute;
+            left: 50%; top: 50%;
+            transform: translate(-50%, -50%);
+            width: var(--card-w); max-width: var(--card-max);
+            
+            /* Sizing to fit perfectly */
+            max-height: 55vh; aspect-ratio: 3/4;
+            
+            background: var(--bg-card);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px -5px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            padding: 2rem; text-align: left;
+            
+            will-change: transform; transform-style: flat;
+            transition: transform 0.1s linear;
+            
+            /* CRITICAL FIX FOR SWIPING */
+            touch-action: none; 
+        }
+
+        /* Sub-Card Theme Change */
+        .card.sub-card {
+            border: 3px solid var(--blue);
+            background: #f0f9ff;
+        }
         .card.sub-card .meta-tag { color: var(--blue); font-weight: 800; }
         .card.sub-card p { color: #1e3a8a; }
-        .card p { font-size: 1.3rem; font-weight: 800; color: var(--text-main); line-height: 1.35; pointer-events: none; margin-bottom: 1rem; text-align: center; width: 100%; }
-        .card-id { position: absolute; bottom: 1.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: #d4d4d8; pointer-events: none; width: 100%; text-align: center; }
+
+        .card p {
+            font-size: 1.3rem; font-weight: 800;
+            color: var(--text-main); line-height: 1.35;
+            pointer-events: none; margin-bottom: 1rem; text-align: center; width: 100%;
+        }
+
+        .card-id {
+            position: absolute; bottom: 1.5rem;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+            color: #d4d4d8; pointer-events: none; width: 100%; text-align: center;
+        }
 
         /* --- FOOTER --- */
-        .footer { height: 25%; display: grid; grid-template-columns: 1fr 80px 1fr; grid-template-rows: 1fr 1fr; align-content: center; justify-items: center; z-index: 50; padding-bottom: 1rem; }
-        .ctrl { display: flex; flex-direction: column; align-items: center; color: #52525b; transition: 0.15s; }
+        .footer {
+            height: 25%;
+            display: grid; grid-template-columns: 1fr 80px 1fr; grid-template-rows: 1fr 1fr;
+            align-content: center; justify-items: center; z-index: 50;
+            padding-bottom: 1rem;
+        }
+
+        .ctrl {
+            display: flex; flex-direction: column; align-items: center;
+            color: #52525b; transition: 0.15s;
+        }
         .ctrl.active { color: #fff; transform: scale(1.3); }
-        .ctrl.up { grid-column: 2; grid-row: 1; margin-bottom: 0.5rem; } .ctrl.down { grid-column: 2; grid-row: 2; margin-top: 0.5rem; } .ctrl.left { grid-column: 1; grid-row: 2; } .ctrl.right { grid-column: 3; grid-row: 2; }
-        .icon { font-size: 1.8rem; line-height: 1; margin-bottom: 4px; transition: color 0.2s; } .label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; transition: opacity 0.2s; }
+        .ctrl.up { grid-column: 2; grid-row: 1; margin-bottom: 0.5rem; }
+        .ctrl.down { grid-column: 2; grid-row: 2; margin-top: 0.5rem; }
+        .ctrl.left { grid-column: 1; grid-row: 2; }
+        .ctrl.right { grid-column: 3; grid-row: 2; }
         
-        /* Sub-Mode Overrides */
-        .footer.sub-mode .icon { color: var(--blue); } .footer.sub-mode .label { color: var(--blue); } .footer.sub-mode .ctrl.left { opacity: 0; pointer-events: none; }
+        .icon { font-size: 1.8rem; line-height: 1; margin-bottom: 4px; transition: color 0.2s; }
+        .label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; transition: opacity 0.2s; }
+
+        /* Dynamic Footer Styling */
+        .footer.sub-mode .icon { color: var(--blue); }
+        .footer.sub-mode .label { color: var(--blue); }
+        .footer.sub-mode .ctrl.left { opacity: 0; pointer-events: none; } /* Hide left button in deep dive */
 
         /* --- VIEWS --- */
-        .view { position: absolute; inset: 0; background: var(--bg-body); z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .view {
+            position: absolute; inset: 0;
+            background: var(--bg-body); z-index: 100;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        }
         .view.active { opacity: 1; pointer-events: auto; }
-        .btn-main { background: #fff; color: #000; border: none; padding: 1.2rem 3rem; font-size: 1rem; font-weight: 800; border-radius: 100px; cursor: pointer; margin-top: 2rem; }
-        .topic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; width: 90%; max-width: 380px; margin-top: 1.5rem; }
-        .btn-topic { background: #18181b; border: 1px solid #27272a; color: #fff; padding: 1rem; border-radius: 16px; text-align: left; cursor: pointer; transition: 0.2s; }
+
+        .btn-main {
+            background: #fff; color: #000; border: none;
+            padding: 1.2rem 3rem; font-size: 1rem; font-weight: 800;
+            border-radius: 100px; cursor: pointer; margin-top: 2rem;
+        }
+
+        .topic-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+            width: 90%; max-width: 380px; margin-top: 1.5rem;
+        }
+        .btn-topic {
+            background: #18181b; border: 1px solid #27272a;
+            color: #fff; padding: 1rem; border-radius: 16px;
+            text-align: left; cursor: pointer; transition: 0.2s;
+        }
         .btn-topic:active { background: #27272a; transform: scale(0.98); }
         .btn-topic strong { display: block; font-size: 0.9rem; margin-bottom: 0.25rem; }
         .btn-topic span { font-size: 0.7rem; color: var(--text-sub); text-transform: uppercase; font-family: 'JetBrains Mono'; }
-        
-        .chart-container { position: relative; width: 140px; height: 140px; border-radius: 50%; background: #27272a; margin-bottom: 2rem; }
-        .chart-hole { position: absolute; inset: 15px; background: var(--bg-body); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column; }
 
-        #view-review .review-card { background: #fff; color: #000; width: 90%; height: 70%; border-radius: 24px; padding: 2rem; display: flex; flex-direction: column; }
-        .rev-q-box { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-bottom: 1px solid #e4e4e7; margin-bottom: 1rem; padding-bottom: 1rem; overflow-y: auto; }
+        .chart-container {
+            position: relative; width: 140px; height: 140px;
+            border-radius: 50%; background: #27272a; margin-bottom: 2rem;
+        }
+        .chart-hole {
+            position: absolute; inset: 15px; background: var(--bg-body);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column;
+        }
+
+        /* --- REVIEW --- */
+        #view-review .review-card {
+            background: #fff; color: #000; width: 90%; height: 70%;
+            border-radius: 24px; padding: 2rem; display: flex; flex-direction: column;
+        }
+        .rev-q-box {
+            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; border-bottom: 1px solid #e4e4e7; margin-bottom: 1rem; padding-bottom: 1rem;
+            overflow-y: auto;
+        }
+        .rev-img {
+            max-height: 120px; width: auto; border-radius: 8px;
+            margin-bottom: 1rem; border: 1px solid #e4e4e7; display: block;
+        }
         .rev-q-text { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
         .rev-a-box { flex: 0 0 auto; display: flex; flex-direction: column; justify-content: center; }
-        .rev-badge { align-self: flex-start; background: #dcfce7; color: #166534; font-size: 0.7rem; font-weight: 800; padding: 6px 10px; border-radius: 6px; margin-bottom: 0.75rem; letter-spacing: 0.05em; }
+        .rev-badge {
+            align-self: flex-start; background: #dcfce7; color: #166534;
+            font-size: 0.7rem; font-weight: 800; padding: 6px 10px; border-radius: 6px;
+            margin-bottom: 0.75rem; letter-spacing: 0.05em;
+        }
         .rev-sol { font-size: 1rem; color: #52525b; line-height: 1.5; }
         .rev-nav { display: flex; justify-content: space-between; align-items: center; width: 90%; margin-top: 1rem; }
         .rev-count { color: var(--text-sub); font-family: 'JetBrains Mono'; font-size: 0.8rem; }
@@ -80,9 +228,9 @@
         <div id="ui-overlay"></div>
 
         <section id="view-start" class="view active">
-            <div style="color:var(--accent); border:1px solid var(--accent); padding:4px 8px; border-radius:4px; font-family:'JetBrains Mono'; font-size:0.7rem; margin-bottom:1rem;">MODULE V22.0</div>
+            <div style="color:var(--accent); border:1px solid var(--accent); padding:4px 8px; border-radius:4px; font-family:'JetBrains Mono'; font-size:0.7rem; margin-bottom:1rem;">SYSTEM ONLINE</div>
             <h1 style="font-size:3rem; font-weight:800; color:#fff; text-align:center; margin-bottom:1rem;">CHEMISTRY<br>MASTER</h1>
-            <p style="color:#a1a1aa; text-align:center; margin-bottom:3rem;">Dynamic Context Engine</p>
+            <p style="color:#a1a1aa; text-align:center; margin-bottom:3rem;">Cloud Connected • Infinite Gen</p>
             <button class="btn-main" onclick="APP.start('CORE')">START QUIZ</button>
         </section>
 
@@ -122,7 +270,7 @@
 
         <section id="view-review" class="view">
             <div id="review-card-container" class="review-card">
-                <div class="rev-q-box"><p class="rev-q-text" id="rev-q"></p></div>
+                <div class="rev-q-box" id="rev-q-box"><p class="rev-q-text" id="rev-q"></p></div>
                 <div class="rev-a-box"><div class="rev-badge">SOLUTION</div><p class="rev-sol" id="rev-sol"></p></div>
             </div>
             <div class="rev-nav">
@@ -133,6 +281,7 @@
     </div>
 
     <script>
+        // --- 1. DATA ENGINE ---
         const DB = [
             { s: 'H', n: 'Hydrogen', p: 1, g: 1, en: 2.2, conf: '1s1', type: 'NM' },
             { s: 'He', n: 'Helium', p: 2, g: 18, en: 0, conf: '1s2', type: 'NG' },
@@ -142,9 +291,11 @@
             { s: 'Na', n: 'Sodium', p: 11, g: 1, en: 0.93, conf: '[Ne] 3s1', type: 'MET' },
             { s: 'Cl', n: 'Chlorine', p: 17, g: 17, en: 3.16, conf: '[Ne] 3s2 3p5', type: 'HAL' },
             { s: 'K', n: 'Potassium', p: 19, g: 1, en: 0.82, conf: '[Ar] 4s1', type: 'MET' },
-            { s: 'Fe', n: 'Iron', p: 26, g: 8, en: 1.83, conf: '[Ar] 3d6 4s2', type: 'TM' }
+            { s: 'Fe', n: 'Iron', p: 26, g: 8, en: 1.83, conf: '[Ar] 3d6 4s2', type: 'TM' },
+            { s: 'Cu', n: 'Copper', p: 29, g: 11, en: 1.90, conf: '[Ar] 3d10 4s1', type: 'TM' }
         ];
 
+        // --- 2. PROCEDURAL GENERATOR ---
         const GEN = {
             getRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; },
             
@@ -172,37 +323,35 @@
             genAtomQ() {
                 const e = this.getRandom(DB);
                 const type = Math.random();
-                // Default Labels
                 let q = { topic: "ATOMS", type: "ATOM", w: 1, labels: {up: "TRUE", down: "FALSE"} };
 
                 if (type < 0.33) { 
                     const isTrue = Math.random() > 0.5;
-                    const val = isTrue ? e.p : e.p + 2;
+                    const val = isTrue ? e.p : e.p + Math.floor(Math.random()*3)+1;
                     q.text = `${e.n} has ${val} protons.`;
                     q.correct = isTrue ? "up" : "down";
                     q.explanation = `${e.n} is element #${e.p}.`;
                     q.subs = [`Element: ${e.n} (${e.s})`, `Atomic Number: ${e.p}`, "Protons define identity."];
-                } else if (type < 0.66) { // CONFIG
+                } else if (type < 0.66) { 
                     const isTrue = Math.random() > 0.5;
                     let conf = e.conf;
                     if (!isTrue) conf = conf.replace(/\d$/, (d) => parseInt(d)+1);
                     q.text = `Config for ${e.n}: ${conf}`;
                     q.correct = isTrue ? "up" : "down";
                     q.explanation = `Correct config is ${e.conf}.`;
-                    q.subs = [`Check total electrons.`, `Aufbau Principle.`, `d-block anomalies?`];
-                } else { // TREND
+                    q.subs = [`Check total electrons.`, `Aufbau Principle.`, `Check Anomalies (Cu/Cr).`];
+                } else { 
                     const e2 = this.getRandom(DB);
+                    if(e.p === e2.p) return this.genAtomQ();
                     q.text = `Radius: ${e.n} > ${e2.n}`;
-                    // Simple logic: More shells (high period) = bigger. Same period? Less protons = bigger.
-                    // Roughly: P > P2 ? (or if P=P2, G < G2)
-                    // Simplified for logic:
-                    const r1 = e.p < 10 ? 1 : (e.p < 18 ? 2 : 3); // rough period
-                    const r2 = e2.p < 10 ? 1 : (e2.p < 18 ? 2 : 3);
-                    const isBigger = r1 > r2; 
+                    q.labels = { up: "AGREE", down: "DISAGREE" };
+                    let isBigger = false;
+                    if (e.p > e2.p && e.g === e2.g) isBigger = true; 
+                    else if (e.p < e2.p && e.p > 10 && e2.p > 10) isBigger = true; 
+                    else isBigger = Math.random()>0.5; 
                     q.correct = isBigger ? "up" : "down";
                     q.explanation = "Radius increases down a group, decreases across period.";
                     q.subs = ["Trend: Down = Larger.", "Trend: Right = Smaller.", "Check Period #."];
-                    q.labels = { up: "AGREE", down: "DISAGREE" }; // CUSTOM LABEL
                 }
                 return q;
             },
@@ -210,18 +359,9 @@
             genBondQ() {
                 const e1 = this.getRandom(DB);
                 const e2 = this.getRandom(DB);
-                // CUSTOM LABELS FOR BONDING
                 let q = { topic: "BONDING", type: "BOND", w: 2, labels: {up: "IONIC", down: "COVALENT"} };
-                
-                // Logic: Metal + Non-Metal = Ionic (Roughly)
                 const isIonic = (e1.type === 'MET' || e1.type === 'TM' || e1.type === 'MET') !== (e2.type === 'MET' || e2.type === 'TM');
                 
-                // Question asks: "Bond between X and Y is...?"
-                // Correct direction depends on the fact
-                q.text = `Bond Type: ${e1.n} + ${e2.n}`;
-                
-                // If it IS Ionic, UP is correct. If it IS Covalent, DOWN is correct.
-                // But wait, if we mix two metals, it's Metallic. Let's filter.
                 if (e1.type === 'MET' && e2.type === 'MET') {
                     q.text = `Bond Type: ${e1.n} + ${e2.n}`;
                     q.labels = { up: "METALLIC", down: "IONIC" };
@@ -229,6 +369,7 @@
                     q.explanation = "Metal + Metal = Metallic Bond.";
                     q.subs = ["Sea of Electrons.", "Conductive?", "Both are metals."];
                 } else {
+                    q.text = `Bond Type: ${e1.n} + ${e2.n}`;
                     q.correct = isIonic ? "up" : "down";
                     q.explanation = `${e1.n} (${e1.type}) + ${e2.n} (${e2.type}) = ${isIonic ? 'Ionic' : 'Covalent'}.`;
                     q.subs = [`${e1.n}: ${e1.type}`, `${e2.n}: ${e2.type}`, "Metal + Non = Ionic."];
@@ -238,40 +379,33 @@
 
             genSolQ() {
                 let q = { topic: "SOLUTIONS", type: "SOLN", w: 2, labels: {up: "ACIDIC", down: "BASIC"} };
-                
                 const ph = Math.floor(Math.random() * 14);
-                if (ph === 7) q.labels = {up: "NEUTRAL", down: "ACIDIC"}; // Edge case
-                
                 q.text = `Solution pH = ${ph}`;
-                
-                if (ph < 7) {
-                    q.correct = "up"; // ACIDIC
-                    q.explanation = "pH < 7 is Acidic.";
-                } else if (ph > 7) {
-                    q.correct = "down"; // BASIC
-                    q.explanation = "pH > 7 is Basic.";
-                } else {
-                    q.correct = "up"; // NEUTRAL (if label set)
-                    q.explanation = "pH 7 is Neutral.";
-                }
-                
+                if (ph < 7) { q.correct = "up"; q.explanation = "pH < 7 is Acidic."; } 
+                else if (ph > 7) { q.correct = "down"; q.explanation = "pH > 7 is Basic."; } 
+                else { q.correct = "up"; q.labels={up:"NEUTRAL", down:"ACIDIC"}; q.explanation = "pH 7 is Neutral."; }
                 q.subs = ["Scale: 0-14", "7 is Neutral", "Low is Acid, High is Base."];
                 return q;
             }
         };
 
+        // --- 3. CONFIGURATION ---
         const CONFIG = {
-            API_URL: "https://script.google.com/macros/s/AKfycbz_ziu5Dezrz35J2FksQtNEYuZ5Kk6TrQvg3pM5O5eBYUDzWCCtqlGWwZj8D-TBQLFw/exec",
-            THRESHOLD: 60,
+            // INTEGRATED URL:
+            API_URL: "https://script.google.com/macros/s/AKfycbw5e0yC_Mk3PdOMuee7_tBRKLuQ5WV0mqurPoqi8-FKutxqdv2GyTv7EFHIXQ6EoTLx/exec",
+            
+            THRESHOLD: 50,
             COLORS: { UP:'#22c55e', DOWN:'#ef4444', RIGHT:'#eab308', LEFT:'#3b82f6' },
             CHART: {'ATOM':'#3b82f6', 'BOND':'#8b5cf6', 'SOLN':'#ec4899', 'REAC':'#f59e0b', 'TABL':'#10b981'}
         };
 
+        // --- 4. APP CONTROLLER ---
         const APP = {
             deck: [], idx: 0, answers: {}, activeEl: null, reviewDeck: [], reviewIdx: 0,
 
             start(mode) {
-                this.deck = GEN.makeDeck(mode); this.idx=0; this.answers={}; this.reviewDeck=[];
+                this.deck = GEN.makeDeck(mode); 
+                this.idx=0; this.answers={}; this.reviewDeck=[];
                 document.getElementById('view-start').classList.remove('active');
                 document.getElementById('view-summary').classList.remove('active');
                 document.getElementById('view-game').classList.add('active');
@@ -298,7 +432,7 @@
                     
                     if(realIdx===this.idx) { 
                         el.style.zIndex=100; this.activeEl=el; PHYSICS.bind(el); 
-                        this.updateFooter(q); // TRIGGER LABEL UPDATE
+                        this.updateFooter(q);
                     }
                     else { el.style.zIndex=90; el.style.transform='translate(-50%,-50%) scale(0.95) translateY(20px)'; el.style.opacity=0.5; }
                     stack.appendChild(el);
@@ -313,7 +447,6 @@
                 document.getElementById('ui-progress').style.width=((this.idx/this.deck.length)*100)+'%';
             },
 
-            // DYNAMIC LABELS
             updateFooter(q) {
                 const footer = document.getElementById('game-footer');
                 const lblUp = document.getElementById('lbl-up');
@@ -330,7 +463,6 @@
                     CONFIG.COLORS = { UP:'#3b82f6', DOWN:'#3b82f6', RIGHT:'#3b82f6', LEFT:'#3b82f6' };
                 } else {
                     footer.classList.remove('sub-mode');
-                    // Check for Custom Labels in Data
                     lblUp.textContent = q.labels && q.labels.up ? q.labels.up : "TRUE";
                     lblDown.textContent = q.labels && q.labels.down ? q.labels.down : "FALSE";
                     lblRight.textContent = "UNSURE";
@@ -350,6 +482,10 @@
                     document.getElementById('review-cta').classList.remove('hidden');
                     this.reviewDeck = mistakes.map(a=>a.q);
                 }
+                fetch(CONFIG.API_URL, {
+                    method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'},
+                    body:JSON.stringify({answers:this.answers, score, timestamp:new Date().toISOString()})
+                });
             },
 
             renderChart() {
@@ -381,6 +517,12 @@
                     return;
                 }
                 const q = this.reviewDeck[this.reviewIdx];
+                const box = document.getElementById('rev-q-box');
+                const existing = box.querySelector('img'); if(existing) existing.remove();
+                if(q.image) {
+                    const img = document.createElement('img'); img.src=q.image; img.className='rev-img';
+                    box.insertBefore(img, document.getElementById('rev-q'));
+                }
                 document.getElementById('rev-q').textContent=q.text;
                 document.getElementById('rev-sol').textContent=q.explanation;
                 document.getElementById('rev-count').textContent=`${this.reviewIdx+1} / ${this.reviewDeck.length}`;
@@ -389,66 +531,109 @@
             nextReview() { this.reviewIdx++; this.renderReview(); }
         };
 
+        // --- 5. FIXED PHYSICS ENGINE ---
         const PHYSICS = {
-            el: null, startX: 0, startY: 0, dragging: false, overlay: document.getElementById('ui-overlay'),
-            bind(el) { this.el=el; el.addEventListener('touchstart',this.start.bind(this),{passive:false}); el.addEventListener('mousedown',this.start.bind(this)); },
-            start(e) { this.dragging=true; const p=e.touches?e.touches[0]:e; this.startX=p.clientX; this.startY=p.clientY; this.el.style.transition='none'; window.addEventListener('touchmove',this.move.bind(this),{passive:false}); window.addEventListener('mousemove',this.move.bind(this)); window.addEventListener('touchend',this.end.bind(this)); window.addEventListener('mouseup',this.end.bind(this)); },
-            move(e) { if(!this.dragging) return; if(e.cancelable) e.preventDefault(); const dx=(e.touches?e.touches[0]:e).clientX-this.startX; const dy=(e.touches?e.touches[0]:e).clientY-this.startY; this.el.style.transform=`translate(-50%,-50%) translate(${dx}px,${dy}px) rotate(${dx*0.05}deg)`; this.feedback(dx,dy); },
+            el: null, dragging: false, currentX: 0, currentY: 0, startX:0, startY:0,
+            overlay: document.getElementById('ui-overlay'),
+
+            bind(el) { 
+                this.el = el; 
+                el.addEventListener('touchstart', this.start.bind(this), {passive:false}); 
+                el.addEventListener('mousedown', this.start.bind(this)); 
+            },
+
+            start(e) { 
+                this.dragging = true; 
+                const p = e.touches ? e.touches[0] : e;
+                this.startX = p.clientX; this.startY = p.clientY;
+                this.currentX = p.clientX; this.currentY = p.clientY;
+                this.el.style.transition = 'none'; 
+                window.addEventListener('touchmove', this.move.bind(this), {passive:false}); 
+                window.addEventListener('mousemove', this.move.bind(this)); 
+                window.addEventListener('touchend', this.end.bind(this)); 
+                window.addEventListener('mouseup', this.end.bind(this)); 
+            },
+
+            move(e) { 
+                if(!this.dragging) return; 
+                if(e.cancelable) e.preventDefault(); 
+                const p = e.touches ? e.touches[0] : e;
+                this.currentX = p.clientX; this.currentY = p.clientY;
+                const dx = this.currentX - this.startX; 
+                const dy = this.currentY - this.startY; 
+                this.el.style.transform = `translate(-50%, -50%) translate(${dx}px, ${dy}px) rotate(${dx*0.05}deg)`; 
+                this.feedback(dx, dy); 
+            },
+
             end(e) { 
-                if(!this.dragging) return; this.dragging=false; 
-                window.removeEventListener('touchmove',this.move.bind(this)); window.removeEventListener('mousemove',this.move.bind(this)); window.removeEventListener('touchend',this.end.bind(this)); window.removeEventListener('mouseup',this.end.bind(this)); 
-                const dx=(e.changedTouches?e.changedTouches[0]:e).clientX-this.startX; const dy=(e.changedTouches?e.changedTouches[0]:e).clientY-this.startY; 
-                if(Math.abs(dy)>CONFIG.THRESHOLD && Math.abs(dy)>Math.abs(dx)) this.commit(dy<0?'up':'down'); 
-                else if(Math.abs(dx)>CONFIG.THRESHOLD) this.commit(dx>0?'right':'left'); 
+                if(!this.dragging) return; 
+                this.dragging = false; 
+                window.removeEventListener('touchmove', this.move.bind(this)); 
+                window.removeEventListener('mousemove', this.move.bind(this)); 
+                window.removeEventListener('touchend', this.end.bind(this)); 
+                window.removeEventListener('mouseup', this.end.bind(this)); 
+                const dx = this.currentX - this.startX; 
+                const dy = this.currentY - this.startY; 
+                if(Math.abs(dy) > CONFIG.THRESHOLD && Math.abs(dy) > Math.abs(dx)) this.commit(dy<0?'up':'down'); 
+                else if(Math.abs(dx) > CONFIG.THRESHOLD) this.commit(dx>0?'right':'left'); 
                 else this.reset(); 
             },
+
             feedback(dx, dy) { 
                 const ax=Math.abs(dx), ay=Math.abs(dy); let color='', cls=''; 
-                if(ay>ax) { color=dy<0?CONFIG.COLORS.UP:CONFIG.COLORS.DOWN; cls=dy<0?'up':'down'; } 
-                else { color=dx>0?CONFIG.COLORS.RIGHT:CONFIG.COLORS.LEFT; cls=dx>0?'right':'left'; } 
-                const intense = Math.min(Math.max(ax, ay)/CONFIG.THRESHOLD, 1); 
-                this.overlay.style.backgroundColor=color; this.overlay.style.opacity=intense*0.5; 
-                document.querySelectorAll('.ctrl').forEach(c=>{ c.classList.remove('active'); c.style.color=''; }); 
-                if(intense>0.2) { const btn=document.querySelector(`.ctrl.${cls}`); btn.classList.add('active'); btn.style.color=color; } 
+                if(ay > ax) { color = dy<0 ? CONFIG.COLORS.UP : CONFIG.COLORS.DOWN; cls = dy<0 ? 'up' : 'down'; } 
+                else { color = dx>0 ? CONFIG.COLORS.RIGHT : CONFIG.COLORS.LEFT; cls = dx>0 ? 'right' : 'left'; } 
+                const intense = Math.min(Math.max(ax, ay) / CONFIG.THRESHOLD, 1); 
+                this.overlay.style.backgroundColor = color; 
+                this.overlay.style.opacity = intense * 0.5; 
+                document.querySelectorAll('.ctrl').forEach(c => { c.classList.remove('active'); c.style.color = ''; }); 
+                if(intense > 0.2) { 
+                    const btn = document.querySelector(`.ctrl.${cls}`); 
+                    if(btn) { btn.classList.add('active'); btn.style.color = color; }
+                } 
             },
-            reset() { this.el.style.transition='transform 0.3s cubic-bezier(0.2,0.8,0.2,1)'; this.el.style.transform='translate(-50%,-50%)'; this.overlay.style.opacity=0; document.querySelectorAll('.ctrl').forEach(c=>{ c.classList.remove('active'); c.style.color=''; }); },
+
+            reset() { 
+                this.el.style.transition = 'transform 0.3s cubic-bezier(0.2,0.8,0.2,1)'; 
+                this.el.style.transform = 'translate(-50%, -50%)'; 
+                this.overlay.style.opacity = 0; 
+                document.querySelectorAll('.ctrl').forEach(c => { c.classList.remove('active'); c.style.color = ''; }); 
+            },
+
             commit(dir) { 
                 const q = APP.deck[APP.idx];
 
                 if (q.type === 'SUB') {
                     let tx=0, ty=0; const d=800;
                     if(dir==='left') tx=-d; else if(dir==='right') tx=d; else if(dir==='up') ty=-d; else ty=d;
-                    this.el.style.transition='transform 0.4s ease-in';
-                    this.el.style.transform=`translate(-50%,-50%) translate(${tx}px,${ty}px) rotate(${tx*0.1}deg)`;
-                    setTimeout(()=>{ this.el.remove(); APP.idx++; APP.render(); },300);
+                    this.el.style.transition = 'transform 0.4s ease-in';
+                    this.el.style.transform = `translate(-50%, -50%) translate(${tx}px, ${ty}px) rotate(${tx*0.1}deg)`;
+                    setTimeout(() => { this.el.remove(); APP.idx++; APP.render(); }, 300);
                     return;
                 }
 
                 if (dir === 'left' && !q.isRevealed) {
-                    this.el.style.transition='transform 0.4s ease-in';
-                    this.el.style.transform=`translate(-50%,-50%) translate(-800px,0)`; 
-                    
+                    this.el.style.transition = 'transform 0.4s ease-in';
+                    this.el.style.transform = `translate(-50%, -50%) translate(-800px, 0)`; 
                     const subCards = q.subs.map((s, i) => ({
                         id: q.id + "_s" + i, topic: q.topic, type: "SUB", text: s,
                         up:"Ok", down:"Ok", right:"Ok", left:"Ok"
                     }));
-                    
                     const mainCardReturn = {...q, isRevealed: true};
                     APP.deck.splice(APP.idx + 1, 0, ...subCards, mainCardReturn);
-                    setTimeout(()=>{ this.el.remove(); APP.idx++; APP.render(); },300);
+                    setTimeout(() => { this.el.remove(); APP.idx++; APP.render(); }, 300);
                     return;
                 }
 
-                const score=dir===q.correct?10*q.w:-5; 
-                APP.answers[q.id]={dir,score,correct:dir===q.correct,q}; 
+                const score = dir === q.correct ? 10 * q.w : -5; 
+                APP.answers[q.id] = { dir, score, correct: dir === q.correct, q: q }; 
                 let tx=0, ty=0; const d=800; 
                 if(dir==='up') ty=-d; if(dir==='down') ty=d; if(dir==='right') tx=d; 
-                
-                this.el.style.transition='transform 0.4s ease-in'; 
-                this.el.style.transform=`translate(-50%,-50%) translate(${tx}px,${ty}px) rotate(${tx*0.1}deg)`; 
-                this.overlay.style.opacity=0; 
-                document.querySelectorAll('.ctrl').forEach(c=>{ c.classList.remove('active'); c.style.color=''; }); 
-                setTimeout(()=>{ this.el.remove(); APP.idx++; APP.render(); },300); 
+                this.el.style.transition = 'transform 0.4s ease-in'; 
+                this.el.style.transform = `translate(-50%, -50%) translate(${tx}px, ${ty}px) rotate(${tx*0.1}deg)`; 
+                this.overlay.style.opacity = 0; 
+                document.querySelectorAll('.ctrl').forEach(c => { c.classList.remove('active'); c.style.color = ''; }); 
+                setTimeout(() => { this.el.remove(); APP.idx++; APP.render(); }, 300); 
             }
         };
 
