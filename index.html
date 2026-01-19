@@ -4,8 +4,213 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Strategic Convergence 2026</title>
-    <meta name="description" content="Intelligence-grade situational awareness test.">
-    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --color-bg: #f4f4f5;
+            --color-card: #ffffff;
+            --color-text: #18181b;
+            --color-subtext: #71717a;
+            --color-true: #22c55e;
+            --color-false: #ef4444;
+            --color-plausible: #eab308;
+            --color-skip: #64748b;
+            --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: var(--font-stack);
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            height: 100svh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+            -webkit-user-select: none;
+            overscroll-behavior: none;
+        }
+
+        /* --- LEGEND --- */
+        .legend {
+            display: flex;
+            justify-content: space-around;
+            padding: 1rem;
+            font-size: 0.75rem;
+            color: var(--color-subtext);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            z-index: 10;
+        }
+
+        .legend-item .icon {
+            display: block;
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 2px;
+        }
+
+        /* --- APP CONTAINER --- */
+        #app-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        /* --- CARD STACK --- */
+        #card-stack {
+            position: relative;
+            width: 90%;
+            aspect-ratio: 3/4;
+            max-height: 60svh;
+        }
+
+        .card {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--color-card);
+            border-radius: 16px;
+            box-shadow: var(--shadow-card);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            text-align: center;
+            cursor: grab;
+            touch-action: none;
+            transform-origin: 50% 100%;
+            will-change: transform, opacity;
+            transition: transform 0.1s linear;
+        }
+
+        .card:active { cursor: grabbing; }
+
+        .card h3 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: var(--color-subtext);
+            margin-bottom: 1rem;
+            letter-spacing: 0.1em;
+        }
+
+        .card p {
+            font-size: 1.25rem;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        /* --- CONTROLS --- */
+        .controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            width: 90%;
+            justify-content: space-between;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 0;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.1s, background 0.2s;
+        }
+
+        .btn:active { transform: scale(0.96); }
+
+        .btn-skip { color: var(--color-skip); border: 1px solid var(--color-skip); }
+        .btn-false { color: var(--color-false); border: 1px solid var(--color-false); }
+        .btn-plausible { color: var(--color-plausible); border: 1px solid var(--color-plausible); }
+        .btn-true { color: var(--color-true); border: 1px solid var(--color-true); }
+
+        /* --- SUMMARY VIEW --- */
+        #summary-view {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100svh;
+            background: var(--color-bg);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        #summary-view.visible { opacity: 1; pointer-events: auto; }
+
+        #summary-list { flex: 1; overflow-y: auto; margin-bottom: 2rem; }
+
+        .summary-item {
+            background: white;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            border-left: 4px solid transparent;
+        }
+
+        .confirmation-zone {
+            height: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        #confirmation-card {
+            width: 100%;
+            height: 100%;
+            background: #1e293b;
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: var(--shadow-card);
+            touch-action: none;
+            position: absolute;
+        }
+
+        .confirm-legend {
+            display: flex;
+            justify-content: space-between;
+            width: 80%;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .hidden { display: none; }
+    </style>
 </head>
 <body>
 
@@ -17,23 +222,19 @@
     </header>
 
     <main id="app-container">
-        
-        <div id="card-stack" aria-live="polite">
-            </div>
+        <div id="card-stack" aria-live="polite"></div>
 
         <nav class="controls">
-            <button class="btn btn-skip" data-action="left" aria-label="Skip (Left)">Skip</button>
-            <button class="btn btn-false" data-action="down" aria-label="Reject (Down)">Reject</button>
-            <button class="btn btn-plausible" data-action="right" aria-label="Plausible (Right)">Plausible</button>
-            <button class="btn btn-true" data-action="up" aria-label="Accept (Up)">Accept</button>
+            <button class="btn btn-skip" data-action="left">Skip</button>
+            <button class="btn btn-false" data-action="down">Reject</button>
+            <button class="btn btn-plausible" data-action="right">Plausible</button>
+            <button class="btn btn-true" data-action="up">Accept</button>
         </nav>
-
     </main>
 
-    <section id="summary-view" class="hidden" aria-hidden="true">
+    <section id="summary-view" class="hidden">
         <h2>Session Summary</h2>
         <div id="summary-list"></div>
-        
         <div class="confirmation-zone">
             <div id="confirmation-card">
                 <p><strong>SWIPE TO FINALIZE</strong></p>
@@ -45,6 +246,225 @@
         </div>
     </section>
 
-    <script src="script.js"></script>
+    <script>
+        const QUESTIONS = [
+            { id: "q1_fact", type: "FACT RECALL", text: "The Dholera semiconductor fabrication facility is fully operational and shipping commercial wafers to domestic automotive partners.", correct: "up" },
+            { id: "q2_context", type: "CONTEXT", text: "The integration of the Unified Logistics Interface Platform (ULIP) has successfully decoupled India's supply chain efficiency from crude oil price volatility.", correct: "right" },
+            { id: "q3_causal", type: "REASONING", text: "Recent INR bilateral trade settlements with Gulf nations are driven primarily by a strategic mandate to bypass SWIFT, rather than organic economic demand.", correct: "right" },
+            { id: "q4_global", type: "COMPARATIVE", text: "India’s Digital Public Infrastructure (DPI) export volume to the Global South now exceeds the value of its physical infrastructure lines of credit.", correct: "up" },
+            { id: "q5_trap", type: "MISINFORMATION", text: "Following the 2025 review, the Indian Rupee was officially inducted into the IMF Special Drawing Rights (SDR) basket.", correct: "down" }
+        ];
+
+        const STATE = { IDLE: 'IDLE', DRAGGING: 'DRAGGING', ANIMATING: 'ANIMATING', SUMMARY: 'SUMMARY' };
+        
+        const APP = {
+            currentState: STATE.IDLE,
+            currentIndex: 0,
+            answers: {},
+            activeCard: null,
+            startX: 0, startY: 0, currentX: 0, currentY: 0,
+            threshold: 100,
+            timestampStart: new Date().toISOString()
+        };
+
+        const stackEl = document.getElementById('card-stack');
+        const summaryView = document.getElementById('summary-view');
+        const summaryList = document.getElementById('summary-list');
+        const confirmCard = document.getElementById('confirmation-card');
+
+        function init() {
+            renderStack();
+            attachKeyboardListeners();
+            attachButtonListeners();
+        }
+
+        function renderStack() {
+            stackEl.innerHTML = '';
+            [...QUESTIONS].reverse().forEach((q, index) => {
+                const trueIndex = QUESTIONS.length - 1 - index;
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.style.zIndex = QUESTIONS.length - index;
+                card.dataset.index = index;
+                card.innerHTML = `<h3>${q.type}</h3><p>${q.text}</p>`;
+                stackEl.appendChild(card);
+            });
+            updateTopCard();
+        }
+
+        function updateTopCard() {
+            const topCard = stackEl.lastElementChild; // Last element is visually on top due to reverse render
+            if (topCard && APP.currentIndex < QUESTIONS.length) {
+                APP.activeCard = topCard;
+                topCard.style.pointerEvents = 'auto';
+                attachPointerEvents(topCard);
+            } else {
+                finishDeck();
+            }
+        }
+
+        function attachPointerEvents(card) {
+            card.addEventListener('pointerdown', handlePointerDown);
+        }
+
+        function handlePointerDown(e) {
+            if (APP.currentState !== STATE.IDLE) return;
+            APP.currentState = STATE.DRAGGING;
+            APP.activeCard.setPointerCapture(e.pointerId);
+            APP.startX = e.clientX;
+            APP.startY = e.clientY;
+            APP.activeCard.style.transition = 'none';
+
+            // FIXED: Using APP.activeCard instead of undefined 'card' variable
+            APP.activeCard.addEventListener('pointermove', handlePointerMove);
+            APP.activeCard.addEventListener('pointerup', handlePointerUp);
+            APP.activeCard.addEventListener('pointercancel', handlePointerUp);
+        }
+
+        function handlePointerMove(e) {
+            if (APP.currentState !== STATE.DRAGGING) return;
+            const deltaX = e.clientX - APP.startX;
+            const deltaY = e.clientY - APP.startY;
+            APP.currentX = deltaX;
+            APP.currentY = deltaY;
+            
+            const rotate = deltaX * 0.05;
+            APP.activeCard.style.transform = `translate(${deltaX}px, ${deltaY}px) rotate(${rotate}deg)`;
+            updateVisualFeedback(deltaX, deltaY);
+        }
+
+        function updateVisualFeedback(dx, dy) {
+            const absX = Math.abs(dx), absY = Math.abs(dy);
+            let color = '';
+            if (absY > absX) {
+                color = dy < 0 ? 'var(--color-true)' : 'var(--color-false)';
+            } else {
+                color = dx > 0 ? 'var(--color-plausible)' : 'var(--color-skip)';
+            }
+            APP.activeCard.style.boxShadow = `0 0 20px ${color}`;
+        }
+
+        function handlePointerUp(e) {
+            if (APP.currentState !== STATE.DRAGGING) return;
+            APP.currentState = STATE.ANIMATING;
+            
+            // Cleanup listeners
+            APP.activeCard.removeEventListener('pointermove', handlePointerMove);
+            APP.activeCard.removeEventListener('pointerup', handlePointerUp);
+            APP.activeCard.removeEventListener('pointercancel', handlePointerUp);
+            
+            const dx = APP.currentX, dy = APP.currentY;
+            const absX = Math.abs(dx), absY = Math.abs(dy);
+            
+            let decision = null;
+            if (absY > absX && absY > APP.threshold) decision = dy < 0 ? 'up' : 'down';
+            else if (absX > absY && absX > APP.threshold) decision = dx > 0 ? 'right' : 'left';
+            
+            decision ? commitSwipe(decision) : resetCard();
+        }
+
+        function resetCard() {
+            APP.activeCard.style.transition = 'transform 0.3s ease-out, box-shadow 0.2s';
+            APP.activeCard.style.transform = 'translate(0, 0) rotate(0)';
+            APP.activeCard.style.boxShadow = 'var(--shadow-card)';
+            setTimeout(() => APP.currentState = STATE.IDLE, 300);
+        }
+
+        function commitSwipe(direction) {
+            const qId = QUESTIONS[APP.currentIndex].id;
+            APP.answers[qId] = direction;
+            
+            let transX = 0, transY = 0;
+            if (direction === 'up') transY = -1000;
+            if (direction === 'down') transY = 1000;
+            if (direction === 'left') transX = -1000;
+            if (direction === 'right') transX = 1000;
+            
+            APP.activeCard.style.transition = 'transform 0.4s ease-in';
+            APP.activeCard.style.transform = `translate(${transX}px, ${transY}px) rotate(${transX * 0.05}deg)`;
+            
+            setTimeout(() => {
+                APP.activeCard.remove();
+                APP.currentIndex++;
+                APP.currentState = STATE.IDLE;
+                updateTopCard();
+            }, 400);
+        }
+
+        function attachButtonListeners() {
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    if (APP.currentState !== STATE.IDLE || !APP.activeCard) return;
+                    APP.currentState = STATE.ANIMATING;
+                    commitSwipe(e.target.dataset.action);
+                });
+            });
+        }
+
+        function attachKeyboardListeners() {
+            document.addEventListener('keydown', (e) => {
+                if (APP.currentState !== STATE.IDLE || !APP.activeCard) return;
+                const map = { 'ArrowUp': 'up', 'ArrowDown': 'down', 'ArrowLeft': 'left', 'ArrowRight': 'right' };
+                if (map[e.key]) {
+                    APP.currentState = STATE.ANIMATING;
+                    commitSwipe(map[e.key]);
+                }
+            });
+        }
+
+        function finishDeck() {
+            APP.currentState = STATE.SUMMARY;
+            document.getElementById('app-container').style.display = 'none';
+            const mapping = { up: "ACCEPTED", down: "REJECTED", right: "PLAUSIBLE", left: "SKIPPED" };
+            const colors = { up: "var(--color-true)", down: "var(--color-false)", right: "var(--color-plausible)", left: "var(--color-skip)" };
+            
+            summaryList.innerHTML = QUESTIONS.map(q => {
+                const c = APP.answers[q.id];
+                return `<div class="summary-item" style="border-left-color: ${colors[c]}"><strong>${q.type}</strong><br>${q.text}<br><span style="color:${colors[c]}">${mapping[c]}</span></div>`;
+            }).join('');
+            
+            summaryView.classList.remove('hidden');
+            setTimeout(() => summaryView.classList.add('visible'), 10);
+            initConfirmationSwipe();
+        }
+
+        function initConfirmationSwipe() {
+            let startX = 0;
+            confirmCard.addEventListener('pointerdown', (e) => {
+                startX = e.clientX;
+                confirmCard.setPointerCapture(e.pointerId);
+                confirmCard.style.transition = 'none';
+                
+                confirmCard.onpointermove = (ev) => {
+                    const dx = ev.clientX - startX;
+                    confirmCard.style.transform = `translateX(${dx}px)`;
+                    if (dx > 50) confirmCard.style.background = '#22c55e';
+                    else if (dx < -50) confirmCard.style.background = '#ef4444';
+                    else confirmCard.style.background = '#1e293b';
+                };
+                
+                confirmCard.onpointerup = (ev) => {
+                    const dx = ev.clientX - startX;
+                    confirmCard.onpointermove = null;
+                    confirmCard.onpointerup = null;
+                    if (dx > 100) submitData();
+                    else if (dx < -100) location.reload();
+                    else {
+                        confirmCard.style.transition = 'transform 0.3s ease, background 0.3s';
+                        confirmCard.style.transform = 'translateX(0)';
+                        confirmCard.style.background = '#1e293b';
+                    }
+                };
+            });
+        }
+
+        function submitData() {
+            confirmCard.innerHTML = "<h3>SUBMITTED</h3>";
+            confirmCard.style.background = "#22c55e";
+            confirmCard.style.transform = "translateX(0)";
+        }
+
+        init();
+    </script>
 </body>
 </html>
