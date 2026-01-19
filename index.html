@@ -4,17 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#09090b">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Chemistry Master V14</title>
+    <title>Chemistry Master V22</title>
 
     <style>
-        /* --- ASSETS --- */
+        /* 1. ASSETS */
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&family=Inter:wght@400;600;800&display=swap');
 
-        /* --- STABLE UI TOKENS --- */
+        /* 2. UI TOKENS (Strict V15 Dark Mode) */
         :root {
-            --bg-body: #09090b;       
+            --bg-void: #050505;       
             --bg-card: #ffffff;       
             --text-main: #18181b;     
             --text-sub: #71717a;      
@@ -25,11 +23,11 @@
             --yellow: #eab308;
             --grey: #64748b;
 
-            --card-w: 90vw;
-            --card-max: 380px;
+            --card-w: 88vw;
+            --card-max: 360px;
         }
 
-        /* --- RESET --- */
+        /* 3. RESET */
         *, *::before, *::after {
             box-sizing: border-box; margin: 0; padding: 0;
             -webkit-tap-highlight-color: transparent;
@@ -37,7 +35,7 @@
         }
 
         body {
-            background-color: var(--bg-body);
+            background-color: var(--bg-void);
             color: #f4f4f5;
             font-family: 'Inter', sans-serif;
             height: 100svh; width: 100vw;
@@ -50,23 +48,24 @@
             width: 100%; height: 100%;
             max-width: 480px;
             display: flex; flex-direction: column;
-            background: var(--bg-body);
+            background: var(--bg-void);
             box-shadow: 0 0 50px rgba(0,0,0,0.5);
             overflow: hidden;
         }
 
+        /* Feedback Overlay */
         #ui-overlay {
             position: absolute; inset: 0;
             background: transparent; opacity: 0;
             transition: opacity 0.1s linear; pointer-events: none; z-index: 5;
         }
 
-        /* --- HEADER --- */
+        /* 4. HEADER */
         .header {
             height: 15%;
             display: flex; flex-direction: column;
             justify-content: flex-end; align-items: center;
-            padding-bottom: 1rem; z-index: 50;
+            padding-bottom: 1.5rem; z-index: 50;
         }
 
         .progress-bar {
@@ -79,9 +78,9 @@
             font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
             color: var(--text-sub); margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.1em;
         }
-        .meta-title { font-size: 1.1rem; font-weight: 800; color: #fff; text-transform: uppercase; }
+        .meta-title { font-size: 1.1rem; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.05em; }
 
-        /* --- CARD STACK --- */
+        /* 5. CARD STACK (The "White Box" Look) */
         .stage {
             position: relative; flex: 1; width: 100%;
             perspective: 1000px; z-index: 20;
@@ -92,7 +91,7 @@
             left: 50%; top: 50%;
             transform: translate(-50%, -50%);
             width: var(--card-w); max-width: var(--card-max);
-            aspect-ratio: 3/4.5;
+            aspect-ratio: 3/4.2;
             background: var(--bg-card);
             border-radius: 24px;
             box-shadow: 0 20px 40px -5px rgba(0,0,0,0.3);
@@ -102,22 +101,35 @@
             will-change: transform; transform-style: flat;
         }
 
+        /* Context Card (Dark Mode for Lessons) */
+        .card.context-card {
+            background: #18181b;
+            border: 1px solid #27272a;
+        }
+        .card.context-card p { color: #fff; }
+        .card.context-card .card-list li { color: #a1a1aa; }
+        .card.context-card .card-list li::before { color: var(--green); }
+
         .card p {
-            font-size: 1.3rem; font-weight: 800;
+            font-size: 1.4rem; font-weight: 800;
             color: var(--text-main); line-height: 1.35;
             pointer-events: none; margin-bottom: 1.5rem; text-align: center; width: 100%;
         }
 
-        /* 3-Point List Style */
-        .card-list { width: 100%; padding-left: 1rem; margin: 0; pointer-events: none; }
+        /* 3-Point List (Blue Bullets) */
+        .card-list { width: 100%; padding-left: 1.2rem; margin: 0; pointer-events: none; }
         .card-list li {
-            font-size: 0.85rem; color: var(--text-sub); margin-bottom: 0.6rem;
+            font-size: 0.95rem; color: var(--text-sub); margin-bottom: 0.75rem;
             font-weight: 500; line-height: 1.4; list-style-type: none; position: relative;
         }
         .card-list li::before {
             content: "•"; color: var(--accent); font-weight: bold;
-            font-size: 1.2rem; position: absolute; left: -1rem; top: -2px;
+            font-size: 1.5rem; position: absolute; left: -1.2rem; top: -5px;
         }
+
+        /* Subscripts */
+        sub { font-size: 0.7em; vertical-align: sub; }
+        sup { font-size: 0.7em; vertical-align: super; }
 
         .card-id {
             position: absolute; bottom: 1.5rem;
@@ -125,7 +137,7 @@
             color: #d4d4d8; pointer-events: none; width: 100%; text-align: center;
         }
 
-        /* --- FOOTER --- */
+        /* 6. FOOTER */
         .footer {
             height: 20%;
             display: grid; grid-template-columns: 1fr 80px 1fr; grid-template-rows: 1fr 1fr;
@@ -136,77 +148,58 @@
             display: flex; flex-direction: column; align-items: center;
             color: #52525b; transition: 0.15s;
         }
-        .ctrl.active { color: #fff; transform: scale(1.3); }
+        .ctrl.active { color: #fff; transform: scale(1.2); text-shadow: 0 0 10px rgba(255,255,255,0.3); }
         .ctrl.up { grid-column: 2; grid-row: 1; margin-bottom: 0.5rem; }
         .ctrl.down { grid-column: 2; grid-row: 2; margin-top: 0.5rem; }
         .ctrl.left { grid-column: 1; grid-row: 2; }
         .ctrl.right { grid-column: 3; grid-row: 2; }
         .icon { font-size: 1.8rem; line-height: 1; margin-bottom: 4px; }
-        .label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+        .label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; transition: all 0.2s; white-space: nowrap; }
 
-        /* --- VIEWS --- */
+        /* 7. VIEWS */
         .view {
             position: absolute; inset: 0;
-            background: var(--bg-body); z-index: 100;
+            background: var(--bg-void); z-index: 100;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             opacity: 0; pointer-events: none; transition: opacity 0.3s;
         }
         .view.active { opacity: 1; pointer-events: auto; }
 
+        /* UI Elements */
         .btn-main {
             background: #fff; color: #000; border: none;
-            padding: 1.2rem 3rem; font-size: 1rem; font-weight: 800;
+            padding: 1rem 3rem; font-size: 1rem; font-weight: 800;
             border-radius: 100px; cursor: pointer; margin-top: 2rem;
+            box-shadow: 0 0 20px rgba(255,255,255,0.1);
         }
 
-        .topic-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
-            width: 90%; max-width: 380px; margin-top: 1.5rem;
-        }
-        .btn-topic {
-            background: #18181b; border: 1px solid #27272a;
-            color: #fff; padding: 1rem; border-radius: 16px;
-            text-align: left; cursor: pointer; transition: 0.2s;
-        }
+        .topic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; width: 90%; max-width: 380px; margin-top: 1.5rem; }
+        .btn-topic { background: #18181b; border: 1px solid #27272a; color: #fff; padding: 1rem; border-radius: 16px; text-align: left; cursor: pointer; transition: 0.2s; }
         .btn-topic:active { background: #27272a; transform: scale(0.98); }
         .btn-topic strong { display: block; font-size: 0.9rem; margin-bottom: 0.25rem; }
         .btn-topic span { font-size: 0.7rem; color: var(--text-sub); text-transform: uppercase; font-family: 'JetBrains Mono'; }
 
+        /* Summary Components */
         .chart-container {
             position: relative; width: 140px; height: 140px;
             border-radius: 50%; background: #27272a; margin-bottom: 2rem;
         }
         .chart-hole {
-            position: absolute; inset: 15px; background: var(--bg-body);
+            position: absolute; inset: 15px; background: var(--bg-void);
             border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column;
         }
 
-        /* --- REVIEW MODE --- */
-        #view-review .review-card {
-            background: #fff; color: #000; width: 90%; height: 80%;
-            border-radius: 24px; padding: 2rem; display: flex; flex-direction: column;
-        }
-        .rev-q-box {
-            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; border-bottom: 1px solid #e4e4e7; margin-bottom: 1rem; padding-bottom: 1rem;
-            overflow-y: auto;
-        }
-        .rev-img {
-            max-height: 120px; width: auto; border-radius: 8px;
-            margin-bottom: 1rem; border: 1px solid #e4e4e7; display: block;
-        }
-        .rev-q-text { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
+        #view-review .review-card { background: #fff; color: #000; width: 90%; height: 80%; border-radius: 24px; padding: 2rem; display: flex; flex-direction: column; }
+        .rev-q-box { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-bottom: 1px solid #e4e4e7; margin-bottom: 1rem; padding-bottom: 1rem; overflow-y: auto; }
+        .rev-q-text { font-size: 1.1rem; font-weight: 700; color: #18181b; }
         .rev-a-box { flex: 0 0 auto; display: flex; flex-direction: column; justify-content: center; }
-        .rev-badge {
-            align-self: flex-start; background: #dcfce7; color: #166534;
-            font-size: 0.7rem; font-weight: 800; padding: 6px 10px; border-radius: 6px;
-            margin-bottom: 0.75rem; letter-spacing: 0.05em;
-        }
+        .rev-badge { align-self: flex-start; background: #dcfce7; color: #166534; font-size: 0.7rem; font-weight: 800; padding: 4px 8px; border-radius: 4px; margin-bottom: 0.5rem; }
         .rev-sol { font-size: 1rem; color: #52525b; line-height: 1.5; }
         .rev-nav { display: flex; justify-content: space-between; align-items: center; width: 90%; margin-top: 1rem; }
-        .rev-count { color: var(--text-sub); font-family: 'JetBrains Mono'; font-size: 0.8rem; }
+        .rev-count { color: #71717a; font-family: 'JetBrains Mono'; font-size: 0.8rem; }
 
         .hidden { display: none !important; }
+        #status-bar { position:absolute; bottom:10px; right:10px; font-size:10px; color:#333; pointer-events:none; }
     </style>
 </head>
 <body>
@@ -215,9 +208,9 @@
         <div id="ui-overlay"></div>
 
         <section id="view-start" class="view active">
-            <div style="color:var(--accent); border:1px solid var(--accent); padding:4px 8px; border-radius:4px; font-family:'JetBrains Mono'; font-size:0.7rem; margin-bottom:1rem;">MODULE V14.0</div>
+            <div style="color:var(--accent); border:1px solid var(--accent); padding:4px 8px; border-radius:4px; font-family:'JetBrains Mono'; font-size:0.7rem; margin-bottom:1rem; letter-spacing:0.1em;">SYSTEM V22.0</div>
             <h1 style="font-size:3rem; font-weight:800; color:#fff; text-align:center; margin-bottom:1rem;">CHEMISTRY<br>MASTER</h1>
-            <p style="color:#a1a1aa; text-align:center; margin-bottom:3rem;">3-Point Context • Adaptive Logic</p>
+            <p style="color:#a1a1aa; text-align:center; margin-bottom:3rem;">Behavioral Analysis • Deep Logic</p>
             <button class="btn-main" onclick="APP.start('CORE')">START QUIZ</button>
         </section>
 
@@ -230,7 +223,7 @@
             <div class="stage" id="card-stack"></div>
             <footer class="footer">
                 <div class="ctrl up"><span class="icon">↑</span><span class="label" id="lbl-up">TRUE</span></div>
-                <div class="ctrl left"><span class="icon">←</span><span class="label" id="lbl-left">SKIP</span></div>
+                <div class="ctrl left"><span class="icon">←</span><span class="label" id="lbl-left">CONTEXT</span></div>
                 <div class="ctrl down"><span class="icon">↓</span><span class="label" id="lbl-down">FALSE</span></div>
                 <div class="ctrl right"><span class="icon">→</span><span class="label" id="lbl-right">UNSURE</span></div>
             </footer>
@@ -238,21 +231,18 @@
 
         <section id="view-summary" class="view">
             <h2 style="font-size:1.5rem; color:#fff; margin-bottom:2rem;">RESULTS</h2>
-            
             <div class="chart-container" id="chart-pie">
                 <div class="chart-hole">
                     <span style="font-size:2.5rem; font-weight:800; color:#fff;" id="chart-score">0</span>
                     <span style="font-size:0.7rem; color:#71717a;">POINTS</span>
                 </div>
             </div>
-            
             <div class="topic-grid">
-                <button class="btn-topic" onclick="APP.start('ATOMS_HARD')"><strong>ATOMIC THEORY</strong><span>Hard • 10 Qs</span></button>
-                <button class="btn-topic" onclick="APP.start('BONDS_HARD')"><strong>BONDING</strong><span>Hard • 10 Qs</span></button>
-                <button class="btn-topic" onclick="APP.start('SOLUTIONS_HARD')"><strong>SOLUTIONS</strong><span>Hard • 10 Qs</span></button>
+                <button class="btn-topic" onclick="APP.start('ATOMS_HARD')"><strong>ATOMIC THEORY</strong><span>Adv • 10 Qs</span></button>
+                <button class="btn-topic" onclick="APP.start('BONDS_HARD')"><strong>ORG. BONDING</strong><span>Adv • 10 Qs</span></button>
+                <button class="btn-topic" onclick="APP.start('SOLUTIONS_HARD')"><strong>SOLUTIONS</strong><span>Adv • 10 Qs</span></button>
                 <button class="btn-topic" onclick="APP.start('CORE')"><strong>RESTART</strong><span>Core Level</span></button>
             </div>
-            
             <div id="review-cta" class="hidden" style="margin-top:2rem;">
                 <button class="btn-main" style="background:#ef4444; color:#fff; padding:1rem 2rem; font-size:0.9rem;" onclick="APP.startReview()">REVIEW MISTAKES</button>
             </div>
@@ -260,113 +250,104 @@
 
         <section id="view-review" class="view">
             <div id="review-card-container" class="review-card">
-                <div class="rev-q-box" id="rev-q-box">
-                    <p class="rev-q-text" id="rev-q"></p>
-                </div>
-                <div class="rev-a-box">
-                    <div class="rev-badge">CORRECT SOLUTION</div>
-                    <p class="rev-sol" id="rev-sol"></p>
-                </div>
+                <div class="rev-q-box" id="rev-q-box"><p class="rev-q-text" id="rev-q"></p></div>
+                <div class="rev-a-box"><div class="rev-badge">CORRECT SOLUTION</div><p class="rev-sol" id="rev-sol"></p></div>
             </div>
             <div class="rev-nav">
                 <span class="rev-count" id="rev-count"></span>
                 <button class="btn-main" style="margin:0; padding:0.8rem 2rem;" onclick="APP.nextReview()">NEXT</button>
             </div>
         </section>
+        
+        <div id="status-bar">Sync Ready</div>
     </div>
 
     <script>
+        // ==========================================
+        // 1. CONFIGURATION (PASTE URL BELOW)
+        // ==========================================
+        const GOOGLE_SCRIPT_URL = "PASTE_YOUR_GOOGLE_SCRIPT_WEB_APP_URL_HERE"; 
+        
         const CONFIG = {
-            API_URL: "https://script.google.com/macros/s/AKfycbz_ziu5Dezrz35J2FksQtNEYuZ5Kk6TrQvg3pM5O5eBYUDzWCCtqlGWwZj8D-TBQLFw/exec",
             THRESHOLD: 75,
             COLORS: { UP:'#22c55e', DOWN:'#ef4444', RIGHT:'#eab308', LEFT:'#64748b' },
             CHART: {'ATOM':'#3b82f6', 'BOND':'#8b5cf6', 'SOLN':'#ec4899', 'REAC':'#f59e0b', 'TABL':'#10b981'}
         };
 
+        // ==========================================
+        // 2. QUESTION DATABASE (REPHRASED AS FACTORS)
+        // ==========================================
         const DECKS = {
             CORE: [
-                { id: "c1", topic: "Structure", type: "ATOM", text: "Protons and Neutrons reside in the nucleus.", subs: ["Does nucleus contain mass?", "Where are electrons?", "Is nucleus dense?"], explanation: "Correct. The nucleus contains the heavy particles (protons & neutrons).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-                { id: "c2", topic: "Charge", type: "ATOM", text: "An electron carries a positive electrical charge.", subs: ["Protons are positive.", "Neutrons are neutral.", "What is electron charge?"], explanation: "False. Electrons are Negative. Protons are Positive.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
-                { id: "c3", topic: "Identity", type: "ATOM", text: "Changing the proton number changes the element.", subs: ["Protons = Identity.", "Neutrons = Isotope.", "Electrons = Ion."], explanation: "Correct. Proton count is the atomic number.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-                { id: "c4", topic: "Organization", type: "TABL", text: "Elements in the same vertical Group behave similarly.", subs: ["Same valence electrons?", "Same size?", "Same color?"], explanation: "Correct. They have same valence electron count.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-                { id: "c5", topic: "Noble Gases", type: "TABL", text: "Noble Gases are highly reactive.", subs: ["Group 18.", "Full outer shells?", "Do they want electrons?"], explanation: "False. Full shells make them stable/inert.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
-                { id: "c6", topic: "Valence", type: "TABL", text: "Carbon (Group 14) has 6 valence electrons.", subs: ["Group 14.", "Atomic Number is 6.", "Valence is outer shell."], explanation: "False. Group 14 elements have 4 valence electrons.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
-                { id: "c7", topic: "Mechanics", type: "BOND", text: "Ionic bonds involve sharing electrons.", subs: ["Metal + Non-metal.", "Stealing vs Sharing.", "Formation of ions?"], explanation: "False. Ionic bonds transfer electrons. Covalent share.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
-                { id: "c8", topic: "Molecules", type: "BOND", text: "Water (H2O) is a covalent molecule.", subs: ["Non-metal + Non-metal?", "Is there a metal?", "Are electrons shared?"], explanation: "Correct. Oxygen shares electrons with Hydrogen.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-                { id: "c9", topic: "Conservation", type: "REAC", text: "Atoms are destroyed in chemical reactions.", subs: ["Law of Conservation.", "Matter created/destroyed?", "Just rearranged?"], explanation: "False. Matter is conserved, only rearranged.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
-                { id: "c10", topic: "Balancing", type: "REAC", text: "H2 + O2 -> H2O is balanced.", subs: ["Left: 2H, 2O.", "Right: 2H, 1O.", "Are atoms equal?"], explanation: "False. Needs 2H2 + O2 -> 2H2O.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
-                { id: "c11", topic: "Energy", type: "REAC", text: "Exothermic reactions release heat.", subs: ["Exo = Out.", "Endo = In.", "Feel hot or cold?"], explanation: "Correct. Energy exits the system.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-                { id: "c12", topic: "Units", type: "SOLN", text: "A Mole is approx 6.022 x 10^23 particles.", subs: ["Avogadro's Number.", "Chemist's Dozen.", "Is it a huge number?"], explanation: "Correct. Avogadro's constant.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-                { id: "c13", topic: "Acids", type: "SOLN", text: "pH of 2 indicates a strong Base.", subs: ["0-6 is Acidic.", "7 is Neutral.", "8-14 is Basic."], explanation: "False. Low pH is Acidic. High is Basic.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
-                { id: "c14", topic: "Neutrality", type: "SOLN", text: "Pure water is neutral at pH 7.", subs: ["H+ equals OH-?", "Midpoint of scale.", "Safe to drink?"], explanation: "Correct. 7 is neutral.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-                { id: "c15", topic: "Mixtures", type: "SOLN", text: "In salt water, salt is the solvent.", subs: ["Solute gets dissolved.", "Solvent does dissolving.", "Which is the liquid?"], explanation: "False. Water is solvent, salt is solute.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 }
+                { id: "c1", topic: "Structure", type: "ATOM", text: "Protons and Neutrons reside in the nucleus.", subs: ["Core contains all the mass.", "Electrons orbit the outside.", "Nucleus is positively charged."], explanation: "Correct. The nucleus contains the heavy particles (protons & neutrons).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+                { id: "c2", topic: "Charge", type: "ATOM", text: "An electron carries a positive electrical charge.", subs: ["Protons are +1.", "Neutrons are Neutral.", "Opposites attract."], explanation: "False. Electrons are Negative (e-). Protons are Positive (p+).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
+                { id: "c3", topic: "Identity", type: "ATOM", text: "Changing proton count changes the element.", subs: ["Protons define Identity (Z).", "Neutrons define Isotope.", "Electrons define Ion."], explanation: "Correct. Proton count is the atomic number.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+                { id: "c7", topic: "Mechanics", type: "BOND", text: "Ionic bonds involve sharing electrons.", subs: ["Metal + Non-metal interaction.", "Electron Transfer involved.", "Formation of ions."], explanation: "False. Ionic bonds transfer electrons. Covalent bonds share.", labels:["SHARED", "TRANSFER"], up:"Shared", down:"Transfer", correct:"down", w:1 },
+                { id: "c8", topic: "Molecules", type: "BOND", text: "Water (H2O) is a covalent molecule.", subs: ["Non-metal bonded to Non-metal.", "Electrons are shared.", "Molecule is polar."], explanation: "Correct. Oxygen shares electrons with Hydrogen.", labels:["COVALENT", "IONIC"], up:"Covalent", down:"Ionic", correct:"up", w:1 },
+                { id: "c13", topic: "Acids", type: "SOLN", text: "pH of 2 indicates a strong Base.", subs: ["pH Scale: 0 to 14.", "0-6 is Acidic range.", "High H+ concentration."], explanation: "False. Low pH is Acidic. High pH is Basic.", labels:["ACIDIC", "BASIC"], up:"Acidic", down:"Basic", correct:"down", w:1 },
+                { id: "c15", topic: "Mixtures", type: "SOLN", text: "In salt water, salt is the solvent.", subs: ["Solute gets dissolved.", "Solvent does the dissolving.", "Water is the liquid medium."], explanation: "False. Water is the solvent, salt is the solute.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 }
             ],
             ATOMS_HARD: [
-                { id: "ah1", topic: "Quantum", type: "ATOM", image: "https://placehold.co/600x400/3b82f6/ffffff?text=Orbitals", text: "The 4s orbital fills before 3d.", subs: ["Aufbau Principle.", "Lower Energy Level?", "n+l rule."], explanation: "True. 4s is lower energy.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "ah2", topic: "Isotopes", type: "ATOM", text: "Isotopes differ in proton count.", subs: ["Same Element?", "Different Mass?", "Protons vs Neutrons."], explanation: "False. They differ in Neutrons.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-                { id: "ah3", topic: "Config", type: "ATOM", text: "d-subshell holds max 14 electrons.", subs: ["s=2, p=6.", "d=10?", "f=14?"], explanation: "False. d holds 10. f holds 14.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-                { id: "ah4", topic: "Trends", type: "ATOM", text: "Atomic radius decreases left-to-right.", subs: ["More protons.", "Same shielding.", "Stronger pull?"], explanation: "True. Stronger nucleus pulls electrons in.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "ah5", topic: "Ions", type: "ATOM", text: "Cations are larger than neutral atoms.", subs: ["Lose electron.", "Less repulsion.", "Smaller radius?"], explanation: "False. Cations shrink upon electron loss.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-                { id: "ah6", topic: "Ionization", type: "ATOM", text: "Ionization energy increases down a group.", subs: ["More shells.", "More shielding.", "Easier to remove?"], explanation: "False. It decreases as atoms get larger.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-                { id: "ah7", topic: "Pauli", type: "ATOM", text: "Two electrons in same orbital must have opposite spins.", subs: ["Exclusion Principle.", "Up and Down arrows.", "Quantum numbers."], explanation: "True. Pauli Exclusion Principle.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "ah8", topic: "Isoelectronic", type: "ATOM", text: "Na+ and Ne are isoelectronic.", subs: ["Na has 11, loses 1.", "Ne has 10.", "Same electron count?"], explanation: "True. Both have 10 electrons.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "ah9", topic: "Anomalies", type: "ATOM", text: "Chromium has a [Ar] 4s2 3d4 config.", subs: ["Half-filled stability?", "Electron promotion?", "4s1 3d5?"], explanation: "False. It promotes to 4s1 3d5 for stability.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-                { id: "ah10", topic: "Quantum", type: "ATOM", text: "Angular momentum quantum number (l) defines shape.", subs: ["n = size.", "l = shape.", "ml = orientation."], explanation: "True. l=0 is spherical, l=1 is dumbbell.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 }
+                { id: "ah1", topic: "Quantum", type: "ATOM", text: "The 4s orbital fills before 3d.", subs: ["Aufbau Principle.", "Lower Energy Level priority.", "n+l rule check."], explanation: "True. 4s (n=4, l=0) is lower energy than 3d (n=3, l=2).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "ah4", topic: "Trends", type: "ATOM", text: "Atomic radius decreases left-to-right.", subs: ["Proton count increases.", "Shell count stays same.", "Nuclear pull strengthens."], explanation: "True. Stronger nucleus pulls electrons in closer.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "ah5", topic: "Ions", type: "ATOM", text: "Cations are larger than neutral atoms.", subs: ["Electron lost.", "Repulsion decreases.", "Shell may be lost."], explanation: "False. Cations shrink significantly upon electron loss.", labels:["LARGER", "SMALLER"], up:"Larger", down:"Smaller", correct:"down", w:2 }
             ],
             BONDS_HARD: [
-                { id: "bh1", topic: "VSEPR", type: "BOND", image: "https://placehold.co/600x400/8b5cf6/ffffff?text=Water+Structure", text: "This molecular shape is Tetrahedral.", subs: ["Central atom O.", "2 Bonds, 2 Lone Pairs.", "Bent shape?"], explanation: "False. Water is Bent due to lone pairs.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-                { id: "bh2", topic: "Polarity", type: "BOND", text: "BF3 is non-polar despite polar bonds.", subs: ["Trigonal Planar.", "Symmetry cancels?", "No lone pairs."], explanation: "True. Symmetry cancels dipoles.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "bh3", topic: "Forces", type: "BOND", text: "H-bonds are stronger than covalent bonds.", subs: ["Intermolecular vs Intra.", "Breaking water vs boiling.", "Bond strength."], explanation: "False. Covalent are much stronger.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-                { id: "bh4", topic: "Lattice", type: "BOND", text: "MgO has higher lattice energy than NaCl.", subs: ["Mg (+2), O (-2).", "Na (+1), Cl (-1).", "Charge product."], explanation: "True. +2/-2 charges attract stronger than +1/-1.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "bh5", topic: "Sigma", type: "BOND", text: "Double bond = 1 Sigma + 1 Pi.", subs: ["Head-on overlap.", "Side-on overlap.", "Bond count."], explanation: "True. First is sigma, second is pi.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "bh6", topic: "Resonance", type: "BOND", text: "Ozone (O3) has equal bond lengths.", subs: ["Resonance hybrid.", "Delocalized electrons.", "1.5 bond order?"], explanation: "True. The double bond character is delocalized.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "bh7", topic: "Order", type: "BOND", text: "N2 has a bond order of 2.", subs: ["Nitrogen gas.", "Triple bond?", "Share 6 electrons?"], explanation: "False. Nitrogen has a triple bond (Order 3).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-                { id: "bh8", topic: "Formal", type: "BOND", text: "Formal charge assumes equal sharing.", subs: ["Bookkeeping method.", "Ignore electronegativity.", "Lewis structures."], explanation: "True. It ignores electronegativity differences.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "bh9", topic: "Coordinate", type: "BOND", text: "In NH4+, H provides the shared electrons.", subs: ["Ammonium ion.", "Coordinate covalent.", "N gives lone pair?"], explanation: "False. Nitrogen provides the lone pair for the 4th bond.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-                { id: "bh10", topic: "Metallic", type: "BOND", text: "Metals conduct due to 'sea of electrons'.", subs: ["Delocalized e-.", "Mobile charge.", "Free movement."], explanation: "True. Electrons move freely carrying charge.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 }
+                { id: "bh2", topic: "Polarity", type: "BOND", text: "BF3 is non-polar despite polar bonds.", subs: ["Trigonal Planar shape.", "Symmetry cancels vectors.", "No lone pairs on Boron."], explanation: "True. Symmetric dipoles cancel out.", labels:["POLAR", "NON-POLAR"], up:"Polar", down:"Non-Polar", correct:"down", w:2 },
+                { id: "bh7", topic: "Order", type: "BOND", text: "Nitrogen (N2) has a bond order of 2.", subs: ["Nitrogen gas.", "Triple bond structure.", "Sharing 6 electrons."], explanation: "False. Nitrogen has a Triple Bond (Order 3).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 }
             ],
             SOLUTIONS_HARD: [
-                { id: "sh1", topic: "Colligative", type: "SOLN", text: "Salt decreases water's boiling point.", subs: ["Vapor pressure lowering.", "Boiling elevation?", "Freezing depression."], explanation: "False. Salt elevates boiling point.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-                { id: "sh2", topic: "Units", type: "SOLN", text: "Molarity changes with temperature.", subs: ["Molarity = mol/L.", "Volume expands with heat.", "Molality = mol/kg."], explanation: "True. Volume changes, so Molarity changes.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "sh3", topic: "Buffers", type: "SOLN", text: "Buffers resist pH change.", subs: ["Weak acid + conj base.", "Neutralize added acid.", "Maintain stability."], explanation: "True. They neutralize added acid/base.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "sh4", topic: "Solubility", type: "SOLN", text: "Gas solubility increases with heat.", subs: ["Warm soda goes flat.", "Kinetic energy.", "Gas escapes?"], explanation: "False. Gases escape warm liquids.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-                { id: "sh5", topic: "Factor", type: "SOLN", text: "Van't Hoff factor (i) for CaCl2 is 3.", subs: ["Dissociation.", "Ca + Cl + Cl.", "Number of ions."], explanation: "True. Ca + Cl + Cl = 3 particles.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "sh6", topic: "Osmosis", type: "SOLN", text: "Water moves to lower solute concentration.", subs: ["Dilute to Concentrated.", "Osmotic pressure.", "Equilibrium."], explanation: "False. Water moves to HIGHER solute concentration to dilute it.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-                { id: "sh7", topic: "SuperSat", type: "SOLN", text: "Supersaturated solutions are unstable.", subs: ["More solute than max.", "Seed crystal.", "Precipitation."], explanation: "True. A seed crystal causes precipitation.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "sh8", topic: "Hess", type: "SOLN", text: "Enthalpy change is path independent.", subs: ["State function.", "Start vs End.", "Route doesn't matter."], explanation: "True. Hess's Law.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "sh9", topic: "LeChatelier", type: "SOLN", text: "Adding product shifts equilibrium right.", subs: ["Stress relief.", "Consume excess.", "Shift away."], explanation: "False. It shifts Left to consume excess product.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-                { id: "sh10", topic: "Electrolyte", type: "SOLN", text: "Strong electrolytes partially dissociate.", subs: ["Strong vs Weak.", "Full dissociation?", "Conductivity."], explanation: "False. Strong electrolytes fully dissociate.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 }
+                { id: "sh1", topic: "Colligative", type: "SOLN", text: "Salt decreases water's boiling point.", subs: ["Vapor pressure lowering.", "Boiling Point Elevation.", "Freezing Point Depression."], explanation: "False. Solutes elevate the boiling point.", labels:["INCREASE", "DECREASE"], up:"Increase", down:"Decrease", correct:"down", w:2 },
+                { id: "sh6", topic: "Osmosis", type: "SOLN", text: "Water moves to lower solute concentration.", subs: ["Dilute to Concentrated.", "Osmotic pressure gradient.", "Attempting to equalize."], explanation: "False. Water moves to HIGHER solute concentration.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 }
             ]
         };
 
+        // --- 3. APP CONTROLLER ---
         const APP = {
             deck: [], idx: 0, answers: {}, activeEl: null, reviewDeck: [], reviewIdx: 0,
 
             start(key) {
-                this.deck = [...DECKS[key]]; this.idx=0; this.answers={}; this.reviewDeck=[];
+                this.deck = [...DECKS[key] || DECKS['CORE']]; 
+                this.idx = 0; 
+                this.answers = {}; 
+                this.reviewDeck = [];
+                
                 document.getElementById('view-start').classList.remove('active');
                 document.getElementById('view-summary').classList.remove('active');
                 document.getElementById('view-game').classList.add('active');
                 document.getElementById('review-cta').classList.add('hidden');
+                
                 this.render();
             },
 
             render() {
-                const stack = document.getElementById('card-stack'); stack.innerHTML='';
-                if(this.idx>=this.deck.length) return this.finish();
+                const stack = document.getElementById('card-stack'); 
+                stack.innerHTML='';
+                
+                if(this.idx >= this.deck.length) return this.finish();
+
                 const buffer = this.deck.slice(this.idx, this.idx + 2).reverse();
+                
                 buffer.forEach((q,i)=>{
                     const realIdx = this.idx + (buffer.length - 1 - i);
-                    const el = document.createElement('div'); el.className='card';
-                    
+                    const el = document.createElement('div'); el.className = 'card';
+                    if (q.isContext) el.classList.add('context-card');
+
                     let subHTML = `<ul class="card-list">`;
                     if(q.subs) q.subs.forEach(s=>subHTML+=`<li>${s}</li>`);
                     subHTML+=`</ul>`;
 
-                    el.innerHTML = `<p>${q.text}</p>${subHTML}<div class="card-id">${q.id}</div>`;
+                    el.innerHTML = `<p>${q.text}</p>${subHTML}<div class="card-id">${q.isContext ? "CONTEXT MODE" : q.id}</div>`;
                     
-                    if(realIdx===this.idx) { el.style.zIndex=100; this.activeEl=el; PHYSICS.bind(el); }
-                    else { el.style.zIndex=90; el.style.transform='translate(-50%,-50%) scale(0.95) translateY(20px)'; el.style.opacity=0.5; }
+                    if(realIdx===this.idx) { 
+                        el.style.zIndex=100; 
+                        this.activeEl=el; 
+                        PHYSICS.bind(el); 
+                    } else { 
+                        el.style.zIndex=90; 
+                        el.style.transform='translate(-50%,-50%) scale(0.95) translateY(20px)'; 
+                        el.style.opacity=0.5; 
+                    }
                     stack.appendChild(el);
                 });
                 this.updateUI();
@@ -374,13 +355,15 @@
 
             updateUI() {
                 const q = this.deck[this.idx];
-                document.getElementById('ui-topic').textContent=q.topic;
-                document.getElementById('ui-type').textContent=q.type;
-                document.getElementById('ui-progress').style.width=((this.idx/this.deck.length)*100)+'%';
-                document.getElementById('lbl-up').textContent=q.up;
-                document.getElementById('lbl-down').textContent=q.down;
-                document.getElementById('lbl-left').textContent=q.left;
-                document.getElementById('lbl-right').textContent=q.right;
+                document.getElementById('ui-topic').textContent = q.topic;
+                document.getElementById('ui-type').textContent = q.type;
+                
+                const pct = ((this.idx/this.deck.length)*100);
+                document.getElementById('ui-progress').style.width = `${pct}%`;
+
+                const labels = q.labels || ["TRUE", "FALSE"];
+                document.getElementById('lbl-up').textContent = q.isContext ? "GOT IT" : labels[0];
+                document.getElementById('lbl-down').textContent = q.isContext ? "SKIP" : labels[1];
             },
 
             finish() {
@@ -388,16 +371,39 @@
                 document.getElementById('view-summary').classList.add('active');
                 const score = Object.values(this.answers).reduce((a,b)=>a+b.score,0);
                 const mistakes = Object.values(this.answers).filter(a=>!a.correct && a.dir!=='left');
-                document.getElementById('chart-score').textContent=score;
+                document.getElementById('chart-score').textContent = score;
                 this.renderChart();
                 if(mistakes.length>0) {
                     document.getElementById('review-cta').classList.remove('hidden');
                     this.reviewDeck = mistakes.map(a=>a.q);
                 }
-                fetch(CONFIG.API_URL, {
-                    method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'},
-                    body:JSON.stringify({answers:this.answers, score, timestamp:new Date().toISOString()})
-                });
+                
+                this.syncData(score);
+            },
+
+            syncData(score) {
+                if(!GOOGLE_SCRIPT_URL.startsWith("http")) {
+                    document.getElementById('status-bar').textContent = "Sync Skipped (No URL)";
+                    return;
+                }
+                document.getElementById('status-bar').textContent = "Syncing...";
+                
+                // DATA PAYLOAD: Includes Behavioral Metrics
+                const payload = {
+                    answers: this.answers,
+                    score: score,
+                    timestamp: new Date().toISOString(),
+                    meta: "V22_Monolith"
+                };
+
+                fetch(GOOGLE_SCRIPT_URL, { 
+                    method:'POST', 
+                    mode:'no-cors', 
+                    headers:{'Content-Type':'text/plain'}, 
+                    body:JSON.stringify(payload) 
+                })
+                .then(() => document.getElementById('status-bar').textContent = "Sync Complete")
+                .catch(() => document.getElementById('status-bar').textContent = "Sync Failed");
             },
 
             renderChart() {
@@ -415,13 +421,25 @@
                 chart.style.background = `conic-gradient(${grad.join(', ')})`;
             },
 
+            injectContext() {
+                const currentQ = this.deck[this.idx];
+                const contextCard = {
+                    id: "ctx_" + currentQ.id, topic: "Deep Dive", type: "INFO",
+                    text: `Key Concept: ${currentQ.explanation}`, 
+                    subs: ["Swipe UP to continue quiz."],
+                    isContext: true, 
+                    labels: ["RESUME", "SKIP"], 
+                    up: "Resume", down: "Skip", correct: "up", w: 0
+                };
+                this.deck.splice(this.idx + 1, 0, contextCard);
+            },
+
             startReview() {
                 this.reviewIdx=0;
                 document.getElementById('view-summary').classList.remove('active');
                 document.getElementById('view-review').classList.add('active');
                 this.renderReview();
             },
-
             renderReview() {
                 if(this.reviewIdx>=this.reviewDeck.length) {
                     document.getElementById('view-review').classList.remove('active');
@@ -429,19 +447,10 @@
                     return;
                 }
                 const q = this.reviewDeck[this.reviewIdx];
-                const box = document.getElementById('rev-q-box');
-                const existing = box.querySelector('img'); if(existing) existing.remove();
-                
-                // IMAGE INJECTED ONLY HERE
-                if(q.image) {
-                    const img = document.createElement('img'); img.src=q.image; img.className='rev-img';
-                    box.insertBefore(img, document.getElementById('rev-q'));
-                }
-                document.getElementById('rev-q').textContent=q.text;
-                document.getElementById('rev-sol').textContent=q.explanation;
+                document.getElementById('rev-q').innerHTML=q.text;
+                document.getElementById('rev-sol').innerHTML=q.explanation;
                 document.getElementById('rev-count').textContent=`${this.reviewIdx+1} / ${this.reviewDeck.length}`;
             },
-
             nextReview() { this.reviewIdx++; this.renderReview(); }
         };
 
@@ -453,7 +462,26 @@
             end(e) { if(!this.dragging) return; this.dragging=false; window.removeEventListener('touchmove',this.move.bind(this)); window.removeEventListener('mousemove',this.move.bind(this)); window.removeEventListener('touchend',this.end.bind(this)); window.removeEventListener('mouseup',this.end.bind(this)); const dx=(e.changedTouches?e.changedTouches[0]:e).clientX-this.startX; const dy=(e.changedTouches?e.changedTouches[0]:e).clientY-this.startY; if(Math.abs(dy)>CONFIG.THRESHOLD && Math.abs(dy)>Math.abs(dx)) this.commit(dy<0?'up':'down'); else if(Math.abs(dx)>CONFIG.THRESHOLD) this.commit(dx>0?'right':'left'); else this.reset(); },
             feedback(dx, dy) { const ax=Math.abs(dx), ay=Math.abs(dy); let color='', cls=''; if(ay>ax) { color=dy<0?CONFIG.COLORS.UP:CONFIG.COLORS.DOWN; cls=dy<0?'up':'down'; } else { color=dx>0?CONFIG.COLORS.RIGHT:CONFIG.COLORS.LEFT; cls=dx>0?'right':'left'; } const intense = Math.min(Math.max(ax, ay)/CONFIG.THRESHOLD, 1); this.overlay.style.backgroundColor=color; this.overlay.style.opacity=intense*0.5; document.querySelectorAll('.ctrl').forEach(c=>{ c.classList.remove('active'); c.style.color=''; }); if(intense>0.2) { const btn=document.querySelector(`.ctrl.${cls}`); btn.classList.add('active'); btn.style.color=color; } },
             reset() { this.el.style.transition='transform 0.3s cubic-bezier(0.2,0.8,0.2,1)'; this.el.style.transform='translate(-50%,-50%)'; this.overlay.style.opacity=0; document.querySelectorAll('.ctrl').forEach(c=>{ c.classList.remove('active'); c.style.color=''; }); },
-            commit(dir) { const q=APP.deck[APP.idx]; const score=dir===q.correct?10*q.w:(dir==='left'?0:-5); APP.answers[q.id]={dir,score,correct:dir===q.correct,q}; let tx=0, ty=0; const d=800; if(dir==='up') ty=-d; if(dir==='down') ty=d; if(dir==='left') tx=-d; if(dir==='right') tx=d; this.el.style.transition='transform 0.4s ease-in'; this.el.style.transform=`translate(-50%,-50%) translate(${tx}px,${ty}px) rotate(${tx*0.1}deg)`; this.overlay.style.opacity=0; document.querySelectorAll('.ctrl').forEach(c=>{ c.classList.remove('active'); c.style.color=''; }); setTimeout(()=>{ this.el.remove(); APP.idx++; APP.render(); },300); }
+            commit(dir) { 
+                const q=APP.deck[APP.idx]; 
+                
+                // DEEP DIVE TRIGGER (Swipe Left on Question)
+                if(dir==='left' && !q.isContext) { 
+                    APP.injectContext(); 
+                    APP.answers[q.id] = { dir:'context', score:0, correct:false, q:q, behavior: 'deep_dive' };
+                    this.flyAway(dir); 
+                    return; 
+                } 
+                
+                const score = dir===q.correct ? 10*q.w : (dir==='left'?0:-5);
+                
+                if(!q.isContext) {
+                    APP.answers[q.id] = { dir, score, correct:dir===q.correct, q:q, behavior: 'standard' };
+                }
+                
+                this.flyAway(dir); 
+            },
+            flyAway(dir) { let tx=0, ty=0; const d=800; if(dir==='up') ty=-d; if(dir==='down') ty=d; if(dir==='left') tx=-d; if(dir==='right') tx=d; this.el.style.transition='transform 0.4s ease-in'; this.el.style.transform=`translate(-50%,-50%) translate(${tx}px,${ty}px) rotate(${tx*0.1}deg)`; this.overlay.style.opacity=0; document.querySelectorAll('.ctrl').forEach(c=>{ c.classList.remove('active'); c.style.color=''; }); setTimeout(()=>{ this.el.remove(); APP.idx++; APP.render(); },300); }
         };
 
         document.body.addEventListener('touchmove', e => e.preventDefault(), {passive:false});
