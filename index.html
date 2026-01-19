@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#09090b">
-    <title>Chemistry Master V22</title>
+    <title>Chemistry Master V23</title>
 
     <style>
-        /* 1. ASSETS */
+        /* --- ASSETS --- */
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&family=Inter:wght@400;600;800&display=swap');
 
-        /* 2. UI TOKENS (Strict V15 Dark Mode) */
+        /* --- UI TOKENS (Strict V15 Dark Mode) --- */
         :root {
             --bg-void: #050505;       
             --bg-card: #ffffff;       
@@ -27,7 +27,7 @@
             --card-max: 360px;
         }
 
-        /* 3. RESET */
+        /* --- RESET --- */
         *, *::before, *::after {
             box-sizing: border-box; margin: 0; padding: 0;
             -webkit-tap-highlight-color: transparent;
@@ -53,14 +53,13 @@
             overflow: hidden;
         }
 
-        /* Feedback Overlay */
         #ui-overlay {
             position: absolute; inset: 0;
             background: transparent; opacity: 0;
             transition: opacity 0.1s linear; pointer-events: none; z-index: 5;
         }
 
-        /* 4. HEADER */
+        /* --- HEADER --- */
         .header {
             height: 15%;
             display: flex; flex-direction: column;
@@ -76,11 +75,11 @@
 
         .meta-tag {
             font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
-            color: var(--text-sub); margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.1em;
+            color: var(--text-sub); margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.15em;
         }
         .meta-title { font-size: 1.1rem; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.05em; }
 
-        /* 5. CARD STACK (The "White Box" Look) */
+        /* --- CARD STACK --- */
         .stage {
             position: relative; flex: 1; width: 100%;
             perspective: 1000px; z-index: 20;
@@ -101,14 +100,19 @@
             will-change: transform; transform-style: flat;
         }
 
-        /* Context Card (Dark Mode for Lessons) */
+        /* Special Card Styles */
         .card.context-card {
-            background: #18181b;
+            background: #18181b; /* Dark card for Context/Correction */
             border: 1px solid #27272a;
         }
         .card.context-card p { color: #fff; }
         .card.context-card .card-list li { color: #a1a1aa; }
         .card.context-card .card-list li::before { color: var(--green); }
+        
+        /* Correction Specific Style */
+        .card.correction-card {
+            border: 2px solid var(--red);
+        }
 
         .card p {
             font-size: 1.4rem; font-weight: 800;
@@ -116,7 +120,7 @@
             pointer-events: none; margin-bottom: 1.5rem; text-align: center; width: 100%;
         }
 
-        /* 3-Point List (Blue Bullets) */
+        /* 3-Point List */
         .card-list { width: 100%; padding-left: 1.2rem; margin: 0; pointer-events: none; }
         .card-list li {
             font-size: 0.95rem; color: var(--text-sub); margin-bottom: 0.75rem;
@@ -127,7 +131,6 @@
             font-size: 1.5rem; position: absolute; left: -1.2rem; top: -5px;
         }
 
-        /* Subscripts */
         sub { font-size: 0.7em; vertical-align: sub; }
         sup { font-size: 0.7em; vertical-align: super; }
 
@@ -137,7 +140,7 @@
             color: #d4d4d8; pointer-events: none; width: 100%; text-align: center;
         }
 
-        /* 6. FOOTER */
+        /* --- FOOTER --- */
         .footer {
             height: 20%;
             display: grid; grid-template-columns: 1fr 80px 1fr; grid-template-rows: 1fr 1fr;
@@ -156,7 +159,7 @@
         .icon { font-size: 1.8rem; line-height: 1; margin-bottom: 4px; }
         .label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; transition: all 0.2s; white-space: nowrap; }
 
-        /* 7. VIEWS */
+        /* --- VIEWS --- */
         .view {
             position: absolute; inset: 0;
             background: var(--bg-void); z-index: 100;
@@ -165,7 +168,6 @@
         }
         .view.active { opacity: 1; pointer-events: auto; }
 
-        /* UI Elements */
         .btn-main {
             background: #fff; color: #000; border: none;
             padding: 1rem 3rem; font-size: 1rem; font-weight: 800;
@@ -179,7 +181,7 @@
         .btn-topic strong { display: block; font-size: 0.9rem; margin-bottom: 0.25rem; }
         .btn-topic span { font-size: 0.7rem; color: var(--text-sub); text-transform: uppercase; font-family: 'JetBrains Mono'; }
 
-        /* Summary Components */
+        /* Chart */
         .chart-container {
             position: relative; width: 140px; height: 140px;
             border-radius: 50%; background: #27272a; margin-bottom: 2rem;
@@ -208,9 +210,9 @@
         <div id="ui-overlay"></div>
 
         <section id="view-start" class="view active">
-            <div style="color:var(--accent); border:1px solid var(--accent); padding:4px 8px; border-radius:4px; font-family:'JetBrains Mono'; font-size:0.7rem; margin-bottom:1rem; letter-spacing:0.1em;">SYSTEM V22.0</div>
+            <div style="color:var(--accent); border:1px solid var(--accent); padding:4px 8px; border-radius:4px; font-family:'JetBrains Mono'; font-size:0.7rem; margin-bottom:1rem; letter-spacing:0.1em;">MODULE V23.0</div>
             <h1 style="font-size:3rem; font-weight:800; color:#fff; text-align:center; margin-bottom:1rem;">CHEMISTRY<br>MASTER</h1>
-            <p style="color:#a1a1aa; text-align:center; margin-bottom:3rem;">Behavioral Analysis • Deep Logic</p>
+            <p style="color:#a1a1aa; text-align:center; margin-bottom:3rem;">Immediate Feedback Loop</p>
             <button class="btn-main" onclick="APP.start('CORE')">START QUIZ</button>
         </section>
 
@@ -237,12 +239,14 @@
                     <span style="font-size:0.7rem; color:#71717a;">POINTS</span>
                 </div>
             </div>
+            
             <div class="topic-grid">
                 <button class="btn-topic" onclick="APP.start('ATOMS_HARD')"><strong>ATOMIC THEORY</strong><span>Adv • 10 Qs</span></button>
                 <button class="btn-topic" onclick="APP.start('BONDS_HARD')"><strong>ORG. BONDING</strong><span>Adv • 10 Qs</span></button>
                 <button class="btn-topic" onclick="APP.start('SOLUTIONS_HARD')"><strong>SOLUTIONS</strong><span>Adv • 10 Qs</span></button>
                 <button class="btn-topic" onclick="APP.start('CORE')"><strong>RESTART</strong><span>Core Level</span></button>
             </div>
+            
             <div id="review-cta" class="hidden" style="margin-top:2rem;">
                 <button class="btn-main" style="background:#ef4444; color:#fff; padding:1rem 2rem; font-size:0.9rem;" onclick="APP.startReview()">REVIEW MISTAKES</button>
             </div>
@@ -279,8 +283,8 @@
         // ==========================================
         const DECKS = {
             CORE: [
-                { id: "c1", topic: "Structure", type: "ATOM", text: "Protons and Neutrons reside in the nucleus.", subs: ["Core contains all the mass.", "Electrons orbit the outside.", "Nucleus is positively charged."], explanation: "Correct. The nucleus contains the heavy particles (protons & neutrons).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-                { id: "c2", topic: "Charge", type: "ATOM", text: "An electron carries a positive electrical charge.", subs: ["Protons are +1.", "Neutrons are Neutral.", "Opposites attract."], explanation: "False. Electrons are Negative (e-). Protons are Positive (p+).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
+                { id: "c1", topic: "Structure", type: "ATOM", text: "Protons and Neutrons reside in the nucleus.", subs: ["Does nucleus contain mass?", "Where are electrons?", "Is nucleus dense?"], explanation: "Correct. The nucleus contains the heavy particles (protons & neutrons).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+                { id: "c2", topic: "Charge", type: "ATOM", text: "An electron carries a positive electrical charge.", subs: ["Protons are positive.", "Neutrons are neutral.", "What is electron charge?"], explanation: "False. Electrons are Negative (e-). Protons are Positive (p+).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
                 { id: "c3", topic: "Identity", type: "ATOM", text: "Changing proton count changes the element.", subs: ["Protons define Identity (Z).", "Neutrons define Isotope.", "Electrons define Ion."], explanation: "Correct. Proton count is the atomic number.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
                 { id: "c7", topic: "Mechanics", type: "BOND", text: "Ionic bonds involve sharing electrons.", subs: ["Metal + Non-metal interaction.", "Electron Transfer involved.", "Formation of ions."], explanation: "False. Ionic bonds transfer electrons. Covalent bonds share.", labels:["SHARED", "TRANSFER"], up:"Shared", down:"Transfer", correct:"down", w:1 },
                 { id: "c8", topic: "Molecules", type: "BOND", text: "Water (H2O) is a covalent molecule.", subs: ["Non-metal bonded to Non-metal.", "Electrons are shared.", "Molecule is polar."], explanation: "Correct. Oxygen shares electrons with Hydrogen.", labels:["COVALENT", "IONIC"], up:"Covalent", down:"Ionic", correct:"up", w:1 },
@@ -331,13 +335,16 @@
                 buffer.forEach((q,i)=>{
                     const realIdx = this.idx + (buffer.length - 1 - i);
                     const el = document.createElement('div'); el.className = 'card';
+                    
+                    // APPLY SPECIAL STYLES
                     if (q.isContext) el.classList.add('context-card');
+                    if (q.isCorrection) el.classList.add('context-card', 'correction-card');
 
                     let subHTML = `<ul class="card-list">`;
                     if(q.subs) q.subs.forEach(s=>subHTML+=`<li>${s}</li>`);
                     subHTML+=`</ul>`;
 
-                    el.innerHTML = `<p>${q.text}</p>${subHTML}<div class="card-id">${q.isContext ? "CONTEXT MODE" : q.id}</div>`;
+                    el.innerHTML = `<p>${q.text}</p>${subHTML}<div class="card-id">${q.isContext ? "LESSON" : (q.isCorrection ? "CORRECTION" : q.id)}</div>`;
                     
                     if(realIdx===this.idx) { 
                         el.style.zIndex=100; 
@@ -362,8 +369,15 @@
                 document.getElementById('ui-progress').style.width = `${pct}%`;
 
                 const labels = q.labels || ["TRUE", "FALSE"];
-                document.getElementById('lbl-up').textContent = q.isContext ? "GOT IT" : labels[0];
-                document.getElementById('lbl-down').textContent = q.isContext ? "SKIP" : labels[1];
+                
+                // Override buttons for Context/Correction Cards
+                if (q.isContext || q.isCorrection) {
+                    document.getElementById('lbl-up').textContent = "GOT IT";
+                    document.getElementById('lbl-down').textContent = "NEXT";
+                } else {
+                    document.getElementById('lbl-up').textContent = labels[0];
+                    document.getElementById('lbl-down').textContent = labels[1];
+                }
             },
 
             finish() {
@@ -388,12 +402,11 @@
                 }
                 document.getElementById('status-bar').textContent = "Syncing...";
                 
-                // DATA PAYLOAD: Includes Behavioral Metrics
                 const payload = {
                     answers: this.answers,
                     score: score,
                     timestamp: new Date().toISOString(),
-                    meta: "V22_Monolith"
+                    meta: "V23_Learning_Loop"
                 };
 
                 fetch(GOOGLE_SCRIPT_URL, { 
@@ -421,6 +434,22 @@
                 chart.style.background = `conic-gradient(${grad.join(', ')})`;
             },
 
+            // --- IMMEDIATE CORRECTION INJECTION ---
+            injectCorrection(q) {
+                const correctionCard = {
+                    id: "corr_" + q.id, 
+                    topic: "Review", type: "INFO",
+                    // Combine Explanation with Hints for the report
+                    text: q.explanation, 
+                    subs: q.subs, // Show the hints again to reinforce
+                    isCorrection: true, 
+                    labels: ["GOT IT", "NEXT"], 
+                    up: "Got It", down: "Next", correct: "up", w: 0
+                };
+                this.deck.splice(this.idx + 1, 0, correctionCard);
+            },
+
+            // --- DEEP DIVE CONTEXT INJECTION ---
             injectContext() {
                 const currentQ = this.deck[this.idx];
                 const contextCard = {
@@ -465,18 +494,24 @@
             commit(dir) { 
                 const q=APP.deck[APP.idx]; 
                 
-                // DEEP DIVE TRIGGER (Swipe Left on Question)
-                if(dir==='left' && !q.isContext) { 
+                // 1. DEEP DIVE (Swipe Left on Question)
+                if(dir==='left' && !q.isContext && !q.isCorrection) { 
                     APP.injectContext(); 
                     APP.answers[q.id] = { dir:'context', score:0, correct:false, q:q, behavior: 'deep_dive' };
                     this.flyAway(dir); 
                     return; 
                 } 
                 
+                // 2. CHECK ANSWER
                 const score = dir===q.correct ? 10*q.w : (dir==='left'?0:-5);
                 
-                if(!q.isContext) {
+                if(!q.isContext && !q.isCorrection) {
                     APP.answers[q.id] = { dir, score, correct:dir===q.correct, q:q, behavior: 'standard' };
+                    
+                    // 3. IMMEDIATE CORRECTION (If Wrong)
+                    if (dir !== q.correct && dir !== 'left') {
+                        APP.injectCorrection(q);
+                    }
                 }
                 
                 this.flyAway(dir); 
@@ -484,6 +519,10 @@
             flyAway(dir) { let tx=0, ty=0; const d=800; if(dir==='up') ty=-d; if(dir==='down') ty=d; if(dir==='left') tx=-d; if(dir==='right') tx=d; this.el.style.transition='transform 0.4s ease-in'; this.el.style.transform=`translate(-50%,-50%) translate(${tx}px,${ty}px) rotate(${tx*0.1}deg)`; this.overlay.style.opacity=0; document.querySelectorAll('.ctrl').forEach(c=>{ c.classList.remove('active'); c.style.color=''; }); setTimeout(()=>{ this.el.remove(); APP.idx++; APP.render(); },300); }
         };
 
+        document.body.addEventListener('touchmove', e => e.preventDefault(), {passive:false});
+    </script>
+</body>
+</html>
         document.body.addEventListener('touchmove', e => e.preventDefault(), {passive:false});
     </script>
 </body>
