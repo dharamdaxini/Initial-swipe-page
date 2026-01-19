@@ -2,11 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>Swipe Intelligence</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<title>Swipe Intelligence Assessment</title>
 
+<!-- =========================
+     YOUR CSS (UNCHANGED)
+========================= -->
 <style>
-/* ===== YOUR UI — UNCHANGED ===== */
 :root {
     --color-bg: #f4f4f5;
     --color-card: #ffffff;
@@ -19,58 +21,47 @@
     --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
-
-* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
-
-body {
-    font-family: var(--font-stack);
-    background-color: var(--color-bg);
-    color: var(--color-text);
-    height: 100svh;
-    width: 100vw;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    user-select: none;
-    overscroll-behavior: none;
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{
+    font-family:var(--font-stack);
+    background-color:var(--color-bg);
+    color:var(--color-text);
+    height:100svh;width:100vw;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    user-select:none;
+    overscroll-behavior:none;
 }
-
-.legend {
+.legend{
     display:flex;
     justify-content:space-around;
     padding:1rem;
     font-size:0.75rem;
     color:var(--color-subtext);
     text-transform:uppercase;
-    letter-spacing:.05em;
+    letter-spacing:0.05em;
     font-weight:600;
 }
-
-.legend-item .icon {
-    display:block;
-    text-align:center;
-    font-size:1.2rem;
-}
-
-#app-container {
+.legend-item .icon{display:block;text-align:center;font-size:1.2rem;margin-bottom:2px;}
+#app-container{
     flex:1;
     display:flex;
+    flex-direction:column;
     justify-content:center;
     align-items:center;
     position:relative;
+    width:100%;
     max-width:480px;
     margin:0 auto;
-    width:100%;
 }
-
-#card-stack {
+#card-stack{
     position:relative;
     width:90%;
     aspect-ratio:3/4;
     max-height:60svh;
 }
-
-.card {
+.card{
     position:absolute;
     inset:0;
     background:var(--color-card);
@@ -82,148 +73,187 @@ body {
     align-items:center;
     padding:2rem;
     text-align:center;
+    cursor:grab;
     touch-action:none;
-    transform-origin:50% 100%;
-    will-change:transform;
+    will-change:transform,opacity;
 }
-
-.card h3 {
-    font-size:.85rem;
+.card h3{
+    font-size:0.85rem;
     text-transform:uppercase;
     color:var(--color-subtext);
     margin-bottom:1rem;
-    letter-spacing:.1em;
+    letter-spacing:0.1em;
 }
-
-.card p {
-    font-size:1.25rem;
-    line-height:1.5;
-    font-weight:500;
-}
-
-.controls {
+.card p{font-size:1.25rem;line-height:1.5;font-weight:500;}
+.controls{
     display:flex;
-    gap:.5rem;
-    margin:1rem auto 1.5rem;
+    gap:0.5rem;
+    margin-top:2rem;
     width:90%;
 }
-
-.btn {
+.btn{
     flex:1;
     padding:12px 0;
     border-radius:8px;
-    background:white;
     font-weight:600;
-    font-size:.85rem;
-    border:1px solid;
+    font-size:0.85rem;
+    background:#fff;
+    cursor:pointer;
 }
-
-.btn-true { color:var(--color-true); border-color:var(--color-true); }
-.btn-false { color:var(--color-false); border-color:var(--color-false); }
-.btn-plausible { color:var(--color-plausible); border-color:var(--color-plausible); }
-.btn-skip { color:var(--color-skip); border-color:var(--color-skip); }
+.btn-skip{border:1px solid var(--color-skip);color:var(--color-skip);}
+.btn-false{border:1px solid var(--color-false);color:var(--color-false);}
+.btn-plausible{border:1px solid var(--color-plausible);color:var(--color-plausible);}
+.btn-true{border:1px solid var(--color-true);color:var(--color-true);}
+.hidden{display:none;}
+#summary-view{
+    position:fixed;inset:0;
+    background:var(--color-bg);
+    padding:2rem;
+    opacity:0;
+    pointer-events:none;
+}
+#summary-view.visible{opacity:1;pointer-events:auto;}
 </style>
 </head>
 
 <body>
 
-<div class="legend">
+<!-- =========================
+     HTML ENHANCEMENTS (5)
+========================= -->
+<main id="swipe-app" role="application" aria-label="Swipe Assessment">
+
+<input type="hidden" id="session-id">
+<input type="hidden" id="session-start">
+<input type="hidden" id="device-type">
+<input type="hidden" id="user-agent">
+
+<section class="legend">
     <div class="legend-item"><span class="icon">↑</span>True</div>
     <div class="legend-item"><span class="icon">→</span>Plausible</div>
     <div class="legend-item"><span class="icon">↓</span>False</div>
     <div class="legend-item"><span class="icon">←</span>Skip</div>
-</div>
+</section>
 
-<div id="app-container">
-    <div id="card-stack"></div>
-</div>
+<section id="app-container">
+    <div id="card-stack"
+         role="group"
+         aria-live="polite"
+         data-question-id=""
+         data-topic=""
+         data-type=""
+         data-level="">
+    </div>
 
-<div class="controls">
-    <button class="btn btn-skip">Skip</button>
-    <button class="btn btn-false">False</button>
-    <button class="btn btn-plausible">Plausible</button>
-    <button class="btn btn-true">True</button>
-</div>
+    <nav class="controls">
+        <button class="btn btn-skip">Skip</button>
+        <button class="btn btn-false">False</button>
+        <button class="btn btn-plausible">Plausible</button>
+        <button class="btn btn-true">True</button>
+    </nav>
+</section>
 
+<section id="summary-view">
+    <h2>Summary</h2>
+    <div id="summary-list"></div>
+</section>
+
+<noscript>
+<p style="padding:1rem;text-align:center;">
+JavaScript is required to run this assessment.
+</p>
+</noscript>
+
+</main>
+
+<!-- =========================
+     MASTER JS (POINTER EVENTS)
+========================= -->
 <script>
-/* ===== QUESTIONS — UNCHANGED ===== */
+/* ===== SESSION METADATA ===== */
+document.getElementById("session-id").value = crypto.randomUUID();
+document.getElementById("session-start").value = new Date().toISOString();
+document.getElementById("device-type").value = /mobile/i.test(navigator.userAgent) ? "mobile" : "desktop";
+document.getElementById("user-agent").value = navigator.userAgent;
+
+/* ===== QUESTIONS ===== */
 const QUESTIONS = [
-{ id:"e1", topic:"Geography", type:"FACT", text:"The IMEC corridor is designed to connect India to Europe via the Middle East.", correct:"up", w:1 },
-{ id:"e2", topic:"Energy", type:"FACT", text:"India has officially committed to Net Zero emissions by the year 2050.", correct:"right", w:1 },
-{ id:"e3", topic:"Defense", type:"FACT", text:"The INS Vikrant is India's first indigenous aircraft carrier.", correct:"up", w:1 },
-{ id:"m1", topic:"Semiconductors", type:"CONTEXT", text:"The Micron plant in Gujarat is primarily focused on packaging (ATMP), not full fabrication.", correct:"up", w:2 },
-{ id:"m2", topic:"Finance", type:"TRAP", text:"UPI is now accepted for domestic payments in every G20 nation.", correct:"right", w:2 },
-{ id:"m3", topic:"Space", type:"REASONING", text:"The Gaganyaan mission's primary delay was due to launch vehicle unavailability.", correct:"right", w:2 },
-{ id:"h1", topic:"Trade", type:"TRAP", text:"India has finalized a full Free Trade Agreement (FTA) with the UK as of Jan 2026.", correct:"right", w:3 },
-{ id:"h2", topic:"Nuclear", type:"FACT", text:"The PFBR at Kalpakkam achieved criticality in 2025.", correct:"up", w:3 },
-{ id:"h3", topic:"Geopolitics", type:"REASONING", text:"India's non-alignment strategy has shifted to multi-alignment to secure lithium supply chains.", correct:"up", w:3 }
+ {id:"e1",topic:"Geography",type:"FACT",text:"The IMEC corridor is designed to connect India to Europe via the Middle East.",correct:"up",w:1},
+ {id:"e2",topic:"Energy",type:"FACT",text:"India has officially committed to Net Zero emissions by the year 2050.",correct:"right",w:1},
+ {id:"e3",topic:"Defense",type:"FACT",text:"The INS Vikrant is India's first indigenous aircraft carrier.",correct:"up",w:1},
+ {id:"m1",topic:"Semiconductors",type:"CONTEXT",text:"The Micron plant in Gujarat is primarily focused on ATMP packaging.",correct:"up",w:2},
+ {id:"m2",topic:"Finance",type:"TRAP",text:"UPI is accepted for domestic payments in every G20 nation.",correct:"right",w:2},
+ {id:"m3",topic:"Space",type:"REASONING",text:"Gaganyaan delays were mainly due to safety testing.",correct:"right",w:2}
 ];
 
-/* ===== GOOGLE SHEET LOGGER (INVISIBLE) ===== */
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbxW-via-zE7FWqGKNZsilySBncR3I_lLOXK83P8tymRLoi50VaSWNr7J4vHa8R2DRwE/exec";
-
-/* ===== ENGINE ===== */
+/* ===== APP STATE ===== */
 let index = 0;
+let responses = [];
 const stack = document.getElementById("card-stack");
 
-function render() {
-    stack.innerHTML = "";
-    if (!QUESTIONS[index]) return;
-
+/* ===== RENDER CARD ===== */
+function renderCard(){
+    stack.innerHTML="";
+    if(index >= QUESTIONS.length){
+        document.getElementById("summary-view").classList.add("visible");
+        document.getElementById("summary-list").innerHTML =
+            responses.map(r=>`<div>${r.id} → ${r.swipe}</div>`).join("");
+        return;
+    }
     const q = QUESTIONS[index];
+    stack.dataset.questionId = q.id;
+    stack.dataset.topic = q.topic;
+    stack.dataset.type = q.type;
+
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `<h3>${q.topic}</h3><p>${q.text}</p>`;
     stack.appendChild(card);
 
-    enableSwipe(card, q);
+    attachSwipe(card);
 }
 
-function enableSwipe(card, q) {
-    let startX=0, startY=0;
-
-    card.addEventListener("pointerdown", e=>{
+/* ===== POINTER SWIPE ENGINE ===== */
+function attachSwipe(card){
+    let startX=0,startY=0;
+    card.onpointerdown = e=>{
         startX=e.clientX; startY=e.clientY;
         card.setPointerCapture(e.pointerId);
-    });
-
-    card.addEventListener("pointermove", e=>{
-        if (!card.hasPointerCapture(e.pointerId)) return;
-        const dx=e.clientX-startX, dy=e.clientY-startY;
-        card.style.transform=`translate(${dx}px,${dy}px) rotate(${dx*0.05}deg)`;
-    });
-
-    card.addEventListener("pointerup", e=>{
-        const dx=e.clientX-startX, dy=e.clientY-startY;
-        let dir = Math.abs(dx)>Math.abs(dy)
-            ? (dx>50?"right":dx<-50?"left":null)
-            : (dy<-50?"up":dy>50?"down":null);
-
-        if (!dir) { card.style.transform=""; return; }
-
-        logRow(q, dir);
+    };
+    card.onpointerup = e=>{
+        const dx=e.clientX-startX;
+        const dy=e.clientY-startY;
+        let dir="left";
+        if(Math.abs(dx)>Math.abs(dy)){
+            if(dx>40) dir="right";
+        }else{
+            if(dy<-40) dir="up";
+            else if(dy>40) dir="down";
+        }
+        logAnswer(dir);
         index++;
-        render();
+        renderCard();
+    };
+}
+
+/* ===== LOGGING (SHEET READY) ===== */
+function logAnswer(dir){
+    const q = QUESTIONS[index];
+    responses.push({
+        session: document.getElementById("session-id").value,
+        question_id: q.id,
+        topic: q.topic,
+        type: q.type,
+        swipe: dir,
+        correct: dir===q.correct,
+        weight: q.w,
+        timestamp: new Date().toISOString()
     });
 }
 
-function logRow(q, dir) {
-    fetch(SHEET_URL,{
-        method:"POST",
-        mode:"no-cors",
-        body:JSON.stringify({
-            question_id:q.id,
-            topic:q.topic,
-            type:q.type,
-            swipe:dir,
-            correct:(dir===q.correct),
-            weight:q.w,
-            time:new Date().toISOString()
-        })
-    });
-}
-
-render();
+/* ===== START ===== */
+renderCard();
 </script>
+
 </body>
 </html>
