@@ -176,7 +176,7 @@
             margin-top: 1rem;
         }
 
-        /* NEW: Topic Selection Buttons */
+        /* Topic Selection Buttons */
         .topic-grid {
             display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
             width: 90%; max-width: 360px; margin-top: 1rem;
@@ -206,7 +206,7 @@
         }
         
         .chart-hole {
-            position: absolute; inset: 15px; /* Donut thickness */
+            position: absolute; inset: 15px;
             background: var(--bg-void);
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
@@ -245,7 +245,7 @@
         <div id="ui-overlay"></div>
 
         <section id="view-start" class="view active">
-            <div style="color:var(--text-accent); border:1px solid var(--text-accent); padding:4px 8px; border-radius:4px; font-family:'JetBrains Mono'; font-size:0.7rem; margin-bottom:1rem;">CHEMISTRY MODULE V6.0</div>
+            <div style="color:var(--text-accent); border:1px solid var(--text-accent); padding:4px 8px; border-radius:4px; font-family:'JetBrains Mono'; font-size:0.7rem; margin-bottom:1rem;">CHEMISTRY MODULE V7.0</div>
             <h1 style="font-size:3rem; font-weight:900; line-height:0.9; text-align:center; margin-bottom:1rem;">CORE<br>CONCEPTS</h1>
             <p style="color:var(--text-secondary); margin-bottom:3rem; text-align:center;">Atoms • Bonds • Solutions</p>
             <button class="btn-main" onclick="APP.start('CORE')">BEGIN ANALYSIS</button>
@@ -281,17 +281,17 @@
             <div class="topic-grid">
                 <button class="btn-topic" onclick="APP.start('ATOMS_HARD')">
                     <strong>ATOMIC THEORY</strong>
-                    <span>Hard • 5 Qs</span>
+                    <span>Hard • 10 Qs</span>
                 </button>
                 <button class="btn-topic" onclick="APP.start('BONDS_HARD')">
                     <strong>BONDING</strong>
-                    <span>Hard • 5 Qs</span>
+                    <span>Hard • 10 Qs</span>
                 </button>
                 <button class="btn-topic" onclick="APP.start('SOLUTIONS_HARD')">
                     <strong>SOLUTIONS</strong>
-                    <span>Hard • 5 Qs</span>
+                    <span>Hard • 10 Qs</span>
                 </button>
-                <button class="btn-topic" onclick="location.reload()">
+                <button class="btn-topic" onclick="APP.start('CORE')">
                     <strong>RESTART</strong>
                     <span>Core Level</span>
                 </button>
@@ -325,36 +325,60 @@
             CHART_COLORS: {'ATOM':'#3b82f6', 'BOND':'#8b5cf6', 'SOLN':'#ec4899', 'REAC':'#f59e0b', 'TABL':'#10b981'}
         };
 
-        // --- QUESTION BANKS ---
+        // --- EXTENSIVE QUESTION BANK ---
         const DECKS = {
             CORE: [
-                { id: "c1", topic: "Structure", type: "ATOM", text: "Protons and Neutrons reside in the nucleus.", sub: "Electrons orbit the outside.", explanation: "Correct. The nucleus contains heavy particles.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-                { id: "c2", topic: "Charge", type: "ATOM", text: "An electron carries a positive electrical charge.", sub: "Think about protons vs electrons.", explanation: "False. Electrons are Negative.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
-                { id: "c4", topic: "Identity", type: "ATOM", text: "Atomic number equals the number of protons.", sub: "Identity of the element.", explanation: "Correct. Proton count is the DNA of an atom.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-                { id: "c7", topic: "Mechanics", type: "BOND", text: "Ionic bonds involve sharing electrons.", sub: "Share vs Steal.", explanation: "False. Ionic bonds transfer electrons.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
-                { id: "c8", topic: "Molecules", type: "BOND", text: "Water (H2O) contains covalent bonds.", sub: "Non-metal + Non-metal.", explanation: "Correct. Oxygen shares electrons with Hydrogen.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-                { id: "c15", topic: "Mixtures", type: "SOLN", text: "In salt water, salt is the solvent.", sub: "Solute vs Solvent.", explanation: "False. Water is the solvent. Salt is the solute.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 }
+                { id: "c1", topic: "Structure", type: "ATOM", text: "Protons and Neutrons reside in the nucleus.", sub: "Electrons orbit the outside.", explanation: "Correct. The nucleus contains heavy particles (protons & neutrons).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+                { id: "c2", topic: "Charge", type: "ATOM", text: "An electron carries a positive electrical charge.", sub: "Think about protons vs electrons.", explanation: "False. Electrons are Negative. Protons are Positive.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
+                { id: "c3", topic: "Identity", type: "ATOM", text: "Changing the proton number changes the element.", sub: "Carbon vs Nitrogen.", explanation: "Correct. Proton count is the atomic number.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+                { id: "c4", topic: "Organization", type: "TABL", text: "Elements in the same vertical Group behave similarly.", sub: "Valence electrons.", explanation: "Correct. They have same valence electron count.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+                { id: "c5", topic: "Noble Gases", type: "TABL", text: "Noble Gases are highly reactive.", sub: "Full shells?", explanation: "False. Full shells make them stable/inert.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
+                { id: "c6", topic: "Valence", type: "TABL", text: "Carbon (Group 14) has 6 valence electrons.", sub: "Group 14.", explanation: "False. Group 14 elements have 4 valence electrons.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
+                { id: "c7", topic: "Mechanics", type: "BOND", text: "Ionic bonds involve sharing electrons.", sub: "Transfer vs Share.", explanation: "False. Ionic bonds transfer electrons. Covalent share.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
+                { id: "c8", topic: "Molecules", type: "BOND", text: "Water (H2O) is a covalent molecule.", sub: "Non-metal + Non-metal.", explanation: "Correct. Oxygen shares electrons with Hydrogen.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+                { id: "c9", topic: "Conservation", type: "REAC", text: "Atoms are destroyed in chemical reactions.", sub: "Conservation Law.", explanation: "False. Matter is conserved, only rearranged.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
+                { id: "c10", topic: "Balancing", type: "REAC", text: "H2 + O2 -> H2O is balanced.", sub: "Count atoms.", explanation: "False. Needs 2H2 + O2 -> 2H2O.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
+                { id: "c11", topic: "Energy", type: "REAC", text: "Exothermic reactions release heat.", sub: "Exo vs Endo.", explanation: "Correct. Energy exits the system.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+                { id: "c12", topic: "Units", type: "SOLN", text: "A Mole is approx 6.022 x 10^23 particles.", sub: "Avogadro.", explanation: "Correct. Avogadro's constant.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+                { id: "c13", topic: "Acids", type: "SOLN", text: "pH of 2 indicates a strong Base.", sub: "0-14 Scale.", explanation: "False. Low pH is Acidic. High is Basic.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
+                { id: "c14", topic: "Neutrality", type: "SOLN", text: "Pure water is neutral at pH 7.", sub: "Midpoint.", explanation: "Correct. 7 is neutral.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+                { id: "c15", topic: "Mixtures", type: "SOLN", text: "In salt water, salt is the solvent.", sub: "Solute vs Solvent.", explanation: "False. Water is solvent, salt is solute.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 }
             ],
             ATOMS_HARD: [
-                { id: "ah1", topic: "Quantum", type: "ATOM", text: "The 4s orbital fills before the 3d orbital.", sub: "Aufbau Principle.", explanation: "True. 4s has lower energy than 3d.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "ah2", topic: "Isotopes", type: "ATOM", text: "Isotopes of an element have different numbers of protons.", sub: "Think mass vs identity.", explanation: "False. Isotopes differ in Neutrons, not Protons.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-                { id: "ah3", topic: "Config", type: "ATOM", text: "A d-subshell can hold a maximum of 14 electrons.", sub: "s=2, p=6, d=?, f=14.", explanation: "False. d-orbitals hold 10 electrons. f-orbitals hold 14.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-                { id: "ah4", topic: "Trends", type: "ATOM", text: "Atomic radius decreases across a period (left to right).", sub: "Nuclear pull increases.", explanation: "True. Stronger nucleus pulls electrons closer.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "ah5", topic: "Ions", type: "ATOM", text: "Cations are always larger than their parent atoms.", sub: "Losing electrons.", explanation: "False. Cations lose electrons and shrink.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 }
+                { id: "ah1", topic: "Quantum", type: "ATOM", text: "The 4s orbital fills before 3d.", sub: "Aufbau.", explanation: "True. 4s is lower energy.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "ah2", topic: "Isotopes", type: "ATOM", text: "Isotopes differ in proton count.", sub: "Mass vs Identity.", explanation: "False. They differ in Neutrons.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "ah3", topic: "Config", type: "ATOM", text: "d-subshell holds max 14 electrons.", sub: "s2 p6 d10 f14.", explanation: "False. d holds 10. f holds 14.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "ah4", topic: "Trends", type: "ATOM", text: "Atomic radius decreases left-to-right.", sub: "Nuclear pull.", explanation: "True. Stronger nucleus pulls electrons in.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "ah5", topic: "Ions", type: "ATOM", text: "Cations are larger than neutral atoms.", sub: "Losing electrons.", explanation: "False. Cations shrink upon electron loss.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "ah6", topic: "Ionization", type: "ATOM", text: "Ionization energy increases down a group.", sub: "Shielding effect.", explanation: "False. It decreases as atoms get larger.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "ah7", topic: "Pauli", type: "ATOM", text: "Two electrons in same orbital must have opposite spins.", sub: "Exclusion Principle.", explanation: "True. Pauli Exclusion Principle.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "ah8", topic: "Isoelectronic", type: "ATOM", text: "Na+ and Ne are isoelectronic.", sub: "Check electron count.", explanation: "True. Both have 10 electrons.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "ah9", topic: "Anomalies", type: "ATOM", text: "Chromium has a [Ar] 4s2 3d4 config.", sub: "Half-filled stability.", explanation: "False. It promotes to 4s1 3d5 for stability.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "ah10", topic: "Quantum", type: "ATOM", text: "Angular momentum quantum number (l) defines shape.", sub: "n, l, ml, ms.", explanation: "True. l=0 is spherical, l=1 is dumbbell.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 }
             ],
             BONDS_HARD: [
-                { id: "bh1", topic: "VSEPR", type: "BOND", text: "A molecule with sp3 hybridization is always tetrahedral.", sub: "Think about lone pairs (e.g., Water).", explanation: "False. Lone pairs can make it bent (Water) or pyramidal (Ammonia).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-                { id: "bh2", topic: "Polarity", type: "BOND", text: "BF3 is a non-polar molecule despite polar bonds.", sub: "Symmetry cancels dipoles.", explanation: "True. Trigonal planar symmetry cancels the polarity.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "bh3", topic: "Forces", type: "BOND", text: "Hydrogen bonds are stronger than Covalent bonds.", sub: "Inter vs Intra molecular.", explanation: "False. Covalent bonds (inside molecule) are much stronger than H-bonds (between molecules).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-                { id: "bh4", topic: "Lattice", type: "BOND", text: "MgO has a higher lattice energy than NaCl.", sub: "Charge density (+2 vs +1).", explanation: "True. Mg2+ and O2- have higher charges than Na+ and Cl-.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "bh5", topic: "Sigma", type: "BOND", text: "A double bond consists of one sigma and one pi bond.", sub: "Overlap types.", explanation: "True. The first is sigma, the second is pi.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 }
+                { id: "bh1", topic: "VSEPR", type: "BOND", text: "sp3 hybridization is always tetrahedral.", sub: "Lone pairs.", explanation: "False. Can be bent (Water) or pyramidal.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "bh2", topic: "Polarity", type: "BOND", text: "BF3 is non-polar despite polar bonds.", sub: "Symmetry.", explanation: "True. Symmetry cancels dipoles.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "bh3", topic: "Forces", type: "BOND", text: "H-bonds are stronger than covalent bonds.", sub: "Inter vs Intra.", explanation: "False. Covalent are much stronger.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "bh4", topic: "Lattice", type: "BOND", text: "MgO has higher lattice energy than NaCl.", sub: "Charge density.", explanation: "True. +2/-2 charges attract stronger than +1/-1.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "bh5", topic: "Sigma", type: "BOND", text: "Double bond = 1 Sigma + 1 Pi.", sub: "Overlap.", explanation: "True. First is sigma, second is pi.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "bh6", topic: "Resonance", type: "BOND", text: "Ozone (O3) has equal bond lengths.", sub: "Resonance hybrid.", explanation: "True. The double bond character is delocalized.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "bh7", topic: "Order", type: "BOND", text: "N2 has a bond order of 2.", sub: "Triple bond?", explanation: "False. Nitrogen has a triple bond (Order 3).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "bh8", topic: "Formal", type: "BOND", text: "Formal charge assumes equal sharing.", sub: "Definition.", explanation: "True. It ignores electronegativity differences.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "bh9", topic: "Coordinate", type: "BOND", text: "In NH4+, H provides the shared electrons.", sub: "Ammonium.", explanation: "False. Nitrogen provides the lone pair for the 4th bond.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "bh10", topic: "Metallic", type: "BOND", text: "Metals conduct due to 'sea of electrons'.", sub: "Delocalization.", explanation: "True. Electrons move freely carrying charge.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 }
             ],
             SOLUTIONS_HARD: [
-                { id: "sh1", topic: "Colligative", type: "SOLN", text: "Adding salt to water decreases its boiling point.", sub: "Vapor pressure changes.", explanation: "False. Salt elevates boiling point and depresses freezing point.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-                { id: "sh2", topic: "Units", type: "SOLN", text: "Molarity changes with temperature, but Molality does not.", sub: "Volume vs Mass.", explanation: "True. Volume expands with heat (Molarity), mass does not (Molality).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "sh3", topic: "Buffers", type: "SOLN", text: "A buffer solution resists changes in pH.", sub: "Weak acid + conjugate base.", explanation: "True. That is the definition of a buffer.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-                { id: "sh4", topic: "Solubility", type: "SOLN", text: "Gas solubility in liquid increases as temperature rises.", sub: "Think about warm soda.", explanation: "False. Gases escape warm liquids. Solubility decreases.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-                { id: "sh5", topic: "Factor", type: "SOLN", text: "The Van't Hoff factor (i) for CaCl2 is ideally 3.", sub: "How many ions form?", explanation: "True. Ca + Cl + Cl = 3 particles.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 }
+                { id: "sh1", topic: "Colligative", type: "SOLN", text: "Salt decreases water's boiling point.", sub: "Vapor pressure.", explanation: "False. Salt elevates boiling point.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "sh2", topic: "Units", type: "SOLN", text: "Molarity changes with temperature.", sub: "Volume expansion.", explanation: "True. Volume changes, so Molarity changes.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "sh3", topic: "Buffers", type: "SOLN", text: "Buffers resist pH change.", sub: "Definition.", explanation: "True. They neutralize added acid/base.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "sh4", topic: "Solubility", type: "SOLN", text: "Gas solubility increases with heat.", sub: "Soda.", explanation: "False. Gases escape warm liquids.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "sh5", topic: "Factor", type: "SOLN", text: "Van't Hoff factor (i) for CaCl2 is 3.", sub: "Ion count.", explanation: "True. Ca + Cl + Cl = 3 particles.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "sh6", topic: "Osmosis", type: "SOLN", text: "Water moves to lower solute concentration.", sub: "Osmosis direction.", explanation: "False. Water moves to HIGHER solute concentration to dilute it.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "sh7", topic: "SuperSat", type: "SOLN", text: "Supersaturated solutions are unstable.", sub: "Precipitation.", explanation: "True. A seed crystal causes precipitation.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "sh8", topic: "Hess", type: "SOLN", text: "Enthalpy change is path independent.", sub: "State function.", explanation: "True. Hess's Law.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "sh9", topic: "LeChatelier", type: "SOLN", text: "Adding product shifts equilibrium right.", sub: "Stress response.", explanation: "False. It shifts Left to consume excess product.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "sh10", topic: "Electrolyte", type: "SOLN", text: "Strong electrolytes partially dissociate.", sub: "Strong vs Weak.", explanation: "False. Strong electrolytes fully dissociate.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 }
             ]
         };
 
