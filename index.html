@@ -4,15 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#09090b">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Chemistry Master V15</title>
+    <title>Chemistry Master V17</title>
 
     <style>
         /* --- ASSETS --- */
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&family=Inter:wght@400;600;800&display=swap');
 
-        /* --- UI TOKENS --- */
+        /* --- TOKENS --- */
         :root {
             --bg-body: #09090b;       
             --bg-card: #ffffff;       
@@ -23,10 +21,10 @@
             --green: #22c55e;
             --red: #ef4444;
             --yellow: #eab308;
-            --blue: #3b82f6; /* New Color for Sub-Q */
+            --blue: #3b82f6;
 
-            --card-w: 90vw;
-            --card-max: 380px;
+            --card-w: 85vw;
+            --card-max: 360px;
         }
 
         /* --- RESET --- */
@@ -51,7 +49,6 @@
             max-width: 480px;
             display: flex; flex-direction: column;
             background: var(--bg-body);
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
             overflow: hidden;
         }
 
@@ -63,9 +60,12 @@
 
         /* --- HEADER --- */
         .header {
-            height: 15%; display: flex; flex-direction: column;
+            height: 15%;
+            display: flex; flex-direction: column;
             justify-content: flex-end; align-items: center;
-            padding-bottom: 1rem; z-index: 50;
+            padding-bottom: 2vh;
+            z-index: 50;
+            pointer-events: none;
         }
 
         .progress-bar {
@@ -82,41 +82,55 @@
 
         /* --- CARD STACK --- */
         .stage {
-            position: relative; flex: 1; width: 100%;
-            perspective: 1000px; z-index: 20;
+            position: relative; 
+            flex: 1; 
+            width: 100%;
+            perspective: 1000px; 
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .card {
             position: absolute;
             left: 50%; top: 50%;
             transform: translate(-50%, -50%);
-            width: var(--card-w); max-width: var(--card-max);
-            aspect-ratio: 3/4.5;
+            
+            width: var(--card-w); 
+            max-width: var(--card-max);
+            
+            /* Initial State */
             background: var(--bg-card);
             border-radius: 24px;
             box-shadow: 0 20px 40px -5px rgba(0,0,0,0.3);
             display: flex; flex-direction: column;
             justify-content: center; align-items: center;
             padding: 2rem; text-align: left;
+            
             will-change: transform; transform-style: flat;
-            transition: height 0.3s ease; /* Smooth grow */
+            transition: transform 0.1s linear; /* Fast response */
         }
 
         .card p {
             font-size: 1.3rem; font-weight: 800;
             color: var(--text-main); line-height: 1.35;
-            pointer-events: none; margin-bottom: 1.5rem; text-align: center; width: 100%;
+            pointer-events: none; margin-bottom: 0; text-align: center; width: 100%;
+            transition: margin 0.3s ease;
         }
 
-        /* SUB-Q (Hidden by default) */
+        /* Revealed State */
+        .card.reveal p { margin-bottom: 1.5rem; }
+        
         .card-list { 
             width: 100%; padding-left: 1rem; margin: 0; pointer-events: none; 
-            opacity: 0; transform: translateY(10px); transition: all 0.4s ease;
-            display: none; /* Removed from flow initially */
+            opacity: 0; max-height: 0; overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         
         .card.reveal .card-list {
-            display: block; opacity: 1; transform: translateY(0);
+            opacity: 1; max-height: 200px; /* Allow expansion */
+            margin-bottom: 1rem;
         }
 
         .card-list li {
@@ -136,16 +150,17 @@
 
         /* --- FOOTER --- */
         .footer {
-            height: 20%;
+            height: 25%;
             display: grid; grid-template-columns: 1fr 80px 1fr; grid-template-rows: 1fr 1fr;
             align-content: center; justify-items: center; z-index: 50;
+            padding-bottom: 1rem;
         }
 
         .ctrl {
             display: flex; flex-direction: column; align-items: center;
             color: #52525b; transition: 0.15s;
         }
-        .ctrl.active { color: #fff; transform: scale(1.3); }
+        .ctrl.active { color: #fff; transform: scale(1.3); text-shadow: 0 0 15px currentColor; }
         .ctrl.up { grid-column: 2; grid-row: 1; margin-bottom: 0.5rem; }
         .ctrl.down { grid-column: 2; grid-row: 2; margin-top: 0.5rem; }
         .ctrl.left { grid-column: 1; grid-row: 2; }
@@ -164,7 +179,7 @@
 
         .btn-main {
             background: #fff; color: #000; border: none;
-            padding: 1.2rem 3rem; font-size: 1rem; font-weight: 800;
+            padding: 1.2rem 3rem; font-size: 1rem; font-weight: 700;
             border-radius: 100px; cursor: pointer; margin-top: 2rem;
         }
 
@@ -190,9 +205,8 @@
             border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column;
         }
 
-        /* --- REVIEW --- */
         #view-review .review-card {
-            background: #fff; color: #000; width: 90%; height: 80%;
+            background: #fff; color: #000; width: 90%; height: 70%;
             border-radius: 24px; padding: 2rem; display: flex; flex-direction: column;
         }
         .rev-q-box {
@@ -200,7 +214,7 @@
             text-align: center; border-bottom: 1px solid #e4e4e7; margin-bottom: 1rem; padding-bottom: 1rem;
             overflow-y: auto;
         }
-        .rev-img { max-height: 120px; width: auto; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #e4e4e7; display: block; }
+        .rev-img { max-height: 100px; width: auto; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #e4e4e7; display: block; }
         .rev-q-text { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
         .rev-a-box { flex: 0 0 auto; display: flex; flex-direction: column; justify-content: center; }
         .rev-badge {
@@ -221,7 +235,7 @@
         <div id="ui-overlay"></div>
 
         <section id="view-start" class="view active">
-            <div style="color:var(--accent); border:1px solid var(--accent); padding:4px 8px; border-radius:4px; font-family:'JetBrains Mono'; font-size:0.7rem; margin-bottom:1rem;">MODULE V15.0</div>
+            <div style="color:var(--accent); border:1px solid var(--accent); padding:4px 8px; border-radius:4px; font-family:'JetBrains Mono'; font-size:0.7rem; margin-bottom:1rem;">MODULE V16.0</div>
             <h1 style="font-size:3rem; font-weight:800; color:#fff; text-align:center; margin-bottom:1rem;">CHEMISTRY<br>MASTER</h1>
             <p style="color:#a1a1aa; text-align:center; margin-bottom:3rem;">Tactical Context Engine</p>
             <button class="btn-main" onclick="APP.start('CORE')">START QUIZ</button>
@@ -279,15 +293,15 @@
     <script>
         const CONFIG = {
             API_URL: "https://script.google.com/macros/s/AKfycbz_ziu5Dezrz35J2FksQtNEYuZ5Kk6TrQvg3pM5O5eBYUDzWCCtqlGWwZj8D-TBQLFw/exec",
-            THRESHOLD: 75,
-            COLORS: { UP:'#22c55e', DOWN:'#ef4444', RIGHT:'#eab308', LEFT:'#3b82f6' }, // Left is now Blue
+            THRESHOLD: 60, // Lowered for easier left/right trigger
+            COLORS: { UP:'#22c55e', DOWN:'#ef4444', RIGHT:'#eab308', LEFT:'#3b82f6' },
             CHART: {'ATOM':'#3b82f6', 'BOND':'#8b5cf6', 'SOLN':'#ec4899', 'REAC':'#f59e0b', 'TABL':'#10b981'}
         };
 
         const DECKS = {
             CORE: [
                 { id: "c1", topic: "Structure", type: "ATOM", text: "Protons and Neutrons reside in the nucleus.", subs: ["Does nucleus contain mass?", "Where are electrons?", "Is nucleus dense?"], explanation: "Correct. The nucleus contains the heavy particles.", up:"True", down:"False", right:"Unsure", correct:"up", w:1 },
-                { id: "c2", topic: "Charge", type: "ATOM", text: "An electron carries a positive electrical charge.", subs: ["Protons are positive.", "Neutrons are neutral.", "What is electron charge?"], explanation: "False. Electrons are Negative.", up:"True", down:"False", right:"Unsure", correct:"down", w:1 },
+                { id: "c2", topic: "Charge", type: "ATOM", text: "An electron carries a positive electrical charge.", subs: ["Protons are positive.", "Neutrons are neutral.", "What is electron charge?"], explanation: "False. Electrons are Negative. Protons are Positive.", up:"True", down:"False", right:"Unsure", correct:"down", w:1 },
                 { id: "c3", topic: "Identity", type: "ATOM", text: "Changing the proton number changes the element.", subs: ["Protons = Identity.", "Neutrons = Isotope.", "Electrons = Ion."], explanation: "Correct. Proton count is the atomic number.", up:"True", down:"False", right:"Unsure", correct:"up", w:1 },
                 { id: "c4", topic: "Organization", type: "TABL", text: "Elements in the same vertical Group behave similarly.", subs: ["Same valence electrons?", "Same size?", "Same color?"], explanation: "Correct. They have same valence electron count.", up:"True", down:"False", right:"Unsure", correct:"up", w:1 },
                 { id: "c5", topic: "Noble Gases", type: "TABL", text: "Noble Gases are highly reactive.", subs: ["Group 18.", "Full outer shells?", "Do they want electrons?"], explanation: "False. Full shells make them stable/inert.", up:"True", down:"False", right:"Unsure", correct:"down", w:1 },
@@ -320,7 +334,7 @@
                 { id: "bh3", topic: "Forces", type: "BOND", text: "H-bonds are stronger than covalent bonds.", subs: ["Intermolecular vs Intra.", "Breaking water vs boiling.", "Bond strength."], explanation: "False. Covalent are much stronger.", up:"True", down:"False", right:"Unsure", correct:"down", w:2 },
                 { id: "bh5", topic: "Sigma", type: "BOND", text: "Double bond = 1 Sigma + 1 Pi.", subs: ["Head-on overlap.", "Side-on overlap.", "Bond count."], explanation: "True. First is sigma, second is pi.", up:"True", down:"False", right:"Unsure", correct:"up", w:2 },
                 { id: "bh4", topic: "Lattice", type: "BOND", text: "MgO has higher lattice energy than NaCl.", subs: ["Mg (+2), O (-2).", "Na (+1), Cl (-1).", "Charge product."], explanation: "True. +2/-2 charges attract stronger than +1/-1.", up:"True", down:"False", right:"Unsure", correct:"up", w:2 },
-                { id: "bh6", topic: "Resonance", type: "BOND", text: "Ozone (O3) has equal bond lengths.", subs: ["Resonance hybrid.", "Delocalized electrons.", "1.5 bond order?"], explanation: "True. The double bond character is delocalized.", up:"True", down:"False", right:"Unsure", correct:"up", w:2 },
+                { id: "bh6", topic: "Resonance", type: "BOND", text: "Ozone (O3) has equal bond lengths.", subs: ["Resonance hybrid.", "Delocalized electrons.", "1.5 bond order?"], explanation: "True. The double bond character is delocalized.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
                 { id: "bh7", topic: "Order", type: "BOND", text: "N2 has a bond order of 2.", subs: ["Nitrogen gas.", "Triple bond?", "Share 6 electrons?"], explanation: "False. Nitrogen has a triple bond (Order 3).", up:"True", down:"False", right:"Unsure", correct:"down", w:2 },
                 { id: "bh8", topic: "Formal", type: "BOND", text: "Formal charge assumes equal sharing.", subs: ["Bookkeeping method.", "Ignore electronegativity.", "Lewis structures."], explanation: "True. It ignores electronegativity differences.", up:"True", down:"False", right:"Unsure", correct:"up", w:2 },
                 { id: "bh9", topic: "Coordinate", type: "BOND", text: "In NH4+, H provides the shared electrons.", subs: ["Ammonium ion.", "Coordinate covalent.", "N gives lone pair?"], explanation: "False. Nitrogen provides the lone pair for the 4th bond.", up:"True", down:"False", right:"Unsure", correct:"down", w:2 },
@@ -380,7 +394,6 @@
                 document.getElementById('ui-progress').style.width=((this.idx/this.deck.length)*100)+'%';
                 document.getElementById('lbl-up').textContent=q.up;
                 document.getElementById('lbl-down').textContent=q.down;
-                // document.getElementById('lbl-left').textContent=q.left; // Removed default Skip text
                 document.getElementById('lbl-right').textContent=q.right;
             },
 
@@ -453,7 +466,6 @@
                 if(!this.dragging) return; this.dragging=false; 
                 window.removeEventListener('touchmove',this.move.bind(this)); window.removeEventListener('mousemove',this.move.bind(this)); window.removeEventListener('touchend',this.end.bind(this)); window.removeEventListener('mouseup',this.end.bind(this)); 
                 const dx=(e.changedTouches?e.changedTouches[0]:e).clientX-this.startX; const dy=(e.changedTouches?e.changedTouches[0]:e).clientY-this.startY; 
-                
                 if(Math.abs(dy)>CONFIG.THRESHOLD && Math.abs(dy)>Math.abs(dx)) this.commit(dy<0?'up':'down'); 
                 else if(Math.abs(dx)>CONFIG.THRESHOLD) this.commit(dx>0?'right':'left'); 
                 else this.reset(); 
@@ -470,20 +482,17 @@
             reset() { this.el.style.transition='transform 0.3s cubic-bezier(0.2,0.8,0.2,1)'; this.el.style.transform='translate(-50%,-50%)'; this.overlay.style.opacity=0; document.querySelectorAll('.ctrl').forEach(c=>{ c.classList.remove('active'); c.style.color=''; }); },
             commit(dir) { 
                 if (dir === 'left') {
-                    // NEW: REVEAL LOGIC
                     this.el.style.transition='transform 0.3s cubic-bezier(0.2,0.8,0.2,1)';
-                    this.el.style.transform='translate(-50%,-50%)'; // Snap back
-                    this.el.classList.add('reveal'); // Show Sub-Q
+                    this.el.style.transform='translate(-50%,-50%)';
+                    this.el.classList.add('reveal'); 
                     this.overlay.style.opacity=0;
                     document.querySelectorAll('.ctrl').forEach(c=>{ c.classList.remove('active'); c.style.color=''; });
-                    return; // Don't proceed to next card
+                    return; 
                 }
-
                 const q=APP.deck[APP.idx]; const score=dir===q.correct?10*q.w:-5; 
                 APP.answers[q.id]={dir,score,correct:dir===q.correct,q}; 
                 let tx=0, ty=0; const d=800; 
                 if(dir==='up') ty=-d; if(dir==='down') ty=d; if(dir==='right') tx=d; 
-                
                 this.el.style.transition='transform 0.4s ease-in'; 
                 this.el.style.transform=`translate(-50%,-50%) translate(${tx}px,${ty}px) rotate(${tx*0.1}deg)`; 
                 this.overlay.style.opacity=0; 
