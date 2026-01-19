@@ -31,7 +31,6 @@
 
             /* Chart Colors */
             --chart-1: #3b82f6; --chart-2: #8b5cf6; --chart-3: #ec4899;
-            --chart-4: #f59e0b; --chart-5: #10b981; --chart-6: #6366f1;
 
             --card-w: 90vw;
             --card-max-w: 380px;
@@ -118,7 +117,7 @@
         }
 
         .card p {
-            font-size: 1.4rem; font-weight: 700;
+            font-size: 1.3rem; font-weight: 700;
             color: var(--text-card); line-height: 1.35;
             pointer-events: none; margin-bottom: 1rem;
         }
@@ -176,14 +175,27 @@
             box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
             margin-top: 1rem;
         }
-        
-        .btn-secondary {
-            background: transparent; color: var(--text-secondary); border: 1px solid var(--text-secondary);
-            padding: 0.8rem 2rem; font-size: 0.9rem; font-weight: 600;
-            border-radius: 100px; cursor: pointer; margin-top: 1rem;
+
+        /* NEW: Topic Selection Buttons */
+        .topic-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+            width: 90%; max-width: 360px; margin-top: 1rem;
         }
 
-        /* 9. CHART STYLES (NEW) */
+        .btn-topic {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-primary);
+            padding: 1rem; border-radius: 16px;
+            text-align: left; cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-topic:active { transform: scale(0.98); background: rgba(255,255,255,0.1); }
+        .btn-topic strong { display: block; font-size: 0.9rem; margin-bottom: 0.25rem; }
+        .btn-topic span { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; }
+
+        /* 9. CHART STYLES */
         .chart-container {
             position: relative;
             width: 140px; height: 140px;
@@ -200,18 +212,6 @@
             display: flex; align-items: center; justify-content: center;
             flex-direction: column;
         }
-
-        .chart-legend {
-            display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem;
-            width: 100%; max-width: 300px; margin-bottom: 2rem;
-        }
-
-        .legend-pill {
-            font-size: 0.65rem; color: #fff; background: rgba(255,255,255,0.1);
-            padding: 4px 8px; border-radius: 4px; display: flex; align-items: center; gap: 6px;
-        }
-        
-        .dot { width: 8px; height: 8px; border-radius: 50%; }
 
         /* 10. REVIEW MODE STYLES */
         #view-review .review-card {
@@ -230,23 +230,10 @@
         }
         
         .rev-q-text { font-size: 1.2rem; font-weight: 700; color: #1e293b; }
-
         .rev-a-box { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-
-        .rev-badge {
-            align-self: flex-start;
-            background: #dcfce7; color: #166534;
-            font-size: 0.7rem; font-weight: 800; padding: 4px 8px; border-radius: 4px;
-            margin-bottom: 0.5rem; letter-spacing: 0.05em;
-        }
-
+        .rev-badge { align-self: flex-start; background: #dcfce7; color: #166534; font-size: 0.7rem; font-weight: 800; padding: 4px 8px; border-radius: 4px; margin-bottom: 0.5rem; }
         .rev-sol { font-size: 1rem; color: #334155; line-height: 1.5; }
-        
-        .rev-nav {
-            display: flex; justify-content: space-between; align-items: center;
-            width: 90%; margin-top: 1.5rem;
-        }
-        
+        .rev-nav { display: flex; justify-content: space-between; align-items: center; width: 90%; margin-top: 1.5rem; }
         .rev-count { color: var(--text-secondary); font-family: 'JetBrains Mono'; font-size: 0.8rem; }
 
         .hidden { display: none !important; }
@@ -258,10 +245,10 @@
         <div id="ui-overlay"></div>
 
         <section id="view-start" class="view active">
-            <div style="color:var(--text-accent); border:1px solid var(--text-accent); padding:4px 8px; border-radius:4px; font-family:'JetBrains Mono'; font-size:0.7rem; margin-bottom:1rem;">CHEMISTRY MODULE V5.0</div>
+            <div style="color:var(--text-accent); border:1px solid var(--text-accent); padding:4px 8px; border-radius:4px; font-family:'JetBrains Mono'; font-size:0.7rem; margin-bottom:1rem;">CHEMISTRY MODULE V6.0</div>
             <h1 style="font-size:3rem; font-weight:900; line-height:0.9; text-align:center; margin-bottom:1rem;">CORE<br>CONCEPTS</h1>
             <p style="color:var(--text-secondary); margin-bottom:3rem; text-align:center;">Atoms • Bonds • Solutions</p>
-            <button class="btn-main" onclick="APP.start()">BEGIN</button>
+            <button class="btn-main" onclick="APP.start('CORE')">BEGIN ANALYSIS</button>
         </section>
 
         <section id="view-game" class="view" style="background:transparent;">
@@ -280,7 +267,7 @@
         </section>
 
         <section id="view-summary" class="view">
-            <h2 style="font-size:1.5rem; margin-bottom:2rem;">ANALYSIS COMPLETE</h2>
+            <h2 style="font-size:1.2rem; margin-bottom:1rem; color:var(--text-secondary);">PERFORMANCE PROFILE</h2>
             
             <div class="chart-container" id="chart-pie">
                 <div class="chart-hole">
@@ -289,14 +276,30 @@
                 </div>
             </div>
             
-            <div class="chart-legend" id="chart-legend">
-                </div>
+            <p style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:1.5rem;">SELECT MASTERY MODULE</p>
             
-            <div id="review-cta" class="hidden">
-                <button class="btn-main" style="background:var(--signal-down); color:#fff; margin-bottom:1rem;" onclick="APP.startReview()">REVIEW MISTAKES</button>
+            <div class="topic-grid">
+                <button class="btn-topic" onclick="APP.start('ATOMS_HARD')">
+                    <strong>ATOMIC THEORY</strong>
+                    <span>Hard • 5 Qs</span>
+                </button>
+                <button class="btn-topic" onclick="APP.start('BONDS_HARD')">
+                    <strong>BONDING</strong>
+                    <span>Hard • 5 Qs</span>
+                </button>
+                <button class="btn-topic" onclick="APP.start('SOLUTIONS_HARD')">
+                    <strong>SOLUTIONS</strong>
+                    <span>Hard • 5 Qs</span>
+                </button>
+                <button class="btn-topic" onclick="location.reload()">
+                    <strong>RESTART</strong>
+                    <span>Core Level</span>
+                </button>
             </div>
             
-            <button class="btn-secondary" onclick="location.reload()">RESTART QUIZ</button>
+            <div id="review-cta" class="hidden" style="margin-top:1.5rem;">
+                <button class="btn-main" style="background:var(--signal-down); color:#fff; padding:0.8rem 2rem; font-size:0.9rem;" onclick="APP.startReview()">REVIEW MISTAKES</button>
+            </div>
         </section>
 
         <section id="view-review" class="view">
@@ -312,7 +315,6 @@
                 <button class="btn-main" style="margin:0; padding:0.8rem 2rem;" onclick="APP.nextReview()">NEXT</button>
             </div>
         </section>
-
     </div>
 
     <script>
@@ -320,36 +322,62 @@
             API_URL: "https://script.google.com/macros/s/AKfycbz_ziu5Dezrz35J2FksQtNEYuZ5Kk6TrQvg3pM5O5eBYUDzWCCtqlGWwZj8D-TBQLFw/exec",
             THRESHOLD: 75,
             COLORS: { UP:'#22c55e', DOWN:'#ef4444', RIGHT:'#eab308', LEFT:'#64748b' },
-            CHART_COLORS: ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#6366f1']
+            CHART_COLORS: {'ATOM':'#3b82f6', 'BOND':'#8b5cf6', 'SOLN':'#ec4899', 'REAC':'#f59e0b', 'TABL':'#10b981'}
         };
 
-        // --- QUESTIONS ---
-        const QUESTIONS = [
-            { id: "c1", topic: "Structure", type: "ATOM", text: "Protons and Neutrons reside in the nucleus.", sub: "Electrons orbit the outside.", explanation: "Correct. The nucleus contains the heavy particles (protons & neutrons), while electrons orbit in shells.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-            { id: "c2", topic: "Charge", type: "ATOM", text: "An electron carries a positive electrical charge.", sub: "Think about protons vs electrons.", explanation: "False. Electrons are Negative (-). Protons are Positive (+).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
-            { id: "c3", topic: "Identity", type: "ATOM", text: "Changing the number of protons changes the element itself.", sub: "Carbon (6) vs Nitrogen (7).", explanation: "Correct. The proton count (Atomic Number) defines the element's identity.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-            { id: "c4", topic: "Organization", type: "TABLE", text: "Elements in the same vertical Group behave similarly.", sub: "Example: Lithium and Sodium.", explanation: "Correct. Elements in the same Group have the same number of valence electrons, leading to similar reactions.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-            { id: "c5", topic: "Noble Gases", type: "TABLE", text: "Group 18 elements (Noble Gases) are highly reactive.", sub: "Do they have full outer shells?", explanation: "False. Noble Gases have full outer shells, making them extremely stable and unreactive.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
-            { id: "c6", topic: "Valence", type: "TABLE", text: "Carbon (Group 14) has 6 valence electrons.", sub: "Check the Group number hint.", explanation: "False. Carbon is in Group 14, so it has 4 valence electrons.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-            { id: "c7", topic: "Mechanics", type: "BONDING", text: "Ionic bonds involve the sharing of electrons.", sub: "Sharing vs Transferring.", explanation: "False. Ionic bonds transfer electrons. Covalent bonds share them.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-            { id: "c8", topic: "Molecules", type: "BONDING", text: "Water (H2O) is a covalent molecule.", sub: "Does oxygen share or steal?", explanation: "Correct. Oxygen and Hydrogen share electrons to form water.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-            { id: "c9", topic: "Conservation", type: "REACTION", text: "In a chemical reaction, atoms are created and destroyed.", sub: "Law of Conservation of Mass.", explanation: "False. Atoms are merely rearranged. Matter is conserved.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-            { id: "c10", topic: "Balancing", type: "REACTION", text: "The equation H2 + O2 -> H2O is balanced.", sub: "Count the Oxygen atoms.", explanation: "False. Left has 2 Oxygens, Right has 1. It should be 2H2 + O2 -> 2H2O.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-            { id: "c11", topic: "Energy", type: "REACTION", text: "Exothermic reactions release heat energy.", sub: "Exo (Out) vs Endo (In).", explanation: "Correct. Exothermic reactions release energy (heat) into the surroundings.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-            { id: "c12", topic: "Units", type: "MOLE", text: "A 'Mole' represents approx 6.022 x 10^23 particles.", sub: "Avogadro's Number.", explanation: "Correct. This is Avogadro's constant, the chemist's 'dozen'.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:3 },
-            { id: "c13", topic: "Acids", type: "SOLUTIONS", text: "A pH of 2 indicates a strong Base.", sub: "Scale: 0 (Acid) to 14 (Base).", explanation: "False. pH < 7 is Acidic. pH > 7 is Basic. 2 is strongly Acidic.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
-            { id: "c14", topic: "Neutrality", type: "SOLUTIONS", text: "Pure water has a neutral pH of 7.", sub: "Right in the middle.", explanation: "Correct. 7 is the midpoint of the pH scale, representing neutrality.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-            { id: "c15", topic: "Mixtures", type: "SOLUTIONS", text: "In salt water, salt is the 'Solvent'.", sub: "Solute vs Solvent.", explanation: "False. The Salt is the Solute (dissolved). Water is the Solvent (dissolver).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 }
-        ];
+        // --- QUESTION BANKS ---
+        const DECKS = {
+            CORE: [
+                { id: "c1", topic: "Structure", type: "ATOM", text: "Protons and Neutrons reside in the nucleus.", sub: "Electrons orbit the outside.", explanation: "Correct. The nucleus contains heavy particles.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+                { id: "c2", topic: "Charge", type: "ATOM", text: "An electron carries a positive electrical charge.", sub: "Think about protons vs electrons.", explanation: "False. Electrons are Negative.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
+                { id: "c4", topic: "Identity", type: "ATOM", text: "Atomic number equals the number of protons.", sub: "Identity of the element.", explanation: "Correct. Proton count is the DNA of an atom.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+                { id: "c7", topic: "Mechanics", type: "BOND", text: "Ionic bonds involve sharing electrons.", sub: "Share vs Steal.", explanation: "False. Ionic bonds transfer electrons.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
+                { id: "c8", topic: "Molecules", type: "BOND", text: "Water (H2O) contains covalent bonds.", sub: "Non-metal + Non-metal.", explanation: "Correct. Oxygen shares electrons with Hydrogen.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+                { id: "c15", topic: "Mixtures", type: "SOLN", text: "In salt water, salt is the solvent.", sub: "Solute vs Solvent.", explanation: "False. Water is the solvent. Salt is the solute.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 }
+            ],
+            ATOMS_HARD: [
+                { id: "ah1", topic: "Quantum", type: "ATOM", text: "The 4s orbital fills before the 3d orbital.", sub: "Aufbau Principle.", explanation: "True. 4s has lower energy than 3d.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "ah2", topic: "Isotopes", type: "ATOM", text: "Isotopes of an element have different numbers of protons.", sub: "Think mass vs identity.", explanation: "False. Isotopes differ in Neutrons, not Protons.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "ah3", topic: "Config", type: "ATOM", text: "A d-subshell can hold a maximum of 14 electrons.", sub: "s=2, p=6, d=?, f=14.", explanation: "False. d-orbitals hold 10 electrons. f-orbitals hold 14.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "ah4", topic: "Trends", type: "ATOM", text: "Atomic radius decreases across a period (left to right).", sub: "Nuclear pull increases.", explanation: "True. Stronger nucleus pulls electrons closer.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "ah5", topic: "Ions", type: "ATOM", text: "Cations are always larger than their parent atoms.", sub: "Losing electrons.", explanation: "False. Cations lose electrons and shrink.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 }
+            ],
+            BONDS_HARD: [
+                { id: "bh1", topic: "VSEPR", type: "BOND", text: "A molecule with sp3 hybridization is always tetrahedral.", sub: "Think about lone pairs (e.g., Water).", explanation: "False. Lone pairs can make it bent (Water) or pyramidal (Ammonia).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "bh2", topic: "Polarity", type: "BOND", text: "BF3 is a non-polar molecule despite polar bonds.", sub: "Symmetry cancels dipoles.", explanation: "True. Trigonal planar symmetry cancels the polarity.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "bh3", topic: "Forces", type: "BOND", text: "Hydrogen bonds are stronger than Covalent bonds.", sub: "Inter vs Intra molecular.", explanation: "False. Covalent bonds (inside molecule) are much stronger than H-bonds (between molecules).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "bh4", topic: "Lattice", type: "BOND", text: "MgO has a higher lattice energy than NaCl.", sub: "Charge density (+2 vs +1).", explanation: "True. Mg2+ and O2- have higher charges than Na+ and Cl-.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "bh5", topic: "Sigma", type: "BOND", text: "A double bond consists of one sigma and one pi bond.", sub: "Overlap types.", explanation: "True. The first is sigma, the second is pi.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 }
+            ],
+            SOLUTIONS_HARD: [
+                { id: "sh1", topic: "Colligative", type: "SOLN", text: "Adding salt to water decreases its boiling point.", sub: "Vapor pressure changes.", explanation: "False. Salt elevates boiling point and depresses freezing point.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "sh2", topic: "Units", type: "SOLN", text: "Molarity changes with temperature, but Molality does not.", sub: "Volume vs Mass.", explanation: "True. Volume expands with heat (Molarity), mass does not (Molality).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "sh3", topic: "Buffers", type: "SOLN", text: "A buffer solution resists changes in pH.", sub: "Weak acid + conjugate base.", explanation: "True. That is the definition of a buffer.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "sh4", topic: "Solubility", type: "SOLN", text: "Gas solubility in liquid increases as temperature rises.", sub: "Think about warm soda.", explanation: "False. Gases escape warm liquids. Solubility decreases.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "sh5", topic: "Factor", type: "SOLN", text: "The Van't Hoff factor (i) for CaCl2 is ideally 3.", sub: "How many ions form?", explanation: "True. Ca + Cl + Cl = 3 particles.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 }
+            ]
+        };
 
         const APP = {
             deck: [], idx: 0, answers: {}, activeEl: null,
             reviewDeck: [], reviewIdx: 0,
 
-            start() {
-                this.deck = [...QUESTIONS]; 
+            start(deckKey) {
+                // Load specific deck
+                this.deck = [...DECKS[deckKey]]; 
+                // Reset state
+                this.idx = 0;
+                this.answers = {};
+                this.reviewDeck = [];
+                
+                // Transition
                 document.getElementById('view-start').classList.remove('active');
+                document.getElementById('view-summary').classList.remove('active');
                 document.getElementById('view-game').classList.add('active');
+                
+                // Hide Review button
+                document.getElementById('review-cta').classList.add('hidden');
+                
                 this.render();
             },
 
@@ -398,7 +426,7 @@
                 
                 document.getElementById('chart-score').textContent = score;
 
-                // CHART GENERATION
+                // Render Chart
                 this.renderChart();
 
                 if (mistakes.length > 0) {
@@ -413,10 +441,8 @@
             },
 
             renderChart() {
-                // Aggregate Correct Answers by Type
                 const counts = {};
                 let totalCorrect = 0;
-                
                 Object.values(this.answers).forEach(a => {
                     if(a.correct) {
                         const t = a.q.type;
@@ -426,29 +452,18 @@
                 });
 
                 const chartEl = document.getElementById('chart-pie');
-                const legendEl = document.getElementById('chart-legend');
-                
                 if (totalCorrect === 0) {
-                    chartEl.style.background = '#334155'; // Grey for no data
+                    chartEl.style.background = '#334155';
                     return;
                 }
 
-                // Build Conic Gradient string
                 let gradient = [];
                 let currentDeg = 0;
-                const topics = Object.keys(counts);
-                
-                topics.forEach((topic, i) => {
-                    const color = CONFIG.CHART_COLORS[i % CONFIG.CHART_COLORS.length];
+                Object.keys(counts).forEach((topic) => {
+                    const color = CONFIG.CHART_COLORS[topic] || '#cbd5e1';
                     const deg = (counts[topic] / totalCorrect) * 360;
                     gradient.push(`${color} ${currentDeg}deg ${currentDeg + deg}deg`);
                     currentDeg += deg;
-
-                    // Add Legend Item
-                    const pill = document.createElement('div');
-                    pill.className = 'legend-pill';
-                    pill.innerHTML = `<div class="dot" style="background:${color}"></div> ${topic} (${counts[topic]})`;
-                    legendEl.appendChild(pill);
                 });
 
                 chartEl.style.background = `conic-gradient(${gradient.join(', ')})`;
@@ -562,7 +577,7 @@
             commit(dir) {
                 const q = APP.deck[APP.idx];
                 const score = dir===q.correct ? 10*q.w : (dir==='left'?0:-5);
-                APP.answers[q.id] = { dir, score, correct: dir===q.correct, q: q }; 
+                APP.answers[q.id] = { dir, score, correct: dir===q.correct, q: q };
 
                 let tx=0, ty=0; const d=800;
                 if(dir==='up') ty=-d; if(dir==='down') ty=d; if(dir==='left') tx=-d; if(dir==='right') tx=d;
