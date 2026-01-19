@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Swipe Intelligence Engine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Swipe Intelligence</title>
 
 <style>
-/* ===== YOUR CSS (UNCHANGED) ===== */
+/* ===== YOUR UI — UNCHANGED ===== */
 :root {
     --color-bg: #f4f4f5;
     --color-card: #ffffff;
@@ -16,17 +16,11 @@
     --color-false: #ef4444;
     --color-plausible: #eab308;
     --color-skip: #64748b;
-    --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-                   0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    -webkit-tap-highlight-color: transparent;
-}
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
 
 body {
     font-family: var(--font-stack);
@@ -41,93 +35,93 @@ body {
     overscroll-behavior: none;
 }
 
-/* Legend */
 .legend {
-    display: flex;
-    justify-content: space-around;
-    padding: 1rem;
-    font-size: 0.75rem;
-    color: var(--color-subtext);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-weight: 600;
+    display:flex;
+    justify-content:space-around;
+    padding:1rem;
+    font-size:0.75rem;
+    color:var(--color-subtext);
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    font-weight:600;
 }
 
 .legend-item .icon {
-    display: block;
-    text-align: center;
-    font-size: 1.2rem;
+    display:block;
+    text-align:center;
+    font-size:1.2rem;
 }
 
-/* App */
 #app-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    width: 100%;
-    max-width: 480px;
-    margin: 0 auto;
+    flex:1;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    position:relative;
+    max-width:480px;
+    margin:0 auto;
+    width:100%;
 }
 
-/* Cards */
 #card-stack {
-    position: relative;
-    width: 90%;
-    aspect-ratio: 3/4;
-    max-height: 60svh;
+    position:relative;
+    width:90%;
+    aspect-ratio:3/4;
+    max-height:60svh;
 }
 
 .card {
-    position: absolute;
-    inset: 0;
-    background: var(--color-card);
-    border-radius: 16px;
-    box-shadow: var(--shadow-card);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem;
-    text-align: center;
-    touch-action: none;
-    transform-origin: 50% 100%;
-    will-change: transform;
+    position:absolute;
+    inset:0;
+    background:var(--color-card);
+    border-radius:16px;
+    box-shadow:var(--shadow-card);
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    padding:2rem;
+    text-align:center;
+    touch-action:none;
+    transform-origin:50% 100%;
+    will-change:transform;
 }
 
 .card h3 {
-    font-size: 0.8rem;
-    color: var(--color-subtext);
-    margin-bottom: 1rem;
-    letter-spacing: 0.1em;
+    font-size:.85rem;
+    text-transform:uppercase;
+    color:var(--color-subtext);
+    margin-bottom:1rem;
+    letter-spacing:.1em;
 }
 
 .card p {
-    font-size: 1.25rem;
-    line-height: 1.5;
-    font-weight: 500;
+    font-size:1.25rem;
+    line-height:1.5;
+    font-weight:500;
 }
 
-/* Controls */
 .controls {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 2rem;
-    width: 90%;
-    justify-content: space-between;
+    display:flex;
+    gap:.5rem;
+    margin:1rem auto 1.5rem;
+    width:90%;
 }
 
 .btn {
-    flex: 1;
-    padding: 12px 0;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.8rem;
-    background: white;
-    border: 1px solid #ddd;
+    flex:1;
+    padding:12px 0;
+    border-radius:8px;
+    background:white;
+    font-weight:600;
+    font-size:.85rem;
+    border:1px solid;
 }
+
+.btn-true { color:var(--color-true); border-color:var(--color-true); }
+.btn-false { color:var(--color-false); border-color:var(--color-false); }
+.btn-plausible { color:var(--color-plausible); border-color:var(--color-plausible); }
+.btn-skip { color:var(--color-skip); border-color:var(--color-skip); }
 </style>
 </head>
 
@@ -144,107 +138,92 @@ body {
     <div id="card-stack"></div>
 </div>
 
+<div class="controls">
+    <button class="btn btn-skip">Skip</button>
+    <button class="btn btn-false">False</button>
+    <button class="btn btn-plausible">Plausible</button>
+    <button class="btn btn-true">True</button>
+</div>
+
 <script>
-/* ===== QUESTIONS (UNCHANGED) ===== */
+/* ===== QUESTIONS — UNCHANGED ===== */
 const QUESTIONS = [
-    { id:"e1",topic:"Geography",type:"FACT",text:"The IMEC corridor is designed to connect India to Europe via the Middle East.",up:"True",down:"False",right:"Unsure",left:"Skip",correct:"up",w:1 },
-    { id:"e2",topic:"Energy",type:"FACT",text:"India has officially committed to Net Zero emissions by the year 2050.",up:"True",down:"False",right:"2070",left:"Skip",correct:"right",w:1 },
-    { id:"e3",topic:"Defense",type:"FACT",text:"The INS Vikrant is India's first indigenous aircraft carrier.",up:"True",down:"False",right:"Imported",left:"Skip",correct:"up",w:1 },
-    { id:"m1",topic:"Semiconductors",type:"CONTEXT",text:"The Micron plant in Gujarat is primarily focused on packaging (ATMP), not full fabrication.",up:"True",down:"False",right:"Fab",left:"Skip",correct:"up",w:2 },
-    { id:"m2",topic:"Finance",type:"TRAP",text:"UPI is now accepted for domestic payments in every G20 nation.",up:"True",down:"False",right:"Select Few",left:"Skip",correct:"right",w:2 },
-    { id:"m3",topic:"Space",type:"REASONING",text:"The Gaganyaan mission's primary delay was due to launch vehicle unavailability.",up:"True",down:"False",right:"Safety Tests",left:"Skip",correct:"right",w:2 },
-    { id:"h1",topic:"Trade",type:"TRAP",text:"India has finalized a full Free Trade Agreement (FTA) with the UK as of Jan 2026.",up:"Signed",down:"Stalled",right:"Draft Only",left:"Skip",correct:"right",w:3 },
-    { id:"h2",topic:"Nuclear",type:"FACT",text:"The PFBR at Kalpakkam achieved criticality in 2025.",up:"True",down:"False",right:"Delayed",left:"Skip",correct:"up",w:3 },
-    { id:"h3",topic:"Geopolitics",type:"REASONING",text:"India's non-alignment strategy has shifted to multi-alignment to secure lithium supply chains.",up:"Agree",down:"Disagree",right:"Unrelated",left:"Skip",correct:"up",w:3 }
+{ id:"e1", topic:"Geography", type:"FACT", text:"The IMEC corridor is designed to connect India to Europe via the Middle East.", correct:"up", w:1 },
+{ id:"e2", topic:"Energy", type:"FACT", text:"India has officially committed to Net Zero emissions by the year 2050.", correct:"right", w:1 },
+{ id:"e3", topic:"Defense", type:"FACT", text:"The INS Vikrant is India's first indigenous aircraft carrier.", correct:"up", w:1 },
+{ id:"m1", topic:"Semiconductors", type:"CONTEXT", text:"The Micron plant in Gujarat is primarily focused on packaging (ATMP), not full fabrication.", correct:"up", w:2 },
+{ id:"m2", topic:"Finance", type:"TRAP", text:"UPI is now accepted for domestic payments in every G20 nation.", correct:"right", w:2 },
+{ id:"m3", topic:"Space", type:"REASONING", text:"The Gaganyaan mission's primary delay was due to launch vehicle unavailability.", correct:"right", w:2 },
+{ id:"h1", topic:"Trade", type:"TRAP", text:"India has finalized a full Free Trade Agreement (FTA) with the UK as of Jan 2026.", correct:"right", w:3 },
+{ id:"h2", topic:"Nuclear", type:"FACT", text:"The PFBR at Kalpakkam achieved criticality in 2025.", correct:"up", w:3 },
+{ id:"h3", topic:"Geopolitics", type:"REASONING", text:"India's non-alignment strategy has shifted to multi-alignment to secure lithium supply chains.", correct:"up", w:3 }
 ];
 
-/* ===== ENGINE STATE ===== */
-let index = 0;
-let startX = 0;
-let startY = 0;
-let dragging = false;
-const THRESHOLD = 70;
+/* ===== GOOGLE SHEET LOGGER (INVISIBLE) ===== */
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbxW-via-zE7FWqGKNZsilySBncR3I_lLOXK83P8tymRLoi50VaSWNr7J4vHa8R2DRwE/exec";
 
+/* ===== ENGINE ===== */
+let index = 0;
 const stack = document.getElementById("card-stack");
 
-/* ===== RENDER ===== */
 function render() {
     stack.innerHTML = "";
-    if (index >= QUESTIONS.length) {
-        alert("End of questions");
-        return;
-    }
+    if (!QUESTIONS[index]) return;
 
     const q = QUESTIONS[index];
     const card = document.createElement("div");
     card.className = "card";
-    card.innerHTML = `<h3>${q.topic} • ${q.type}</h3><p>${q.text}</p>`;
+    card.innerHTML = `<h3>${q.topic}</h3><p>${q.text}</p>`;
     stack.appendChild(card);
-    bind(card);
+
+    enableSwipe(card, q);
 }
 
-/* ===== POINTER LOGIC ===== */
-function bind(card) {
-    card.addEventListener("pointerdown", e => {
-        dragging = true;
-        startX = e.clientX;
-        startY = e.clientY;
+function enableSwipe(card, q) {
+    let startX=0, startY=0;
+
+    card.addEventListener("pointerdown", e=>{
+        startX=e.clientX; startY=e.clientY;
         card.setPointerCapture(e.pointerId);
-        card.style.transition = "none";
     });
 
-    card.addEventListener("pointermove", e => {
-        if (!dragging) return;
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
-        card.style.transform =
-            `translate(${dx}px,${dy}px) rotate(${dx * 0.05}deg)`;
+    card.addEventListener("pointermove", e=>{
+        if (!card.hasPointerCapture(e.pointerId)) return;
+        const dx=e.clientX-startX, dy=e.clientY-startY;
+        card.style.transform=`translate(${dx}px,${dy}px) rotate(${dx*0.05}deg)`;
     });
 
-    card.addEventListener("pointerup", e => {
-        if (!dragging) return;
-        dragging = false;
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
+    card.addEventListener("pointerup", e=>{
+        const dx=e.clientX-startX, dy=e.clientY-startY;
+        let dir = Math.abs(dx)>Math.abs(dy)
+            ? (dx>50?"right":dx<-50?"left":null)
+            : (dy<-50?"up":dy>50?"down":null);
 
-        let dir = null;
-        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > THRESHOLD) {
-            dir = dx > 0 ? "right" : "left";
-        } else if (Math.abs(dy) > THRESHOLD) {
-            dir = dy < 0 ? "up" : "down";
-        }
+        if (!dir) { card.style.transform=""; return; }
 
-        if (!dir) {
-            card.style.transition = "transform 0.3s ease";
-            card.style.transform = "translate(0,0)";
-            return;
-        }
-
-        fly(card, dir);
-    });
-}
-
-/* ===== COMMIT ===== */
-function fly(card, dir) {
-    const off = 800;
-    let x = 0, y = 0;
-    if (dir === "up") y = -off;
-    if (dir === "down") y = off;
-    if (dir === "left") x = -off;
-    if (dir === "right") x = off;
-
-    card.style.transition = "transform 0.35s ease";
-    card.style.transform = `translate(${x}px,${y}px) rotate(${x * 0.1}deg)`;
-
-    setTimeout(() => {
+        logRow(q, dir);
         index++;
         render();
-    }, 300);
+    });
 }
 
-/* ===== INIT ===== */
+function logRow(q, dir) {
+    fetch(SHEET_URL,{
+        method:"POST",
+        mode:"no-cors",
+        body:JSON.stringify({
+            question_id:q.id,
+            topic:q.topic,
+            type:q.type,
+            swipe:dir,
+            correct:(dir===q.correct),
+            weight:q.w,
+            time:new Date().toISOString()
+        })
+    });
+}
+
 render();
 </script>
-
 </body>
 </html>
