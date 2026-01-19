@@ -2,691 +2,340 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#18181b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Strategic Convergence 2026</title>
     <style>
-        /* --- CSS VARIABLES --- */
-        :root {
-            --color-bg: #f4f4f5;
-            --color-card: #ffffff;
-            --color-text: #18181b;
-            --color-subtext: #71717a;
-            --color-up: #22c55e;
-            --color-down: #ef4444;
-            --color-right: #eab308;
-            --color-left: #64748b;
-            --shadow-card: 0 20px 40px -5px rgba(0, 0, 0, 0.1), 0 10px 20px -5px rgba(0, 0, 0, 0.04);
-            --shadow-desktop: 0 0 50px rgba(0,0,0,0.5);
-            --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        /* --- GLOBAL RESET --- */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: none; /* Critical: Stops browser scroll hijacking */
-        }
-
-        body {
-            font-family: var(--font-stack);
-            background-color: #27272a; /* Dark background for desktop focus */
-            color: var(--color-text);
-            height: 100svh;
-            width: 100vw;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            user-select: none;
-        }
-
-        /* --- DEVICE CONTAINER (Desktop Proof) --- */
-        #app-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            max-width: 450px; /* Mobile width constraint */
-            max-height: 900px; /* Height constraint for monitors */
-            background-color: var(--color-bg);
-            display: grid;
-            /* STRICT GRID: Header (15%) | Card Space (Auto) | Footer (25%) */
-            grid-template-rows: 15% 1fr 25%; 
-            grid-template-columns: 100%;
-            box-shadow: var(--shadow-desktop);
-            overflow: hidden;
-        }
-
-        /* --- ZONE 1: TOP HEADER --- */
-        #ui-header {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            align-items: center;
-            padding-bottom: 1.5rem;
-            z-index: 20;
-            text-align: center;
-            transition: opacity 0.2s;
-        }
-
-        .header-topic {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
-            color: var(--color-subtext);
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            opacity: 0.8;
-        }
-
-        .header-type {
-            font-size: 1.4rem;
-            font-weight: 800;
-            color: var(--color-text);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            line-height: 1;
-        }
-
-        /* --- ZONE 2: CARD STACK (Middle) --- */
-        #card-stack {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            perspective: 1000px;
-            padding: 1rem;
-        }
-
-        .card {
-            position: absolute;
-            width: 90%;
-            aspect-ratio: 1/1; /* Keeps card square-ish */
-            max-height: 400px;
-            background: var(--color-card);
-            border-radius: 28px;
-            box-shadow: var(--shadow-card);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 2.5rem;
-            text-align: center;
-            
-            will-change: transform;
-            transform: translateZ(0); 
-            backface-visibility: hidden;
-            
-            /* Center vertically in grid cell */
-            top: 50%;
-            left: 50%;
-            margin-top: -45%; /* Approx half width to center anchor */
-            margin-left: -45%;
-        }
-
-        .card p {
-            font-size: 1.5rem;
-            line-height: 1.4;
-            font-weight: 600;
-            color: var(--color-text);
-            pointer-events: none;
-            margin: 0;
-        }
-
-        /* --- ZONE 3: BOTTOM FOOTER (Arrows) --- */
-        #ui-footer {
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            grid-template-rows: 1fr 1fr;
-            gap: 0;
-            align-content: center;
-            justify-items: center;
-            padding-bottom: 2rem;
-            z-index: 20;
-        }
-
-        .legend-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: var(--color-subtext);
-            transition: transform 0.1s linear, opacity 0.15s ease, color 0.15s ease;
-            width: 80px; /* Hit area */
-        }
-
-        /* Grid Placement */
-        .legend-item.up { grid-column: 2; grid-row: 1; align-self: end; margin-bottom: 0.5rem; }
-        .legend-item.left { grid-column: 1; grid-row: 2; justify-self: end; margin-right: 0.5rem; }
-        .legend-item.down { grid-column: 2; grid-row: 2; align-self: start; margin-top: 0.5rem; }
-        .legend-item.right { grid-column: 3; grid-row: 2; justify-self: start; margin-left: 0.5rem; }
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap');
         
-        .legend-item .icon { font-size: 2rem; margin-bottom: 4px; display: block; line-height: 1; }
-
-        /* --- RESULTS OVERLAY --- */
-        #summary-view {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--color-bg);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            padding: 2rem;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            overflow-y: auto;
+        :root {
+            --bg-deep: #09090b; --bg-surface: #18181b; --bg-card: #ffffff;
+            --text-primary: #f4f4f5; --text-secondary: #a1a1aa; --text-inverse: #18181b;
+            --accent-brand: #3b82f6; --accent-success: #22c55e; --accent-danger: #ef4444; 
+            --accent-warning: #eab308; --accent-neutral: #71717a;
+            --shadow-card: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
         }
 
-        #summary-view.visible { opacity: 1; pointer-events: auto; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; touch-action: none; user-select: none; -webkit-user-select: none; }
+        body { font-family: 'Inter', sans-serif; background-color: #000; color: var(--text-primary); height: 100svh; width: 100vw; overflow: hidden; display: flex; justify-content: center; align-items: center; }
 
-        .summary-stats {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-        .stat-box { text-align: center; }
-        .stat-num { font-size: 2rem; font-weight: 800; display: block; margin-bottom: 0.25rem; }
-        .stat-label { font-size: 0.75rem; color: var(--color-subtext); text-transform: uppercase; letter-spacing: 0.05em; }
+        #app-shell { position: relative; width: 100%; height: 100%; max-width: 450px; max-height: 900px; background-color: var(--bg-deep); display: flex; flex-direction: column; overflow: hidden; }
 
-        #summary-list { margin-bottom: 2rem; }
+        /* VIEWS */
+        .view { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 1.5rem; opacity: 0; pointer-events: none; transform: scale(0.95); transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); z-index: 1; }
+        .view.active { opacity: 1; pointer-events: auto; transform: scale(1); z-index: 10; }
 
-        .summary-item {
-            background: white;
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            border-left: 6px solid transparent;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-        }
+        /* START SCREEN */
+        #view-start { justify-content: center; align-items: center; text-align: center; background: radial-gradient(circle at top right, #27272a 0%, #09090b 60%); }
+        .logo-mark { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--accent-brand); padding: 0.5rem 1rem; border: 1px solid var(--accent-brand); border-radius: 100px; margin-bottom: 2rem; }
+        h1.title-hero { font-size: 2.5rem; font-weight: 800; margin-bottom: 1rem; background: linear-gradient(to bottom right, #fff, #a1a1aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        button.btn-primary { background: var(--text-primary); color: var(--bg-deep); border: none; padding: 1rem 2.5rem; font-size: 1.1rem; font-weight: 700; border-radius: 100px; cursor: pointer; transition: transform 0.1s; }
+        button.btn-primary:active { transform: scale(0.96); }
 
-        .confirmation-zone {
-            height: 120px;
-            margin-bottom: 2rem;
-            position: relative;
-            margin-top: auto;
-        }
+        /* GAME SCREEN */
+        #view-game { display: grid; grid-template-rows: 15% 1fr 25%; padding: 0; }
+        .game-header { display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 1rem; z-index: 20; }
+        .progress-bar-container { width: 80%; height: 4px; background: #27272a; border-radius: 10px; margin-bottom: 1rem; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: var(--accent-brand); width: 0%; transition: width 0.3s ease; }
+        .topic-badge { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-secondary); margin-bottom: 0.25rem; }
+        .type-heading { font-size: 1.25rem; font-weight: 800; text-transform: uppercase; }
 
-        #confirmation-card {
-            width: 100%;
-            height: 100%;
-            background: #1e293b;
-            color: white;
-            border-radius: 16px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: absolute;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-            will-change: transform;
-        }
+        .card-stack-container { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; perspective: 1200px; }
+        .card { position: absolute; width: 85%; aspect-ratio: 1/1.1; background: var(--bg-card); border-radius: 24px; box-shadow: var(--shadow-card); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem; text-align: center; will-change: transform; transform-style: preserve-3d; top: 50%; left: 50%; margin-top: -55%; margin-left: -42.5%; }
+        .card p { font-size: 1.4rem; font-weight: 600; color: var(--text-inverse); pointer-events: none; margin: 0; line-height: 1.4; }
 
-        .confirm-legend {
-            display: flex;
-            justify-content: space-between;
-            width: 80%;
-            margin-top: 0.75rem;
-            font-size: 0.7rem;
-            opacity: 0.6;
-            text-transform: uppercase;
-        }
+        .game-footer { display: grid; grid-template-columns: 1fr 80px 1fr; grid-template-rows: 1fr 1fr; align-content: center; justify-items: center; padding-bottom: 2rem; z-index: 20; }
+        .control-item { display: flex; flex-direction: column; align-items: center; color: var(--text-secondary); transition: transform 0.1s; }
+        .control-item.up { grid-column: 2; grid-row: 1; margin-bottom: 0.5rem; } .control-item.down { grid-column: 2; grid-row: 2; margin-top: 0.5rem; }
+        .control-item.left { grid-column: 1; grid-row: 2; } .control-item.right { grid-column: 3; grid-row: 2; }
+        .control-icon { font-size: 1.8rem; display: block; line-height: 1; } .control-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; }
 
-        .hidden { display: none; }
+        /* SUMMARY SCREEN */
+        #view-summary { overflow-y: auto; background: var(--bg-surface); padding: 2rem 1.5rem; }
+        .score-display { background: #27272a; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-around; }
+        .stat-val { font-size: 2rem; font-weight: 800; display: block; } .stat-lbl { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; }
+        .history-card { background: #27272a; padding: 1rem; border-radius: 12px; border-left: 4px solid #71717a; margin-bottom: 1rem; }
+        .history-card.correct { border-left-color: var(--accent-success); } .history-card.incorrect { border-left-color: var(--accent-danger); }
+        
+        .fab-container { position: absolute; bottom: 2rem; left: 0; right: 0; display: flex; justify-content: center; pointer-events: none; }
+        .slider-confirm { width: 80%; height: 60px; background: #3f3f46; border-radius: 100px; position: relative; pointer-events: auto; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .slider-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 600; color: rgba(255,255,255,0.3); pointer-events: none; }
+        .slider-knob { width: 60px; height: 60px; background: var(--text-primary); border-radius: 50%; position: absolute; top: 0; left: 0; display: flex; align-items: center; justify-content: center; color: var(--bg-deep); font-size: 1.2rem; box-shadow: 2px 0 5px rgba(0,0,0,0.2); touch-action: none; }
     </style>
 </head>
 <body>
 
-    <div id="app-container">
-        
-        <header id="ui-header">
-            <span class="header-topic" id="header-topic">Topic</span>
-            <span class="header-type" id="header-type">Type</span>
-        </header>
+    <div id="app-shell">
+        <section id="view-start" class="view active">
+            <div class="logo-mark">STRATEGIC CONVERGENCE</div>
+            <h1 class="title-hero">Operator<br>Exam 2026</h1>
+            <p style="color:#a1a1aa; margin-bottom:3rem; max-width:300px;">30-question assessment testing situational awareness, timeline realism, and convergence logic.</p>
+            <button class="btn-primary" onclick="APP.transitionToGame()">INITIATE</button>
+        </section>
 
-        <div id="card-stack" aria-live="polite">
-            </div>
+        <section id="view-game" class="view">
+            <header class="game-header">
+                <div class="progress-bar-container"><div class="progress-bar-fill" id="ui-progress"></div></div>
+                <span class="topic-badge" id="ui-topic">TOPIC</span>
+                <span class="type-heading" id="ui-type">TYPE</span>
+            </header>
+            <div class="card-stack-container" id="card-stack"></div>
+            <footer class="game-footer" id="ui-footer">
+                <div class="control-item up"><span class="control-icon">↑</span><span class="control-label" id="lbl-up">True</span></div>
+                <div class="control-item left"><span class="control-icon">←</span><span class="control-label" id="lbl-left">Skip</span></div>
+                <div class="control-item down"><span class="control-icon">↓</span><span class="control-label" id="lbl-down">False</span></div>
+                <div class="control-item right"><span class="control-icon">→</span><span class="control-label" id="lbl-right">Unsure</span></div>
+            </footer>
+        </section>
 
-        <footer id="ui-footer">
-            <div class="legend-item up">
-                <span class="icon">↑</span>
-                <span class="label" id="label-up">True</span>
+        <section id="view-summary" class="view">
+            <h2 class="type-heading" style="text-align:center; margin-bottom:1.5rem;">Mission Report</h2>
+            <div class="score-display">
+                <div style="text-align:center"><span class="stat-val" id="stat-score">0</span><span class="stat-lbl">Points</span></div>
+                <div style="text-align:center"><span class="stat-val" id="stat-acc">0%</span><span class="stat-lbl">Accuracy</span></div>
             </div>
-            <div class="legend-item left">
-                <span class="icon">←</span>
-                <span class="label" id="label-left">Skip</span>
-            </div>
-            <div class="legend-item down">
-                <span class="icon">↓</span>
-                <span class="label" id="label-down">False</span>
-            </div>
-            <div class="legend-item right">
-                <span class="icon">→</span>
-                <span class="label" id="label-right">Unsure</span>
-            </div>
-        </footer>
-
-        <section id="summary-view" class="hidden">
-            <h2 style="font-size:1.5rem; margin-bottom:1.5rem; text-transform:uppercase; color:var(--color-subtext); text-align:center;">Session Complete</h2>
-            
-            <div class="summary-stats">
-                <div class="stat-box">
-                    <span class="stat-num" id="stat-total-score">0</span>
-                    <span class="stat-label">Total Score</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-num" id="stat-accuracy">0%</span>
-                    <span class="stat-label">Accuracy</span>
-                </div>
-            </div>
-
-            <div id="summary-list"></div>
-            
-            <div class="confirmation-zone">
-                <div id="confirmation-card">
-                    <p style="font-weight:600; font-size:1.1rem;">SWIPE TO SUBMIT</p>
-                    <div class="confirm-legend">
-                        <span>← Cancel</span>
-                        <span>Confirm →</span>
-                    </div>
+            <div id="history-list" style="padding-bottom:100px;"></div>
+            <div class="fab-container">
+                <div class="slider-confirm" id="slider-confirm">
+                    <div class="slider-text">SLIDE TO SUBMIT</div>
+                    <div class="slider-knob" id="slider-knob">➜</div>
                 </div>
             </div>
         </section>
-
     </div>
 
     <script>
-        /**
-         * ------------------------------------------------------------------
-         * CONFIGURATION
-         * ------------------------------------------------------------------
-         */
         const CONFIG = {
             API_URL: "https://script.google.com/macros/s/AKfycbz_ziu5Dezrz35J2FksQtNEYuZ5Kk6TrQvg3pM5O5eBYUDzWCCtqlGWwZj8D-TBQLFw/exec",
-            SWIPE_THRESHOLD: 80,
-            ROTATION_FACTOR: 0.05,
-            ARROW_MOVE_LIMIT: 25, // Pixels arrows move towards finger
-            COLORS: { UP: '#22c55e', DOWN: '#ef4444', RIGHT: '#eab308', LEFT: '#64748b', NEUTRAL: '#71717a' }
+            THRESHOLD: 80, 
+            COLORS: { UP: '#22c55e', DOWN: '#ef4444', RIGHT: '#eab308', LEFT: '#64748b' }
         };
 
-        const QUESTIONS = [
-            {
-                question_id: "q1", topic: "Strategic", q_type: "FACT RECALL", active: true,
-                question_text: "The Dholera semiconductor facility is fully operational as of Jan 2026.",
-                swipe_up_label: "True", swipe_right_label: "Unsure", swipe_down_label: "False", swipe_left_label: "Skip",
-                correct_swipe: "up", score_up: 10, score_right: 0, score_down: -5, score_left: 0, weight: 1
-            },
-            {
-                question_id: "q2", topic: "Logistics", q_type: "CONTEXT", active: true,
-                question_text: "ULIP integration has fully decoupled supply chain efficiency from crude oil volatility.",
-                swipe_up_label: "Agree", swipe_right_label: "Partial", swipe_down_label: "Disagree", swipe_left_label: "Skip",
-                correct_swipe: "right", score_up: -5, score_right: 10, score_down: -5, score_left: 0, weight: 2
-            },
-            {
-                question_id: "q3", topic: "Finance", q_type: "TRAP", active: true,
-                question_text: "The Indian Rupee was inducted into the IMF SDR basket in late 2025.",
-                swipe_up_label: "True", swipe_right_label: "Plausible", swipe_down_label: "False", swipe_left_label: "Skip",
-                correct_swipe: "down", score_up: -10, score_right: -5, score_down: 10, score_left: 0, weight: 1
-            }
+        const QUESTION_BANK = [
+            { id: "s1", topic: "Strategic", type: "FACT", text: "Dholera fab is shipping 28nm commercial wafers.", up:"True", down:"False", right:"Plausible", left:"Skip", correct:"up", w:1 },
+            { id: "s2", topic: "Strategic", type: "CONTEXT", text: "India's molten salt reactor prototype is grid-connected.", up:"Yes", down:"No", right:"Unsure", left:"Skip", correct:"right", w:2 },
+            { id: "s3", topic: "Strategic", type: "TRAP", text: "India formally joined the G7 as a permanent member in 2025.", up:"True", down:"False", right:"Observer", left:"Skip", correct:"down", w:1 },
+            { id: "s4", topic: "Strategic", type: "REASONING", text: "IMEC corridor construction paused due to regional conflict.", up:"True", down:"False", right:"Partially", left:"Skip", correct:"up", w:2 },
+            { id: "s5", topic: "Defense", type: "FACT", text: "Tejas Mk1A delivery to IAF has crossed 50 units.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+            { id: "e1", topic: "Trade", type: "CONTEXT", text: "Rupee trade settlement volume with UAE exceeded $50B.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+            { id: "e2", topic: "Trade", type: "TRAP", text: "India signed a full FTA with the United States.", up:"True", down:"False", right:"Mini-deal", left:"Skip", correct:"down", w:1 },
+            { id: "e3", topic: "Infra", type: "FACT", text: "Mumbai-Ahmedabad Bullet Train is fully operational.", up:"True", down:"False", right:"Partial", left:"Skip", correct:"right", w:1 },
+            { id: "g1", topic: "Neighbors", type: "CONTEXT", text: "Pakistan trade normalization talks have officially resumed.", up:"True", down:"False", right:"Backchannel", left:"Skip", correct:"right", w:2 },
+            { id: "g2", topic: "Ocean", type: "FACT", text: "Indian Navy has 3 operational Aircraft Carriers.", up:"True", down:"False", right:"Two", left:"Skip", correct:"down", w:1 }
         ];
 
-        /**
-         * ------------------------------------------------------------------
-         * STATE MANAGEMENT
-         * ------------------------------------------------------------------
-         */
-        const STATE = { IDLE: 'IDLE', DRAGGING: 'DRAGGING', ANIMATING: 'ANIMATING', SUMMARY: 'SUMMARY' };
-        
+        const STORE = {
+            state: { deck: [], currentIndex: 0, answers: {} },
+            init() { this.state.deck = [...QUESTION_BANK].sort(() => Math.random() - 0.5); },
+            saveAnswer(qId, dir) {
+                const q = this.state.deck.find(x => x.id === qId);
+                let score = dir === q.correct ? 10 * q.w : (dir === 'left' ? 0 : -5);
+                this.state.answers[qId] = { dir, score, correct: dir === q.correct, q };
+            }
+        };
+
         const APP = {
-            currentState: STATE.IDLE,
-            deck: [],
-            currentIndex: 0,
-            answers: {}, 
-            activeCard: null,
-            startX: 0, startY: 0
+            dom: { 
+                start: document.getElementById('view-start'), game: document.getElementById('view-game'), summary: document.getElementById('view-summary'),
+                stack: document.getElementById('card-stack'), progress: document.getElementById('ui-progress'), topic: document.getElementById('ui-topic'), type: document.getElementById('ui-type')
+            },
+            transitionToGame() {
+                STORE.init();
+                this.dom.start.classList.remove('active');
+                this.dom.game.classList.add('active');
+                this.renderStack();
+            },
+            renderStack() {
+                this.dom.stack.innerHTML = '';
+                const deck = STORE.state.deck;
+                const idx = STORE.state.currentIndex;
+                if (idx >= deck.length) return this.finishGame();
+
+                // Render next 2 cards
+                const visible = deck.slice(idx, idx + 2).reverse();
+                visible.forEach((q, i) => {
+                    const realIdx = idx + (visible.length - 1 - i);
+                    const el = document.createElement('div');
+                    el.className = 'card';
+                    if (realIdx === idx) { el.id = 'active-card'; el.style.zIndex = 100; }
+                    else { el.style.transform = 'scale(0.95) translateY(10px)'; el.style.opacity = 0.5; el.style.zIndex = 90; }
+                    el.innerHTML = `<p>${q.text}</p>`;
+                    this.dom.stack.appendChild(el);
+                });
+                this.updateUI();
+            },
+            updateUI() {
+                const q = STORE.state.deck[STORE.state.currentIndex];
+                this.dom.topic.textContent = q.topic;
+                this.dom.type.textContent = q.type;
+                this.dom.progress.style.width = `${(STORE.state.currentIndex / STORE.state.deck.length) * 100}%`;
+                
+                document.getElementById('lbl-up').textContent = q.up;
+                document.getElementById('lbl-down').textContent = q.down;
+                document.getElementById('lbl-left').textContent = q.left;
+                document.getElementById('lbl-right').textContent = q.right;
+
+                PHYSICS.bind(document.getElementById('active-card'));
+            },
+            finishGame() {
+                this.dom.game.classList.remove('active');
+                this.dom.summary.classList.add('active');
+                this.renderSummary();
+            },
+            renderSummary() {
+                const answers = Object.values(STORE.state.answers);
+                const score = answers.reduce((a, b) => a + b.score, 0);
+                const acc = Math.round((answers.filter(a => a.correct).length / STORE.state.deck.length) * 100);
+                
+                document.getElementById('stat-score').textContent = score;
+                document.getElementById('stat-acc').textContent = acc + '%';
+                
+                const list = document.getElementById('history-list');
+                answers.forEach(a => {
+                    const div = document.createElement('div');
+                    div.className = `history-card ${a.correct ? 'correct' : 'incorrect'}`;
+                    div.innerHTML = `<span style="font-size:0.7rem; color:#a1a1aa; text-transform:uppercase">${a.q.topic}</span><p style="margin:0.5rem 0; font-size:0.9rem">${a.q.text}</p><div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight:700"><span>YOU: ${a.dir.toUpperCase()}</span><span>${a.score} PTS</span></div>`;
+                    list.appendChild(div);
+                });
+                SLIDER.init();
+            }
         };
 
-        const DOM = {
-            stack: document.getElementById('card-stack'),
-            headerTopic: document.getElementById('header-topic'),
-            headerType: document.getElementById('header-type'),
-            labelUp: document.getElementById('label-up'),
-            labelDown: document.getElementById('label-down'),
-            labelLeft: document.getElementById('label-left'),
-            labelRight: document.getElementById('label-right'),
-            footer: document.getElementById('ui-footer'),
-            summaryView: document.getElementById('summary-view'),
-            summaryList: document.getElementById('summary-list'),
-            confirmCard: document.getElementById('confirmation-card'),
-            totalScore: document.getElementById('stat-total-score'),
-            accuracy: document.getElementById('stat-accuracy'),
-            container: document.getElementById('app-container')
-        };
-
-        function init() {
-            APP.deck = QUESTIONS.filter(q => q.active === true || q.active === "TRUE");
-            renderStack();
-        }
-
-        function renderStack() {
-            DOM.stack.innerHTML = '';
-            // Render in reverse so first index is on top visually
-            [...APP.deck].reverse().forEach((q, index) => {
-                const card = document.createElement('div');
-                card.classList.add('card');
-                card.style.zIndex = APP.deck.length - index;
-                // Only Question Text lives here now
-                card.innerHTML = `<p>${q.question_text}</p>`;
-                DOM.stack.appendChild(card);
-            });
-            updateTopCard();
-        }
-
-        function updateTopCard() {
-            const topCard = DOM.stack.lastElementChild;
-            if (topCard && APP.currentIndex < APP.deck.length) {
-                APP.activeCard = topCard;
-                bindInputEvents(topCard);
-                updateUI(APP.deck[APP.currentIndex]);
-            } else {
-                finishDeck();
-            }
-        }
-
-        function updateUI(data) {
-            // Update Headers
-            DOM.headerTopic.textContent = data.topic;
-            DOM.headerType.textContent = data.q_type;
-
-            // Update Labels
-            DOM.labelUp.textContent = data.swipe_up_label || "Up";
-            DOM.labelDown.textContent = data.swipe_down_label || "Down";
-            DOM.labelLeft.textContent = data.swipe_left_label || "Left";
-            DOM.labelRight.textContent = data.swipe_right_label || "Right";
-        }
-
-        /**
-         * ------------------------------------------------------------------
-         * PHYSICS & INPUT HANDLING
-         * ------------------------------------------------------------------
-         */
-        function bindInputEvents(card) {
-            // Touch
-            card.addEventListener('touchstart', (e) => {
-                if (APP.currentState !== STATE.IDLE) return;
-                if (e.touches.length > 1) return; // Single touch only
-                startDrag(e.touches[0].clientX, e.touches[0].clientY);
-            }, { passive: false });
-
-            // Mouse (Desktop)
-            card.addEventListener('mousedown', (e) => {
-                if (APP.currentState !== STATE.IDLE) return;
-                startDrag(e.clientX, e.clientY);
-            });
-        }
-
-        function startDrag(x, y) {
-            APP.startX = x;
-            APP.startY = y;
-            APP.currentState = STATE.DRAGGING;
-            APP.activeCard.style.transition = 'none';
-
-            // Global listeners to catch fast swipes
-            window.addEventListener('touchmove', handleMove, { passive: false });
-            window.addEventListener('touchend', handleEnd);
-            window.addEventListener('mousemove', handleMove);
-            window.addEventListener('mouseup', handleEnd);
-        }
-
-        function handleMove(e) {
-            if (APP.currentState !== STATE.DRAGGING) return;
-            
-            let clientX, clientY;
-            if (e.type === 'touchmove') {
-                e.preventDefault(); 
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            } else {
-                clientX = e.clientX;
-                clientY = e.clientY;
-            }
-
-            const deltaX = clientX - APP.startX;
-            const deltaY = clientY - APP.startY;
-
-            // 1. Move Card
-            const rotate = deltaX * CONFIG.ROTATION_FACTOR;
-            APP.activeCard.style.transform = `translate(${deltaX}px, ${deltaY}px) rotate(${rotate}deg)`;
-
-            // 2. Animate Footer Arrows
-            updateFooterVisuals(deltaX, deltaY);
-        }
-
-        function handleEnd(e) {
-            if (APP.currentState !== STATE.DRAGGING) return;
-
-            window.removeEventListener('touchmove', handleMove);
-            window.removeEventListener('touchend', handleEnd);
-            window.removeEventListener('mousemove', handleMove);
-            window.removeEventListener('mouseup', handleEnd);
-
-            let clientX, clientY;
-            if (e.changedTouches && e.changedTouches.length > 0) {
-                clientX = e.changedTouches[0].clientX;
-                clientY = e.changedTouches[0].clientY;
-            } else {
-                clientX = e.clientX;
-                clientY = e.clientY;
-            }
-
-            const deltaX = clientX - APP.startX;
-            const deltaY = clientY - APP.startY;
-            const absX = Math.abs(deltaX);
-            const absY = Math.abs(deltaY);
-
-            resetFooterVisuals();
-            APP.currentState = STATE.ANIMATING;
-
-            let decision = null;
-            if (absY > absX && absY > CONFIG.SWIPE_THRESHOLD) {
-                decision = deltaY < 0 ? 'up' : 'down';
-            } else if (absX > absY && absX > CONFIG.SWIPE_THRESHOLD) {
-                decision = deltaX > 0 ? 'right' : 'left';
-            }
-
-            decision ? commitSwipe(decision) : resetCard();
-        }
-
-        /**
-         * ------------------------------------------------------------------
-         * VISUALS & ANIMATION
-         * ------------------------------------------------------------------
-         */
-        function updateFooterVisuals(dx, dy) {
-            const absX = Math.abs(dx);
-            const absY = Math.abs(dy);
-            
-            let activeClass = '';
-            let activeColor = '';
-            let xMove = 0, yMove = 0;
-
-            if (absY > absX) {
-                if (dy < 0) { activeClass = 'up'; activeColor = CONFIG.COLORS.UP; yMove = -CONFIG.ARROW_MOVE_LIMIT; }
-                else { activeClass = 'down'; activeColor = CONFIG.COLORS.DOWN; yMove = CONFIG.ARROW_MOVE_LIMIT; }
-            } else {
-                if (dx > 0) { activeClass = 'right'; activeColor = CONFIG.COLORS.RIGHT; xMove = CONFIG.ARROW_MOVE_LIMIT; }
-                else { activeClass = 'left'; activeColor = CONFIG.COLORS.LEFT; xMove = -CONFIG.ARROW_MOVE_LIMIT; }
-            }
-
-            const intensity = Math.min((Math.max(absX, absY) / CONFIG.SWIPE_THRESHOLD), 1);
-
-            const items = DOM.footer.querySelectorAll('.legend-item');
-            items.forEach(item => {
-                if (item.classList.contains(activeClass)) {
-                    // Active: Scale & Move towards finger
-                    const scale = 1 + (0.3 * intensity);
-                    const tx = xMove * intensity;
-                    const ty = yMove * intensity;
-                    
-                    item.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
-                    item.style.color = activeColor;
-                    item.style.opacity = 1;
-                } else {
-                    // Inactive: Shrink & Fade
-                    item.style.transform = `scale(${1 - (0.15 * intensity)})`;
-                    item.style.opacity = 1 - (0.6 * intensity);
-                    item.style.color = CONFIG.COLORS.NEUTRAL;
-                }
-            });
-        }
-
-        function resetFooterVisuals() {
-            const items = DOM.footer.querySelectorAll('.legend-item');
-            items.forEach(item => {
-                item.style.transform = '';
-                item.style.opacity = '';
-                item.style.color = '';
-            });
-        }
-
-        function resetCard() {
-            APP.activeCard.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-            APP.activeCard.style.transform = 'translate(0, 0) rotate(0)';
-            setTimeout(() => APP.currentState = STATE.IDLE, 400);
-        }
-
-        function commitSwipe(direction) {
-            const qData = APP.deck[APP.currentIndex];
-            let score = 0;
-            if (direction === 'up') score = qData.score_up;
-            if (direction === 'down') score = qData.score_down;
-            if (direction === 'right') score = qData.score_right;
-            if (direction === 'left') score = qData.score_left;
-
-            APP.answers[qData.question_id] = {
-                direction: direction,
-                raw_score: score,
-                weighted_score: score * qData.weight
-            };
-
-            let transX = 0, transY = 0;
-            const dist = window.innerWidth * 1.5;
-            if (direction === 'up') transY = -dist;
-            if (direction === 'down') transY = dist;
-            if (direction === 'left') transX = -dist;
-            if (direction === 'right') transX = dist;
-            
-            APP.activeCard.style.transition = 'transform 0.3s ease-in';
-            APP.activeCard.style.transform = `translate(${transX}px, ${transY}px) rotate(${transX * 0.1}deg)`;
-            
-            setTimeout(() => {
-                APP.activeCard.remove();
-                APP.currentIndex++;
-                APP.currentState = STATE.IDLE;
-                updateTopCard();
-            }, 300);
-        }
-
-        /**
-         * ------------------------------------------------------------------
-         * SUMMARY & SUBMISSION
-         * ------------------------------------------------------------------
-         */
-        function finishDeck() {
-            APP.currentState = STATE.SUMMARY;
-            DOM.summaryView.classList.remove('hidden');
-            setTimeout(() => DOM.summaryView.classList.add('visible'), 50);
-
-            let totalScore = 0;
-            let correctCount = 0;
-            const listHtml = APP.deck.map(q => {
-                const ans = APP.answers[q.question_id];
-                totalScore += ans.weighted_score;
-                if (ans.direction === q.correct_swipe) correctCount++;
-                let c = CONFIG.COLORS[ans.direction.toUpperCase()];
-                return `<div class="summary-item" style="border-left-color:${c}"><strong>${q.topic}</strong><br>${q.question_text}<br><div style="display:flex;justify-content:space-between;margin-top:0.5rem;font-size:0.8rem;"><span style="color:${c};font-weight:700;">${ans.direction.toUpperCase()}</span><span>Score: ${ans.weighted_score}</span></div></div>`;
-            }).join('');
-
-            DOM.totalScore.textContent = totalScore;
-            DOM.accuracy.textContent = Math.round((correctCount / APP.deck.length) * 100) + "%";
-            DOM.summaryList.innerHTML = listHtml;
-            initConfirmationSwipe();
-        }
-
-        function initConfirmationSwipe() {
-            const card = DOM.confirmCard;
-            let startX = 0;
-            
-            card.addEventListener('touchstart', (e) => { 
-                startX = e.touches[0].clientX; 
-                card.style.transition = 'none'; 
-            }, { passive: false });
-            
-            card.addEventListener('touchmove', (e) => {
+        const PHYSICS = {
+            card: null, startX: 0, startY: 0, isDragging: false,
+            bind(el) {
+                if(!el) return;
+                this.card = el;
+                el.addEventListener('touchstart', this.start.bind(this), {passive:false});
+                el.addEventListener('mousedown', this.start.bind(this));
+            },
+            start(e) {
+                if(e.touches && e.touches.length > 1) return;
+                this.isDragging = true;
+                const p = e.touches ? e.touches[0] : e;
+                this.startX = p.clientX; this.startY = p.clientY;
+                this.card.style.transition = 'none';
+                window.addEventListener('touchmove', this.move.bind(this), {passive:false});
+                window.addEventListener('touchend', this.end.bind(this));
+                window.addEventListener('mousemove', this.move.bind(this));
+                window.addEventListener('mouseup', this.end.bind(this));
+            },
+            move(e) {
+                if(!this.isDragging) return;
                 e.preventDefault();
-                const dx = e.touches[0].clientX - startX;
-                card.style.transform = `translateX(${dx}px)`;
-                if (dx > 50) card.style.background = CONFIG.COLORS.UP;
-                else if (dx < -50) card.style.background = CONFIG.COLORS.DOWN;
-                else card.style.background = '#1e293b';
-            }, { passive: false });
-            
-            card.addEventListener('touchend', (e) => {
-                const dx = e.changedTouches[0].clientX - startX;
-                if (dx > 100) submitData();
-                else if (dx < -100) location.reload();
-                else { 
-                    card.style.transition = 'transform 0.3s ease, background 0.3s'; 
-                    card.style.transform = 'translateX(0)'; 
-                    card.style.background = '#1e293b'; 
-                }
-            });
-        }
+                const p = e.touches ? e.touches[0] : e;
+                const dx = p.clientX - this.startX;
+                const dy = p.clientY - this.startY;
+                this.card.style.transform = `translate(${dx}px, ${dy}px) rotate(${dx * 0.05}deg)`;
+                this.animateUI(dx, dy);
+            },
+            end(e) {
+                if(!this.isDragging) return;
+                this.isDragging = false;
+                window.removeEventListener('touchmove', this.move.bind(this));
+                window.removeEventListener('touchend', this.end.bind(this));
+                window.removeEventListener('mousemove', this.move.bind(this));
+                window.removeEventListener('mouseup', this.end.bind(this));
 
-        function submitData() {
-            const card = DOM.confirmCard;
-            card.innerHTML = "<h3>SYNCING...</h3>";
-            card.style.background = CONFIG.COLORS.LEFT;
-            
-            const payload = {
-                session_data: APP.answers,
-                total_score: parseInt(DOM.totalScore.textContent),
-                device: /Mobi|Android/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
-                timestamp: new Date().toISOString()
-            };
+                const p = e.changedTouches ? e.changedTouches[0] : e;
+                const dx = p.clientX - this.startX;
+                const dy = p.clientY - this.startY;
+                
+                if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > CONFIG.THRESHOLD) this.commit(dy < 0 ? 'up' : 'down');
+                else if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > CONFIG.THRESHOLD) this.commit(dx > 0 ? 'right' : 'left');
+                else this.reset();
+            },
+            animateUI(dx, dy) {
+                const footer = document.getElementById('ui-footer');
+                const items = footer.querySelectorAll('.control-item');
+                let cls = '';
+                if(Math.abs(dy) > Math.abs(dx)) cls = dy < 0 ? 'up' : 'down';
+                else cls = dx > 0 ? 'right' : 'left';
+                items.forEach(i => {
+                    if(i.classList.contains(cls)) { i.style.transform = 'scale(1.2)'; i.style.color = CONFIG.COLORS[cls.toUpperCase()]; }
+                    else { i.style.transform = 'scale(1)'; i.style.color = '#71717a'; }
+                });
+            },
+            reset() {
+                this.card.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)';
+                this.card.style.transform = 'translate(0,0) rotate(0)';
+                document.querySelectorAll('.control-item').forEach(i => { i.style.transform = ''; i.style.color = ''; });
+            },
+            commit(dir) {
+                const qId = STORE.state.deck[STORE.state.currentIndex].id;
+                STORE.saveAnswer(qId, dir);
+                
+                let tx=0, ty=0; const d = 800;
+                if(dir==='up') ty=-d; if(dir==='down') ty=d; if(dir==='left') tx=-d; if(dir==='right') tx=d;
+                
+                this.card.style.transition = 'transform 0.4s ease-in';
+                this.card.style.transform = `translate(${tx}px, ${ty}px) rotate(${tx*0.1}deg)`;
+                document.querySelectorAll('.control-item').forEach(i => { i.style.transform = ''; i.style.color = ''; });
+                
+                setTimeout(() => {
+                    this.card.remove();
+                    STORE.state.currentIndex++;
+                    APP.renderStack();
+                }, 300);
+            }
+        };
 
-            fetch(CONFIG.API_URL, { 
-                method: "POST", 
-                mode: "no-cors", 
-                headers: { "Content-Type": "text/plain" }, 
-                body: JSON.stringify(payload) 
-            })
-            .then(() => {
-                card.innerHTML = "<h3>SUBMITTED</h3>";
-                card.style.background = CONFIG.COLORS.UP;
-                card.style.transform = "translateX(0)";
-                const clone = card.cloneNode(true);
-                card.parentNode.replaceChild(clone, card);
-            })
-            .catch(error => {
-                console.error("Submission Error", error);
-                card.innerHTML = "<h3>ERROR</h3>";
-                card.style.background = CONFIG.COLORS.DOWN;
-            });
-        }
-
-        init();
+        const SLIDER = {
+            knob: null, container: null, startX: 0, active: false,
+            init() {
+                this.knob = document.getElementById('slider-knob');
+                this.container = document.getElementById('slider-confirm');
+                this.knob.addEventListener('touchstart', this.start.bind(this), {passive:false});
+                this.knob.addEventListener('mousedown', this.start.bind(this));
+            },
+            start(e) {
+                this.active = true;
+                this.startX = (e.touches ? e.touches[0] : e).clientX;
+                window.addEventListener('touchmove', this.move.bind(this), {passive:false});
+                window.addEventListener('touchend', this.end.bind(this));
+                window.addEventListener('mousemove', this.move.bind(this));
+                window.addEventListener('mouseup', this.end.bind(this));
+            },
+            move(e) {
+                if(!this.active) return;
+                const x = (e.touches ? e.touches[0] : e).clientX - this.startX;
+                const max = this.container.offsetWidth - this.knob.offsetWidth;
+                const safe = Math.max(0, Math.min(x, max));
+                this.knob.style.transform = `translateX(${safe}px)`;
+                if(safe >= max - 5) { this.active = false; this.submit(); }
+            },
+            end() {
+                if(!this.active) return;
+                this.active = false;
+                this.knob.style.transition = 'transform 0.3s ease';
+                this.knob.style.transform = 'translateX(0)';
+                setTimeout(()=>this.knob.style.transition = 'none', 300);
+            },
+            submit() {
+                const txt = this.container.querySelector('.slider-text');
+                txt.textContent = "SYNCING...";
+                this.knob.style.background = CONFIG.COLORS.UP;
+                
+                fetch(CONFIG.API_URL, {
+                    method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ answers: STORE.state.answers, score: document.getElementById('stat-score').textContent, timestamp: new Date().toISOString() })
+                }).then(() => {
+                    txt.textContent = "SUBMITTED";
+                    this.container.style.background = CONFIG.COLORS.UP;
+                }).catch(() => {
+                    txt.textContent = "ERROR";
+                    this.container.style.background = CONFIG.COLORS.DOWN;
+                });
+            }
+        };
+        
+        // Prevent scroll bounce
+        document.body.addEventListener('touchmove', function(e) { e.preventDefault(); }, { passive: false });
+    </script>
+</body>
+</html>
     </script>
 </body>
 </html>
