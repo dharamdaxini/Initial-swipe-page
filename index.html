@@ -6,204 +6,411 @@
     <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Chemistry Master: Monolith V34</title>
+    <title>Chemistry Master: Monolith V37</title>
 
     <style>
+        /* FONTS */
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&family=Inter:wght@400;600;700;800&display=swap');
 
+        /* DESIGN TOKENS */
         :root {
-            /* Backgrounds */
             --bg-void: #000000;       
             --bg-card: #ffffff;       
-            
-            /* Typography */
             --text-main: #111111;     
             --text-sub: #4b5563;      
             --text-light: #ffffff;
             --accent-blue: #3b82f6;   
-
-            /* Signals */
             --green: #22c55e;
             --red: #ef4444;
             --grey: #374151;
-
-            /* Dimensions */
             --card-w: 90vw;
             --card-max: 380px;
         }
 
         /* CORE RESET */
-        *, *::before, *::after {
-            box-sizing: border-box; margin: 0; padding: 0;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
             -webkit-tap-highlight-color: transparent;
-            touch-action: none; user-select: none;
+            touch-action: none;
+            user-select: none;
         }
 
         body {
             background-color: var(--bg-void);
             color: var(--text-light);
             font-family: 'Inter', -apple-system, sans-serif;
-            height: 100svh; width: 100vw;
+            height: 100svh;
+            width: 100vw;
             overflow: hidden;
-            display: flex; justify-content: center; align-items: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         #app-shell {
             position: relative;
-            width: 100%; height: 100%;
+            width: 100%;
+            height: 100%;
             max-width: 480px;
-            display: flex; flex-direction: column;
+            display: flex;
+            flex-direction: column;
             background: var(--bg-void);
             overflow: hidden;
         }
 
         #ui-overlay {
-            position: absolute; inset: 0;
-            background: transparent; opacity: 0;
-            transition: opacity 0.1s linear; pointer-events: none; z-index: 5;
+            position: absolute;
+            inset: 0;
+            background: transparent;
+            opacity: 0;
+            transition: opacity 0.1s linear;
+            pointer-events: none;
+            z-index: 5;
         }
 
-        /* --- HEADER --- */
+        /* HEADER */
         .header {
             height: 18%;
-            display: flex; flex-direction: column;
-            justify-content: flex-end; align-items: center;
-            padding-bottom: 2rem; z-index: 50;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding-bottom: 2rem;
+            z-index: 50;
         }
 
         .progress-bar {
-            width: 100px; height: 5px;
-            background: #262626; border-radius: 10px; margin-bottom: 1.5rem; overflow: hidden;
+            width: 100px;
+            height: 5px;
+            background: #262626;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
         }
-        .progress-fill { height: 100%; background: #ffffff; width: 0%; transition: width 0.3s ease; }
+
+        .progress-fill {
+            height: 100%;
+            background: #ffffff;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
 
         .meta-tag {
-            font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
-            color: #666666; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.2em;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: #666666;
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
         }
-        .meta-title { font-size: 1.6rem; font-weight: 900; color: #ffffff; text-transform: uppercase; letter-spacing: 0.02em; }
 
-        /* --- CARD STAGE --- */
+        .meta-title {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        /* CARD STAGE */
         .stage {
-            position: relative; flex: 1; width: 100%;
-            perspective: 1200px; z-index: 20;
+            position: relative;
+            flex: 1;
+            width: 100%;
+            perspective: 1200px;
+            z-index: 20;
         }
 
         .card {
             position: absolute;
-            left: 50%; top: 48%;
+            left: 50%;
+            top: 48%;
             transform: translate(-50%, -50%);
-            width: var(--card-w); max-width: var(--card-max);
+            width: var(--card-w);
+            max-width: var(--card-max);
             aspect-ratio: 1/1.3;
             background: var(--bg-card);
-            border-radius: 40px; 
+            border-radius: 40px;
             box-shadow: 0 30px 60px -12px rgba(0,0,0,0.5);
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: flex-start; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
             padding: 2.5rem;
-            will-change: transform; transform-style: flat;
+            will-change: transform;
+            transform-style: flat;
         }
 
-        /* Dark Pivot Mode (Learning) */
+        /* DARK PIVOT STATE */
         .card.pivot-card {
             background: #111111;
             border: 1px solid #333333;
         }
-        .card.pivot-card p { color: #ffffff; }
-        .card.pivot-card .card-list li { color: #9ca3af; }
-        .card.pivot-card .card-id { color: var(--accent-blue); opacity: 1; }
-        .card.correction-border { border: 2px solid var(--red); }
+
+        .card.pivot-card p {
+            color: #ffffff;
+        }
+
+        .card.pivot-card .card-list li {
+            color: #9ca3af;
+        }
+
+        .card.pivot-card .card-id {
+            color: var(--accent-blue);
+            opacity: 1;
+        }
+
+        .card.correction-border {
+            border: 2px solid var(--red);
+        }
 
         .card p {
-            font-size: 1.4rem; font-weight: 800;
-            color: var(--text-main); line-height: 1.3;
-            pointer-events: none; margin-bottom: 1.5rem;
-            text-align: left; width: 100%;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1.3;
+            pointer-events: none;
+            margin-bottom: 1.5rem;
+            text-align: left;
+            width: 100%;
             letter-spacing: -0.02em;
         }
 
-        /* Numbered Selection List */
-        .card-list { width: 100%; padding-left: 0rem; margin: 0; pointer-events: none; counter-reset: selection-counter; }
-        .card-list li {
-            font-size: 1.05rem; color: #4b5563; margin-bottom: 1rem;
-            font-weight: 700; line-height: 1.4; list-style-type: none; position: relative;
-            padding-left: 2rem;
-        }
-        .card-list li::before {
-            counter-increment: selection-counter;
-            content: counter(selection-counter) "."; 
-            color: var(--accent-blue);
-            font-weight: 900;
-            position: absolute; left: 0; top: 0;
-        }
-        
-        /* Bullets for non-selection cards (Lessons) */
-        .card.pivot-card .card-list li::before {
-            content: "•";
-            font-size: 1.8rem; top: -0.4rem;
+        /* SELECTION LIST */
+        .card-list {
+            width: 100%;
+            padding-left: 0rem;
+            margin: 0;
+            pointer-events: none;
+            counter-reset: selection-counter;
         }
 
+        .card-list li {
+            font-size: 1.05rem;
+            color: #4b5563;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            line-height: 1.4;
+            list-style-type: none;
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .card-list li::before {
+            counter-increment: selection-counter;
+            content: counter(selection-counter) ".";
+            color: var(--accent-blue);
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .card.pivot-card .card-list li::before {
+            content: "•";
+            font-size: 1.8rem;
+            top: -0.4rem;
+        }
+
+        /* SCIENTIFIC FORMATTING */
         sub { font-size: 0.7em; vertical-align: sub; }
         sup { font-size: 0.7em; vertical-align: super; }
 
         .card-id {
-            position: absolute; bottom: 1.5rem; left: 0; right: 0;
-            font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
-            color: #e5e7eb; pointer-events: none; text-align: center; opacity: 0.4;
+            position: absolute;
+            bottom: 1.5rem;
+            left: 0;
+            right: 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: #e5e7eb;
+            pointer-events: none;
+            text-align: center;
+            opacity: 0.4;
         }
 
-        /* --- FOOTER CONTROLS --- */
+        /* FOOTER */
         .footer {
             height: 22%;
-            display: grid; grid-template-columns: 1fr 100px 1fr; grid-template-rows: 1fr 1fr;
-            align-content: center; justify-items: center; z-index: 50;
+            display: grid;
+            grid-template-columns: 1fr 100px 1fr;
+            grid-template-rows: 1fr 1fr;
+            align-content: center;
+            justify-items: center;
+            z-index: 50;
         }
 
         .ctrl {
-            display: flex; flex-direction: column; align-items: center;
-            color: #404040; transition: 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #404040;
+            transition: 0.2s;
         }
-        .ctrl.active { color: #ffffff; transform: scale(1.1); }
-        
+
+        .ctrl.active {
+            color: #ffffff;
+            transform: scale(1.1);
+        }
+
         .ctrl.up { grid-column: 2; grid-row: 1; margin-bottom: 0.8rem; }
         .ctrl.down { grid-column: 2; grid-row: 2; }
         .ctrl.left { grid-column: 1; grid-row: 2; }
         .ctrl.right { grid-column: 3; grid-row: 2; }
 
-        .icon { font-size: 1.8rem; line-height: 1; margin-bottom: 6px; font-weight: 300; }
-        .label { font-size: 0.75rem; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; white-space: nowrap; }
-
-        /* VIEWS */
-        .view {
-            position: absolute; inset: 0;
-            background: var(--bg-void); z-index: 100;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        .icon {
+            font-size: 2rem;
+            line-height: 1;
+            margin-bottom: 6px;
+            font-weight: 300;
         }
-        .view.active { opacity: 1; pointer-events: auto; }
+
+        .label {
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        /* VIEW STATES */
+        .view {
+            position: absolute;
+            inset: 0;
+            background: var(--bg-void);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .view.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
 
         .btn-main {
-            background: #ffffff; color: #000000; border: none;
-            padding: 1.2rem 3.5rem; font-size: 1rem; font-weight: 800;
-            border-radius: 100px; cursor: pointer; margin-top: 2rem;
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 1.2rem 3.5rem;
+            font-size: 1rem;
+            font-weight: 800;
+            border-radius: 100px;
+            cursor: pointer;
+            margin-top: 2rem;
+            transition: transform 0.1s;
         }
 
-        .topic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; width: 90%; max-width: 400px; margin-top: 2rem; }
-        .btn-topic { background: #111111; border: 1px solid #333333; color: #fff; padding: 1.2rem; border-radius: 20px; text-align: left; cursor: pointer; }
-        .btn-topic strong { display: block; font-size: 0.95rem; margin-bottom: 0.3rem; font-weight: 800; }
-        .btn-topic span { font-size: 0.7rem; color: #666; text-transform: uppercase; font-family: 'JetBrains Mono'; }
+        /* REVIEW PORTAL */
+        #view-review {
+            justify-content: flex-start;
+            padding-top: 4rem;
+            overflow-y: auto;
+            touch-action: auto;
+        }
 
+        .review-scroll {
+            width: 90%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            padding-bottom: 4rem;
+        }
+
+        .review-item {
+            background: #111111;
+            border-radius: 20px;
+            padding: 1.5rem;
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        .review-item.wrong {
+            border-left-color: var(--red);
+        }
+
+        .review-q {
+            font-size: 1rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+        }
+
+        .review-s {
+            font-size: 0.85rem;
+            color: #9ca3af;
+            line-height: 1.5;
+        }
+
+        /* TOPIC GRID */
+        .topic-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            width: 90%;
+            max-width: 400px;
+            margin-top: 2rem;
+        }
+
+        .btn-topic {
+            background: #111111;
+            border: 1px solid #333333;
+            color: #ffffff;
+            padding: 1.2rem;
+            border-radius: 20px;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .btn-topic strong {
+            display: block;
+            font-size: 0.95rem;
+            margin-bottom: 0.3rem;
+            font-weight: 800;
+        }
+
+        .btn-topic span {
+            font-size: 0.7rem;
+            color: #666;
+            text-transform: uppercase;
+            font-family: 'JetBrains Mono';
+        }
+
+        /* ANALYTICS */
         .chart-container {
-            position: relative; width: 160px; height: 160px;
-            border-radius: 50%; background: #111111; margin-bottom: 2.5rem;
-        }
-        .chart-hole {
-            position: absolute; inset: 18px; background: var(--bg-void);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column;
+            position: relative;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: #111111;
+            margin-bottom: 2.5rem;
         }
 
-        .hidden { display: none !important; }
-        #status-bar { position:absolute; bottom:10px; right:10px; font-size:9px; color:#222; pointer-events:none; }
+        .chart-hole {
+            position: absolute;
+            inset: 18px;
+            background: var(--bg-void);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        #status-bar {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 9px;
+            color: #222;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -213,7 +420,7 @@
 
         <section id="view-start" class="view active">
             <h1 style="font-size:3.5rem; font-weight:900; line-height:0.85; text-align:center; margin-bottom:2rem; letter-spacing:-0.05em;">CHEMISTRY<br>MASTER</h1>
-            <p style="color:#666; text-align:center; margin-bottom:3rem; font-size:1.1rem; font-weight:600;">Monolith System V34<br>Logical Pruning Active</p>
+            <p style="color:#666; text-align:center; margin-bottom:3rem; font-size:1.1rem; font-weight:600;">Monolith System V37<br>Cognitive Pruning Active</p>
             <button class="btn-main" onclick="APP.start('CORE')">START EVALUATION</button>
         </section>
 
@@ -233,43 +440,49 @@
         </section>
 
         <section id="view-summary" class="view">
-            <h2 style="font-size:1.5rem; font-weight:900; margin-bottom:2.5rem; letter-spacing:0.1em;">EVALUATION COMPLETE</h2>
+            <h2 style="font-size:1.8rem; font-weight:800; margin-bottom:2.5rem;">EVALUATION COMPLETE</h2>
             <div class="chart-container" id="chart-pie">
                 <div class="chart-hole">
-                    <span style="font-size:3rem; font-weight:900; color:#fff;" id="chart-score">0</span>
-                    <span style="font-size:0.75rem; color:#666; font-weight:700; letter-spacing:0.1em;">SCORE</span>
+                    <span style="font-size:3rem; font-weight:900; color:#ffffff;" id="chart-score">0</span>
+                    <span style="font-size:0.8rem; color:#666; font-weight:700; letter-spacing:0.1em;">SCORE</span>
                 </div>
             </div>
             <div class="topic-grid">
+                <button class="btn-topic" onclick="APP.openReview()"><strong>REVIEW SESSION</strong><span>Concept Audit</span></button>
+                <button class="btn-topic" onclick="location.reload()"><strong>RESTART</strong><span>System</span></button>
                 <button class="btn-topic" onclick="APP.start('ATOMS_HARD')"><strong>ATOMS</strong><span>Advanced</span></button>
                 <button class="btn-topic" onclick="APP.start('BONDS_HARD')"><strong>BONDS</strong><span>Advanced</span></button>
-                <button class="btn-topic" onclick="APP.start('SOLUTIONS_HARD')"><strong>SOLNS</strong><span>Advanced</span></button>
-                <button class="btn-topic" onclick="location.reload()"><strong>RESTART</strong><span>System</span></button>
             </div>
+        </section>
+
+        <section id="view-review" class="view">
+            <h2 style="margin-bottom:2rem; font-weight:800; font-size:1.5rem;">SESSION AUDIT</h2>
+            <div class="review-scroll" id="review-list"></div>
+            <button class="btn-main" onclick="APP.closeReview()">CLOSE REVIEW</button>
         </section>
         
         <div id="status-bar">Sync Ready</div>
     </div>
 
     <script>
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxW-via-zE7FWqGKNZsilySBncR3I_lLOXK83P8tymRLoi50VaSWNr7J4vHa8R2DRwE/exec"; 
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxVI2gj8rupl-lRG7K3TJJ8X6PbsOtPwLyonLt5ebK8uUuOdP7u4tqL45idUslDZurP/exec"; 
 
         const DECKS = {
             CORE: [
                 {
                     id: "c1",
-                    topic: "Structure",
+                    topic: "Mass Distribution",
                     type: "ATOM",
                     text: "Where is the majority of an atom's mass found?",
                     options: [
-                        "Concentrated in the central nucleus",
-                        "Diffuse in the electron probability clouds",
-                        "Equally distributed across total volume"
+                        "Concentrated in a dense central core",
+                        "Diffuse in electron probability clouds",
+                        "Homogenous across the entire atom"
                     ],
                     elimination: [
-                        "1. Nucleons (protons/neutrons) are ~1836x heavier than electrons.",
-                        "2. Electron shells provide the volume but negligible mass.",
-                        "3. Rutherford's experiments confirm a dense central core."
+                        "1. Nucleons are ~1836x heavier than electrons.",
+                        "2. Electron shells provide volume but negligible mass.",
+                        "3. Rutherford's gold foil confirms a dense positive core."
                     ],
                     explanation: "Atomic mass is localized in the sub-femtometer dense nucleus; the remaining volume is primarily vacuum energy.",
                     correct: "up",
@@ -277,39 +490,39 @@
                 },
                 {
                     id: "c2",
-                    topic: "Electronic Charge",
+                    topic: "Charge Logic",
                     type: "ATOM",
-                    text: "Identify the fundamental charge unit of an Electron.",
+                    text: "Identify the fundamental charge of an Electron.",
                     options: [
-                        "Positive electrical vector (+1)",
-                        "Negative electrical vector (-1)",
-                        "Equilibrium state (Neutral)"
+                        "Unit Positive Vector (+1)",
+                        "Unit Negative Vector (-1)",
+                        "Electrically Inert (Neutral)"
                     ],
                     elimination: [
                         "1. Protons occupy the positive electrical vector.",
                         "2. Electrons are the negative carriers in chemical systems.",
-                        "3. Neutrons provide stability without electrical charge."
+                        "3. Neutrons provide nuclear stability without charge."
                     ],
-                    explanation: "Electrons carry the fundamental unit of negative charge, balancing nuclear protons in a neutral atom.",
+                    explanation: "Electrons carry the fundamental unit of negative charge, balancing nuclear protons in neutral atoms.",
                     correct: "left",
                     w: 1
                 },
                 {
                     id: "c3",
-                    topic: "Identity",
+                    topic: "Atomic Identity",
                     type: "ATOM",
-                    text: "Which subatomic particle defines the Element's identity?",
+                    text: "Changing which particle count changes the element?",
                     options: [
-                        "The Neutron count (Mass factor)",
-                        "The Proton count (Atomic Number)",
-                        "The Electron count (Charge factor)"
+                        "Neutron Count (Isotope factor)",
+                        "Proton Count (Atomic fingerprint)",
+                        "Electron Count (Ionic factor)"
                     ],
                     elimination: [
-                        "1. Changing neutrons merely creates an Isotope.",
-                        "2. The Atomic Number (Z) is strictly determined by protons.",
-                        "3. Changing electrons creates an Ion, not a new element."
+                        "1. Neutron variance only changes mass (A), not identity.",
+                        "2. Protons (Z) determine nuclear charge and element name.",
+                        "3. Electrons only change net charge, creating ions."
                     ],
-                    explanation: "The number of protons in the nucleus is the unique fingerprint for every element on the table.",
+                    explanation: "The Proton count is the unique identifier for every element on the periodic table.",
                     correct: "left",
                     w: 1
                 },
@@ -317,18 +530,18 @@
                     id: "c4",
                     topic: "Bonding Logic",
                     type: "BOND",
-                    text: "Which bond type involves a 'Sea of Delocalized Electrons'?",
+                    text: "Which bond type involves electron transfer?",
                     options: [
-                        "Covalent Bonding (Fixed sharing)",
-                        "Metallic Bonding (Pool sharing)",
-                        "Ionic Bonding (Full transfer)"
+                        "Covalent Bonding (Shared pairs)",
+                        "Ionic Bonding (Electrostastic pull)",
+                        "Metallic Bonding (Pool sharing)"
                     ],
                     elimination: [
-                        "1. Covalent bonds rely on fixed pairs between two atoms.",
-                        "2. Metallic bonds use delocalized pools for conductivity.",
-                        "3. Ionic bonds rely on discrete electrostatic transfer."
+                        "1. Covalent bonding relies on shared localized pairs.",
+                        "2. Ionic logic is a 'theft' of electrons due to high EN delta.",
+                        "3. Metallic logic uses delocalized pools for conductivity."
                     ],
-                    explanation: "Delocalization in metals allows for high thermal/electrical conductivity and ductile properties.",
+                    explanation: "Ionic bonds form when one atom steals electrons to reach an octet, creating attraction between cations and anions.",
                     correct: "left",
                     w: 1
                 },
@@ -336,183 +549,92 @@
                     id: "c5",
                     topic: "Equilibrium",
                     type: "SOLN",
-                    text: "Pure water at standard conditions is defined by which pH?",
+                    text: "Pure water at standard conditions has a pH of:",
                     options: [
                         "pH 1.0 (Highly Acidic)",
                         "pH 7.0 (Perfectly Neutral)",
                         "pH 14.0 (Highly Basic)"
                     ],
                     elimination: [
-                        "1. pH 1 indicates a massive surplus of Hydronium ions.",
-                        "2. pH 7 is the log-balance of H+ and OH- ions.",
-                        "3. pH 14 indicates a massive surplus of Hydroxyl ions."
+                        "1. Low pH indicates a massive surplus of H+ ions.",
+                        "2. pH 7 is the logarithmic balance of H+ and OH-.",
+                        "3. High pH represents a massive hydroxyl surplus."
                     ],
-                    explanation: "Neutrality is the state where the auto-ionization of water ($K_w$) is perfectly balanced.",
+                    explanation: "Neutrality is the state where auto-ionization of water ($K_w$) is perfectly balanced.",
                     correct: "left",
                     w: 1
                 },
                 {
-                    id: "c6", topic: "Stoich", type: "REAC",
-                    text: "The term 'Exothermic' implies the system energy:",
+                    id: "c6",
+                    topic: "Stoichiometry",
+                    type: "REAC",
+                    text: "What occurs during an Exothermic chemical reaction?",
                     options: [
-                        "Stays perfectly constant",
-                        "Is absorbed from surroundings",
-                        "Is released to surroundings"
+                        "Energy is sequestered into the system",
+                        "Zero thermal energy movement is detected",
+                        "Thermal energy is released to surroundings"
                     ],
                     elimination: [
-                        "1. Thermodynamics forbids static energy in reactions.",
-                        "2. Absorption is the 'Endothermic' vector.",
-                        "3. 'Exo' means out; energy leaves as heat or light."
+                        "1. Sequestering energy is the Endothermic vector.",
+                        "2. Zero movement would imply no reaction occurred.",
+                        "3. 'Exo' means energy leaves the system as heat/light."
                     ],
-                    explanation: "Exothermic reactions have a negative &Delta;H because the bonds formed are stronger than those broken.",
-                    correct: "right", w: 1
-                },
-                {
-                    id: "c7", topic: "States", type: "SOLN",
-                    text: "Dissolving an impurity (Salt) in water will cause the BP to:",
-                    options: [
-                        "Decrease below 100C",
-                        "Stay exactly at 100C",
-                        "Increase above 100C"
-                    ],
-                    elimination: [
-                        "1. Impurities hinder evaporation, they do not assist it.",
-                        "2. Phase changes are sensitive to solute presence.",
-                        "3. Solute particles lower vapor pressure, raising BP."
-                    ],
-                    explanation: "Boiling point elevation is a colligative property proportional to the molality of the solute.",
-                    correct: "right", w: 1
-                },
-                {
-                    id: "c8", topic: "Organic", type: "BOND",
-                    text: "Identify the hybridization of Carbon in Ethene (C<sub>2</sub>H<sub>4</sub>):",
-                    options: [
-                        "sp Hybridization (Linear)",
-                        "sp<sup>2</sup> Hybridization (Planar)",
-                        "sp<sup>3</sup> Hybridization (Tetrahedral)"
-                    ],
-                    elimination: [
-                        "1. sp is for triple bonds with 180 degree angles.",
-                        "2. sp2 is required for double bonds (1 sigma, 1 pi).",
-                        "3. sp3 is for single bonds (Alkane logic)."
-                    ],
-                    explanation: "Ethene's C=C double bond requires trigonal planar geometry provided by sp2 mixing.",
-                    correct: "left", w: 1
-                },
-                {
-                    id: "c9", topic: "Noble", type: "TABL",
-                    text: "Noble Gases (Group 18) are non-reactive because:",
-                    options: [
-                        "They have zero electrons",
-                        "They have a stable octet",
-                        "They are too large to bond"
-                    ],
-                    elimination: [
-                        "1. Noble gases have full shells, not zero count.",
-                        "2. An octet (8e-) represents a global energy minimum.",
-                        "3. Size is irrelevant; shell completion is the driver."
-                    ],
-                    explanation: "Chemical drive is the search for a full valence shell. Group 18 is already at that minimum.",
-                    correct: "left", w: 1
-                },
-                {
-                    id: "c10", topic: "Isotope", type: "ATOM",
-                    text: "Which particle count varies between Isotopes?",
-                    options: [
-                        "Electron Count",
-                        "Neutron Count",
-                        "Proton Count"
-                    ],
-                    elimination: [
-                        "1. Changing electrons creates an ion (charge).",
-                        "2. Neutrons only add mass without changing identity.",
-                        "3. Changing protons creates a completely new element."
-                    ],
-                    explanation: "Isotopes are atoms of the same element that differ only in nuclear mass ($A$).",
-                    correct: "left", w: 1
+                    explanation: "Negative Enthalpy (&Delta;H) signals that the products are more stable than the reactants.",
+                    correct: "right",
+                    w: 1
                 }
             ],
             ATOMS_HARD: [
                 {
-                    id: "ah1", topic: "Quantum", type: "ATOM",
-                    text: "Why does the 4s orbital fill before the 3d orbital?",
+                    id: "ah1",
+                    topic: "Quantum Mechanics",
+                    type: "ATOM",
+                    text: "Why is the 4s orbital filled before the 3d orbital?",
                     options: [
-                        "4s has a lower energy state",
-                        "4s is larger in volume",
-                        "3d is further from nucleus"
+                        "4s has a lower potential energy state",
+                        "4s occupies a larger volumetric shell",
+                        "3d has a higher nuclear attraction pull"
                     ],
                     elimination: [
-                        "1. Aufbau principle: electrons seek lowest potential.",
-                        "2. Volume does not dictate the filling sequence.",
-                        "3. Penetration allows 4s to sit deeper in the well."
+                        "1. Orbital filling seeks the lowest energy gap first.",
+                        "2. Volume is not a primary driver for Aufbau logic.",
+                        "3. Penetration allows 4s to sit deeper than shielded 3d."
                     ],
-                    explanation: "n+l rule: 4s (4+0=4) vs 3d (3+2=5). Lower energy fills first due to shielding.",
-                    correct: "up", w: 2
-                },
-                {
-                    id: "ah2", topic: "Pauli", type: "ATOM",
-                    text: "How many electrons can occupy a single orbital?",
-                    options: [
-                        "1 electron max",
-                        "2 electrons (Opposite spin)",
-                        "8 electrons (Full octet)"
-                    ],
-                    elimination: [
-                        "1. Orbitals can hold two if they have unique spins.",
-                        "2. Pauli Principle: 2 fermions per state, spin-up/down.",
-                        "3. Shells hold 8; single orbitals hold only 2."
-                    ],
-                    explanation: "The Exclusion Principle prevents identical quantum states in the same orbital.",
-                    correct: "left", w: 2
+                    explanation: "The n+l rule (4+0=4) vs (3+2=5) explains why 4s is lower in potential energy.",
+                    correct: "up",
+                    w: 2
                 }
             ],
             BONDS_HARD: [
                 {
-                    id: "bh1", topic: "Geometry", type: "BOND",
-                    text: "The bond angle in a Tetrahedral molecule is:",
+                    id: "bh1",
+                    topic: "Molecular Geometry",
+                    type: "BOND",
+                    text: "The bond angle in a Tetrahedral (CH<sub>4</sub>) molecule is:",
                     options: [
-                        "90.0 Degrees",
-                        "109.5 Degrees",
-                        "120.0 Degrees"
+                        "90.0 Degrees (Planar)",
+                        "109.5 Degrees (3D Spacing)",
+                        "120.0 Degrees (Trigonal)"
                     ],
                     elimination: [
-                        "1. 90 deg fails to maximize space in 3D geometry.",
-                        "2. 109.5 allows 4 pairs to reach the repulsion limit.",
-                        "3. 120 is the flat angle for planar sp2 mixing."
+                        "1. 90 deg is for square planar, failing to use 3D space.",
+                        "2. 109.5 deg is the max repulsion spacing for 4 pairs.",
+                        "3. 120 deg is the spacing for planar sp2 systems."
                     ],
-                    explanation: "VSEPR theory dictates that 4 bonding pairs push to 109.5 degrees in a 3D sphere.",
-                    correct: "left", w: 2
-                }
-            ],
-            SOLUTIONS_HARD: [
-                {
-                    id: "sh1", topic: "Thermo", type: "SOLN",
-                    text: "Dissolving an Ionic Salt is an process that:",
-                    options: [
-                        "Is always Exothermic",
-                        "Is always Endothermic",
-                        "Can be either (Net Energy)"
-                    ],
-                    elimination: [
-                        "1. Many salts (NaOH) release heat upon mixing.",
-                        "2. Some salts (NH4Cl) absorb heat, feeling cold.",
-                        "3. It depends on Lattice Energy vs Hydration Energy."
-                    ],
-                    explanation: "The Enthalpy of Solution (&Delta;H<sub>sol</sub>) is the sum of bond breaking and hydration.",
-                    correct: "right", w: 2
+                    explanation: "VSEPR theory requires pairs to stay as far apart as possible in three dimensions.",
+                    correct: "left",
+                    w: 2
                 }
             ]
         };
 
-        // --- APP CONTROLLER ---
         const APP = {
-            deck: [], idx: 0, answers: {}, activeEl: null, startTime: 0,
+            deck: [], idx: 0, answers: {}, activeEl: null, startTime: 0, history: [],
 
             start(key) {
-                this.idx = 0; this.answers = {};
+                this.idx = 0; this.answers = {}; this.history = [];
                 this.deck = [...DECKS[key] || DECKS['CORE']];
-                document.getElementById('view-start').classList.remove('active');
-                document.getElementById('view-summary').classList.remove('active');
+                document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
                 document.getElementById('view-game').classList.add('active');
                 this.render();
             },
@@ -535,8 +657,8 @@
                     listSource.forEach(s => listHTML += `<li>${s}</li>`);
                     listHTML += `</ul>`;
 
-                    const footerId = q.isPivot ? (q.isCorrection ? "SYNTHESIS REPORT" : "ELIMINATION MAP") : q.id;
-                    el.innerHTML = `<p>${q.text}</p>${listHTML}<div class="card-id">${footerId}</div>`;
+                    const footerLabel = q.isPivot ? (q.isCorrection ? "SYNTHESIS REPORT" : "ELIMINATION MAP") : q.id;
+                    el.innerHTML = `<p>${q.text}</p>${listHTML}<div class="card-id">${footerLabel}</div>`;
                     
                     if(realIdx === this.idx) {
                         el.style.zIndex = 100;
@@ -576,7 +698,7 @@
                 const pivot = {
                     id: "LEARNING PIVOT", topic: "ANALYSIS", type: "PIVOT",
                     text: mode === 'elimination' ? "Process of Elimination" : "Scientific Correction",
-                    elimination: mode === 'elimination' ? q.elimination : [q.explanation, "Logic Verification Complete", "Resume Operation"],
+                    elimination: mode === 'elimination' ? q.elimination : [q.explanation, "Conceptual Synthesis Complete", "Resuming Session"],
                     isPivot: true,
                     isCorrection: mode === 'correction',
                     correct: "up", w: 0
@@ -590,7 +712,30 @@
                 const score = Object.values(this.answers).reduce((a,b)=>a+b.score,0);
                 document.getElementById('chart-score').textContent = score;
                 this.renderChart();
-                if (GOOGLE_SCRIPT_URL) fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ answers: this.answers, score, ts: new Date().toISOString() }) });
+                if (GOOGLE_SCRIPT_URL) {
+                    fetch(GOOGLE_SCRIPT_URL, { 
+                        method: 'POST', mode: 'no-cors', 
+                        body: JSON.stringify({ answers: this.answers, score, ts: new Date().toISOString() }) 
+                    }).then(() => { document.getElementById('status-bar').textContent = "Synced"; });
+                }
+            },
+
+            openReview() {
+                const list = document.getElementById('review-list');
+                list.innerHTML = '';
+                this.history.forEach(item => {
+                    const el = document.createElement('div');
+                    el.className = `review-item ${item.correct ? '' : 'wrong'}`;
+                    el.innerHTML = `<div class="review-q">${item.q.text}</div><div class="review-s">${item.q.explanation}</div>`;
+                    list.appendChild(el);
+                });
+                document.getElementById('view-summary').classList.remove('active');
+                document.getElementById('view-review').classList.add('active');
+            },
+
+            closeReview() {
+                document.getElementById('view-review').classList.remove('active');
+                document.getElementById('view-summary').classList.add('active');
             },
 
             renderChart() {
@@ -640,6 +785,7 @@
                     } else {
                         const correct = dir === q.correct;
                         APP.answers[q.id] = { correct, score: correct ? 10 : -5, mode:'eval', latency };
+                        APP.history.push({ q, correct, dir });
                         if (!correct) APP.injectPivot(q, 'correction');
                     }
                 }
