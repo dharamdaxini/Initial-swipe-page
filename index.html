@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#09090b">
-    <title>Chemistry Master V18</title>
+    <title>Chemistry Master V20: Infinite Context</title>
 
     <style>
         /* --- ASSETS --- */
@@ -61,12 +61,9 @@
 
         /* --- HEADER --- */
         .header {
-            height: 15%;
-            display: flex; flex-direction: column;
+            height: 15%; display: flex; flex-direction: column;
             justify-content: flex-end; align-items: center;
-            padding-bottom: 2vh;
-            z-index: 50;
-            pointer-events: none;
+            padding-bottom: 2vh; z-index: 50; pointer-events: none;
         }
 
         .progress-bar {
@@ -93,26 +90,24 @@
             left: 50%; top: 50%;
             transform: translate(-50%, -50%);
             width: var(--card-w); max-width: var(--card-max);
-            /* Standard Size */
             max-height: 55vh; aspect-ratio: 3/4;
-            
             background: var(--bg-card);
             border-radius: 24px;
             box-shadow: 0 20px 40px -5px rgba(0,0,0,0.3);
             display: flex; flex-direction: column;
             justify-content: center; align-items: center;
             padding: 2rem; text-align: left;
-            
             will-change: transform; transform-style: flat;
             transition: transform 0.1s linear;
         }
 
-        /* Sub-Card Variation */
+        /* Sub-Card Theme Change */
         .card.sub-card {
-            border: 2px solid var(--blue);
-            background: #eff6ff; /* Light Blue Tint */
+            border: 3px solid var(--blue);
+            background: #f0f9ff;
         }
         .card.sub-card .meta-tag { color: var(--blue); font-weight: 800; }
+        .card.sub-card p { color: #1e3a8a; }
 
         .card p {
             font-size: 1.3rem; font-weight: 800;
@@ -143,11 +138,16 @@
         .ctrl.down { grid-column: 2; grid-row: 2; margin-top: 0.5rem; }
         .ctrl.left { grid-column: 1; grid-row: 2; }
         .ctrl.right { grid-column: 3; grid-row: 2; }
-        .icon { font-size: 1.8rem; line-height: 1; margin-bottom: 4px; }
-        .label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+        
+        .icon { font-size: 1.8rem; line-height: 1; margin-bottom: 4px; transition: color 0.2s;}
+        .label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; transition: opacity 0.2s; }
 
-        /* Hidden when in Sub-Mode */
-        .footer.sub-mode .ctrl.left { opacity: 0.2; pointer-events: none; } /* Disable Left Swipe in Sub-Mode */
+        /* Sub-Mode Footer Styles */
+        .footer.sub-mode .icon { color: var(--blue); }
+        .footer.sub-mode .label { color: var(--blue); }
+        
+        /* Hiding specific buttons based on mode if needed */
+        .footer.sub-mode .ctrl.left { opacity: 0; pointer-events: none; } /* Hide left button in sub-mode */
 
         /* --- VIEWS --- */
         .view {
@@ -176,34 +176,15 @@
         .btn-topic:active { background: #27272a; transform: scale(0.98); }
         .btn-topic strong { display: block; font-size: 0.9rem; margin-bottom: 0.25rem; }
         .btn-topic span { font-size: 0.7rem; color: var(--text-sub); text-transform: uppercase; font-family: 'JetBrains Mono'; }
+        
+        .chart-container { position: relative; width: 140px; height: 140px; border-radius: 50%; background: #27272a; margin-bottom: 2rem; }
+        .chart-hole { position: absolute; inset: 15px; background: var(--bg-body); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column; }
 
-        .chart-container {
-            position: relative; width: 140px; height: 140px;
-            border-radius: 50%; background: #27272a; margin-bottom: 2rem;
-        }
-        .chart-hole {
-            position: absolute; inset: 15px; background: var(--bg-body);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column;
-        }
-
-        /* --- REVIEW --- */
-        #view-review .review-card {
-            background: #fff; color: #000; width: 90%; height: 70%;
-            border-radius: 24px; padding: 2rem; display: flex; flex-direction: column;
-        }
-        .rev-q-box {
-            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; border-bottom: 1px solid #e4e4e7; margin-bottom: 1rem; padding-bottom: 1rem;
-            overflow-y: auto;
-        }
-        .rev-img { max-height: 100px; width: auto; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #e4e4e7; display: block; }
+        #view-review .review-card { background: #fff; color: #000; width: 90%; height: 70%; border-radius: 24px; padding: 2rem; display: flex; flex-direction: column; }
+        .rev-q-box { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-bottom: 1px solid #e4e4e7; margin-bottom: 1rem; padding-bottom: 1rem; overflow-y: auto; }
         .rev-q-text { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
         .rev-a-box { flex: 0 0 auto; display: flex; flex-direction: column; justify-content: center; }
-        .rev-badge {
-            align-self: flex-start; background: #dcfce7; color: #166534;
-            font-size: 0.7rem; font-weight: 800; padding: 6px 10px; border-radius: 6px;
-            margin-bottom: 0.75rem; letter-spacing: 0.05em;
-        }
+        .rev-badge { align-self: flex-start; background: #dcfce7; color: #166534; font-size: 0.7rem; font-weight: 800; padding: 6px 10px; border-radius: 6px; margin-bottom: 0.75rem; letter-spacing: 0.05em; }
         .rev-sol { font-size: 1rem; color: #52525b; line-height: 1.5; }
         .rev-nav { display: flex; justify-content: space-between; align-items: center; width: 90%; margin-top: 1rem; }
         .rev-count { color: var(--text-sub); font-family: 'JetBrains Mono'; font-size: 0.8rem; }
@@ -217,9 +198,9 @@
         <div id="ui-overlay"></div>
 
         <section id="view-start" class="view active">
-            <div style="color:var(--accent); border:1px solid var(--accent); padding:4px 8px; border-radius:4px; font-family:'JetBrains Mono'; font-size:0.7rem; margin-bottom:1rem;">MODULE V18.0</div>
-            <h1 style="font-size:3rem; font-weight:800; color:#fff; text-align:center; margin-bottom:1rem;">CHEMISTRY<br>MASTER</h1>
-            <p style="color:#a1a1aa; text-align:center; margin-bottom:3rem;">Swipe Left to Dive Deep</p>
+            <div style="color:var(--accent); border:1px solid var(--accent); padding:4px 8px; border-radius:4px; font-family:'JetBrains Mono'; font-size:0.7rem; margin-bottom:1rem;">MODULE V20.0</div>
+            <h1 style="font-size:3rem; font-weight:800; color:#fff; text-align:center; margin-bottom:1rem;">CHEMISTRY<br>INFINITE</h1>
+            <p style="color:#a1a1aa; text-align:center; margin-bottom:3rem;">Context-Aware UI</p>
             <button class="btn-main" onclick="APP.start('CORE')">START QUIZ</button>
         </section>
 
@@ -231,30 +212,27 @@
             </header>
             <div class="stage" id="card-stack"></div>
             <footer class="footer" id="game-footer">
-                <div class="ctrl up"><span class="icon">↑</span><span class="label" id="lbl-up">True</span></div>
+                <div class="ctrl up"><span class="icon">↑</span><span class="label" id="lbl-up">TRUE</span></div>
                 <div class="ctrl left"><span class="icon">?</span><span class="label" id="lbl-left">DEEP DIVE</span></div>
-                <div class="ctrl down"><span class="icon">↓</span><span class="label" id="lbl-down">False</span></div>
-                <div class="ctrl right"><span class="icon">→</span><span class="label" id="lbl-right">Unsure</span></div>
+                <div class="ctrl down"><span class="icon">↓</span><span class="label" id="lbl-down">FALSE</span></div>
+                <div class="ctrl right"><span class="icon">→</span><span class="label" id="lbl-right">UNSURE</span></div>
             </footer>
         </section>
 
         <section id="view-summary" class="view">
             <h2 style="font-size:1.5rem; color:#fff; margin-bottom:2rem;">RESULTS</h2>
-            
             <div class="chart-container" id="chart-pie">
                 <div class="chart-hole">
                     <span style="font-size:2.5rem; font-weight:800; color:#fff;" id="chart-score">0</span>
                     <span style="font-size:0.7rem; color:#71717a;">POINTS</span>
                 </div>
             </div>
-            
             <div class="topic-grid">
-                <button class="btn-topic" onclick="APP.start('ATOMS_HARD')"><strong>ATOMIC THEORY</strong><span>Hard • 10 Qs</span></button>
-                <button class="btn-topic" onclick="APP.start('BONDS_HARD')"><strong>BONDING</strong><span>Hard • 10 Qs</span></button>
-                <button class="btn-topic" onclick="APP.start('SOLUTIONS_HARD')"><strong>SOLUTIONS</strong><span>Hard • 10 Qs</span></button>
-                <button class="btn-topic" onclick="APP.start('CORE')"><strong>RESTART</strong><span>Core Level</span></button>
+                <button class="btn-topic" onclick="APP.start('ATOMS')"><strong>ATOMIC THEORY</strong><span>Generate New</span></button>
+                <button class="btn-topic" onclick="APP.start('BONDS')"><strong>BONDING</strong><span>Generate New</span></button>
+                <button class="btn-topic" onclick="APP.start('SOLUTIONS')"><strong>SOLUTIONS</strong><span>Generate New</span></button>
+                <button class="btn-topic" onclick="APP.start('CORE')"><strong>MIXED BAG</strong><span>Generate New</span></button>
             </div>
-            
             <div id="review-cta" class="hidden" style="margin-top:2rem;">
                 <button class="btn-main" style="background:#ef4444; color:#fff; padding:1rem 2rem; font-size:0.9rem;" onclick="APP.startReview()">REVIEW MISTAKES</button>
             </div>
@@ -262,7 +240,7 @@
 
         <section id="view-review" class="view">
             <div id="review-card-container" class="review-card">
-                <div class="rev-q-box" id="rev-q-box"><p class="rev-q-text" id="rev-q"></p></div>
+                <div class="rev-q-box"><p class="rev-q-text" id="rev-q"></p></div>
                 <div class="rev-a-box"><div class="rev-badge">SOLUTION</div><p class="rev-sol" id="rev-sol"></p></div>
             </div>
             <div class="rev-nav">
@@ -273,41 +251,114 @@
     </div>
 
     <script>
-        const CONFIG = {
-            API_URL: "https://script.google.com/macros/s/AKfycbz_ziu5Dezrz35J2FksQtNEYuZ5Kk6TrQvg3pM5O5eBYUDzWCCtqlGWwZj8D-TBQLFw/exec",
-            THRESHOLD: 60, // SENSITIVITY TUNED
-            COLORS: { UP:'#22c55e', DOWN:'#ef4444', RIGHT:'#eab308', LEFT:'#3b82f6' },
-            CHART: {'ATOM':'#3b82f6', 'BOND':'#8b5cf6', 'SOLN':'#ec4899', 'REAC':'#f59e0b', 'TABL':'#10b981'}
+        // --- 1. DATA ENGINE ---
+        const ELEMENTS = [
+            { s: 'H', n: 'Hydrogen', p: 1, g: 1, v: 1, type: 'Non-metal' },
+            { s: 'He', n: 'Helium', p: 2, g: 18, v: 8, type: 'Noble Gas' },
+            { s: 'C', n: 'Carbon', p: 6, g: 14, v: 4, type: 'Non-metal' },
+            { s: 'N', n: 'Nitrogen', p: 7, g: 15, v: 5, type: 'Non-metal' },
+            { s: 'O', n: 'Oxygen', p: 8, g: 16, v: 6, type: 'Non-metal' },
+            { s: 'Na', n: 'Sodium', p: 11, g: 1, v: 1, type: 'Metal' },
+            { s: 'Cl', n: 'Chlorine', p: 17, g: 17, v: 7, type: 'Halogen' },
+            { s: 'Ne', n: 'Neon', p: 10, g: 18, v: 8, type: 'Noble Gas' },
+            { s: 'Mg', n: 'Magnesium', p: 12, g: 2, v: 2, type: 'Metal' }
+        ];
+
+        // --- 2. GENERATOR LOGIC ---
+        const GEN = {
+            getRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; },
+            
+            makeDeck(mode) {
+                let deck = [];
+                for(let i=0; i<15; i++) {
+                    let q;
+                    if (mode === 'CORE') q = this.randomMix();
+                    else if (mode === 'ATOMS') q = this.genAtomQ();
+                    else if (mode === 'BONDS') q = this.genBondQ();
+                    else if (mode === 'SOLUTIONS') q = this.genSolQ();
+                    q.id = `gen_${Date.now()}_${i}`;
+                    deck.push(q);
+                }
+                return deck;
+            },
+
+            randomMix() {
+                const r = Math.random();
+                if(r < 0.4) return this.genAtomQ();
+                if(r < 0.7) return this.genBondQ();
+                return this.genSolQ();
+            },
+
+            genAtomQ() {
+                const e = this.getRandom(ELEMENTS);
+                const type = Math.random();
+                let q = { topic: "ATOMS", type: "ATOM", w: 1, up:"True", down:"False", right:"Unsure", left:"Ok" };
+
+                if (type < 0.33) {
+                    const isTrue = Math.random() > 0.5;
+                    const val = isTrue ? e.p : e.p + Math.floor(Math.random() * 3) + 1;
+                    q.text = `${e.n} has ${val} protons.`;
+                    q.correct = isTrue ? "up" : "down";
+                    q.explanation = `${e.n} is element #${e.p}.`;
+                    q.subs = [`Element: ${e.n} (${e.s})`, `Atomic Number: ${e.p}`, "Protons define identity."];
+                } else if (type < 0.66) {
+                    const isTrue = Math.random() > 0.5;
+                    const val = isTrue ? e.v : (e.v === 1 ? 2 : e.v - 1);
+                    q.text = `${e.n} has ${val} valence electron(s).`;
+                    q.correct = isTrue ? "up" : "down";
+                    q.explanation = `${e.n} is in Group ${e.g}.`;
+                    q.subs = [`Group: ${e.g}`, `Electron Config`, `Valence = Outer Shell.`];
+                } else {
+                    const isTrue = Math.random() > 0.5;
+                    const fakeType = e.type === 'Metal' ? 'Non-metal' : 'Metal';
+                    q.text = `${e.n} is a ${isTrue ? e.type : fakeType}.`;
+                    q.correct = isTrue ? "up" : "down";
+                    q.explanation = `${e.n} is a ${e.type}.`;
+                    q.subs = [`Position on Table`, `Conductivity?`, `Properties.`];
+                }
+                return q;
+            },
+
+            genBondQ() {
+                const e1 = this.getRandom(ELEMENTS);
+                const e2 = this.getRandom(ELEMENTS);
+                const isIonicReal = (e1.type === 'Metal' && e2.type !== 'Metal') || (e2.type === 'Metal' && e1.type !== 'Metal');
+                let q = { topic: "BONDING", type: "BOND", w: 2, up:"True", down:"False", right:"Unsure", left:"Ok" };
+                const isTrue = Math.random() > 0.5;
+                const claimIonic = isTrue ? isIonicReal : !isIonicReal;
+                q.text = `Bond between ${e1.n} & ${e2.n} is ${claimIonic ? 'Ionic' : 'Covalent'}.`;
+                q.correct = isTrue ? "up" : "down";
+                q.explanation = `${e1.n} (${e1.type}) + ${e2.n} (${e2.type}) = ${isIonicReal ? 'Ionic' : 'Covalent'}.`;
+                q.subs = [`${e1.n}: ${e1.type}`, `${e2.n}: ${e2.type}`, "Metal + Non = Ionic."];
+                return q;
+            },
+
+            genSolQ() {
+                let q = { topic: "SOLUTIONS", type: "SOLN", w: 2, up:"True", down:"False", right:"Unsure", left:"Ok" };
+                const ph = Math.floor(Math.random() * 14);
+                const isAcid = ph < 7;
+                const claimAcid = Math.random() > 0.5;
+                q.text = `Solution with pH ${ph} is ${claimAcid ? 'Acidic' : 'Basic'}.`;
+                q.correct = (isAcid === claimAcid) ? "up" : "down";
+                q.explanation = `pH < 7 is Acidic.`;
+                q.subs = ["Scale: 0-14", "7 is Neutral", "Low is Acid."];
+                return q;
+            }
         };
 
-        const DECKS = {
-            CORE: [
-                { id: "c1", topic: "Structure", type: "ATOM", text: "Protons and Neutrons reside in the nucleus.", subs: ["Does nucleus contain mass?", "Where are electrons?", "Is nucleus dense?"], explanation: "Correct. The nucleus contains the heavy particles.", up:"True", down:"False", right:"Unsure", correct:"up", w:1 },
-                { id: "c2", topic: "Charge", type: "ATOM", text: "An electron carries a positive electrical charge.", subs: ["Protons are positive.", "Neutrons are neutral.", "What is electron charge?"], explanation: "False. Electrons are Negative. Protons are Positive.", up:"True", down:"False", right:"Unsure", correct:"down", w:1 },
-                { id: "c3", topic: "Identity", type: "ATOM", text: "Changing the proton number changes the element.", subs: ["Protons = Identity.", "Neutrons = Isotope.", "Electrons = Ion."], explanation: "Correct. Proton count is the atomic number.", up:"True", down:"False", right:"Unsure", correct:"up", w:1 },
-                { id: "c4", topic: "Organization", type: "TABL", text: "Elements in the same vertical Group behave similarly.", subs: ["Same valence electrons?", "Same size?", "Same color?"], explanation: "Correct. They have same valence electron count.", up:"True", down:"False", right:"Unsure", correct:"up", w:1 },
-                { id: "c5", topic: "Noble Gases", type: "TABL", text: "Noble Gases are highly reactive.", subs: ["Group 18.", "Full outer shells?", "Do they want electrons?"], explanation: "False. Full shells make them stable/inert.", up:"True", down:"False", right:"Unsure", correct:"down", w:1 },
-                { id: "c6", topic: "Valence", type: "TABL", text: "Carbon (Group 14) has 6 valence electrons.", subs: ["Group 14.", "Atomic Number is 6.", "Valence is outer shell."], explanation: "False. Group 14 elements have 4 valence electrons.", up:"True", down:"False", right:"Unsure", correct:"down", w:1 },
-                { id: "c7", topic: "Mechanics", type: "BOND", text: "Ionic bonds involve sharing electrons.", subs: ["Metal + Non-metal.", "Stealing vs Sharing.", "Formation of ions?"], explanation: "False. Ionic bonds transfer electrons. Covalent share.", up:"True", down:"False", right:"Unsure", correct:"down", w:1 },
-                { id: "c8", topic: "Molecules", type: "BOND", text: "Water (H2O) is a covalent molecule.", subs: ["Non-metal + Non-metal?", "Is there a metal?", "Are electrons shared?"], explanation: "Correct. Oxygen shares electrons with Hydrogen.", up:"True", down:"False", right:"Unsure", correct:"up", w:1 },
-                { id: "c9", topic: "Conservation", type: "REAC", text: "Atoms are destroyed in chemical reactions.", subs: ["Law of Conservation.", "Matter created/destroyed?", "Just rearranged?"], explanation: "False. Matter is conserved, only rearranged.", up:"True", down:"False", right:"Unsure", correct:"down", w:1 },
-                { id: "c10", topic: "Balancing", type: "REAC", text: "H2 + O2 -> H2O is balanced.", subs: ["Left: 2H, 2O.", "Right: 2H, 1O.", "Are atoms equal?"], explanation: "False. Needs 2H2 + O2 -> 2H2O.", up:"True", down:"False", right:"Unsure", correct:"down", w:1 },
-                { id: "c11", topic: "Energy", type: "REAC", text: "Exothermic reactions release heat.", subs: ["Exo = Out.", "Endo = In.", "Feel hot or cold?"], explanation: "Correct. Energy exits the system.", up:"True", down:"False", right:"Unsure", correct:"up", w:1 },
-                { id: "c12", topic: "Units", type: "SOLN", text: "A Mole is approx 6.022 x 10^23 particles.", subs: ["Avogadro's Number.", "Chemist's Dozen.", "Is it a huge number?"], explanation: "Correct. Avogadro's constant.", up:"True", down:"False", right:"Unsure", correct:"up", w:1 },
-                { id: "c13", topic: "Acids", type: "SOLN", text: "pH of 2 indicates a strong Base.", subs: ["0-6 is Acidic.", "7 is Neutral.", "8-14 is Basic."], explanation: "False. Low pH is Acidic. High is Basic.", up:"True", down:"False", right:"Unsure", correct:"down", w:1 },
-                { id: "c14", topic: "Neutrality", type: "SOLN", text: "Pure water is neutral at pH 7.", subs: ["H+ equals OH-?", "Midpoint of scale.", "Safe to drink?"], explanation: "Correct. 7 is neutral.", up:"True", down:"False", right:"Unsure", correct:"up", w:1 },
-                { id: "c15", topic: "Mixtures", type: "SOLN", text: "In salt water, salt is the solvent.", subs: ["Solute gets dissolved.", "Solvent does dissolving.", "Which is the liquid?"], explanation: "False. Water is solvent, salt is solute.", up:"True", down:"False", right:"Unsure", correct:"down", w:1 }
-            ],
-            ATOMS_HARD: [ { id: "ah1", topic: "Quantum", type: "ATOM", text: "The 4s orbital fills before 3d.", subs: ["Aufbau.", "Energy levels."], explanation: "True.", up:"True", down:"False", right:"Unsure", correct:"up", w:2 } ],
-            BONDS_HARD: [ { id: "bh1", topic: "VSEPR", type: "BOND", text: "This molecular shape is Tetrahedral.", subs: ["Lone pairs?", "Bond angles."], explanation: "False.", up:"True", down:"False", right:"Unsure", correct:"down", w:2 } ],
-            SOLUTIONS_HARD: [ { id: "sh1", topic: "Colligative", type: "SOLN", text: "Salt decreases boiling point.", subs: ["Vapor pressure."], explanation: "False.", up:"True", down:"False", right:"Unsure", correct:"down", w:2 } ]
+        const CONFIG = {
+            API_URL: "https://script.google.com/macros/s/AKfycbz_ziu5Dezrz35J2FksQtNEYuZ5Kk6TrQvg3pM5O5eBYUDzWCCtqlGWwZj8D-TBQLFw/exec",
+            THRESHOLD: 60,
+            COLORS: { UP:'#22c55e', DOWN:'#ef4444', RIGHT:'#eab308', LEFT:'#3b82f6' },
+            CHART: {'ATOM':'#3b82f6', 'BOND':'#8b5cf6', 'SOLN':'#ec4899', 'REAC':'#f59e0b', 'TABL':'#10b981'}
         };
 
         const APP = {
             deck: [], idx: 0, answers: {}, activeEl: null, reviewDeck: [], reviewIdx: 0,
 
-            start(key) {
-                this.deck = [...DECKS[key]]; this.idx=0; this.answers={}; this.reviewDeck=[];
+            start(mode) {
+                this.deck = GEN.makeDeck(mode); 
+                this.idx=0; this.answers={}; this.reviewDeck=[];
                 document.getElementById('view-start').classList.remove('active');
                 document.getElementById('view-summary').classList.remove('active');
                 document.getElementById('view-game').classList.add('active');
@@ -324,28 +375,17 @@
                     const realIdx = this.idx + (buffer.length - 1 - i);
                     const el = document.createElement('div');
                     
-                    // CARD RENDER LOGIC
                     if (q.type === 'SUB') {
                         el.className = 'card sub-card';
-                        el.innerHTML = `
-                            <div class="meta-tag">CONTEXT CLUE</div>
-                            <p style="font-size:1.1rem; margin-bottom:0;">${q.text}</p>
-                            <div class="card-id">Swipe to Dismiss</div>
-                        `;
+                        el.innerHTML = `<div class="meta-tag">CONTEXT CLUE</div><p>${q.text}</p><div class="card-id">Swipe to Dismiss</div>`;
                     } else {
                         el.className = 'card';
-                        let imgHTML = q.image ? `<img src="${q.image}" class="card-visual">` : '';
-                        el.innerHTML = `${imgHTML}<p>${q.text}</p><div class="card-id">${q.id}</div>`;
+                        el.innerHTML = `<p>${q.text}</p><div class="card-id">${q.id}</div>`;
                     }
                     
                     if(realIdx===this.idx) { 
                         el.style.zIndex=100; this.activeEl=el; PHYSICS.bind(el); 
-                        // Hide Sub-Q button if already in Sub-Mode
-                        if(q.type === 'SUB' || q.isRevealed) {
-                            document.getElementById('game-footer').classList.add('sub-mode');
-                        } else {
-                            document.getElementById('game-footer').classList.remove('sub-mode');
-                        }
+                        this.updateFooter(q); // DYNAMIC FOOTER UPDATE
                     }
                     else { el.style.zIndex=90; el.style.transform='translate(-50%,-50%) scale(0.95) translateY(20px)'; el.style.opacity=0.5; }
                     stack.appendChild(el);
@@ -358,6 +398,33 @@
                 document.getElementById('ui-topic').textContent=q.topic;
                 document.getElementById('ui-type').textContent=q.type;
                 document.getElementById('ui-progress').style.width=((this.idx/this.deck.length)*100)+'%';
+            },
+
+            // DYNAMIC FOOTER LOGIC
+            updateFooter(q) {
+                const footer = document.getElementById('game-footer');
+                const lblUp = document.getElementById('lbl-up');
+                const lblDown = document.getElementById('lbl-down');
+                const lblRight = document.getElementById('lbl-right');
+                const lblLeft = document.getElementById('lbl-left');
+
+                if (q.type === 'SUB') {
+                    // SUB MODE UI
+                    footer.classList.add('sub-mode');
+                    lblUp.textContent = "NEXT";
+                    lblDown.textContent = "NEXT";
+                    lblRight.textContent = "NEXT";
+                    lblLeft.textContent = ""; // Hidden
+                    CONFIG.COLORS = { UP:'#3b82f6', DOWN:'#3b82f6', RIGHT:'#3b82f6', LEFT:'#3b82f6' };
+                } else {
+                    // NORMAL MODE UI
+                    footer.classList.remove('sub-mode');
+                    lblUp.textContent = "TRUE";
+                    lblDown.textContent = "FALSE";
+                    lblRight.textContent = "UNSURE";
+                    lblLeft.textContent = "DEEP DIVE";
+                    CONFIG.COLORS = { UP:'#22c55e', DOWN:'#ef4444', RIGHT:'#eab308', LEFT:'#3b82f6' };
+                }
             },
 
             finish() {
@@ -402,12 +469,6 @@
                     return;
                 }
                 const q = this.reviewDeck[this.reviewIdx];
-                const box = document.getElementById('rev-q-box');
-                const existing = box.querySelector('img'); if(existing) existing.remove();
-                if(q.image) {
-                    const img = document.createElement('img'); img.src=q.image; img.className='rev-img';
-                    box.insertBefore(img, document.getElementById('rev-q'));
-                }
                 document.getElementById('rev-q').textContent=q.text;
                 document.getElementById('rev-sol').textContent=q.explanation;
                 document.getElementById('rev-count').textContent=`${this.reviewIdx+1} / ${this.reviewDeck.length}`;
@@ -442,8 +503,8 @@
             commit(dir) { 
                 const q = APP.deck[APP.idx];
 
-                // 1. Handle Sub-Card Dismissal (Any swipe works)
                 if (q.type === 'SUB') {
+                    // Any swipe works for sub-card
                     let tx=0, ty=0; const d=800;
                     if(dir==='left') tx=-d; else if(dir==='right') tx=d; else if(dir==='up') ty=-d; else ty=d;
                     this.el.style.transition='transform 0.4s ease-in';
@@ -452,32 +513,23 @@
                     return;
                 }
 
-                // 2. Handle "Deep Dive" Trigger (Swipe Left on Main Card)
-                if (dir === 'left' && !q.isRevealed) {
-                    // Fly out Left
+                // Main Card Logic
+                if (dir === 'left') {
                     this.el.style.transition='transform 0.4s ease-in';
-                    this.el.style.transform=`translate(-50%,-50%) translate(-800px,0)`;
+                    this.el.style.transform=`translate(-50%,-50%) translate(-800px,0)`; 
                     
-                    // Inject Sub-Cards
                     const subCards = q.subs.map((s, i) => ({
-                        id: q.id + "_s" + i,
-                        topic: q.topic,
-                        type: "SUB",
-                        text: s,
+                        id: q.id + "_s" + i, topic: q.topic, type: "SUB", text: s,
                         up:"Ok", down:"Ok", right:"Ok", left:"Ok"
                     }));
                     
-                    // Re-insert Main Card at end of subs (marked revealed)
                     const mainCardReturn = {...q, isRevealed: true};
-                    
-                    // Splice into deck
                     APP.deck.splice(APP.idx + 1, 0, ...subCards, mainCardReturn);
-                    
                     setTimeout(()=>{ this.el.remove(); APP.idx++; APP.render(); },300);
                     return;
                 }
 
-                // 3. Handle Normal Answer
+                // Scoring
                 const score=dir===q.correct?10*q.w:-5; 
                 APP.answers[q.id]={dir,score,correct:dir===q.correct,q}; 
                 let tx=0, ty=0; const d=800; 
