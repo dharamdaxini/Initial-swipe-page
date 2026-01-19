@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Strategic Convergence 2026</title>
     <style>
+        /* --- CSS VARIABLES --- */
         :root {
             --color-bg: #f4f4f5;
             --color-card: #ffffff;
@@ -14,159 +15,164 @@
             --color-down: #ef4444;
             --color-right: #eab308;
             --color-left: #64748b;
-            --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 5px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-card: 0 20px 40px -5px rgba(0, 0, 0, 0.1), 0 10px 20px -5px rgba(0, 0, 0, 0.04);
+            --shadow-desktop: 0 0 50px rgba(0,0,0,0.5);
             --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
+        /* --- GLOBAL RESET --- */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             -webkit-tap-highlight-color: transparent;
-            touch-action: none;
+            touch-action: none; /* Critical: Stops browser scroll hijacking */
         }
 
         body {
             font-family: var(--font-stack);
-            background-color: var(--color-bg);
+            background-color: #27272a; /* Dark background for desktop focus */
             color: var(--color-text);
             height: 100svh;
             width: 100vw;
             overflow: hidden;
             display: flex;
-            flex-direction: column;
-            user-select: none;
-            -webkit-user-select: none;
-            overscroll-behavior: none;
-            position: fixed;
-        }
-
-        /* --- APP CONTAINER --- */
-        #app-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            position: relative;
-            width: 100%;
-            max-width: 480px;
-            margin: 0 auto;
-            padding: 2rem 1.5rem;
+            user-select: none;
         }
 
-        /* --- CARD STACK --- */
+        /* --- DEVICE CONTAINER (Desktop Proof) --- */
+        #app-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 450px; /* Mobile width constraint */
+            max-height: 900px; /* Height constraint for monitors */
+            background-color: var(--color-bg);
+            display: grid;
+            /* STRICT GRID: Header (15%) | Card Space (Auto) | Footer (25%) */
+            grid-template-rows: 15% 1fr 25%; 
+            grid-template-columns: 100%;
+            box-shadow: var(--shadow-desktop);
+            overflow: hidden;
+        }
+
+        /* --- ZONE 1: TOP HEADER --- */
+        #ui-header {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding-bottom: 1.5rem;
+            z-index: 20;
+            text-align: center;
+            transition: opacity 0.2s;
+        }
+
+        .header-topic {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--color-subtext);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            opacity: 0.8;
+        }
+
+        .header-type {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--color-text);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            line-height: 1;
+        }
+
+        /* --- ZONE 2: CARD STACK (Middle) --- */
         #card-stack {
             position: relative;
             width: 100%;
-            aspect-ratio: 3/4;
-            max-height: 60svh;
-            margin-bottom: 2rem;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+            padding: 1rem;
         }
 
         .card {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            width: 90%;
+            aspect-ratio: 1/1; /* Keeps card square-ish */
+            max-height: 400px;
             background: var(--color-card);
-            border-radius: 24px;
+            border-radius: 28px;
             box-shadow: var(--shadow-card);
             display: flex;
             flex-direction: column;
-            padding: 2rem;
+            justify-content: center;
+            align-items: center;
+            padding: 2.5rem;
             text-align: center;
+            
             will-change: transform;
             transform: translateZ(0); 
             backface-visibility: hidden;
-            justify-content: space-between; /* Push content apart */
-        }
-
-        /* --- CARD HEADER --- */
-        .card-header {
-            margin-bottom: 1.5rem;
-        }
-
-        .card-topic {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--color-subtext);
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-
-        .card-type {
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: var(--color-text);
-            margin: 0;
-        }
-
-        /* --- CARD BODY --- */
-        .card-body {
-            flex: 1; /* Take available space */
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            
+            /* Center vertically in grid cell */
+            top: 50%;
+            left: 50%;
+            margin-top: -45%; /* Approx half width to center anchor */
+            margin-left: -45%;
         }
 
         .card p {
-            font-size: 1.35rem;
-            line-height: 1.5;
-            font-weight: 500;
+            font-size: 1.5rem;
+            line-height: 1.4;
+            font-weight: 600;
             color: var(--color-text);
             pointer-events: none;
             margin: 0;
         }
 
-        /* --- CARD FOOTER (Legend) --- */
-        .card-footer {
+        /* --- ZONE 3: BOTTOM FOOTER (Arrows) --- */
+        #ui-footer {
             display: grid;
             grid-template-columns: 1fr auto 1fr;
-            grid-template-rows: auto auto;
-            gap: 0.75rem;
-            margin-top: 1.5rem;
-            pointer-events: none;
+            grid-template-rows: 1fr 1fr;
+            gap: 0;
+            align-content: center;
+            justify-items: center;
+            padding-bottom: 2rem;
+            z-index: 20;
         }
 
         .legend-item {
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             font-size: 0.7rem;
             font-weight: 700;
             text-transform: uppercase;
             color: var(--color-subtext);
-            transition: color 0.2s, transform 0.2s;
+            transition: transform 0.1s linear, opacity 0.15s ease, color 0.15s ease;
+            width: 80px; /* Hit area */
         }
 
-        /* Grid Positioning */
-        .legend-item.up { grid-column: 2; grid-row: 1; }
-        .legend-item.left { grid-column: 1; grid-row: 2; }
-        .legend-item.down { grid-column: 2; grid-row: 2; }
-        .legend-item.right { grid-column: 3; grid-row: 2; }
+        /* Grid Placement */
+        .legend-item.up { grid-column: 2; grid-row: 1; align-self: end; margin-bottom: 0.5rem; }
+        .legend-item.left { grid-column: 1; grid-row: 2; justify-self: end; margin-right: 0.5rem; }
+        .legend-item.down { grid-column: 2; grid-row: 2; align-self: start; margin-top: 0.5rem; }
+        .legend-item.right { grid-column: 3; grid-row: 2; justify-self: start; margin-left: 0.5rem; }
         
-        .legend-item.active { transform: scale(1.15); }
-        .legend-item.up.active { color: var(--color-up); }
-        .legend-item.down.active { color: var(--color-down); }
-        .legend-item.right.active { color: var(--color-right); }
-        .legend-item.left.active { color: var(--color-left); }
+        .legend-item .icon { font-size: 2rem; margin-bottom: 4px; display: block; line-height: 1; }
 
-        .legend-item .icon { font-size: 1.4rem; margin-bottom: 2px; display: block; line-height: 1; }
-
-        /* Meta info hidden by default, useful for debugging */
-        .card .meta { display: none; }
-
-        /* --- RESULTS VIEW --- */
+        /* --- RESULTS OVERLAY --- */
         #summary-view {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100svh;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
             background: var(--color-bg);
             z-index: 100;
             display: flex;
@@ -175,7 +181,6 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s ease;
-            touch-action: pan-y;
             overflow-y: auto;
         }
 
@@ -184,15 +189,15 @@
         .summary-stats {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 1.5rem;
-            padding: 1rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
         .stat-box { text-align: center; }
-        .stat-num { font-size: 1.5rem; font-weight: 800; display: block; }
-        .stat-label { font-size: 0.7rem; color: var(--color-subtext); text-transform: uppercase; }
+        .stat-num { font-size: 2rem; font-weight: 800; display: block; margin-bottom: 0.25rem; }
+        .stat-label { font-size: 0.75rem; color: var(--color-subtext); text-transform: uppercase; letter-spacing: 0.05em; }
 
         #summary-list { margin-bottom: 2rem; }
 
@@ -200,15 +205,17 @@
             background: white;
             padding: 1rem;
             margin-bottom: 0.75rem;
-            border-radius: 8px;
+            border-radius: 12px;
             font-size: 0.9rem;
-            border-left: 5px solid transparent;
+            border-left: 6px solid transparent;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
         }
 
         .confirmation-zone {
-            height: 100px;
+            height: 120px;
             margin-bottom: 2rem;
             position: relative;
+            margin-top: auto;
         }
 
         #confirmation-card {
@@ -222,13 +229,15 @@
             justify-content: center;
             align-items: center;
             position: absolute;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            will-change: transform;
         }
 
         .confirm-legend {
             display: flex;
             justify-content: space-between;
             width: 80%;
-            margin-top: 0.5rem;
+            margin-top: 0.75rem;
             font-size: 0.7rem;
             opacity: 0.6;
             text-transform: uppercase;
@@ -239,84 +248,104 @@
 </head>
 <body>
 
-    <main id="app-container">
-        <div id="card-stack" aria-live="polite"></div>
-    </main>
-
-    <section id="summary-view" class="hidden">
-        <h2 style="font-size:1.2rem; margin-bottom:1rem; text-transform:uppercase; color:var(--color-subtext);">Results</h2>
+    <div id="app-container">
         
-        <div class="summary-stats">
-            <div class="stat-box">
-                <span class="stat-num" id="stat-total-score">0</span>
-                <span class="stat-label">Total Score</span>
-            </div>
-            <div class="stat-box">
-                <span class="stat-num" id="stat-accuracy">0%</span>
-                <span class="stat-label">Accuracy</span>
-            </div>
-        </div>
+        <header id="ui-header">
+            <span class="header-topic" id="header-topic">Topic</span>
+            <span class="header-type" id="header-type">Type</span>
+        </header>
 
-        <div id="summary-list"></div>
-        
-        <div class="confirmation-zone">
-            <div id="confirmation-card">
-                <p style="font-weight:600; font-size:1.1rem;">SWIPE TO SUBMIT</p>
-                <div class="confirm-legend">
-                    <span>← Cancel</span>
-                    <span>Confirm →</span>
+        <div id="card-stack" aria-live="polite">
+            </div>
+
+        <footer id="ui-footer">
+            <div class="legend-item up">
+                <span class="icon">↑</span>
+                <span class="label" id="label-up">True</span>
+            </div>
+            <div class="legend-item left">
+                <span class="icon">←</span>
+                <span class="label" id="label-left">Skip</span>
+            </div>
+            <div class="legend-item down">
+                <span class="icon">↓</span>
+                <span class="label" id="label-down">False</span>
+            </div>
+            <div class="legend-item right">
+                <span class="icon">→</span>
+                <span class="label" id="label-right">Unsure</span>
+            </div>
+        </footer>
+
+        <section id="summary-view" class="hidden">
+            <h2 style="font-size:1.5rem; margin-bottom:1.5rem; text-transform:uppercase; color:var(--color-subtext); text-align:center;">Session Complete</h2>
+            
+            <div class="summary-stats">
+                <div class="stat-box">
+                    <span class="stat-num" id="stat-total-score">0</span>
+                    <span class="stat-label">Total Score</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-num" id="stat-accuracy">0%</span>
+                    <span class="stat-label">Accuracy</span>
                 </div>
             </div>
-        </div>
-    </section>
+
+            <div id="summary-list"></div>
+            
+            <div class="confirmation-zone">
+                <div id="confirmation-card">
+                    <p style="font-weight:600; font-size:1.1rem;">SWIPE TO SUBMIT</p>
+                    <div class="confirm-legend">
+                        <span>← Cancel</span>
+                        <span>Confirm →</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
 
     <script>
-        // --- GOOGLE SHEET DEPLOYMENT ID ---
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz_ziu5Dezrz35J2FksQtNEYuZ5Kk6TrQvg3pM5O5eBYUDzWCCtqlGWwZj8D-TBQLFw/exec";
+        /**
+         * ------------------------------------------------------------------
+         * CONFIGURATION
+         * ------------------------------------------------------------------
+         */
+        const CONFIG = {
+            API_URL: "https://script.google.com/macros/s/AKfycbz_ziu5Dezrz35J2FksQtNEYuZ5Kk6TrQvg3pM5O5eBYUDzWCCtqlGWwZj8D-TBQLFw/exec",
+            SWIPE_THRESHOLD: 80,
+            ROTATION_FACTOR: 0.05,
+            ARROW_MOVE_LIMIT: 25, // Pixels arrows move towards finger
+            COLORS: { UP: '#22c55e', DOWN: '#ef4444', RIGHT: '#eab308', LEFT: '#64748b', NEUTRAL: '#71717a' }
+        };
 
-        // --- QUESTION DATA ---
         const QUESTIONS = [
             {
-                question_id: "q1",
-                topic: "Strategic",
-                q_type: "FACT RECALL",
-                active: true,
+                question_id: "q1", topic: "Strategic", q_type: "FACT RECALL", active: true,
                 question_text: "The Dholera semiconductor facility is fully operational as of Jan 2026.",
-                swipe_up_label: "True",
-                swipe_right_label: "Unsure",
-                swipe_down_label: "False",
-                swipe_left_label: "Skip",
-                correct_swipe: "up",
-                score_up: 10, score_right: 0, score_down: -5, score_left: 0, weight: 1
+                swipe_up_label: "True", swipe_right_label: "Unsure", swipe_down_label: "False", swipe_left_label: "Skip",
+                correct_swipe: "up", score_up: 10, score_right: 0, score_down: -5, score_left: 0, weight: 1
             },
             {
-                question_id: "q2",
-                topic: "Logistics",
-                q_type: "CONTEXT",
-                active: true,
+                question_id: "q2", topic: "Logistics", q_type: "CONTEXT", active: true,
                 question_text: "ULIP integration has fully decoupled supply chain efficiency from crude oil volatility.",
-                swipe_up_label: "Agree",
-                swipe_right_label: "Partial",
-                swipe_down_label: "Disagree",
-                swipe_left_label: "Skip",
-                correct_swipe: "right",
-                score_up: -5, score_right: 10, score_down: -5, score_left: 0, weight: 2
+                swipe_up_label: "Agree", swipe_right_label: "Partial", swipe_down_label: "Disagree", swipe_left_label: "Skip",
+                correct_swipe: "right", score_up: -5, score_right: 10, score_down: -5, score_left: 0, weight: 2
             },
             {
-                question_id: "q3",
-                topic: "Finance",
-                q_type: "TRAP",
-                active: true,
+                question_id: "q3", topic: "Finance", q_type: "TRAP", active: true,
                 question_text: "The Indian Rupee was inducted into the IMF SDR basket in late 2025.",
-                swipe_up_label: "True",
-                swipe_right_label: "Plausible",
-                swipe_down_label: "False",
-                swipe_left_label: "Skip",
-                correct_swipe: "down",
-                score_up: -10, score_right: -5, score_down: 10, score_left: 0, weight: 1
+                swipe_up_label: "True", swipe_right_label: "Plausible", swipe_down_label: "False", swipe_left_label: "Skip",
+                correct_swipe: "down", score_up: -10, score_right: -5, score_down: 10, score_left: 0, weight: 1
             }
         ];
 
+        /**
+         * ------------------------------------------------------------------
+         * STATE MANAGEMENT
+         * ------------------------------------------------------------------
+         */
         const STATE = { IDLE: 'IDLE', DRAGGING: 'DRAGGING', ANIMATING: 'ANIMATING', SUMMARY: 'SUMMARY' };
         
         const APP = {
@@ -325,14 +354,25 @@
             currentIndex: 0,
             answers: {}, 
             activeCard: null,
-            startX: 0, startY: 0, 
-            threshold: 80,
-            timestampStart: new Date().toISOString()
+            startX: 0, startY: 0
         };
 
-        const stackEl = document.getElementById('card-stack');
-        const summaryView = document.getElementById('summary-view');
-        const confirmCard = document.getElementById('confirmation-card');
+        const DOM = {
+            stack: document.getElementById('card-stack'),
+            headerTopic: document.getElementById('header-topic'),
+            headerType: document.getElementById('header-type'),
+            labelUp: document.getElementById('label-up'),
+            labelDown: document.getElementById('label-down'),
+            labelLeft: document.getElementById('label-left'),
+            labelRight: document.getElementById('label-right'),
+            footer: document.getElementById('ui-footer'),
+            summaryView: document.getElementById('summary-view'),
+            summaryList: document.getElementById('summary-list'),
+            confirmCard: document.getElementById('confirmation-card'),
+            totalScore: document.getElementById('stat-total-score'),
+            accuracy: document.getElementById('stat-accuracy'),
+            container: document.getElementById('app-container')
+        };
 
         function init() {
             APP.deck = QUESTIONS.filter(q => q.active === true || q.active === "TRUE");
@@ -340,124 +380,190 @@
         }
 
         function renderStack() {
-            stackEl.innerHTML = '';
+            DOM.stack.innerHTML = '';
+            // Render in reverse so first index is on top visually
             [...APP.deck].reverse().forEach((q, index) => {
                 const card = document.createElement('div');
                 card.classList.add('card');
                 card.style.zIndex = APP.deck.length - index;
-                card.dataset.index = index;
-                
-                // NEW CARD STRUCTURE
-                card.innerHTML = `
-                    <div class="card-header">
-                        <span class="card-topic">${q.topic}</span>
-                        <h3 class="card-type">${q.q_type}</h3>
-                    </div>
-                    <div class="card-body">
-                        <p>${q.question_text}</p>
-                    </div>
-                    <div class="card-footer legend">
-                        <div class="legend-item up"><span class="icon">↑</span><span class="label">${q.swipe_up_label || 'Up'}</span></div>
-                        <div class="legend-item left"><span class="icon">←</span><span class="label">${q.swipe_left_label || 'Left'}</span></div>
-                        <div class="legend-item down"><span class="icon">↓</span><span class="label">${q.swipe_down_label || 'Down'}</span></div>
-                        <div class="legend-item right"><span class="icon">→</span><span class="label">${q.swipe_right_label || 'Right'}</span></div>
-                    </div>
-                `;
-                stackEl.appendChild(card);
+                // Only Question Text lives here now
+                card.innerHTML = `<p>${q.question_text}</p>`;
+                DOM.stack.appendChild(card);
             });
             updateTopCard();
         }
 
         function updateTopCard() {
-            const topCard = stackEl.lastElementChild;
+            const topCard = DOM.stack.lastElementChild;
             if (topCard && APP.currentIndex < APP.deck.length) {
                 APP.activeCard = topCard;
-                bindTouchEvents(topCard);
+                bindInputEvents(topCard);
+                updateUI(APP.deck[APP.currentIndex]);
             } else {
                 finishDeck();
             }
         }
 
-        // --- RAW TOUCH EVENT LOGIC ---
+        function updateUI(data) {
+            // Update Headers
+            DOM.headerTopic.textContent = data.topic;
+            DOM.headerType.textContent = data.q_type;
 
-        function bindTouchEvents(card) {
+            // Update Labels
+            DOM.labelUp.textContent = data.swipe_up_label || "Up";
+            DOM.labelDown.textContent = data.swipe_down_label || "Down";
+            DOM.labelLeft.textContent = data.swipe_left_label || "Left";
+            DOM.labelRight.textContent = data.swipe_right_label || "Right";
+        }
+
+        /**
+         * ------------------------------------------------------------------
+         * PHYSICS & INPUT HANDLING
+         * ------------------------------------------------------------------
+         */
+        function bindInputEvents(card) {
+            // Touch
             card.addEventListener('touchstart', (e) => {
                 if (APP.currentState !== STATE.IDLE) return;
-                const touch = e.touches[0];
-                APP.startX = touch.clientX;
-                APP.startY = touch.clientY;
-                APP.currentState = STATE.DRAGGING;
-                card.style.transition = 'none';
+                if (e.touches.length > 1) return; // Single touch only
+                startDrag(e.touches[0].clientX, e.touches[0].clientY);
             }, { passive: false });
 
-            window.addEventListener('touchmove', handleTouchMove, { passive: false });
-            window.addEventListener('touchend', handleTouchEnd);
+            // Mouse (Desktop)
+            card.addEventListener('mousedown', (e) => {
+                if (APP.currentState !== STATE.IDLE) return;
+                startDrag(e.clientX, e.clientY);
+            });
         }
 
-        function handleTouchMove(e) {
-            if (APP.currentState !== STATE.DRAGGING) return;
-            if (e.cancelable) e.preventDefault(); 
+        function startDrag(x, y) {
+            APP.startX = x;
+            APP.startY = y;
+            APP.currentState = STATE.DRAGGING;
+            APP.activeCard.style.transition = 'none';
 
-            const touch = e.touches[0];
-            const deltaX = touch.clientX - APP.startX;
-            const deltaY = touch.clientY - APP.startY;
-            const rotate = deltaX * 0.05;
+            // Global listeners to catch fast swipes
+            window.addEventListener('touchmove', handleMove, { passive: false });
+            window.addEventListener('touchend', handleEnd);
+            window.addEventListener('mousemove', handleMove);
+            window.addEventListener('mouseup', handleEnd);
+        }
+
+        function handleMove(e) {
+            if (APP.currentState !== STATE.DRAGGING) return;
             
+            let clientX, clientY;
+            if (e.type === 'touchmove') {
+                e.preventDefault(); 
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+
+            const deltaX = clientX - APP.startX;
+            const deltaY = clientY - APP.startY;
+
+            // 1. Move Card
+            const rotate = deltaX * CONFIG.ROTATION_FACTOR;
             APP.activeCard.style.transform = `translate(${deltaX}px, ${deltaY}px) rotate(${rotate}deg)`;
-            updateVisualFeedback(deltaX, deltaY);
+
+            // 2. Animate Footer Arrows
+            updateFooterVisuals(deltaX, deltaY);
         }
 
-        function handleTouchEnd(e) {
+        function handleEnd(e) {
             if (APP.currentState !== STATE.DRAGGING) return;
-            window.removeEventListener('touchmove', handleTouchMove);
-            window.removeEventListener('touchend', handleTouchEnd);
-            
-            const touch = e.changedTouches[0];
-            const deltaX = touch.clientX - APP.startX;
-            const deltaY = touch.clientY - APP.startY;
+
+            window.removeEventListener('touchmove', handleMove);
+            window.removeEventListener('touchend', handleEnd);
+            window.removeEventListener('mousemove', handleMove);
+            window.removeEventListener('mouseup', handleEnd);
+
+            let clientX, clientY;
+            if (e.changedTouches && e.changedTouches.length > 0) {
+                clientX = e.changedTouches[0].clientX;
+                clientY = e.changedTouches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+
+            const deltaX = clientX - APP.startX;
+            const deltaY = clientY - APP.startY;
             const absX = Math.abs(deltaX);
             const absY = Math.abs(deltaY);
 
-            // Reset legend highlights on the active card
-            APP.activeCard.querySelectorAll('.legend-item').forEach(el => el.classList.remove('active'));
+            resetFooterVisuals();
             APP.currentState = STATE.ANIMATING;
 
             let decision = null;
-            if (absY > absX && absY > APP.threshold) decision = deltaY < 0 ? 'up' : 'down';
-            else if (absX > absY && absX > APP.threshold) decision = deltaX > 0 ? 'right' : 'left';
+            if (absY > absX && absY > CONFIG.SWIPE_THRESHOLD) {
+                decision = deltaY < 0 ? 'up' : 'down';
+            } else if (absX > absY && absX > CONFIG.SWIPE_THRESHOLD) {
+                decision = deltaX > 0 ? 'right' : 'left';
+            }
 
             decision ? commitSwipe(decision) : resetCard();
         }
 
-        function updateVisualFeedback(dx, dy) {
-            const absX = Math.abs(dx), absY = Math.abs(dy);
-            let selector = '';
-            let color = '';
+        /**
+         * ------------------------------------------------------------------
+         * VISUALS & ANIMATION
+         * ------------------------------------------------------------------
+         */
+        function updateFooterVisuals(dx, dy) {
+            const absX = Math.abs(dx);
+            const absY = Math.abs(dy);
+            
+            let activeClass = '';
+            let activeColor = '';
+            let xMove = 0, yMove = 0;
 
             if (absY > absX) {
-                if (dy < 0) { selector = '.up'; color = 'var(--color-up)'; } 
-                else { selector = '.down'; color = 'var(--color-down)'; }
+                if (dy < 0) { activeClass = 'up'; activeColor = CONFIG.COLORS.UP; yMove = -CONFIG.ARROW_MOVE_LIMIT; }
+                else { activeClass = 'down'; activeColor = CONFIG.COLORS.DOWN; yMove = CONFIG.ARROW_MOVE_LIMIT; }
             } else {
-                if (dx > 0) { selector = '.right'; color = 'var(--color-right)'; } 
-                else { selector = '.left'; color = 'var(--color-left)'; }
+                if (dx > 0) { activeClass = 'right'; activeColor = CONFIG.COLORS.RIGHT; xMove = CONFIG.ARROW_MOVE_LIMIT; }
+                else { activeClass = 'left'; activeColor = CONFIG.COLORS.LEFT; xMove = -CONFIG.ARROW_MOVE_LIMIT; }
             }
 
-            // Highlight Legend within the active card ONLY
-            const legendItems = APP.activeCard.querySelectorAll('.legend-item');
-            legendItems.forEach(el => el.classList.remove('active'));
-            
-            const activeLegend = APP.activeCard.querySelector(`.legend-item${selector}`);
-            if (activeLegend && (absX > 30 || absY > 30)) activeLegend.classList.add('active');
+            const intensity = Math.min((Math.max(absX, absY) / CONFIG.SWIPE_THRESHOLD), 1);
 
-            const opacity = Math.min((Math.max(absX, absY) / APP.threshold), 1);
-            APP.activeCard.style.boxShadow = opacity > 0.1 ? `0 0 30px ${color}` : 'var(--shadow-card)';
+            const items = DOM.footer.querySelectorAll('.legend-item');
+            items.forEach(item => {
+                if (item.classList.contains(activeClass)) {
+                    // Active: Scale & Move towards finger
+                    const scale = 1 + (0.3 * intensity);
+                    const tx = xMove * intensity;
+                    const ty = yMove * intensity;
+                    
+                    item.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+                    item.style.color = activeColor;
+                    item.style.opacity = 1;
+                } else {
+                    // Inactive: Shrink & Fade
+                    item.style.transform = `scale(${1 - (0.15 * intensity)})`;
+                    item.style.opacity = 1 - (0.6 * intensity);
+                    item.style.color = CONFIG.COLORS.NEUTRAL;
+                }
+            });
+        }
+
+        function resetFooterVisuals() {
+            const items = DOM.footer.querySelectorAll('.legend-item');
+            items.forEach(item => {
+                item.style.transform = '';
+                item.style.opacity = '';
+                item.style.color = '';
+            });
         }
 
         function resetCard() {
-            APP.activeCard.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s';
+            APP.activeCard.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
             APP.activeCard.style.transform = 'translate(0, 0) rotate(0)';
-            APP.activeCard.style.boxShadow = 'var(--shadow-card)';
-            setTimeout(() => APP.currentState = STATE.IDLE, 300);
+            setTimeout(() => APP.currentState = STATE.IDLE, 400);
         }
 
         function commitSwipe(direction) {
@@ -475,110 +581,108 @@
             };
 
             let transX = 0, transY = 0;
-            if (direction === 'up') transY = -1200;
-            if (direction === 'down') transY = 1200;
-            if (direction === 'left') transX = -1000;
-            if (direction === 'right') transX = 1000;
+            const dist = window.innerWidth * 1.5;
+            if (direction === 'up') transY = -dist;
+            if (direction === 'down') transY = dist;
+            if (direction === 'left') transX = -dist;
+            if (direction === 'right') transX = dist;
             
-            APP.activeCard.style.transition = 'transform 0.4s ease-in';
-            APP.activeCard.style.transform = `translate(${transX}px, ${transY}px) rotate(${transX * 0.05}deg)`;
+            APP.activeCard.style.transition = 'transform 0.3s ease-in';
+            APP.activeCard.style.transform = `translate(${transX}px, ${transY}px) rotate(${transX * 0.1}deg)`;
             
             setTimeout(() => {
                 APP.activeCard.remove();
                 APP.currentIndex++;
                 APP.currentState = STATE.IDLE;
                 updateTopCard();
-            }, 350);
+            }, 300);
         }
 
+        /**
+         * ------------------------------------------------------------------
+         * SUMMARY & SUBMISSION
+         * ------------------------------------------------------------------
+         */
         function finishDeck() {
             APP.currentState = STATE.SUMMARY;
-            document.getElementById('app-container').style.display = 'none';
+            DOM.summaryView.classList.remove('hidden');
+            setTimeout(() => DOM.summaryView.classList.add('visible'), 50);
 
             let totalScore = 0;
             let correctCount = 0;
-            let totalQuestions = APP.deck.length;
-
             const listHtml = APP.deck.map(q => {
                 const ans = APP.answers[q.question_id];
                 totalScore += ans.weighted_score;
                 if (ans.direction === q.correct_swipe) correctCount++;
-                let c = 'var(--color-left)';
-                if (ans.direction === 'up') c = 'var(--color-up)';
-                if (ans.direction === 'down') c = 'var(--color-down)';
-                if (ans.direction === 'right') c = 'var(--color-right)';
-
+                let c = CONFIG.COLORS[ans.direction.toUpperCase()];
                 return `<div class="summary-item" style="border-left-color:${c}"><strong>${q.topic}</strong><br>${q.question_text}<br><div style="display:flex;justify-content:space-between;margin-top:0.5rem;font-size:0.8rem;"><span style="color:${c};font-weight:700;">${ans.direction.toUpperCase()}</span><span>Score: ${ans.weighted_score}</span></div></div>`;
             }).join('');
 
-            document.getElementById('stat-total-score').textContent = totalScore;
-            document.getElementById('stat-accuracy').textContent = Math.round((correctCount / totalQuestions) * 100) + "%";
-            document.getElementById('summary-list').innerHTML = listHtml;
-            
-            summaryView.classList.remove('hidden');
-            setTimeout(() => summaryView.classList.add('visible'), 50);
+            DOM.totalScore.textContent = totalScore;
+            DOM.accuracy.textContent = Math.round((correctCount / APP.deck.length) * 100) + "%";
+            DOM.summaryList.innerHTML = listHtml;
             initConfirmationSwipe();
         }
 
         function initConfirmationSwipe() {
+            const card = DOM.confirmCard;
             let startX = 0;
-            confirmCard.addEventListener('touchstart', (e) => {
-                startX = e.touches[0].clientX;
-                confirmCard.style.transition = 'none';
+            
+            card.addEventListener('touchstart', (e) => { 
+                startX = e.touches[0].clientX; 
+                card.style.transition = 'none'; 
             }, { passive: false });
-
-            confirmCard.addEventListener('touchmove', (e) => {
+            
+            card.addEventListener('touchmove', (e) => {
                 e.preventDefault();
                 const dx = e.touches[0].clientX - startX;
-                confirmCard.style.transform = `translateX(${dx}px)`;
-                if (dx > 50) confirmCard.style.background = '#22c55e';
-                else if (dx < -50) confirmCard.style.background = '#ef4444';
-                else confirmCard.style.background = '#1e293b';
+                card.style.transform = `translateX(${dx}px)`;
+                if (dx > 50) card.style.background = CONFIG.COLORS.UP;
+                else if (dx < -50) card.style.background = CONFIG.COLORS.DOWN;
+                else card.style.background = '#1e293b';
             }, { passive: false });
-
-            confirmCard.addEventListener('touchend', (e) => {
+            
+            card.addEventListener('touchend', (e) => {
                 const dx = e.changedTouches[0].clientX - startX;
                 if (dx > 100) submitData();
                 else if (dx < -100) location.reload();
-                else {
-                    confirmCard.style.transition = 'transform 0.3s ease, background 0.3s';
-                    confirmCard.style.transform = 'translateX(0)';
-                    confirmCard.style.background = '#1e293b';
+                else { 
+                    card.style.transition = 'transform 0.3s ease, background 0.3s'; 
+                    card.style.transform = 'translateX(0)'; 
+                    card.style.background = '#1e293b'; 
                 }
             });
         }
 
-        // --- SUBMISSION LOGIC ---
-
         function submitData() {
-            confirmCard.innerHTML = "<h3>SYNCING...</h3>";
-            confirmCard.style.background = "#64748b";
-            confirmCard.style.cursor = "wait";
-
+            const card = DOM.confirmCard;
+            card.innerHTML = "<h3>SYNCING...</h3>";
+            card.style.background = CONFIG.COLORS.LEFT;
+            
             const payload = {
                 session_data: APP.answers,
-                total_score: parseInt(document.getElementById('stat-total-score').textContent),
+                total_score: parseInt(DOM.totalScore.textContent),
                 device: /Mobi|Android/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
                 timestamp: new Date().toISOString()
             };
 
-            fetch(WEB_APP_URL, {
-                method: "POST",
+            fetch(CONFIG.API_URL, { 
+                method: "POST", 
                 mode: "no-cors", 
-                headers: { "Content-Type": "text/plain" },
-                body: JSON.stringify(payload)
+                headers: { "Content-Type": "text/plain" }, 
+                body: JSON.stringify(payload) 
             })
             .then(() => {
-                confirmCard.innerHTML = "<h3>SUBMITTED</h3>";
-                confirmCard.style.background = "#22c55e";
-                confirmCard.style.transform = "translateX(0)";
-                const clone = confirmCard.cloneNode(true);
-                confirmCard.parentNode.replaceChild(clone, confirmCard);
+                card.innerHTML = "<h3>SUBMITTED</h3>";
+                card.style.background = CONFIG.COLORS.UP;
+                card.style.transform = "translateX(0)";
+                const clone = card.cloneNode(true);
+                card.parentNode.replaceChild(clone, card);
             })
             .catch(error => {
-                console.error("Submission Error:", error);
-                confirmCard.innerHTML = "<h3>ERROR</h3>";
-                confirmCard.style.background = "#ef4444";
+                console.error("Submission Error", error);
+                card.innerHTML = "<h3>ERROR</h3>";
+                card.style.background = CONFIG.COLORS.DOWN;
             });
         }
 
