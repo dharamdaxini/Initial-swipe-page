@@ -6,143 +6,141 @@
     <meta name="theme-color" content="#09090b">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Strategic Convergence 2026: Operator Exam</title>
+    <title>Strategic Convergence 2026</title>
 
     <style>
-        /* IMPORT FONTS */
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600;800&display=swap');
+        /* 1. ASSETS */
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;600;800;900&display=swap');
 
-        /* CSS VARIABLES - THEME CONFIGURATION */
+        /* 2. DESIGN TOKENS */
         :root {
-            /* COLORS: Backgrounds */
-            --bg-deep: #09090b;
-            --bg-surface: #18181b;
-            --bg-overlay: rgba(0, 0, 0, 0.8);
+            /* Core Palette */
+            --bg-void: #050505;
+            --bg-panel: rgba(24, 24, 27, 0.6); /* Glass effect base */
+            --bg-card: #ffffff;
             
-            /* COLORS: Cards */
-            --card-bg: #ffffff;
-            --card-border: #e4e4e7;
-            
-            /* COLORS: Typography */
-            --text-primary: #f4f4f5;
+            /* Typography */
+            --font-display: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --text-primary: #ffffff;
             --text-secondary: #a1a1aa;
-            --text-tertiary: #52525b;
-            --text-on-card: #18181b;
+            --text-card: #09090b;
 
-            /* COLORS: Semantics (Swipe Indicators) */
-            --color-up: #22c55e;    /* Success/True */
-            --color-down: #ef4444;  /* Danger/False */
-            --color-left: #64748b;  /* Neutral/Skip */
-            --color-right: #eab308; /* Warning/Unsure */
+            /* Signals (Swipe Colors) */
+            --signal-up: #4ade80;    /* Neon Green */
+            --signal-down: #f87171;  /* Soft Red */
+            --signal-left: #94a3b8;  /* Cool Grey */
+            --signal-right: #facc15; /* Bright Gold */
 
-            /* DIMENSIONS */
-            --header-height: 15%;
-            --footer-height: 25%;
+            /* Physics */
             --card-width: 90%;
-            --card-max-width: 380px;
-            
-            /* ANIMATION & PHYSICS */
-            --transition-smooth: cubic-bezier(0.2, 0.8, 0.2, 1);
-            --transition-snap: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            
-            /* SHADOWS */
-            --shadow-card-resting: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            --shadow-card-active: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            --shadow-desktop: 0 0 100px rgba(0,0,0,0.8);
+            --card-max-width: 400px;
+            --header-h: 120px;
+            --footer-h: 180px;
         }
 
-        /* RESET & GLOBAL BEHAVIOR */
+        /* 3. RESET & BASE */
         *, *::before, *::after {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             -webkit-tap-highlight-color: transparent;
-            /* CRITICAL: Disables browser handling of gestures */
-            touch-action: none; 
-            user-select: none;
-            -webkit-user-select: none;
+            touch-action: none; /* LOCK SCROLL */
+            user-select: none; -webkit-user-select: none;
         }
 
-        html, body {
-            height: 100%;
-            width: 100%;
+        body {
+            background-color: var(--bg-void);
+            color: var(--text-primary);
+            font-family: var(--font-display);
+            height: 100svh; width: 100vw;
             overflow: hidden;
-            background-color: #000;
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: flex; justify-content: center; align-items: center;
         }
 
-        /* APP SHELL: The main phone container */
+        /* 4. APP SHELL (The Device Container) */
         #app-shell {
             position: relative;
-            width: 100%;
-            height: 100%;
-            max-width: 450px;
+            width: 100%; height: 100%;
+            max-width: 450px; /* Desktop Constraint */
             max-height: 950px;
-            background-color: var(--bg-deep);
-            display: grid;
-            grid-template-rows: var(--header-height) 1fr var(--footer-height);
-            box-shadow: var(--shadow-desktop);
+            display: flex; flex-direction: column;
+            background: var(--bg-void);
+            box-shadow: 0 0 100px rgba(0,0,0,0.8);
             overflow: hidden;
         }
 
-        /* * --- ZONE 1: HEADER --- 
-         */
-        #ui-header {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            align-items: center;
+        /* 5. DYNAMIC BACKGROUND (The Dot Grid) */
+        #ui-grid-bg {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                radial-gradient(circle, #27272a 1px, transparent 1px);
+            background-size: 24px 24px;
+            opacity: 0.3;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        #ui-color-overlay {
+            position: absolute; inset: 0;
+            background: transparent;
+            opacity: 0;
+            z-index: 1;
+            transition: opacity 0.1s linear;
+            pointer-events: none;
+        }
+
+        /* 6. GLASS HEADER */
+        .glass-panel {
+            background: var(--bg-panel);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            z-index: 50;
+        }
+
+        .header {
+            height: var(--header-h);
+            display: flex; flex-direction: column;
+            justify-content: flex-end; align-items: center;
             padding-bottom: 1.5rem;
-            z-index: 20;
-            pointer-events: none; /* Let touches pass through */
+            position: relative;
         }
 
-        .progress-track {
-            width: 60px;
-            height: 4px;
-            background: #27272a;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--color-up);
-            width: 0%;
+        .progress-bar {
+            position: absolute; top: 0; left: 0;
+            height: 3px; width: 0%;
+            background: var(--signal-up);
             transition: width 0.3s ease;
+            box-shadow: 0 0 10px var(--signal-up);
         }
 
-        .header-topic {
-            font-size: 0.7rem;
+        .meta-tag {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
             text-transform: uppercase;
-            letter-spacing: 0.15em;
             color: var(--text-secondary);
-            font-weight: 700;
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.15em;
+            background: rgba(255,255,255,0.05);
+            padding: 4px 8px;
+            border-radius: 4px;
         }
 
-        .header-type {
+        .meta-title {
             font-size: 1.25rem;
             font-weight: 800;
-            color: var(--text-primary);
             text-transform: uppercase;
             letter-spacing: 0.05em;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
 
-        /* * --- ZONE 2: CARD STACK (The Interactive Layer) --- 
-         */
-        #card-stack {
+        /* 7. CARD STACK (The Stage) */
+        .stage {
+            flex: 1;
             position: relative;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            perspective: 1000px;
+            display: flex; justify-content: center; align-items: center;
+            perspective: 1200px;
             z-index: 10;
         }
 
@@ -150,204 +148,156 @@
             position: absolute;
             width: var(--card-width);
             max-width: var(--card-max-width);
-            aspect-ratio: 1/1.1;
-            background: var(--card-bg);
-            border-radius: 28px;
-            box-shadow: var(--shadow-card-resting);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            aspect-ratio: 1/1.15;
+            background: var(--bg-card);
+            border-radius: 32px;
+            box-shadow: 0 20px 50px -10px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
             padding: 2.5rem;
             text-align: center;
             
-            /* Performance Optimizations */
+            /* GPU Hardware Acceleration */
             will-change: transform, opacity;
             transform-style: preserve-3d;
             backface-visibility: hidden;
-            transform: translate3d(0,0,0); /* Hardware Acceleration Force */
+            
+            /* Center Anchor Logic */
+            top: 50%; left: 50%;
+            margin-top: -60%; margin-left: -45%;
         }
 
-        .card p {
-            font-size: 1.4rem;
-            line-height: 1.45;
-            font-weight: 600;
-            color: var(--text-on-card);
-            pointer-events: none; /* Text shouldn't block card drag */
+        .card-text {
+            font-size: 1.6rem; /* Large readable text */
+            font-weight: 700;
+            line-height: 1.35;
+            color: var(--text-card);
+            pointer-events: none;
         }
 
-        .card-meta {
-            position: absolute;
-            bottom: 2rem;
-            font-family: 'JetBrains Mono', monospace;
+        .card-id {
+            position: absolute; bottom: 2rem;
+            font-family: var(--font-mono);
             font-size: 0.6rem;
             color: #d4d4d8;
             pointer-events: none;
         }
 
-        /* Visual State: Card being dragged */
-        .card.dragging {
-            box-shadow: var(--shadow-card-active);
-            cursor: grabbing;
-        }
-
-        /* * --- ZONE 3: FOOTER (Controls) --- 
-         */
-        #ui-footer {
+        /* 8. GLASS FOOTER (Controls) */
+        .footer {
+            height: var(--footer-h);
             display: grid;
-            grid-template-columns: 1fr 80px 1fr;
+            grid-template-columns: 1fr 90px 1fr;
             grid-template-rows: 1fr 1fr;
-            align-content: center;
-            justify-items: center;
-            z-index: 20;
+            align-content: center; justify-items: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
             padding-bottom: 2rem;
-            pointer-events: none;
+            z-index: 50;
         }
 
-        .legend-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+        .ctrl {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            color: rgba(255,255,255,0.3);
             transition: transform 0.1s linear, color 0.1s linear;
         }
 
-        /* Grid Positioning */
-        .legend-item.up    { grid-column: 2; grid-row: 1; margin-bottom: 0.5rem; }
-        .legend-item.down  { grid-column: 2; grid-row: 2; margin-top: 0.5rem; }
-        .legend-item.left  { grid-column: 1; grid-row: 2; }
-        .legend-item.right { grid-column: 3; grid-row: 2; }
-
-        .legend-icon {
-            font-size: 1.8rem;
-            margin-bottom: 4px;
-            display: block;
-            line-height: 1;
-            color: var(--text-secondary);
+        /* Active Glow State */
+        .ctrl.active {
+            color: #fff;
+            text-shadow: 0 0 15px currentColor;
+            transform: scale(1.3);
         }
 
-        .legend-label {
-            font-size: 0.65rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-tertiary);
-        }
+        .ctrl.up { grid-column: 2; grid-row: 1; margin-bottom: 0.5rem; }
+        .ctrl.down { grid-column: 2; grid-row: 2; margin-top: 0.5rem; }
+        .ctrl.left { grid-column: 1; grid-row: 2; }
+        .ctrl.right { grid-column: 3; grid-row: 2; }
 
-        /* * --- SCREENS: START & SUMMARY --- 
-         */
-        .screen-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-deep);
-            z-index: 50;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+        .icon { font-size: 2.2rem; display: block; line-height: 1; margin-bottom: 4px; }
+        .label { font-family: var(--font-mono); font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+
+        /* 9. VIEWS (Start/Summary) */
+        .view {
+            position: absolute; inset: 0;
+            background: var(--bg-void);
+            z-index: 100;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
             padding: 2rem;
-            opacity: 0;
-            pointer-events: none;
+            opacity: 0; pointer-events: none;
             transition: opacity 0.4s ease;
         }
-        
-        .screen-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
+        .view.active { opacity: 1; pointer-events: auto; }
 
-        /* Start Screen */
-        .title-hero {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--text-primary);
-            text-align: center;
-            margin-bottom: 1rem;
-            letter-spacing: -0.05em;
+        .btn-hero {
+            background: #fff; color: #000;
+            border: none; padding: 1.2rem 3rem;
+            font-size: 1rem; font-weight: 800;
+            border-radius: 100px; cursor: pointer;
+            box-shadow: 0 0 30px rgba(255,255,255,0.2);
+            transition: transform 0.1s;
         }
-        
-        .btn-main {
-            background: var(--text-primary);
-            color: var(--bg-deep);
-            border: none;
-            padding: 1.2rem 3rem;
-            font-size: 1rem;
-            font-weight: 700;
-            border-radius: 100px;
-            cursor: pointer;
-            margin-top: 2rem;
-        }
+        .btn-hero:active { transform: scale(0.96); }
 
-        /* Summary Screen */
-        .stats-grid {
-            display: flex;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
+        .stat-grid { display: flex; gap: 2rem; margin-bottom: 3rem; }
         .stat-box { text-align: center; }
-        .stat-val { font-size: 2.5rem; font-weight: 800; color: var(--text-primary); display: block;}
-        .stat-lbl { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; }
+        .stat-val { font-size: 3.5rem; font-weight: 900; line-height: 1; display: block; }
+        .stat-lbl { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; }
 
-        /* DEBUG CONSOLE (Bottom Right) */
-        #debug-console {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            font-family: monospace;
-            font-size: 10px;
-            color: #333;
-            pointer-events: none;
-            z-index: 1000;
-        }
-
-        /* UTILS */
+        /* Utils */
         .hidden { display: none !important; }
-
     </style>
 </head>
 <body>
 
     <div id="app-shell">
+        <div id="ui-grid-bg"></div>
+        <div id="ui-color-overlay"></div>
 
-        <section id="screen-start" class="screen-overlay active">
-            <h1 class="title-hero">Strategic<br>Convergence</h1>
-            <p style="color:var(--text-secondary); text-align:center; max-width:300px; line-height:1.5;">
-                Operator Exam 2026.<br>30 Questions.<br>Swipe to decide.
+        <section id="view-start" class="view active">
+            <div style="font-family:'JetBrains Mono'; font-size:0.7rem; color:var(--signal-up); border:1px solid var(--signal-up); padding:4px 8px; border-radius:4px; margin-bottom:1.5rem;">V3.1 // SECURE</div>
+            <h1 style="font-size:3.5rem; font-weight:900; line-height:0.9; margin-bottom:1.5rem; text-align:center; letter-spacing:-0.05em;">STRATEGIC<br>CONVERGENCE</h1>
+            <p style="color:var(--text-secondary); text-align:center; max-width:280px; margin-bottom:3rem; line-height:1.6;">
+                Operator Assessment.<br>30 Questions.<br>Swipe to Execute.
             </p>
-            <button class="btn-main" onclick="GAME.start()">INITIATE SEQUENCE</button>
+            <button class="btn-hero" onclick="APP.start()">INITIATE</button>
         </section>
 
-        <header id="ui-header">
-            <div class="progress-track"><div class="progress-fill" id="ui-progress"></div></div>
-            <span class="header-topic" id="ui-topic">Topic</span>
-            <span class="header-type" id="ui-type">Type</span>
-        </header>
+        <section id="view-game" class="view" style="justify-content:flex-start; padding:0; background:transparent;">
+            
+            <header class="header glass-panel">
+                <div class="progress-bar" id="ui-progress"></div>
+                <span class="meta-tag" id="ui-topic">TOPIC</span>
+                <span class="meta-title" id="ui-type">TYPE</span>
+            </header>
 
-        <div id="card-stack">
-            </div>
+            <div class="stage" id="card-stack">
+                </div>
 
-        <footer id="ui-footer">
-            <div class="legend-item up">
-                <span class="legend-icon">↑</span>
-                <span class="legend-label" id="lbl-up">True</span>
-            </div>
-            <div class="legend-item left">
-                <span class="legend-icon">←</span>
-                <span class="legend-label" id="lbl-left">Skip</span>
-            </div>
-            <div class="legend-item down">
-                <span class="legend-icon">↓</span>
-                <span class="legend-label" id="lbl-down">False</span>
-            </div>
-            <div class="legend-item right">
-                <span class="legend-icon">→</span>
-                <span class="legend-label" id="lbl-right">Unsure</span>
-            </div>
-        </footer>
+            <footer class="footer glass-panel" id="ui-footer">
+                <div class="ctrl up">
+                    <span class="icon">↑</span>
+                    <span class="label" id="lbl-up">True</span>
+                </div>
+                <div class="ctrl left">
+                    <span class="icon">←</span>
+                    <span class="label" id="lbl-left">Skip</span>
+                </div>
+                <div class="ctrl down">
+                    <span class="icon">↓</span>
+                    <span class="label" id="lbl-down">False</span>
+                </div>
+                <div class="ctrl right">
+                    <span class="icon">→</span>
+                    <span class="label" id="lbl-right">Unsure</span>
+                </div>
+            </footer>
+        </section>
 
-        <section id="screen-summary" class="screen-overlay">
-            <h2 class="header-type" style="margin-bottom:2rem;">Mission Report</h2>
-            <div class="stats-grid">
+        <section id="view-summary" class="view">
+            <h2 class="meta-title" style="margin-bottom:3rem;">MISSION REPORT</h2>
+            <div class="stat-grid">
                 <div class="stat-box">
                     <span class="stat-val" id="res-score">0</span>
                     <span class="stat-lbl">Points</span>
@@ -357,129 +307,91 @@
                     <span class="stat-lbl">Accuracy</span>
                 </div>
             </div>
-            <p style="color:var(--text-secondary); margin-bottom:2rem;">Syncing results...</p>
-            <button class="btn-main" onclick="location.reload()">RESTART</button>
+            <p style="color:var(--text-secondary); font-family:var(--font-mono); font-size:0.8rem; margin-bottom:3rem;">DATA SYNC COMPLETE</p>
+            <button class="btn-hero" onclick="location.reload()">REBOOT</button>
         </section>
-
-        <div id="debug-console">v2.0 Ready</div>
 
     </div>
 
     <script>
-        /**
-         * CONFIGURATION
-         */
+        /* --- CONFIGURATION --- */
         const CONFIG = {
             API_URL: "https://script.google.com/macros/s/AKfycbz_ziu5Dezrz35J2FksQtNEYuZ5Kk6TrQvg3pM5O5eBYUDzWCCtqlGWwZj8D-TBQLFw/exec",
-            SWIPE_THRESHOLD: 80, // Pixels needed to commit a swipe
-            ROTATION_STRENGTH: 0.05,
-            COLORS: {
-                UP: '#22c55e', DOWN: '#ef4444', RIGHT: '#eab308', LEFT: '#64748b', NEUTRAL: '#71717a'
+            THRESHOLD: 75, // Drag distance to trigger swipe
+            COLORS: { 
+                UP: '#4ade80',    // Green
+                DOWN: '#f87171',  // Red
+                RIGHT: '#facc15', // Gold
+                LEFT: '#94a3b8'   // Grey
             }
         };
 
-        /**
-         * DATA: 30 Questions
-         */
+        /* --- BALANCED QUESTION BANK (Easy/Med/Hard) --- */
         const QUESTIONS = [
-            { id: "s1", topic: "Strategic", type: "FACT", text: "Dholera fab is shipping 28nm commercial wafers.", up:"True", down:"False", right:"Plausible", left:"Skip", correct:"up", w:1 },
-            { id: "s2", topic: "Strategic", type: "CONTEXT", text: "India's molten salt reactor prototype is grid-connected.", up:"Yes", down:"No", right:"Unsure", left:"Skip", correct:"right", w:2 },
-            { id: "s3", topic: "Strategic", type: "TRAP", text: "India formally joined the G7 as a permanent member in 2025.", up:"True", down:"False", right:"Observer", left:"Skip", correct:"down", w:1 },
-            { id: "s4", topic: "Strategic", type: "REASONING", text: "IMEC corridor construction paused due to regional conflict.", up:"True", down:"False", right:"Partially", left:"Skip", correct:"up", w:2 },
-            { id: "s5", topic: "Defense", type: "FACT", text: "Tejas Mk1A delivery to IAF has crossed 50 units.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-            { id: "e1", topic: "Trade", type: "CONTEXT", text: "Rupee trade settlement volume with UAE exceeded $50B.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
-            { id: "e2", topic: "Trade", type: "TRAP", text: "India signed a full FTA with the United States.", up:"True", down:"False", right:"Mini-deal", left:"Skip", correct:"down", w:1 },
-            { id: "e3", topic: "Infra", type: "FACT", text: "Mumbai-Ahmedabad Bullet Train is fully operational.", up:"True", down:"False", right:"Partial", left:"Skip", correct:"right", w:1 },
-            { id: "e4", topic: "Infra", type: "REASONING", text: "Dedicated Freight Corridor (EDFC) is 100% complete.", up:"True", down:"False", right:"Almost", left:"Skip", correct:"up", w:1 },
-            { id: "e5", topic: "Digital", type: "FACT", text: "Oteher nations adopting UPI has crossed 15 countries.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-            { id: "e6", topic: "Digital", type: "CONTEXT", text: "Digital Rupee (e-Rupee) retail usage exceeds cash in metro cities.", up:"True", down:"False", right:"Plausible", left:"Skip", correct:"down", w:2 },
-            { id: "e7", topic: "Mfg", type: "FACT", text: "Apple exports from India have surpassed $20 Billion.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
-            { id: "e8", topic: "Mfg", type: "TRAP", text: "Tesla has opened a Gigafactory in Gujarat.", up:"True", down:"False", right:"Announced", left:"Skip", correct:"right", w:1 },
-            { id: "e9", topic: "Agri", type: "REASONING", text: "Drone-as-a-Service for agriculture is now a subsidized scheme.", up:"True", down:"False", right:"Pilot", left:"Skip", correct:"up", w:1 },
-            { id: "e10", topic: "Startup", type: "FACT", text: "India has produced 150th Unicorn.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 }
+            // EASY
+            { id: "e1", topic: "Geography", type: "FACT", text: "IMEC corridor connects India to Europe via the Middle East.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+            { id: "e2", topic: "Energy", type: "FACT", text: "India committed to Net Zero emissions by 2050.", up:"True", down:"False", right:"2070", left:"Skip", correct:"right", w:1 },
+            // MEDIUM
+            { id: "m1", topic: "Semiconductors", type: "CONTEXT", text: "Micron's Gujarat plant is for ATMP packaging, not full fabrication.", up:"True", down:"False", right:"Fab", left:"Skip", correct:"up", w:2 },
+            { id: "m2", topic: "Space", type: "REASONING", text: "Gaganyaan delay was primarily due to launch vehicle unavailability.", up:"True", down:"False", right:"Safety", left:"Skip", correct:"right", w:2 },
+            // HARD
+            { id: "h1", topic: "Trade", type: "TRAP", text: "India finalized a full FTA with the UK in Jan 2026.", up:"Signed", down:"Stalled", right:"Draft", left:"Skip", correct:"right", w:3 }
         ];
 
-        /**
-         * STATE MANAGEMENT
-         */
-        const STATE = {
-            deck: [],
-            currentIndex: 0,
-            answers: {},
-            activeCard: null
-        };
-
-        /**
-         * GAME ENGINE
-         */
-        const GAME = {
-            init() {
-                // Prepare deck
-                STATE.deck = [...QUESTIONS]; // Optional: .sort(() => Math.random() - 0.5) to shuffle
-                console.log("System Initialized");
-            },
+        /* --- APP CONTROLLER --- */
+        const APP = {
+            deck: [], idx: 0, answers: {}, activeCard: null,
 
             start() {
-                this.init();
-                document.getElementById('screen-start').classList.remove('active');
-                this.renderStack();
+                this.deck = [...QUESTIONS]; // Optional: .sort(() => Math.random() - 0.5) for shuffle
+                document.getElementById('view-start').classList.remove('active');
+                document.getElementById('view-game').classList.add('active');
+                this.render();
             },
 
-            renderStack() {
-                const stackEl = document.getElementById('card-stack');
-                stackEl.innerHTML = ''; // Clear
+            render() {
+                const stack = document.getElementById('card-stack');
+                stack.innerHTML = '';
+                
+                // End Game Check
+                if(this.idx >= this.deck.length) return this.finish();
 
-                const idx = STATE.currentIndex;
-                if (idx >= STATE.deck.length) return this.finish();
-
-                // Render in reverse so Top card is last in DOM (on top of z-index)
-                // We render 2 cards max for performance
-                const buffer = STATE.deck.slice(idx, idx + 2).reverse();
-
+                // Render Strategy: Draw next 2 cards (Active + Background)
+                const buffer = this.deck.slice(this.idx, this.idx + 2).reverse();
+                
                 buffer.forEach((q, i) => {
-                    const realIndex = idx + (buffer.length - 1 - i);
-                    const isTop = (realIndex === idx);
-                    
+                    const realIdx = this.idx + (buffer.length - 1 - i);
                     const el = document.createElement('div');
-                    el.classList.add('card');
-                    el.dataset.id = q.id;
+                    el.className = 'card';
                     
-                    if (isTop) {
+                    if (realIdx === this.idx) {
+                        // Top Card
                         el.style.zIndex = 100;
-                        STATE.activeCard = el; // Reference for Physics
+                        this.activeCard = el;
+                        PHYSICS.bind(el); // Attach Touch Logic
                     } else {
-                        el.style.zIndex = 50;
-                        el.style.transform = 'scale(0.95) translateY(10px)';
-                        el.style.opacity = '0.5';
+                        // Background Card
+                        el.style.zIndex = 90;
+                        el.style.transform = 'scale(0.95) translateY(15px)';
+                        el.style.opacity = 0.6;
                     }
 
                     el.innerHTML = `
-                        <p>${q.text}</p>
-                        <div class="card-meta">ID: ${q.id}</div>
+                        <p class="card-text">${q.text}</p>
+                        <div class="card-id">ID: ${q.id}</div>
                     `;
-
-                    stackEl.appendChild(el);
+                    stack.appendChild(el);
                 });
 
                 this.updateUI();
-                
-                // CRITICAL: Bind Touch Events to the new Top Card
-                if (STATE.activeCard) {
-                    TOUCH.bind(STATE.activeCard);
-                }
             },
 
             updateUI() {
-                const q = STATE.deck[STATE.currentIndex];
-                if (!q) return;
-
+                const q = this.deck[this.idx];
                 document.getElementById('ui-topic').textContent = q.topic;
                 document.getElementById('ui-type').textContent = q.type;
+                document.getElementById('ui-progress').style.width = `${(this.idx / this.deck.length) * 100}%`;
                 
-                const pct = ((STATE.currentIndex) / STATE.deck.length) * 100;
-                document.getElementById('ui-progress').style.width = `${pct}%`;
-
-                // Update Footer Labels
                 document.getElementById('lbl-up').textContent = q.up;
                 document.getElementById('lbl-down').textContent = q.down;
                 document.getElementById('lbl-left').textContent = q.left;
@@ -487,207 +399,162 @@
             },
 
             finish() {
-                document.getElementById('screen-summary').classList.add('active');
+                document.getElementById('view-game').classList.remove('active');
+                document.getElementById('view-summary').classList.add('active');
                 
-                // Calc Score
-                const answers = Object.values(STATE.answers);
-                const totalScore = answers.reduce((acc, curr) => acc + curr.score, 0);
-                const correctCount = answers.filter(a => a.correct).length;
-                const accuracy = Math.round((correctCount / STATE.deck.length) * 100);
+                const score = Object.values(this.answers).reduce((a, b) => a + b.score, 0);
+                const count = Object.values(this.answers).filter(a => a.correct).length;
+                const acc = Math.round((count / this.deck.length) * 100);
 
-                document.getElementById('res-score').textContent = totalScore;
-                document.getElementById('res-acc').textContent = accuracy + "%";
+                document.getElementById('res-score').textContent = score;
+                document.getElementById('res-acc').textContent = acc + "%";
 
-                this.sync(totalScore, answers);
-            },
-
-            sync(score, answers) {
-                const payload = {
-                    score: score,
-                    answers: answers,
-                    timestamp: new Date().toISOString()
-                };
-
+                // Sync to Sheets
                 fetch(CONFIG.API_URL, {
-                    method: "POST",
-                    mode: "no-cors",
-                    headers: { "Content-Type": "text/plain" },
-                    body: JSON.stringify(payload)
-                }).then(() => console.log("Data Synced"));
+                    method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'},
+                    body: JSON.stringify({ answers: this.answers, score: score, timestamp: new Date().toISOString() })
+                });
             }
         };
 
-        /**
-         * TOUCH & PHYSICS ENGINE (The "Heavy Duty" Logic)
-         */
-        const TOUCH = {
-            target: null,
-            startX: 0,
-            startY: 0,
-            isDragging: false,
-
+        /* --- PHYSICS ENGINE (Touch & Visuals) --- */
+        const PHYSICS = {
+            el: null, startX: 0, startY: 0, dragging: false,
+            overlay: document.getElementById('ui-color-overlay'),
+            
             bind(el) {
-                this.target = el;
-                // Unbind previous to prevent memory leaks? (Browser handles mostly, but good practice)
-                // Bind new
-                el.addEventListener('touchstart', this.onStart.bind(this), { passive: false });
-                el.addEventListener('mousedown', this.onStart.bind(this));
+                this.el = el;
+                el.addEventListener('touchstart', this.start.bind(this), {passive:false});
+                el.addEventListener('mousedown', this.start.bind(this));
             },
 
-            onStart(e) {
-                // Prevent Default to stop scrolling IMMEDIATELY
-                if (e.cancelable) e.preventDefault();
+            start(e) {
+                this.dragging = true;
+                const p = e.touches ? e.touches[0] : e;
+                this.startX = p.clientX; this.startY = p.clientY;
+                this.el.style.transition = 'none'; // Remove lag
                 
-                this.isDragging = true;
-                
-                const pt = e.touches ? e.touches[0] : e;
-                this.startX = pt.clientX;
-                this.startY = pt.clientY;
-
-                this.target.classList.add('dragging');
-                this.target.style.transition = 'none'; // Instant movement
-
-                // Bind Global Move/End (Capture even if finger leaves card)
-                document.addEventListener('touchmove', this.onMove.bind(this), { passive: false });
-                document.addEventListener('touchend', this.onEnd.bind(this));
-                document.addEventListener('mousemove', this.onMove.bind(this));
-                document.addEventListener('mouseup', this.onEnd.bind(this));
-                
-                document.getElementById('debug-console').textContent = "Input: Dragging";
+                // Bind Window listeners to catch "slip"
+                window.addEventListener('touchmove', this.move.bind(this), {passive:false});
+                window.addEventListener('mousemove', this.move.bind(this));
+                window.addEventListener('touchend', this.end.bind(this));
+                window.addEventListener('mouseup', this.end.bind(this));
             },
 
-            onMove(e) {
-                if (!this.isDragging) return;
-                if (e.cancelable) e.preventDefault(); // HARD BLOCK SCROLLING
-
-                const pt = e.touches ? e.touches[0] : e;
-                const dx = pt.clientX - this.startX;
-                const dy = pt.clientY - this.startY;
-
-                // Physics: Translate & Rotate
-                const rotation = dx * CONFIG.ROTATION_STRENGTH;
-                this.target.style.transform = `translate(${dx}px, ${dy}px) rotate(${rotation}deg)`;
-
-                // Visuals: Scale Arrows
-                this.updateArrows(dx, dy);
+            move(e) {
+                if(!this.dragging) return;
+                if(e.cancelable) e.preventDefault(); // Stop Scroll
+                
+                const p = e.touches ? e.touches[0] : e;
+                const dx = p.clientX - this.startX;
+                const dy = p.clientY - this.startY;
+                
+                // 1. Move Card
+                this.el.style.transform = `translate(${dx}px, ${dy}px) rotate(${dx * 0.05}deg)`;
+                
+                // 2. Visual Feedback (Glow + Icons)
+                this.feedback(dx, dy);
             },
 
-            onEnd(e) {
-                if (!this.isDragging) return;
-                this.isDragging = false;
-                this.target.classList.remove('dragging');
-
+            end(e) {
+                if(!this.dragging) return;
+                this.dragging = false;
+                
                 // Cleanup
-                document.removeEventListener('touchmove', this.onMove.bind(this));
-                document.removeEventListener('touchend', this.onEnd.bind(this));
-                document.removeEventListener('mousemove', this.onMove.bind(this));
-                document.removeEventListener('mouseup', this.onEnd.bind(this));
+                window.removeEventListener('touchmove', this.move.bind(this));
+                window.removeEventListener('mousemove', this.move.bind(this));
+                window.removeEventListener('touchend', this.end.bind(this));
+                window.removeEventListener('mouseup', this.end.bind(this));
 
-                // Determine Throw
-                // Use changedTouches for the lifting finger
-                const pt = e.changedTouches ? e.changedTouches[0] : e;
-                const dx = pt.clientX - this.startX;
-                const dy = pt.clientY - this.startY;
-
-                const absX = Math.abs(dx);
-                const absY = Math.abs(dy);
-
-                let direction = null;
-
-                if (absY > absX && absY > CONFIG.SWIPE_THRESHOLD) {
-                    direction = dy < 0 ? 'up' : 'down';
-                } else if (absX > absY && absX > CONFIG.SWIPE_THRESHOLD) {
-                    direction = dx > 0 ? 'right' : 'left';
-                }
-
-                if (direction) {
-                    this.commit(direction);
+                // Calculate Release
+                const p = e.changedTouches ? e.changedTouches[0] : e;
+                const dx = p.clientX - this.startX;
+                const dy = p.clientY - this.startY;
+                
+                // Logic Threshold
+                if (Math.abs(dy) > CONFIG.THRESHOLD && Math.abs(dy) > Math.abs(dx)) {
+                    this.commit(dy < 0 ? 'up' : 'down');
+                } else if (Math.abs(dx) > CONFIG.THRESHOLD) {
+                    this.commit(dx > 0 ? 'right' : 'left');
                 } else {
                     this.reset();
                 }
-                
-                document.getElementById('debug-console').textContent = "Input: Idle";
             },
 
-            updateArrows(dx, dy) {
-                const absX = Math.abs(dx);
-                const absY = Math.abs(dy);
-                const footer = document.getElementById('ui-footer');
-                const items = footer.querySelectorAll('.legend-item');
-                
-                let activeClass = '';
-                let activeColor = '';
+            feedback(dx, dy) {
+                const ax = Math.abs(dx); const ay = Math.abs(dy);
+                let color = ''; let cls = '';
 
-                if (absY > absX) {
-                    if (dy < 0) { activeClass = 'up'; activeColor = CONFIG.COLORS.UP; }
-                    else { activeClass = 'down'; activeColor = CONFIG.COLORS.DOWN; }
-                } else {
-                    if (dx > 0) { activeClass = 'right'; activeColor = CONFIG.COLORS.RIGHT; }
-                    else { activeClass = 'left'; activeColor = CONFIG.COLORS.LEFT; }
+                // Determine dominant axis
+                if (ay > ax) { 
+                    color = dy < 0 ? CONFIG.COLORS.UP : CONFIG.COLORS.DOWN; 
+                    cls = dy < 0 ? 'up' : 'down'; 
+                } else { 
+                    color = dx > 0 ? CONFIG.COLORS.RIGHT : CONFIG.COLORS.LEFT; 
+                    cls = dx > 0 ? 'right' : 'left'; 
                 }
 
-                // Apply styles
-                items.forEach(item => {
-                    const icon = item.querySelector('.legend-icon');
-                    if (item.classList.contains(activeClass)) {
-                        item.style.transform = 'scale(1.2)';
-                        icon.style.color = activeColor;
-                    } else {
-                        item.style.transform = 'scale(1)';
-                        icon.style.color = CONFIG.COLORS.NEUTRAL;
-                    }
-                });
+                const intensity = Math.min(Math.max(ax, ay) / CONFIG.THRESHOLD, 1);
+
+                // Background Fade
+                this.overlay.style.backgroundColor = color;
+                this.overlay.style.opacity = intensity * 0.4; // Subtle tint
+
+                // Icon Scale
+                document.querySelectorAll('.ctrl').forEach(el => el.classList.remove('active'));
+                if (intensity > 0.3) {
+                    document.querySelector(`.ctrl.${cls}`).classList.add('active');
+                    // Inject color to active icon
+                    document.querySelector(`.ctrl.${cls}`).style.color = color;
+                } else {
+                    // Reset colors if drag is weak
+                    document.querySelectorAll('.ctrl').forEach(el => el.style.color = '');
+                }
             },
 
             reset() {
-                this.target.style.transition = `transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)`;
-                this.target.style.transform = 'translate(0,0) rotate(0)';
-                this.clearArrows();
+                this.el.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                this.el.style.transform = 'translate(0,0) rotate(0)';
+                this.overlay.style.opacity = 0;
+                document.querySelectorAll('.ctrl').forEach(el => {
+                    el.classList.remove('active');
+                    el.style.color = '';
+                });
             },
 
             commit(dir) {
-                const q = STATE.deck[STATE.currentIndex];
+                const q = APP.deck[APP.idx];
                 
                 // Scoring
-                let score = 0;
-                let isCorrect = (dir === q.correct);
-                if (isCorrect) score = 10 * q.w;
-                else if (dir === 'left') score = 0;
-                else score = -5;
+                const isCorrect = (dir === q.correct);
+                const score = isCorrect ? (10 * q.w) : (dir === 'left' ? 0 : -5);
+                APP.answers[q.id] = { dir, score, correct: isCorrect };
 
-                STATE.answers[q.id] = { dir, score, correct: isCorrect };
+                // Fly Away Vectors
+                let tx=0, ty=0; const d=1000;
+                if(dir==='up') ty=-d; if(dir==='down') ty=d; if(dir==='left') tx=-d; if(dir==='right') tx=d;
 
-                // Fly away animation
-                let tx = 0, ty = 0;
-                const dist = 1000;
-                if (dir === 'up') ty = -dist;
-                if (dir === 'down') ty = dist;
-                if (dir === 'left') tx = -dist;
-                if (dir === 'right') tx = dist;
-
-                this.target.style.transition = 'transform 0.3s ease-in';
-                this.target.style.transform = `translate(${tx}px, ${ty}px) rotate(${tx * 0.1}deg)`;
-
-                this.clearArrows();
+                this.el.style.transition = 'transform 0.3s ease-in';
+                this.el.style.transform = `translate(${tx}px, ${ty}px) rotate(${tx * 0.1}deg)`;
+                
+                // Reset Visuals
+                this.overlay.style.opacity = 0;
+                document.querySelectorAll('.ctrl').forEach(el => {
+                    el.classList.remove('active');
+                    el.style.color = '';
+                });
 
                 setTimeout(() => {
-                    this.target.remove();
-                    STATE.currentIndex++;
-                    GAME.renderStack();
+                    this.el.remove();
+                    APP.idx++;
+                    APP.render();
                 }, 300);
-            },
-
-            clearArrows() {
-                const items = document.querySelectorAll('.legend-item');
-                items.forEach(item => {
-                    item.style.transform = '';
-                    item.querySelector('.legend-icon').style.color = '';
-                });
             }
         };
 
-        // --- PREVENT SCROLL BOUNCE ON IOS ---
-        document.body.addEventListener('touchmove', function(e) { e.preventDefault(); }, { passive: false });
+        // --- GLOBAL BOOTSTRAP ---
+        // Prevent scroll on body to lock the app
+        document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
 
     </script>
 </body>
