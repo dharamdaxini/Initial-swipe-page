@@ -23,6 +23,7 @@
             margin: 0;
             padding: 0;
             -webkit-tap-highlight-color: transparent;
+            touch-action: none; /* DISABLES BROWSER SCROLLING GLOBALLY */
         }
 
         body {
@@ -37,6 +38,7 @@
             user-select: none;
             -webkit-user-select: none;
             overscroll-behavior: none;
+            position: fixed; /* Locks body in place */
         }
 
         /* --- LEGEND --- */
@@ -49,10 +51,10 @@
             text-transform: uppercase;
             letter-spacing: 0.05em;
             font-weight: 600;
-            z-index: 10;
             width: 100%;
             max-width: 480px;
             margin: 0 auto;
+            pointer-events: none; /* Let clicks pass through */
         }
 
         .legend-item .icon {
@@ -73,7 +75,7 @@
             width: 100%;
             max-width: 480px;
             margin: 0 auto;
-            padding-bottom: 4rem; /* Balance visual weight without buttons */
+            padding-bottom: 4rem;
         }
 
         /* --- CARD STACK --- */
@@ -82,6 +84,7 @@
             width: 85%;
             aspect-ratio: 3/4;
             max-height: 65svh;
+            touch-action: none;
         }
 
         .card {
@@ -97,13 +100,14 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 2.5rem;
+            padding: 2rem;
             text-align: center;
             cursor: grab;
-            touch-action: none;
             transform-origin: 50% 100%;
-            will-change: transform, opacity;
-            transition: transform 0.1s linear;
+            will-change: transform;
+            /* Critical for mobile performance */
+            backface-visibility: hidden; 
+            transform: translateZ(0);
         }
 
         .card:active { cursor: grabbing; }
@@ -115,6 +119,7 @@
             margin-bottom: 1.5rem;
             letter-spacing: 0.15em;
             font-weight: 700;
+            pointer-events: none; /* Ensure touches hit the card div */
         }
 
         .card p {
@@ -122,6 +127,7 @@
             line-height: 1.6;
             font-weight: 500;
             color: var(--color-text);
+            pointer-events: none; /* Ensure touches hit the card div */
         }
 
         /* --- SUMMARY VIEW --- */
@@ -139,11 +145,13 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s ease;
+            overflow-y: auto;
+            touch-action: pan-y; /* Re-enable scroll specifically for summary */
         }
 
         #summary-view.visible { opacity: 1; pointer-events: auto; }
 
-        #summary-list { flex: 1; overflow-y: auto; margin-bottom: 2rem; }
+        #summary-list { margin-bottom: 2rem; }
 
         .summary-item {
             background: white;
@@ -152,16 +160,12 @@
             border-radius: 8px;
             font-size: 0.9rem;
             border-left: 5px solid transparent;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
         .confirmation-zone {
-            height: 140px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            height: 120px;
+            margin-bottom: 2rem;
             position: relative;
-            margin-bottom: 1rem;
         }
 
         #confirmation-card {
@@ -174,10 +178,8 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            box-shadow: var(--shadow-card);
             touch-action: none;
             position: absolute;
-            cursor: grab;
         }
 
         .confirm-legend {
@@ -188,7 +190,6 @@
             font-size: 0.75rem;
             opacity: 0.6;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
         }
 
         .hidden { display: none; }
@@ -208,7 +209,7 @@
     </main>
 
     <section id="summary-view" class="hidden">
-        <h2 style="font-size:1.2rem; margin-bottom:1.5rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-subtext);">Session Summary</h2>
+        <h2 style="font-size:1.2rem; margin-bottom:1rem; text-transform:uppercase; color:var(--color-subtext);">Session Summary</h2>
         <div id="summary-list"></div>
         <div class="confirmation-zone">
             <div id="confirmation-card">
@@ -237,8 +238,8 @@
             currentIndex: 0,
             answers: {},
             activeCard: null,
-            startX: 0, startY: 0, currentX: 0, currentY: 0,
-            threshold: 100, // Distance required to commit
+            startX: 0, startY: 0, 
+            threshold: 100,
             timestampStart: new Date().toISOString()
         };
 
@@ -249,9 +250,7 @@
 
         function init() {
             renderStack();
-            // Removed button listeners
-            // Kept keyboard listeners for debugging/desktop
-            attachKeyboardListeners();
+            document.addEventListener('touchmove', function(e) { e.preventDefault(); }, { passive: false });
         }
 
         function renderStack() {
@@ -271,40 +270,48 @@
             const topCard = stackEl.lastElementChild;
             if (topCard && APP.currentIndex < QUESTIONS.length) {
                 APP.activeCard = topCard;
-                topCard.style.pointerEvents = 'auto';
-                attachPointerEvents(topCard);
+                bindCardEvents(topCard);
             } else {
                 finishDeck();
             }
         }
 
-        function attachPointerEvents(card) {
-            card.addEventListener('pointerdown', handlePointerDown);
+        // --- ROBUST GLOBAL DRAG LOGIC ---
+
+        function bindCardEvents(card) {
+            // Remove old listeners to be safe
+            card.onpointerdown = null;
+            
+            card.addEventListener('pointerdown', (e) => {
+                if (APP.currentState !== STATE.IDLE) return;
+                
+                // Prevent browser default behavior immediately
+                e.preventDefault();
+                
+                APP.currentState = STATE.DRAGGING;
+                APP.startX = e.clientX;
+                APP.startY = e.clientY;
+                
+                card.style.transition = 'none';
+
+                // Bind to DOCUMENT to catch fast swipes that leave the card area
+                document.addEventListener('pointermove', onPointerMove);
+                document.addEventListener('pointerup', onPointerUp);
+            });
         }
 
-        function handlePointerDown(e) {
-            if (APP.currentState !== STATE.IDLE) return;
-            APP.currentState = STATE.DRAGGING;
-            APP.activeCard.setPointerCapture(e.pointerId);
-            APP.startX = e.clientX;
-            APP.startY = e.clientY;
-            APP.activeCard.style.transition = 'none';
-
-            APP.activeCard.addEventListener('pointermove', handlePointerMove);
-            APP.activeCard.addEventListener('pointerup', handlePointerUp);
-            APP.activeCard.addEventListener('pointercancel', handlePointerUp);
-        }
-
-        function handlePointerMove(e) {
+        function onPointerMove(e) {
             if (APP.currentState !== STATE.DRAGGING) return;
+            e.preventDefault(); // Stop scrolling
+
             const deltaX = e.clientX - APP.startX;
             const deltaY = e.clientY - APP.startY;
-            APP.currentX = deltaX;
-            APP.currentY = deltaY;
             
-            // Rotation adds physical feel
             const rotate = deltaX * 0.05;
+            
+            // Move the active card
             APP.activeCard.style.transform = `translate(${deltaX}px, ${deltaY}px) rotate(${rotate}deg)`;
+            
             updateVisualFeedback(deltaX, deltaY);
         }
 
@@ -312,42 +319,36 @@
             const absX = Math.abs(dx), absY = Math.abs(dy);
             let color = '';
             
-            // Prioritize the dominant axis
             if (absY > absX) {
-                // Vertical (Up/Down)
                 color = dy < 0 ? 'var(--color-true)' : 'var(--color-false)';
             } else {
-                // Horizontal (Left/Right)
                 color = dx > 0 ? 'var(--color-plausible)' : 'var(--color-skip)';
             }
             
-            // Only show glow if moving significantly
             const opacity = Math.min((Math.max(absX, absY) / APP.threshold), 1);
-            if (opacity > 0.2) {
-                APP.activeCard.style.boxShadow = `0 0 30px ${color}`;
-            } else {
-                APP.activeCard.style.boxShadow = 'var(--shadow-card)';
-            }
+            APP.activeCard.style.boxShadow = opacity > 0.1 ? `0 0 30px ${color}` : 'var(--shadow-card)';
         }
 
-        function handlePointerUp(e) {
+        function onPointerUp(e) {
             if (APP.currentState !== STATE.DRAGGING) return;
+            
+            // Clean up global listeners
+            document.removeEventListener('pointermove', onPointerMove);
+            document.removeEventListener('pointerup', onPointerUp);
+            
             APP.currentState = STATE.ANIMATING;
             
-            APP.activeCard.removeEventListener('pointermove', handlePointerMove);
-            APP.activeCard.removeEventListener('pointerup', handlePointerUp);
-            APP.activeCard.removeEventListener('pointercancel', handlePointerUp);
-            
-            const dx = APP.currentX, dy = APP.currentY;
-            const absX = Math.abs(dx), absY = Math.abs(dy);
+            const deltaX = e.clientX - APP.startX;
+            const deltaY = e.clientY - APP.startY;
+            const absX = Math.abs(deltaX);
+            const absY = Math.abs(deltaY);
             
             let decision = null;
             
-            // Logic: Must exceed threshold AND be the dominant axis
             if (absY > absX && absY > APP.threshold) {
-                decision = dy < 0 ? 'up' : 'down';
+                decision = deltaY < 0 ? 'up' : 'down';
             } else if (absX > absY && absX > APP.threshold) {
-                decision = dx > 0 ? 'right' : 'left';
+                decision = deltaX > 0 ? 'right' : 'left';
             }
             
             decision ? commitSwipe(decision) : resetCard();
@@ -381,21 +382,12 @@
             }, 350);
         }
 
-        function attachKeyboardListeners() {
-            document.addEventListener('keydown', (e) => {
-                if (APP.currentState !== STATE.IDLE || !APP.activeCard) return;
-                const map = { 'ArrowUp': 'up', 'ArrowDown': 'down', 'ArrowLeft': 'left', 'ArrowRight': 'right' };
-                if (map[e.key]) {
-                    APP.currentState = STATE.ANIMATING;
-                    commitSwipe(map[e.key]);
-                }
-            });
-        }
+        // --- SUMMARY LOGIC ---
 
         function finishDeck() {
             APP.currentState = STATE.SUMMARY;
             document.getElementById('app-container').style.display = 'none';
-            document.querySelector('.legend').style.display = 'none'; // Hide main legend
+            document.querySelector('.legend').style.display = 'none';
 
             const mapping = { up: "ACCEPTED", down: "REJECTED", right: "PLAUSIBLE", left: "SKIPPED" };
             const colors = { up: "var(--color-true)", down: "var(--color-false)", right: "var(--color-plausible)", left: "var(--color-skip)" };
@@ -432,7 +424,7 @@
                     if (dx > 100) submitData();
                     else if (dx < -100) location.reload();
                     else {
-                        confirmCard.style.transition = 'transform 0.3s ease, background 0.3s';
+                        confirmCard.style.transition = 'transform 0.3s ease';
                         confirmCard.style.transform = 'translateX(0)';
                         confirmCard.style.background = '#1e293b';
                     }
@@ -441,21 +433,12 @@
         }
 
         function submitData() {
-            const payload = {
-                answers: APP.answers,
-                device: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
-                timestamp: new Date().toISOString(),
-                duration_ms: new Date() - new Date(APP.timestampStart)
-            };
-            console.log("--- SUBMISSION PAYLOAD ---", payload);
-
             confirmCard.innerHTML = "<h3>SUBMITTED</h3>";
             confirmCard.style.background = "#22c55e";
             confirmCard.style.transform = "translateX(0)";
-            confirmCard.style.cursor = "default";
+            confirmCard.onpointerdown = null; // Lock it
         }
 
-        // Boot
         init();
     </script>
 </body>
