@@ -6,438 +6,242 @@
     <meta name="theme-color" content="#09090b">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Chemistry Master: Ultimate Edition</title>
+    <title>Chemistry Master: Cinematic</title>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap');
     </style>
 
     <style>
-        /* --- 1. VARIABLES & TOKENS --- */
         :root {
-            /* Core Backgrounds */
-            --bg-body: #09090b;       /* Deepest Black */
-            --bg-surface: #18181b;    /* Panel Grey */
-            --bg-card: #ffffff;       /* Pure White Card */
+            /* Backgrounds */
+            --bg-body: #09090b;       
+            --bg-card: #ffffff;       
             
-            /* Typography Colors */
-            --text-main: #18181b;     /* Ink Black */
-            --text-muted: #71717a;    /* Zinc Grey */
-            --text-light: #f4f4f5;    /* Off White */
-            --text-accent: #3b82f6;   /* Science Blue */
+            /* Text */
+            --text-main: #18181b;     
+            --text-muted: #71717a;    
+            --text-light: #f4f4f5;    
+            --text-accent: #3b82f6;   
 
-            /* Logic Signals (Swipe Directions) */
-            --signal-up: #22c55e;     /* Green (True) */
-            --signal-down: #ef4444;   /* Red (False) */
-            --signal-left: #64748b;   /* Slate (Skip) */
-            --signal-right: #eab308;  /* Gold (Unsure) */
+            /* Signals */
+            --signal-up: #22c55e;     
+            --signal-down: #ef4444;   
+            --signal-left: #64748b;   
+            --signal-right: #eab308;  
 
-            /* Physics & Dimensions */
+            /* Dimensions */
             --card-w: 90vw;
             --card-max: 380px;
-            --header-h: 120px;
-            --footer-h: 160px;
         }
 
-        /* --- 2. GLOBAL RESET --- */
+        /* RESET */
         *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+            box-sizing: border-box; margin: 0; padding: 0;
             -webkit-tap-highlight-color: transparent;
-            /* CRITICAL: Disables browser scroll hijacking */
-            touch-action: none; 
-            user-select: none;
+            touch-action: none; user-select: none;
         }
 
         body {
             background-color: var(--bg-body);
             font-family: 'Inter', sans-serif;
             color: var(--text-light);
-            height: 100svh;
-            width: 100vw;
+            height: 100svh; width: 100vw;
             overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: flex; justify-content: center; align-items: center;
         }
 
         #app-shell {
             position: relative;
-            width: 100%;
-            height: 100%;
-            max-width: 480px; /* Constrains app on desktop */
-            display: flex;
-            flex-direction: column;
+            width: 100%; height: 100%;
+            max-width: 480px;
+            display: flex; flex-direction: column;
             background: var(--bg-body);
             box-shadow: 0 0 50px rgba(0,0,0,0.5);
             overflow: hidden;
         }
 
-        /* --- 3. BACKGROUND EFFECTS --- */
-        #ui-overlay {
-            position: absolute;
-            inset: 0;
-            background: transparent;
-            opacity: 0;
-            transition: opacity 0.1s linear;
+        /* --- BACKGROUND IMAGE LOGIC --- */
+        /* Free Image from Unsplash: Abstract Chemistry/Molecules */
+        .bg-cinematic {
+            position: absolute; inset: 0;
+            background-image: 
+                linear-gradient(to bottom, rgba(9,9,11,0.8), rgba(9,9,11,0.95)),
+                url('https://images.unsplash.com/photo-1632922267756-9b71242b1592?q=80&w=1000&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            z-index: 0;
             pointer-events: none;
-            z-index: 5;
         }
 
-        /* --- 4. HEADER COMPONENT --- */
+        #ui-overlay {
+            position: absolute; inset: 0;
+            background: transparent; opacity: 0;
+            transition: opacity 0.1s linear; pointer-events: none; z-index: 5;
+        }
+
+        /* --- HEADER --- */
         .header {
             height: 15%;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            align-items: center;
-            padding-bottom: 1rem;
-            z-index: 50;
+            display: flex; flex-direction: column;
+            justify-content: flex-end; align-items: center;
+            padding-bottom: 1rem; z-index: 50;
         }
 
         .progress-bar {
-            width: 60px;
-            height: 4px;
-            background: #27272a;
-            border-radius: 10px;
-            margin-bottom: 0.75rem;
-            overflow: hidden;
+            width: 60px; height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px; margin-bottom: 0.75rem; overflow: hidden;
         }
-
-        .progress-fill {
-            height: 100%;
-            background: #fff;
-            width: 0%;
-            transition: width 0.3s ease;
-        }
+        .progress-fill { height: 100%; background: #fff; width: 0%; transition: width 0.3s ease; }
 
         .meta-tag {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            margin-bottom: 0.25rem;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+            color: var(--text-muted); margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.15em;
         }
+        .meta-title { font-size: 1.25rem; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.05em; }
 
-        .meta-title {
-            font-size: 1.25rem;
-            font-weight: 800;
-            color: #fff;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        /* --- 5. CARD STACK (THE STAGE) --- */
+        /* --- CARD STACK --- */
         .stage {
-            position: relative;
-            flex: 1;
-            width: 100%;
-            perspective: 1200px;
-            z-index: 20;
+            position: relative; flex: 1; width: 100%;
+            perspective: 1200px; z-index: 20;
         }
 
         .card {
             position: absolute;
-            /* Center Anchor - Prevents "Squashing" on Android */
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            
-            width: var(--card-w);
-            max-width: var(--card-max);
+            left: 50%; top: 50%; transform: translate(-50%, -50%);
+            width: var(--card-w); max-width: var(--card-max);
             aspect-ratio: 3/4.5;
-            
             background: var(--bg-card);
             border-radius: 28px;
             box-shadow: 0 20px 50px -10px rgba(0,0,0,0.4);
-            
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-            text-align: left;
-            
-            /* Hardware Acceleration */
-            will-change: transform;
-            transform-style: flat;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            padding: 2rem; text-align: left;
+            will-change: transform; transform-style: flat;
         }
 
         .card p {
-            font-size: 1.35rem;
-            font-weight: 800;
-            color: var(--text-main);
-            line-height: 1.35;
-            pointer-events: none;
-            margin-bottom: 1.5rem;
-            text-align: center;
-            width: 100%;
+            font-size: 1.35rem; font-weight: 800;
+            color: var(--text-main); line-height: 1.35;
+            pointer-events: none; margin-bottom: 1.5rem; text-align: center; width: 100%;
         }
 
-        /* Sub-Points List Styling */
-        .card-list {
-            width: 100%;
-            padding-left: 1rem;
-            margin: 0;
-            pointer-events: none;
-        }
-
+        .card-list { width: 100%; padding-left: 1rem; margin: 0; pointer-events: none; }
         .card-list li {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin-bottom: 0.75rem;
-            font-weight: 500;
-            line-height: 1.4;
-            list-style-type: none;
-            position: relative;
+            font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;
+            font-weight: 500; line-height: 1.4; list-style-type: none; position: relative;
         }
-
         .card-list li::before {
-            content: "•";
-            color: var(--text-accent);
-            font-weight: bold;
-            font-size: 1.2rem;
-            position: absolute;
-            left: -1rem;
-            top: -2px;
+            content: "•"; color: var(--text-accent); font-weight: bold;
+            font-size: 1.2rem; position: absolute; left: -1rem; top: -2px;
         }
 
         .card-id {
-            position: absolute;
-            bottom: 1.5rem;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.65rem;
-            color: #d4d4d8;
-            pointer-events: none;
-            width: 100%;
-            text-align: center;
+            position: absolute; bottom: 1.5rem;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+            color: #d4d4d8; pointer-events: none; width: 100%; text-align: center;
         }
 
-        /* --- 6. FOOTER CONTROLS --- */
+        /* --- FOOTER --- */
         .footer {
             height: 20%;
-            display: grid;
-            grid-template-columns: 1fr 80px 1fr;
-            grid-template-rows: 1fr 1fr;
-            align-content: center;
-            justify-items: center;
-            z-index: 50;
+            display: grid; grid-template-columns: 1fr 80px 1fr; grid-template-rows: 1fr 1fr;
+            align-content: center; justify-items: center; z-index: 50;
         }
 
         .ctrl {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #52525b;
-            transition: 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+            display: flex; flex-direction: column; align-items: center;
+            color: #52525b; transition: 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
+        .ctrl.active { color: #fff; transform: scale(1.3); text-shadow: 0 0 15px currentColor; }
+        .ctrl.up { grid-column: 2; grid-row: 1; margin-bottom: 0.5rem; }
+        .ctrl.down { grid-column: 2; grid-row: 2; margin-top: 0.5rem; }
+        .ctrl.left { grid-column: 1; grid-row: 2; }
+        .ctrl.right { grid-column: 3; grid-row: 2; }
+        .icon { font-size: 1.8rem; line-height: 1; margin-bottom: 4px; }
+        .label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
 
-        .ctrl.active {
-            color: #fff;
-            transform: scale(1.3);
-            text-shadow: 0 0 15px currentColor;
+        /* --- VIEWS --- */
+        .view {
+            position: absolute; inset: 0;
+            z-index: 100;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+            background: var(--bg-body); /* Fallback */
+        }
+        .view.active { opacity: 1; pointer-events: auto; }
+
+        /* Specific View Backgrounds */
+        #view-start, #view-summary {
+            background: transparent; /* Allows bg-cinematic to show */
         }
         
-        .ctrl.up    { grid-column: 2; grid-row: 1; margin-bottom: 0.5rem; }
-        .ctrl.down  { grid-column: 2; grid-row: 2; margin-top: 0.5rem; }
-        .ctrl.left  { grid-column: 1; grid-row: 2; }
-        .ctrl.right { grid-column: 3; grid-row: 2; }
-
-        .icon {
-            font-size: 1.8rem;
-            line-height: 1;
-            margin-bottom: 4px;
+        #view-game, #view-review {
+            background: var(--bg-body); /* Clean dark background for gameplay */
         }
 
-        .label {
-            font-size: 0.65rem;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-        }
-
-        /* --- 7. VIEW MANAGEMENT --- */
-        .view {
-            position: absolute;
-            inset: 0;
-            background: var(--bg-body);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .view.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        /* --- 8. UI ELEMENTS (Buttons & Charts) --- */
+        /* --- UI ELEMENTS --- */
         .btn-main {
-            background: #fff;
-            color: #000;
-            border: none;
-            padding: 1.2rem 3.5rem;
-            font-size: 1rem;
-            font-weight: 800;
-            border-radius: 100px;
-            cursor: pointer;
+            background: #fff; color: #000; border: none;
+            padding: 1.2rem 3.5rem; font-size: 1rem; font-weight: 800;
+            border-radius: 100px; cursor: pointer;
             box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
-            transition: transform 0.1s;
-            margin-top: 2rem;
+            transition: transform 0.1s; margin-top: 2rem;
         }
-
         .btn-main:active { transform: scale(0.96); }
 
-        /* Branching Logic Buttons */
         .topic-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            width: 90%;
-            max-width: 400px;
-            margin-top: 2rem;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+            width: 90%; max-width: 400px; margin-top: 2rem;
         }
-
         .btn-topic {
-            background: #18181b;
-            border: 1px solid #27272a;
-            color: #fff;
-            padding: 1.2rem;
-            border-radius: 16px;
-            text-align: left;
-            cursor: pointer;
-            transition: all 0.2s;
+            background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff; padding: 1.2rem; border-radius: 16px;
+            text-align: left; cursor: pointer; transition: all 0.2s;
         }
+        .btn-topic:active { background: rgba(255,255,255,0.2); transform: scale(0.98); }
+        .btn-topic strong { display: block; font-size: 0.95rem; margin-bottom: 0.25rem; font-weight: 700; }
+        .btn-topic span { font-size: 0.7rem; color: rgba(255,255,255,0.6); text-transform: uppercase; font-family: 'JetBrains Mono'; }
 
-        .btn-topic:active {
-            background: #27272a;
-            transform: scale(0.98);
-        }
-
-        .btn-topic strong {
-            display: block;
-            font-size: 0.95rem;
-            margin-bottom: 0.25rem;
-            font-weight: 700;
-        }
-
-        .btn-topic span {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        /* Analytics Pie Chart */
         .chart-container {
-            position: relative;
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background: #27272a; /* Default grey */
-            margin-bottom: 2rem;
+            position: relative; width: 150px; height: 150px;
+            border-radius: 50%; background: #27272a; margin-bottom: 2rem;
             box-shadow: 0 0 30px rgba(0,0,0,0.5);
         }
-        
         .chart-hole {
-            position: absolute;
-            inset: 16px; /* Donut thickness */
-            background: var(--bg-body);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
+            position: absolute; inset: 16px; background: #000; /* Darker hole for contrast */
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column;
         }
 
-        /* --- 9. REVIEW CARD (Review Mode) --- */
+        /* --- REVIEW --- */
         #view-review .review-card {
-            background: #fff;
-            color: #000;
-            width: 90%;
-            height: 80%;
-            border-radius: 28px;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            background: #fff; color: #000; width: 90%; height: 80%;
+            border-radius: 28px; padding: 2rem; display: flex; flex-direction: column;
         }
-
         .rev-q-box {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            border-bottom: 1px solid #e4e4e7;
-            margin-bottom: 1rem;
-            padding-bottom: 1rem;
+            flex: 1; display: flex; flex-direction: column; align-items: center;
+            justify-content: center; text-align: center;
+            border-bottom: 1px solid #e4e4e7; margin-bottom: 1rem; padding-bottom: 1rem;
             overflow-y: auto;
         }
-        
         .rev-img {
-            max-height: 120px;
-            width: auto;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            border: 1px solid #e4e4e7;
-            display: block;
+            max-height: 120px; width: auto; border-radius: 8px;
+            margin-bottom: 1rem; border: 1px solid #e4e4e7; display: block;
         }
-        
-        .rev-q-text {
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: var(--text-main);
-            line-height: 1.4;
-        }
-
-        .rev-a-box {
-            flex: 0 0 auto;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
+        .rev-q-text { font-size: 1.15rem; font-weight: 700; color: var(--text-main); line-height: 1.4; }
+        .rev-a-box { flex: 0 0 auto; display: flex; flex-direction: column; justify-content: center; }
         .rev-badge {
-            align-self: flex-start;
-            background: #dcfce7;
-            color: #166534;
-            font-size: 0.7rem;
-            font-weight: 800;
-            padding: 6px 12px;
-            border-radius: 6px;
-            margin-bottom: 0.75rem;
-            letter-spacing: 0.05em;
+            align-self: flex-start; background: #dcfce7; color: #166534;
+            font-size: 0.7rem; font-weight: 800; padding: 6px 12px; border-radius: 6px;
+            margin-bottom: 0.75rem; letter-spacing: 0.05em;
         }
-
-        .rev-sol {
-            font-size: 1rem;
-            color: #52525b;
-            line-height: 1.6;
-        }
-        
-        .rev-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 90%;
-            margin-top: 1.5rem;
-        }
-        
-        .rev-count {
-            color: var(--text-muted);
-            font-family: 'JetBrains Mono';
-            font-size: 0.8rem;
-        }
+        .rev-sol { font-size: 1rem; color: #52525b; line-height: 1.6; }
+        .rev-nav { display: flex; justify-content: space-between; align-items: center; width: 90%; margin-top: 1.5rem; }
+        .rev-count { color: var(--text-muted); font-family: 'JetBrains Mono'; font-size: 0.8rem; }
 
         .hidden { display: none !important; }
     </style>
@@ -445,117 +249,77 @@
 <body>
 
     <div id="app-shell">
+        <div class="bg-cinematic"></div>
+        
         <div id="ui-overlay"></div>
 
         <section id="view-start" class="view active">
-            <h1 style="font-size:3rem; font-weight:800; color:#fff; text-align:center; margin-bottom:1rem; letter-spacing:-0.03em;">CHEMISTRY<br>MASTER</h1>
-            <p style="color:var(--text-muted); text-align:center; margin-bottom:3rem; font-size:1.1rem;">
+            <h1 style="font-size:3.5rem; font-weight:900; color:#fff; text-align:center; margin-bottom:1rem; letter-spacing:-0.03em; text-shadow:0 10px 30px rgba(0,0,0,0.5);">CHEMISTRY<br>MASTER</h1>
+            <p style="color:rgba(255,255,255,0.7); text-align:center; margin-bottom:3rem; font-size:1.1rem;">
                 Atoms • Bonds • Solutions
             </p>
             <button class="btn-main" onclick="APP.start('CORE')">START QUIZ</button>
         </section>
 
-        <section id="view-game" class="view" style="background:transparent;">
+        <section id="view-game" class="view">
             <header class="header">
                 <div class="progress-bar"><div class="progress-fill" id="ui-progress"></div></div>
                 <span class="meta-tag" id="ui-topic">TOPIC</span>
                 <span class="meta-title" id="ui-type">CONCEPT</span>
             </header>
 
-            <div class="stage" id="card-stack">
-                </div>
+            <div class="stage" id="card-stack"></div>
 
             <footer class="footer">
-                <div class="ctrl up">
-                    <span class="icon">↑</span>
-                    <span class="label" id="lbl-up">TRUE</span>
-                </div>
-                <div class="ctrl left">
-                    <span class="icon">←</span>
-                    <span class="label" id="lbl-left">SKIP</span>
-                </div>
-                <div class="ctrl down">
-                    <span class="icon">↓</span>
-                    <span class="label" id="lbl-down">FALSE</span>
-                </div>
-                <div class="ctrl right">
-                    <span class="icon">→</span>
-                    <span class="label" id="lbl-right">UNSURE</span>
-                </div>
+                <div class="ctrl up"><span class="icon">↑</span><span class="label" id="lbl-up">TRUE</span></div>
+                <div class="ctrl left"><span class="icon">←</span><span class="label" id="lbl-left">SKIP</span></div>
+                <div class="ctrl down"><span class="icon">↓</span><span class="label" id="lbl-down">FALSE</span></div>
+                <div class="ctrl right"><span class="icon">→</span><span class="label" id="lbl-right">UNSURE</span></div>
             </footer>
         </section>
 
         <section id="view-summary" class="view">
-            <h2 style="font-size:1.5rem; color:#fff; margin-bottom:2rem; font-weight:800;">RESULTS</h2>
+            <h2 style="font-size:1.5rem; color:#fff; margin-bottom:2rem; font-weight:800; text-shadow:0 5px 20px rgba(0,0,0,0.5);">RESULTS</h2>
             
             <div class="chart-container" id="chart-pie">
                 <div class="chart-hole">
                     <span style="font-size:2.5rem; font-weight:800; color:#fff;" id="chart-score">0</span>
-                    <span style="font-size:0.7rem; color:var(--text-muted);">POINTS</span>
+                    <span style="font-size:0.7rem; color:rgba(255,255,255,0.5);">POINTS</span>
                 </div>
             </div>
             
-            <p style="color:var(--text-muted); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.1em;">Select Next Module</p>
-
             <div class="topic-grid">
-                <button class="btn-topic" onclick="APP.start('ATOMS_HARD')">
-                    <strong>ATOMIC THEORY</strong>
-                    <span>Hard • 10 Qs</span>
-                </button>
-                <button class="btn-topic" onclick="APP.start('BONDS_HARD')">
-                    <strong>BONDING</strong>
-                    <span>Hard • 10 Qs</span>
-                </button>
-                <button class="btn-topic" onclick="APP.start('SOLUTIONS_HARD')">
-                    <strong>SOLUTIONS</strong>
-                    <span>Hard • 10 Qs</span>
-                </button>
-                <button class="btn-topic" onclick="APP.start('CORE')">
-                    <strong>RESTART</strong>
-                    <span>Core Level</span>
-                </button>
+                <button class="btn-topic" onclick="APP.start('ATOMS_HARD')"><strong>ATOMIC THEORY</strong><span>Hard • 10 Qs</span></button>
+                <button class="btn-topic" onclick="APP.start('BONDS_HARD')"><strong>BONDING</strong><span>Hard • 10 Qs</span></button>
+                <button class="btn-topic" onclick="APP.start('SOLUTIONS_HARD')"><strong>SOLUTIONS</strong><span>Hard • 10 Qs</span></button>
+                <button class="btn-topic" onclick="APP.start('CORE')"><strong>RESTART</strong><span>Core Level</span></button>
             </div>
             
             <div id="review-cta" class="hidden" style="margin-top:2rem;">
-                <button class="btn-main" style="background:#ef4444; color:#fff; padding:1rem 2rem; font-size:0.9rem;" onclick="APP.startReview()">REVIEW MISTAKES</button>
+                <button class="btn-main" style="background:#ef4444; color:#fff; padding:1rem 2.5rem; font-size:0.9rem;" onclick="APP.startReview()">REVIEW MISTAKES</button>
             </div>
         </section>
 
         <section id="view-review" class="view">
             <div id="review-card-container" class="review-card">
-                <div class="rev-q-box" id="rev-q-box">
-                    <p class="rev-q-text" id="rev-q"></p>
-                </div>
-                <div class="rev-a-box">
-                    <div class="rev-badge">SOLUTION</div>
-                    <p class="rev-sol" id="rev-sol"></p>
-                </div>
+                <div class="rev-q-box" id="rev-q-box"><p class="rev-q-text" id="rev-q"></p></div>
+                <div class="rev-a-box"><div class="rev-badge">SOLUTION</div><p class="rev-sol" id="rev-sol"></p></div>
             </div>
             <div class="rev-nav">
                 <span class="rev-count" id="rev-count"></span>
-                <button class="btn-main" style="margin:0; padding:0.8rem 2rem;" onclick="APP.nextReview()">NEXT</button>
+                <button class="btn-main" style="margin:0; padding:0.8rem 2.5rem;" onclick="APP.nextReview()">NEXT</button>
             </div>
         </section>
     </div>
 
     <script>
-        // --- 1. SETTINGS ---
         const CONFIG = {
             API_URL: "https://script.google.com/macros/s/AKfycbz_ziu5Dezrz35J2FksQtNEYuZ5Kk6TrQvg3pM5O5eBYUDzWCCtqlGWwZj8D-TBQLFw/exec",
             THRESHOLD: 75,
-            COLORS: { 
-                UP: '#22c55e', DOWN: '#ef4444', RIGHT: '#eab308', LEFT: '#64748b' 
-            },
-            CHART: {
-                'ATOM': '#3b82f6', // Blue
-                'BOND': '#8b5cf6', // Purple
-                'SOLN': '#ec4899', // Pink
-                'REAC': '#f59e0b', // Orange
-                'TABL': '#10b981'  // Green
-            }
+            COLORS: { UP:'#22c55e', DOWN:'#ef4444', RIGHT:'#eab308', LEFT:'#64748b' },
+            CHART: {'ATOM':'#3b82f6', 'BOND':'#8b5cf6', 'SOLN':'#ec4899', 'REAC':'#f59e0b', 'TABL':'#10b981'}
         };
 
-        // --- 2. THE GRAND DATABASE (45 QUESTIONS) ---
         const DECKS = {
             CORE: [
                 { id: "c1", topic: "Structure", type: "ATOM", text: "Protons and Neutrons reside in the nucleus.", subs: ["Does nucleus contain mass?", "Where are electrons?", "Is nucleus dense?"], explanation: "Correct. The nucleus contains the heavy particles (protons & neutrons).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
@@ -612,255 +376,121 @@
             ]
         };
 
-        // --- 3. CONTROLLER ---
         const APP = {
             deck: [], idx: 0, answers: {}, activeEl: null, reviewDeck: [], reviewIdx: 0,
 
-            // Start new session
             start(key) {
-                this.deck = [...DECKS[key]]; 
-                this.idx = 0; 
-                this.answers = {}; 
-                this.reviewDeck = [];
-                
-                // Switch Views
+                this.deck = [...DECKS[key]]; this.idx=0; this.answers={}; this.reviewDeck=[];
                 document.getElementById('view-start').classList.remove('active');
                 document.getElementById('view-summary').classList.remove('active');
                 document.getElementById('view-game').classList.add('active');
                 document.getElementById('review-cta').classList.add('hidden');
-                
                 this.render();
             },
 
-            // Render Card Stack
             render() {
-                const stack = document.getElementById('card-stack');
-                stack.innerHTML = '';
-                
-                if(this.idx >= this.deck.length) {
-                    this.finish();
-                    return;
-                }
-
+                const stack = document.getElementById('card-stack'); stack.innerHTML='';
+                if(this.idx>=this.deck.length) return this.finish();
                 const buffer = this.deck.slice(this.idx, this.idx + 2).reverse();
-                
-                buffer.forEach((q, i) => {
+                buffer.forEach((q,i)=>{
                     const realIdx = this.idx + (buffer.length - 1 - i);
-                    const el = document.createElement('div');
-                    el.className = 'card';
+                    const el = document.createElement('div'); el.className='card';
                     
-                    // Render List
                     let subHTML = `<ul class="card-list">`;
-                    if(q.subs) q.subs.forEach(s => subHTML += `<li>${s}</li>`);
-                    subHTML += `</ul>`;
+                    if(q.subs) q.subs.forEach(s=>subHTML+=`<li>${s}</li>`);
+                    subHTML+=`</ul>`;
 
                     el.innerHTML = `<p>${q.text}</p>${subHTML}<div class="card-id">${q.id}</div>`;
                     
-                    // Apply Z-Index & Physics
-                    if(realIdx === this.idx) {
-                        el.style.zIndex = 100;
-                        this.activeEl = el;
-                        PHYSICS.bind(el);
-                    } else {
-                        el.style.zIndex = 90;
-                        el.style.transform = 'translate(-50%, -50%) scale(0.95) translateY(20px)';
-                        el.style.opacity = 0.5;
-                    }
+                    if(realIdx===this.idx) { el.style.zIndex=100; this.activeEl=el; PHYSICS.bind(el); }
+                    else { el.style.zIndex=90; el.style.transform='translate(-50%,-50%) scale(0.95) translateY(20px)'; el.style.opacity=0.5; }
                     stack.appendChild(el);
                 });
-                
                 this.updateUI();
             },
 
             updateUI() {
                 const q = this.deck[this.idx];
-                document.getElementById('ui-topic').textContent = q.topic;
-                document.getElementById('ui-type').textContent = q.type;
-                
-                const pct = ((this.idx / this.deck.length) * 100);
-                document.getElementById('ui-progress').style.width = `${pct}%`;
-                
-                document.getElementById('lbl-up').textContent = q.up;
-                document.getElementById('lbl-down').textContent = q.down;
-                document.getElementById('lbl-left').textContent = q.left;
-                document.getElementById('lbl-right').textContent = q.right;
+                document.getElementById('ui-topic').textContent=q.topic;
+                document.getElementById('ui-type').textContent=q.type;
+                document.getElementById('ui-progress').style.width=((this.idx/this.deck.length)*100)+'%';
+                document.getElementById('lbl-up').textContent=q.up;
+                document.getElementById('lbl-down').textContent=q.down;
+                document.getElementById('lbl-left').textContent=q.left;
+                document.getElementById('lbl-right').textContent=q.right;
             },
 
             finish() {
                 document.getElementById('view-game').classList.remove('active');
                 document.getElementById('view-summary').classList.add('active');
-                
                 const score = Object.values(this.answers).reduce((a,b)=>a+b.score,0);
-                const mistakes = Object.values(this.answers).filter(a => !a.correct && a.dir !== 'left');
-                
-                document.getElementById('chart-score').textContent = score;
+                const mistakes = Object.values(this.answers).filter(a=>!a.correct && a.dir!=='left');
+                document.getElementById('chart-score').textContent=score;
                 this.renderChart();
-
-                if (mistakes.length > 0) {
+                if(mistakes.length>0) {
                     document.getElementById('review-cta').classList.remove('hidden');
-                    this.reviewDeck = mistakes.map(a => a.q);
+                    this.reviewDeck = mistakes.map(a=>a.q);
                 }
-                
                 fetch(CONFIG.API_URL, {
-                    method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'text/plain'},
-                    body: JSON.stringify({ answers: this.answers, score: score, timestamp: new Date().toISOString() })
+                    method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'},
+                    body:JSON.stringify({answers:this.answers, score, timestamp:new Date().toISOString()})
                 });
             },
 
             renderChart() {
-                const counts = {}; let total = 0;
-                Object.values(this.answers).forEach(a => {
-                    if(a.correct) {
-                        const t = a.q.type;
-                        counts[t] = (counts[t] || 0) + 1;
-                        total++;
-                    }
-                });
-
+                const counts={}; let total=0;
+                Object.values(this.answers).forEach(a=>{ if(a.correct){ counts[a.q.type]=(counts[a.q.type]||0)+1; total++; }});
                 const chart = document.getElementById('chart-pie');
-                if (total === 0) { chart.style.background = '#27272a'; return; }
-
-                let grad = []; let cur = 0;
-                Object.keys(counts).forEach(t => {
+                if(total===0) { chart.style.background='#27272a'; return; }
+                let grad=[]; let cur=0;
+                Object.keys(counts).forEach(t=>{
                     const c = CONFIG.CHART[t] || '#fff';
-                    const deg = (counts[t] / total) * 360;
-                    grad.push(`${c} ${cur}deg ${cur + deg}deg`);
-                    cur += deg;
+                    const deg = (counts[t]/total)*360;
+                    grad.push(`${c} ${cur}deg ${cur+deg}deg`);
+                    cur+=deg;
                 });
                 chart.style.background = `conic-gradient(${grad.join(', ')})`;
             },
 
             startReview() {
-                this.reviewIdx = 0;
+                this.reviewIdx=0;
                 document.getElementById('view-summary').classList.remove('active');
                 document.getElementById('view-review').classList.add('active');
                 this.renderReview();
             },
 
             renderReview() {
-                if (this.reviewIdx >= this.reviewDeck.length) {
+                if(this.reviewIdx>=this.reviewDeck.length) {
                     document.getElementById('view-review').classList.remove('active');
                     document.getElementById('view-summary').classList.add('active');
                     return;
                 }
                 const q = this.reviewDeck[this.reviewIdx];
                 const box = document.getElementById('rev-q-box');
-                const existing = box.querySelector('img'); 
-                if(existing) existing.remove();
-                
+                const existing = box.querySelector('img'); if(existing) existing.remove();
                 if(q.image) {
-                    const img = document.createElement('img');
-                    img.src = q.image;
-                    img.className = 'rev-img';
+                    const img = document.createElement('img'); img.src=q.image; img.className='rev-img';
                     box.insertBefore(img, document.getElementById('rev-q'));
                 }
-
-                document.getElementById('rev-q').textContent = q.text;
-                document.getElementById('rev-sol').textContent = q.explanation;
-                document.getElementById('rev-count').textContent = `${this.reviewIdx + 1} / ${this.reviewDeck.length}`;
+                document.getElementById('rev-q').textContent=q.text;
+                document.getElementById('rev-sol').textContent=q.explanation;
+                document.getElementById('rev-count').textContent=`${this.reviewIdx+1} / ${this.reviewDeck.length}`;
             },
 
             nextReview() { this.reviewIdx++; this.renderReview(); }
         };
 
-        // --- 4. PHYSICS ENGINE ---
         const PHYSICS = {
             el: null, startX: 0, startY: 0, dragging: false, overlay: document.getElementById('ui-overlay'),
-
-            bind(el) {
-                this.el = el;
-                el.addEventListener('touchstart', this.start.bind(this), {passive:false});
-                el.addEventListener('mousedown', this.start.bind(this));
-            },
-
-            start(e) {
-                this.dragging = true;
-                const p = e.touches ? e.touches[0] : e;
-                this.startX = p.clientX; this.startY = p.clientY;
-                this.el.style.transition = 'none';
-                
-                window.addEventListener('touchmove', this.move.bind(this), {passive:false});
-                window.addEventListener('mousemove', this.move.bind(this));
-                window.addEventListener('touchend', this.end.bind(this));
-                window.addEventListener('mouseup', this.end.bind(this));
-            },
-
-            move(e) {
-                if(!this.dragging) return;
-                if(e.cancelable) e.preventDefault();
-                
-                const p = e.touches ? e.touches[0] : e;
-                const dx = p.clientX - this.startX;
-                const dy = p.clientY - this.startY;
-
-                this.el.style.transform = `translate(-50%, -50%) translate(${dx}px, ${dy}px) rotate(${dx*0.05}deg)`;
-                this.feedback(dx, dy);
-            },
-
-            end(e) {
-                if(!this.dragging) return;
-                this.dragging = false;
-                window.removeEventListener('touchmove', this.move.bind(this));
-                window.removeEventListener('mousemove', this.move.bind(this));
-                window.removeEventListener('touchend', this.end.bind(this));
-                window.removeEventListener('mouseup', this.end.bind(this));
-
-                const p = e.changedTouches ? e.changedTouches[0] : e;
-                const dx = p.clientX - this.startX;
-                const dy = p.clientY - this.startY;
-
-                if(Math.abs(dy) > CONFIG.THRESHOLD && Math.abs(dy) > Math.abs(dx)) this.commit(dy<0?'up':'down');
-                else if(Math.abs(dx) > CONFIG.THRESHOLD) this.commit(dx>0?'right':'left');
-                else this.reset();
-            },
-
-            feedback(dx, dy) {
-                const ax=Math.abs(dx), ay=Math.abs(dy);
-                let color='', cls='';
-                if(ay>ax) { color = dy<0 ? CONFIG.COLORS.UP : CONFIG.COLORS.DOWN; cls = dy<0 ? 'up' : 'down'; }
-                else { color = dx>0 ? CONFIG.COLORS.RIGHT : CONFIG.COLORS.LEFT; cls = dx>0 ? 'right' : 'left'; }
-                
-                const intensity = Math.min(Math.max(ax, ay) / CONFIG.THRESHOLD, 1);
-                this.overlay.style.backgroundColor = color;
-                this.overlay.style.opacity = intensity * 0.5;
-
-                document.querySelectorAll('.ctrl').forEach(c => { c.classList.remove('active'); c.style.color = ''; });
-                if(intensity > 0.2) {
-                    const btn = document.querySelector(`.ctrl.${cls}`);
-                    btn.classList.add('active');
-                    btn.style.color = color;
-                }
-            },
-
-            reset() {
-                this.el.style.transition = 'transform 0.3s cubic-bezier(0.2,0.8,0.2,1)';
-                this.el.style.transform = 'translate(-50%, -50%)'; 
-                this.overlay.style.opacity = 0;
-                document.querySelectorAll('.ctrl').forEach(c => { c.classList.remove('active'); c.style.color = ''; });
-            },
-
-            commit(dir) {
-                const q = APP.deck[APP.idx];
-                const score = dir===q.correct ? 10*q.w : (dir==='left'?0:-5);
-                APP.answers[q.id] = { dir, score, correct: dir===q.correct, q: q };
-
-                let tx=0, ty=0; const d=800;
-                if(dir==='up') ty=-d; if(dir==='down') ty=d; if(dir==='left') tx=-d; if(dir==='right') tx=d;
-
-                this.el.style.transition = 'transform 0.4s ease-in';
-                this.el.style.transform = `translate(-50%, -50%) translate(${tx}px, ${ty}px) rotate(${tx*0.1}deg)`;
-                this.overlay.style.opacity = 0;
-                document.querySelectorAll('.ctrl').forEach(c => { c.classList.remove('active'); c.style.color = ''; });
-
-                setTimeout(() => {
-                    this.el.remove();
-                    APP.idx++;
-                    APP.render();
-                }, 300);
-            }
+            bind(el) { this.el=el; el.addEventListener('touchstart',this.start.bind(this),{passive:false}); el.addEventListener('mousedown',this.start.bind(this)); },
+            start(e) { this.dragging=true; const p=e.touches?e.touches[0]:e; this.startX=p.clientX; this.startY=p.clientY; this.el.style.transition='none'; window.addEventListener('touchmove',this.move.bind(this),{passive:false}); window.addEventListener('mousemove',this.move.bind(this)); window.addEventListener('touchend',this.end.bind(this)); window.addEventListener('mouseup',this.end.bind(this)); },
+            move(e) { if(!this.dragging) return; if(e.cancelable) e.preventDefault(); const dx=(e.touches?e.touches[0]:e).clientX-this.startX; const dy=(e.touches?e.touches[0]:e).clientY-this.startY; this.el.style.transform=`translate(-50%,-50%) translate(${dx}px,${dy}px) rotate(${dx*0.05}deg)`; this.feedback(dx,dy); },
+            end(e) { if(!this.dragging) return; this.dragging=false; window.removeEventListener('touchmove',this.move.bind(this)); window.removeEventListener('mousemove',this.move.bind(this)); window.removeEventListener('touchend',this.end.bind(this)); window.removeEventListener('mouseup',this.end.bind(this)); const dx=(e.changedTouches?e.changedTouches[0]:e).clientX-this.startX; const dy=(e.changedTouches?e.changedTouches[0]:e).clientY-this.startY; if(Math.abs(dy)>CONFIG.THRESHOLD && Math.abs(dy)>Math.abs(dx)) this.commit(dy<0?'up':'down'); else if(Math.abs(dx)>CONFIG.THRESHOLD) this.commit(dx>0?'right':'left'); else this.reset(); },
+            feedback(dx, dy) { const ax=Math.abs(dx), ay=Math.abs(dy); let color='', cls=''; if(ay>ax) { color=dy<0?CONFIG.COLORS.UP:CONFIG.COLORS.DOWN; cls=dy<0?'up':'down'; } else { color=dx>0?CONFIG.COLORS.RIGHT:CONFIG.COLORS.LEFT; cls=dx>0?'right':'left'; } const intense = Math.min(Math.max(ax, ay)/CONFIG.THRESHOLD, 1); this.overlay.style.backgroundColor=color; this.overlay.style.opacity=intense*0.5; document.querySelectorAll('.ctrl').forEach(c=>{ c.classList.remove('active'); c.style.color=''; }); if(intense>0.2) { const btn=document.querySelector(`.ctrl.${cls}`); btn.classList.add('active'); btn.style.color=color; } },
+            reset() { this.el.style.transition='transform 0.3s cubic-bezier(0.2,0.8,0.2,1)'; this.el.style.transform='translate(-50%,-50%)'; this.overlay.style.opacity=0; document.querySelectorAll('.ctrl').forEach(c=>{ c.classList.remove('active'); c.style.color=''; }); },
+            commit(dir) { const q=APP.deck[APP.idx]; const score=dir===q.correct?10*q.w:(dir==='left'?0:-5); APP.answers[q.id]={dir,score,correct:dir===q.correct,q}; let tx=0, ty=0; const d=800; if(dir==='up') ty=-d; if(dir==='down') ty=d; if(dir==='left') tx=-d; if(dir==='right') tx=d; this.el.style.transition='transform 0.4s ease-in'; this.el.style.transform=`translate(-50%,-50%) translate(${tx}px,${ty}px) rotate(${tx*0.1}deg)`; this.overlay.style.opacity=0; document.querySelectorAll('.ctrl').forEach(c=>{ c.classList.remove('active'); c.style.color=''; }); setTimeout(()=>{ this.el.remove(); APP.idx++; APP.render(); },300); }
         };
 
-        // --- 5. INIT ---
         document.body.addEventListener('touchmove', e => e.preventDefault(), {passive:false});
     </script>
 </body>
