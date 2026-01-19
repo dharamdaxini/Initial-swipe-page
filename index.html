@@ -3,462 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#020617">
+    <meta name="theme-color" content="#18181b">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="description" content="Advanced Chemistry Learning Module">
-    <title>Chemistry Master V9</title>
+    <title>Chemistry Master</title>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;800;900&display=swap');
-    </style>
+        /* 1. ASSETS */
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&family=Inter:wght@400;600;800&display=swap');
 
-    <style>
+        /* 2. DESIGN TOKENS (CLEAN & MINIMAL) */
         :root {
-            /* --- COLOR PALETTE --- */
-            --bg-void: #020617;       /* Deepest Navy/Black */
-            --bg-glass: rgba(30, 41, 59, 0.65);
-            --bg-surface: #0f172a;
-            --bg-card: #ffffff;
+            --bg-body: #09090b;       /* Deep Matte Black */
+            --bg-card: #ffffff;       /* Pure White */
+            --text-main: #18181b;     /* Dark Text */
+            --text-sub: #71717a;      /* Grey Text */
+            --accent: #2563eb;        /* Professional Blue */
             
-            /* --- TEXT COLORS --- */
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --text-card: #0f172a;
-            --text-accent: #38bdf8;   /* Electric Blue */
+            --green: #22c55e;
+            --red: #ef4444;
+            --yellow: #eab308;
+            --grey: #64748b;
 
-            /* --- SIGNAL COLORS (SWIPE) --- */
-            --signal-up: #22c55e;     /* Green (True) */
-            --signal-down: #ef4444;   /* Red (False) */
-            --signal-left: #64748b;   /* Grey (Skip) */
-            --signal-right: #eab308;  /* Yellow (Unsure) */
-
-            /* --- CHART PALETTE --- */
-            --chart-1: #3b82f6; --chart-2: #8b5cf6; --chart-3: #ec4899;
-            --chart-4: #f59e0b; --chart-5: #10b981; --chart-6: #6366f1;
-
-            /* --- DIMENSIONS --- */
             --card-w: 90vw;
-            --card-max-w: 400px;
-            --header-h: 140px;
-            --footer-h: 180px;
+            --card-max: 380px;
         }
 
-        /* --- GLOBAL RESET --- */
+        /* 3. RESET */
         *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+            box-sizing: border-box; margin: 0; padding: 0;
             -webkit-tap-highlight-color: transparent;
-            touch-action: none; /* LOCKS SCROLLING COMPLETELY */
-            user-select: none;
-            -webkit-user-select: none;
+            touch-action: none; user-select: none;
         }
 
         body {
-            background-color: var(--bg-void);
-            color: var(--text-primary);
+            background-color: var(--bg-body);
             font-family: 'Inter', sans-serif;
-            height: 100svh;
-            width: 100vw;
+            height: 100svh; width: 100vw;
             overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: flex; justify-content: center; align-items: center;
         }
 
-        /* --- APP SHELL --- */
         #app-shell {
             position: relative;
-            width: 100%;
-            height: 100%;
-            max-width: 480px; /* Constrain for desktop view */
-            background: var(--bg-void);
-            display: flex;
-            flex-direction: column;
+            width: 100%; height: 100%;
+            max-width: 480px;
+            display: flex; flex-direction: column;
+            background: var(--bg-body);
             overflow: hidden;
-            box-shadow: 0 0 100px rgba(0,0,0,0.8);
         }
 
-        /* --- DYNAMIC BACKGROUND OVERLAY --- */
+        /* 4. BACKGROUND FEEDBACK (Subtle) */
         #ui-overlay {
-            position: absolute;
-            inset: 0;
-            background: transparent;
-            opacity: 0;
-            transition: opacity 0.1s linear;
-            pointer-events: none;
-            z-index: 5;
+            position: absolute; inset: 0;
+            background: transparent; opacity: 0;
+            transition: opacity 0.1s linear; pointer-events: none; z-index: 1;
         }
 
-        /* --- GRID PATTERN --- */
-        .bg-grid {
-            position: absolute;
-            inset: 0;
-            background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
-            background-size: 24px 24px;
-            opacity: 0.3;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* --- HEADER SECTION --- */
+        /* 5. HEADER (Minimal) */
         .header {
-            height: var(--header-h);
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            align-items: center;
-            padding-bottom: 1.5rem;
-            z-index: 50;
-            background: linear-gradient(to bottom, var(--bg-void) 20%, transparent);
+            height: 15%;
+            display: flex; flex-direction: column;
+            justify-content: flex-end; align-items: center;
+            padding-bottom: 1.5rem; z-index: 50;
         }
 
-        .progress-track {
-            width: 120px;
-            height: 4px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 100px;
-            margin-bottom: 1rem;
-            overflow: hidden;
+        .progress-bar {
+            width: 60px; height: 4px;
+            background: #27272a; border-radius: 10px; margin-bottom: 1rem; overflow: hidden;
         }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--text-accent);
-            width: 0%;
-            transition: width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-            box-shadow: 0 0 10px var(--text-accent);
-        }
+        .progress-fill { height: 100%; background: #fff; width: 0%; transition: width 0.3s; }
 
         .meta-tag {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.65rem;
-            color: var(--text-secondary);
-            margin-bottom: 0.5rem;
-            background: rgba(255,255,255,0.05);
-            padding: 4px 10px;
-            border-radius: 4px;
-            border: 1px solid rgba(255,255,255,0.05);
+            font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+            color: var(--text-sub); margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.1em;
         }
+        .meta-title { font-size: 1.2rem; font-weight: 800; color: #fff; text-transform: uppercase; }
 
-        .meta-title {
-            font-size: 1.25rem;
-            font-weight: 800;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            color: var(--text-primary);
-            text-shadow: 0 4px 20px rgba(0,0,0,0.5);
-        }
-
-        /* --- CARD STACK (THE STAGE) --- */
+        /* 6. CARD (Clean White Box) */
         .stage {
-            position: relative;
-            flex: 1;
-            width: 100%;
-            perspective: 1200px;
-            z-index: 20;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            position: relative; flex: 1;
+            width: 100%; perspective: 1000px; z-index: 20;
         }
 
         .card {
             position: absolute;
-            /* CENTER ANCHORING */
-            left: 50%;
-            top: 50%;
+            /* CENTER ANCHORING - PREVENTS SQUASHING */
+            left: 50%; top: 50%;
             transform: translate(-50%, -50%);
             
-            width: var(--card-w);
-            max-width: var(--card-max-w);
-            /* Aspect ratio adjusted to fit images */
-            aspect-ratio: 3/4.2; 
+            width: var(--card-w); max-width: var(--card-max);
+            aspect-ratio: 3/4;
             
             background: var(--bg-card);
-            border-radius: 28px;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px -5px rgba(0,0,0,0.3);
             
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-            text-align: center;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            padding: 2.5rem; text-align: center;
             
-            /* HARDWARE ACCELERATION */
             will-change: transform;
             transform-style: flat;
-            backface-visibility: hidden;
-        }
-
-        /* Card Visual Element */
-        .card-visual {
-            width: 100%;
-            height: 140px;
-            object-fit: cover;
-            border-radius: 16px;
-            margin-bottom: 1.5rem;
-            background-color: #f1f5f9;
-            border: 1px solid #e2e8f0;
-            display: block;
         }
 
         .card p {
-            font-size: 1.35rem;
-            font-weight: 700;
-            color: var(--text-card);
-            line-height: 1.4;
-            pointer-events: none;
-            margin-bottom: 1rem;
+            font-size: 1.4rem; font-weight: 700;
+            color: var(--text-main); line-height: 1.4;
+            pointer-events: none; margin-bottom: 1rem;
         }
 
         .card-sub {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            font-weight: 500;
-            line-height: 1.5;
-            padding-top: 1rem;
-            border-top: 1px solid #e2e8f0;
-            width: 90%;
+            font-size: 0.9rem; color: var(--text-sub);
+            font-weight: 500; line-height: 1.5;
             pointer-events: none;
         }
 
-        .card-id {
-            position: absolute;
-            bottom: 1.5rem;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.6rem;
-            color: #cbd5e1;
-            pointer-events: none;
-        }
-
-        /* --- FOOTER CONTROLS --- */
+        /* 7. FOOTER (Clean Icons) */
         .footer {
-            height: var(--footer-h);
+            height: 20%;
             display: grid;
             grid-template-columns: 1fr 80px 1fr;
             grid-template-rows: 1fr 1fr;
-            align-content: center;
-            justify-items: center;
+            align-content: center; justify-items: center;
             z-index: 50;
-            background: linear-gradient(to top, var(--bg-void) 20%, transparent);
         }
 
         .ctrl {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: rgba(255,255,255,0.25);
-            transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.15s;
+            display: flex; flex-direction: column; align-items: center;
+            color: #52525b; transition: 0.15s;
         }
-
-        .ctrl.active {
-            color: #fff;
-            transform: scale(1.3);
-            text-shadow: 0 0 15px currentColor;
-        }
+        .ctrl.active { color: #fff; transform: scale(1.2); }
         
         .ctrl.up { grid-column: 2; grid-row: 1; margin-bottom: 0.5rem; }
         .ctrl.down { grid-column: 2; grid-row: 2; margin-top: 0.5rem; }
         .ctrl.left { grid-column: 1; grid-row: 2; }
         .ctrl.right { grid-column: 3; grid-row: 2; }
 
-        .icon {
-            font-size: 2rem;
-            line-height: 1;
-            margin-bottom: 4px;
-            display: block;
-        }
+        .icon { font-size: 1.8rem; line-height: 1; margin-bottom: 4px; }
+        .label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
 
-        .label {
-            font-size: 0.6rem;
-            font-weight: 700;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-        }
-
-        /* --- VIEWS (Start, Game, Summary) --- */
+        /* 8. VIEWS & BUTTONS */
         .view {
-            position: absolute;
-            inset: 0;
-            background: var(--bg-void);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.4s ease;
+            position: absolute; inset: 0;
+            background: var(--bg-body); z-index: 100;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
         }
+        .view.active { opacity: 1; pointer-events: auto; }
 
-        .view.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        /* --- BUTTONS --- */
         .btn-main {
-            background: var(--text-accent);
-            color: var(--bg-void);
-            border: none;
-            padding: 1.2rem 3.5rem;
-            font-size: 1rem;
-            font-weight: 800;
-            border-radius: 100px;
-            cursor: pointer;
-            box-shadow: 0 0 30px rgba(56, 189, 248, 0.3);
-            transition: transform 0.1s;
-            margin-top: 1.5rem;
+            background: #fff; color: #000; border: none;
+            padding: 1.2rem 3rem; font-size: 1rem; font-weight: 700;
+            border-radius: 100px; cursor: pointer; margin-top: 1.5rem;
         }
 
-        .btn-main:active { transform: scale(0.96); }
-
-        /* --- TOPIC SELECTION GRID --- */
+        /* Topic Selection Grid */
         .topic-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            width: 90%;
-            max-width: 380px;
-            margin-top: 1.5rem;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+            width: 90%; max-width: 380px; margin-top: 1.5rem;
         }
 
         .btn-topic {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: var(--text-primary);
-            padding: 1.2rem;
-            border-radius: 20px;
-            text-align: left;
-            cursor: pointer;
-            transition: all 0.2s;
-            position: relative;
-            overflow: hidden;
+            background: #18181b; border: 1px solid #27272a;
+            color: #fff; padding: 1rem; border-radius: 16px;
+            text-align: left; cursor: pointer;
         }
-        
-        .btn-topic:active {
-            background: rgba(255,255,255,0.08);
-            transform: scale(0.98);
-        }
+        .btn-topic strong { display: block; font-size: 0.9rem; margin-bottom: 0.25rem; }
+        .btn-topic span { font-size: 0.7rem; color: #71717a; text-transform: uppercase; }
 
-        .btn-topic strong {
-            display: block;
-            font-size: 0.9rem;
-            margin-bottom: 0.25rem;
-            font-weight: 700;
-        }
-
-        .btn-topic span {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        /* --- ANALYTICS CHART --- */
+        /* Chart */
         .chart-container {
-            position: relative;
-            width: 160px;
-            height: 160px;
-            border-radius: 50%;
-            background: conic-gradient(var(--bg-surface) 0% 100%);
+            position: relative; width: 140px; height: 140px;
+            border-radius: 50%; background: #27272a;
             margin-bottom: 2rem;
-            box-shadow: 0 0 40px rgba(0,0,0,0.5);
         }
-        
         .chart-hole {
-            position: absolute;
-            inset: 18px; /* Thickness */
-            background: var(--bg-void);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: absolute; inset: 15px; background: var(--bg-body);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
             flex-direction: column;
         }
 
-        /* --- REVIEW MODE --- */
+        /* Review Card (With Images) */
         #view-review .review-card {
-            background: #fff;
-            color: #000;
-            width: 90%;
-            height: 75%;
-            border-radius: 28px;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            background: #fff; color: #000; width: 90%; height: 80%;
+            border-radius: 24px; padding: 2rem; display: flex; flex-direction: column;
         }
-
         .rev-q-box {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            border-bottom: 2px dashed #e2e8f0;
-            margin-bottom: 1rem;
-            padding-bottom: 1rem;
+            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; border-bottom: 1px solid #e4e4e7; margin-bottom: 1rem; padding-bottom: 1rem; overflow-y: auto;
         }
-        
-        .rev-img {
-            max-height: 100px;
-            width: auto;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            border: 1px solid #e2e8f0;
-        }
-        
-        .rev-q-text {
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: #1e293b;
-            line-height: 1.4;
-        }
-
-        .rev-a-box {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .rev-badge {
-            align-self: flex-start;
-            background: #dcfce7;
-            color: #166534;
-            font-size: 0.7rem;
-            font-weight: 800;
-            padding: 6px 10px;
-            border-radius: 6px;
-            margin-bottom: 0.75rem;
-            letter-spacing: 0.05em;
-        }
-
-        .rev-sol {
-            font-size: 1rem;
-            color: #334155;
-            line-height: 1.6;
-        }
-        
-        .rev-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 90%;
-            margin-top: 1.5rem;
-        }
-        
-        .rev-count {
-            color: var(--text-secondary);
-            font-family: 'JetBrains Mono';
-            font-size: 0.8rem;
-        }
+        .rev-img { max-height: 120px; width: auto; border-radius: 8px; margin-bottom: 1rem; border: 1px solid #e4e4e7; }
+        .rev-q-text { font-size: 1.1rem; font-weight: 700; color: #18181b; }
+        .rev-a-box { flex: 0 0 auto; display: flex; flex-direction: column; justify-content: center; }
+        .rev-badge { align-self: flex-start; background: #dcfce7; color: #166534; font-size: 0.7rem; font-weight: 800; padding: 4px 8px; border-radius: 4px; margin-bottom: 0.5rem; }
+        .rev-sol { font-size: 1rem; color: #52525b; line-height: 1.5; }
+        .rev-nav { display: flex; justify-content: space-between; align-items: center; width: 90%; margin-top: 1rem; }
+        .rev-count { color: #71717a; font-family: 'JetBrains Mono'; font-size: 0.8rem; }
 
         .hidden { display: none !important; }
     </style>
@@ -466,127 +207,73 @@
 <body>
 
     <div id="app-shell">
-        <div class="bg-grid"></div>
         <div id="ui-overlay"></div>
 
         <section id="view-start" class="view active">
-            <div style="color:var(--text-accent); border:1px solid var(--text-accent); padding:6px 12px; border-radius:6px; font-family:'JetBrains Mono'; font-size:0.75rem; margin-bottom:1.5rem; letter-spacing:0.1em;">MODULE V9.0</div>
-            
-            <h1 style="font-size:3.5rem; font-weight:900; line-height:0.9; text-align:center; margin-bottom:1.5rem;">VISUAL<br>CHEMISTRY</h1>
-            
-            <p style="color:var(--text-secondary); margin-bottom:3rem; text-align:center; max-width:280px; line-height:1.6;">
-                Mastery System.<br>Visual Diagnostics.<br>Adaptive Learning.
-            </p>
-            
-            <button class="btn-main" onclick="APP.start('CORE')">BEGIN ANALYSIS</button>
+            <h1 style="font-size:2.5rem; font-weight:800; color:#fff; text-align:center; margin-bottom:1rem;">CHEMISTRY<br>MASTER</h1>
+            <p style="color:#a1a1aa; text-align:center; margin-bottom:3rem;">Atoms • Bonds • Solutions</p>
+            <button class="btn-main" onclick="APP.start('CORE')">START QUIZ</button>
         </section>
 
         <section id="view-game" class="view" style="background:transparent;">
             <header class="header">
-                <div class="progress-track"><div class="progress-fill" id="ui-progress"></div></div>
+                <div class="progress-bar"><div class="progress-fill" id="ui-progress"></div></div>
                 <span class="meta-tag" id="ui-topic">TOPIC</span>
                 <span class="meta-title" id="ui-type">CONCEPT</span>
             </header>
-
-            <div class="stage" id="card-stack">
-                </div>
-
+            <div class="stage" id="card-stack"></div>
             <footer class="footer">
-                <div class="ctrl up">
-                    <span class="icon">↑</span>
-                    <span class="label" id="lbl-up">TRUE</span>
-                </div>
-                <div class="ctrl left">
-                    <span class="icon">←</span>
-                    <span class="label" id="lbl-left">SKIP</span>
-                </div>
-                <div class="ctrl down">
-                    <span class="icon">↓</span>
-                    <span class="label" id="lbl-down">FALSE</span>
-                </div>
-                <div class="ctrl right">
-                    <span class="icon">→</span>
-                    <span class="label" id="lbl-right">UNSURE</span>
-                </div>
+                <div class="ctrl up"><span class="icon">↑</span><span class="label" id="lbl-up">TRUE</span></div>
+                <div class="ctrl left"><span class="icon">←</span><span class="label" id="lbl-left">SKIP</span></div>
+                <div class="ctrl down"><span class="icon">↓</span><span class="label" id="lbl-down">FALSE</span></div>
+                <div class="ctrl right"><span class="icon">→</span><span class="label" id="lbl-right">UNSURE</span></div>
             </footer>
         </section>
 
         <section id="view-summary" class="view">
-            <h2 style="font-size:1.2rem; margin-bottom:1.5rem; color:var(--text-secondary); letter-spacing:0.1em;">PERFORMANCE PROFILE</h2>
-            
+            <h2 style="font-size:1.5rem; color:#fff; margin-bottom:2rem;">RESULTS</h2>
             <div class="chart-container" id="chart-pie">
                 <div class="chart-hole">
-                    <span style="font-size:2.5rem; font-weight:800; color:var(--text-primary);" id="chart-score">0</span>
-                    <span style="font-size:0.7rem; color:var(--text-secondary); letter-spacing:0.1em;">POINTS</span>
+                    <span style="font-size:2.5rem; font-weight:800; color:#fff;" id="chart-score">0</span>
+                    <span style="font-size:0.7rem; color:#71717a;">POINTS</span>
                 </div>
             </div>
             
-            <p style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:1rem; letter-spacing:0.1em;">SELECT MASTERY PATH</p>
-            
             <div class="topic-grid">
-                <button class="btn-topic" onclick="APP.start('ATOMS_HARD')">
-                    <strong>ATOMIC THEORY</strong>
-                    <span>ADVANCED • 10 Qs</span>
-                </button>
-                <button class="btn-topic" onclick="APP.start('BONDS_HARD')">
-                    <strong>BONDING</strong>
-                    <span>ADVANCED • 10 Qs</span>
-                </button>
-                <button class="btn-topic" onclick="APP.start('SOLUTIONS_HARD')">
-                    <strong>SOLUTIONS</strong>
-                    <span>ADVANCED • 10 Qs</span>
-                </button>
-                <button class="btn-topic" onclick="APP.start('CORE')">
-                    <strong>REBOOT SYSTEM</strong>
-                    <span>CORE LEVEL</span>
-                </button>
+                <button class="btn-topic" onclick="APP.start('ATOMS_HARD')"><strong>ATOMIC THEORY</strong><span>HARD • 10 Qs</span></button>
+                <button class="btn-topic" onclick="APP.start('BONDS_HARD')"><strong>BONDING</strong><span>HARD • 10 Qs</span></button>
+                <button class="btn-topic" onclick="APP.start('SOLUTIONS_HARD')"><strong>SOLUTIONS</strong><span>HARD • 10 Qs</span></button>
+                <button class="btn-topic" onclick="APP.start('CORE')"><strong>RESTART</strong><span>CORE LEVEL</span></button>
             </div>
             
             <div id="review-cta" class="hidden" style="margin-top:2rem;">
-                <button class="btn-main" style="background:var(--signal-down); color:#fff; padding:1rem 2.5rem; font-size:0.9rem;" onclick="APP.startReview()">REVIEW MISTAKES</button>
+                <button class="btn-main" style="background:#ef4444; color:#fff; padding:1rem 2rem; font-size:0.9rem;" onclick="APP.startReview()">REVIEW MISTAKES</button>
             </div>
         </section>
 
         <section id="view-review" class="view">
             <div id="review-card-container" class="review-card">
-                <div class="rev-q-box" id="rev-q-box">
-                    <p class="rev-q-text" id="rev-q"></p>
-                </div>
-                <div class="rev-a-box">
-                    <div class="rev-badge">CORRECT SOLUTION</div>
-                    <p class="rev-sol" id="rev-sol"></p>
-                </div>
+                <div class="rev-q-box" id="rev-q-box"><p class="rev-q-text" id="rev-q"></p></div>
+                <div class="rev-a-box"><div class="rev-badge">SOLUTION</div><p class="rev-sol" id="rev-sol"></p></div>
             </div>
             <div class="rev-nav">
-                <span class="rev-count" id="rev-count">1 / 5</span>
-                <button class="btn-main" style="margin:0; padding:0.8rem 2.5rem;" onclick="APP.nextReview()">NEXT</button>
+                <span class="rev-count" id="rev-count"></span>
+                <button class="btn-main" style="margin:0; padding:0.8rem 2rem;" onclick="APP.nextReview()">NEXT</button>
             </div>
         </section>
     </div>
 
     <script>
-        // --- 1. CONFIGURATION ---
         const CONFIG = {
             API_URL: "https://script.google.com/macros/s/AKfycbz_ziu5Dezrz35J2FksQtNEYuZ5Kk6TrQvg3pM5O5eBYUDzWCCtqlGWwZj8D-TBQLFw/exec",
-            THRESHOLD: 75, // Drag distance to trigger swipe
-            COLORS: { 
-                UP: '#22c55e', DOWN: '#ef4444', RIGHT: '#eab308', LEFT: '#64748b' 
-            },
-            CHART_COLORS: {
-                'ATOM': '#3b82f6', // Blue
-                'BOND': '#8b5cf6', // Purple
-                'SOLN': '#ec4899', // Pink
-                'REAC': '#f59e0b', // Orange
-                'TABL': '#10b981'  // Green
-            }
+            THRESHOLD: 75,
+            COLORS: { UP:'#22c55e', DOWN:'#ef4444', RIGHT:'#eab308', LEFT:'#64748b' },
+            CHART: {'ATOM':'#3b82f6', 'BOND':'#8b5cf6', 'SOLN':'#ec4899', 'REAC':'#f59e0b', 'TABL':'#10b981'}
         };
 
-        // --- 2. QUESTION DATABASE (45 QUESTIONS TOTAL) ---
         const DECKS = {
-            
-            // --- CORE LEVEL (15 Questions) ---
             CORE: [
-                { id: "c1", topic: "Structure", type: "ATOM", text: "Protons and Neutrons reside in the nucleus.", sub: "Electrons orbit the outside.", explanation: "Correct. The nucleus contains the heavy particles (protons & neutrons).", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
+                { id: "c1", topic: "Structure", type: "ATOM", text: "Protons and Neutrons reside in the nucleus.", sub: "Electrons orbit the outside.", explanation: "Correct. The nucleus contains heavy particles.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
                 { id: "c2", topic: "Charge", type: "ATOM", text: "An electron carries a positive electrical charge.", sub: "Think about protons vs electrons.", explanation: "False. Electrons are Negative. Protons are Positive.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 },
                 { id: "c3", topic: "Identity", type: "ATOM", text: "Changing the proton number changes the element.", sub: "Carbon vs Nitrogen.", explanation: "Correct. Proton count is the atomic number.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
                 { id: "c4", topic: "Organization", type: "TABL", text: "Elements in the same vertical Group behave similarly.", sub: "Valence electrons.", explanation: "Correct. They have same valence electron count.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
@@ -602,10 +289,8 @@
                 { id: "c14", topic: "Neutrality", type: "SOLN", text: "Pure water is neutral at pH 7.", sub: "Midpoint.", explanation: "Correct. 7 is neutral.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:1 },
                 { id: "c15", topic: "Mixtures", type: "SOLN", text: "In salt water, salt is the solvent.", sub: "Solute vs Solvent.", explanation: "False. Water is solvent, salt is solute.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:1 }
             ],
-
-            // --- ADVANCED ATOMS (10 Questions) ---
             ATOMS_HARD: [
-                { id: "ah1", topic: "Quantum", type: "ATOM", text: "The 4s orbital fills before 3d.", sub: "Aufbau.", explanation: "True. 4s is lower energy.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
+                { id: "ah1", topic: "Quantum", type: "ATOM", image: "https://placehold.co/600x400/3b82f6/ffffff?text=Orbitals", text: "The 4s orbital fills before 3d.", sub: "Aufbau.", explanation: "True. 4s is lower energy.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
                 { id: "ah2", topic: "Isotopes", type: "ATOM", text: "Isotopes differ in proton count.", sub: "Mass vs Identity.", explanation: "False. They differ in Neutrons.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
                 { id: "ah3", topic: "Config", type: "ATOM", text: "d-subshell holds max 14 electrons.", sub: "s2 p6 d10 f14.", explanation: "False. d holds 10. f holds 14.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
                 { id: "ah4", topic: "Trends", type: "ATOM", text: "Atomic radius decreases left-to-right.", sub: "Nuclear pull.", explanation: "True. Stronger nucleus pulls electrons in.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
@@ -616,10 +301,8 @@
                 { id: "ah9", topic: "Anomalies", type: "ATOM", text: "Chromium has a [Ar] 4s2 3d4 config.", sub: "Half-filled stability.", explanation: "False. It promotes to 4s1 3d5 for stability.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
                 { id: "ah10", topic: "Quantum", type: "ATOM", text: "Angular momentum quantum number (l) defines shape.", sub: "n, l, ml, ms.", explanation: "True. l=0 is spherical, l=1 is dumbbell.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 }
             ],
-
-            // --- ADVANCED BONDING (10 Questions) ---
             BONDS_HARD: [
-                { id: "bh1", topic: "VSEPR", type: "BOND", image: "https://placehold.co/600x400/38bdf8/ffffff?text=Water+Molecule", text: "This molecular shape is Tetrahedral.", sub: "Look at lone pairs.", explanation: "False. Water is Bent due to lone pairs.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
+                { id: "bh1", topic: "VSEPR", type: "BOND", image: "https://placehold.co/600x400/8b5cf6/ffffff?text=Water+Structure", text: "This molecular shape is Tetrahedral.", sub: "Look at lone pairs.", explanation: "False. Water is Bent due to lone pairs.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
                 { id: "bh2", topic: "Polarity", type: "BOND", text: "BF3 is non-polar despite polar bonds.", sub: "Symmetry.", explanation: "True. Symmetry cancels dipoles.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
                 { id: "bh3", topic: "Forces", type: "BOND", text: "H-bonds are stronger than covalent bonds.", sub: "Inter vs Intra.", explanation: "False. Covalent are much stronger.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
                 { id: "bh4", topic: "Lattice", type: "BOND", text: "MgO has higher lattice energy than NaCl.", sub: "Charge density.", explanation: "True. +2/-2 charges attract stronger than +1/-1.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
@@ -630,8 +313,6 @@
                 { id: "bh9", topic: "Coordinate", type: "BOND", text: "In NH4+, H provides the shared electrons.", sub: "Ammonium.", explanation: "False. Nitrogen provides the lone pair for the 4th bond.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
                 { id: "bh10", topic: "Metallic", type: "BOND", text: "Metals conduct due to 'sea of electrons'.", sub: "Delocalization.", explanation: "True. Electrons move freely carrying charge.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 }
             ],
-
-            // --- ADVANCED SOLUTIONS (10 Questions) ---
             SOLUTIONS_HARD: [
                 { id: "sh1", topic: "Colligative", type: "SOLN", text: "Salt decreases water's boiling point.", sub: "Vapor pressure.", explanation: "False. Salt elevates boiling point.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"down", w:2 },
                 { id: "sh2", topic: "Units", type: "SOLN", text: "Molarity changes with temperature.", sub: "Volume expansion.", explanation: "True. Volume changes, so Molarity changes.", up:"True", down:"False", right:"Unsure", left:"Skip", correct:"up", w:2 },
@@ -646,300 +327,115 @@
             ]
         };
 
-        // --- 3. CONTROLLER ---
         const APP = {
-            deck: [], idx: 0, answers: {}, activeEl: null,
-            reviewDeck: [], reviewIdx: 0,
+            deck: [], idx: 0, answers: {}, activeEl: null, reviewDeck: [], reviewIdx: 0,
 
-            // Initialize Game
-            start(deckKey) {
-                // Clone the deck to prevent mutation
-                this.deck = [...DECKS[deckKey]];
-                this.idx = 0;
-                this.answers = {};
-                this.reviewDeck = [];
-                
-                // UI Transition
+            start(key) {
+                this.deck = [...DECKS[key]]; this.idx=0; this.answers={}; this.reviewDeck=[];
                 document.getElementById('view-start').classList.remove('active');
                 document.getElementById('view-summary').classList.remove('active');
                 document.getElementById('view-game').classList.add('active');
                 document.getElementById('review-cta').classList.add('hidden');
-                
                 this.render();
             },
 
-            // Render Stack
             render() {
-                const stack = document.getElementById('card-stack');
-                stack.innerHTML = '';
-                
-                if(this.idx >= this.deck.length) {
-                    this.finish();
-                    return;
-                }
-
-                // Render Strategy: Active Card + Background Card
-                const buffer = this.deck.slice(this.idx, this.idx + 2).reverse();
-                
-                buffer.forEach((q, i) => {
-                    const realIdx = this.idx + (buffer.length - 1 - i);
-                    const el = document.createElement('div');
-                    el.className = 'card';
-                    
-                    // Image Logic
-                    let imgHTML = '';
-                    if(q.image) {
-                        imgHTML = `<img src="${q.image}" class="card-visual" alt="Diagram">`;
-                    }
-                    
-                    el.innerHTML = `
-                        ${imgHTML}
-                        <p>${q.text}</p>
-                        <div class="card-sub">${q.sub}</div>
-                        <div class="card-id">${q.id}</div>
-                    `;
-                    
-                    if(realIdx === this.idx) {
-                        el.style.zIndex = 100;
-                        this.activeEl = el;
-                        PHYSICS.bind(el);
-                    } else {
-                        el.style.zIndex = 90;
-                        // Stack styling
-                        el.style.transform = 'translate(-50%, -50%) scale(0.95) translateY(20px)';
-                        el.style.opacity = 0.5;
-                    }
+                const stack = document.getElementById('card-stack'); stack.innerHTML='';
+                if(this.idx>=this.deck.length) return this.finish();
+                const buffer = this.deck.slice(this.idx, this.idx+2).reverse();
+                buffer.forEach((q,i)=>{
+                    const realIdx = this.idx + (buffer.length-1-i);
+                    const el = document.createElement('div'); el.className='card';
+                    el.innerHTML = `<p>${q.text}</p><div class="card-sub">${q.sub}</div><div class="card-id">${q.id}</div>`;
+                    if(realIdx===this.idx) { el.style.zIndex=100; this.activeEl=el; PHYSICS.bind(el); }
+                    else { el.style.zIndex=90; el.style.transform='translate(-50%,-50%) scale(0.95) translateY(20px)'; el.style.opacity=0.5; }
                     stack.appendChild(el);
                 });
-                
                 this.updateUI();
             },
 
             updateUI() {
                 const q = this.deck[this.idx];
-                document.getElementById('ui-topic').textContent = q.topic;
-                document.getElementById('ui-type').textContent = q.type;
-                
-                // Smooth Progress Bar
-                const pct = ((this.idx / this.deck.length) * 100);
-                document.getElementById('ui-progress').style.width = `${pct}%`;
-                
-                document.getElementById('lbl-up').textContent = q.up;
-                document.getElementById('lbl-down').textContent = q.down;
-                document.getElementById('lbl-left').textContent = q.left;
-                document.getElementById('lbl-right').textContent = q.right;
+                document.getElementById('ui-topic').textContent=q.topic;
+                document.getElementById('ui-type').textContent=q.type;
+                document.getElementById('ui-progress').style.width=((this.idx/this.deck.length)*100)+'%';
+                document.getElementById('lbl-up').textContent=q.up;
+                document.getElementById('lbl-down').textContent=q.down;
+                document.getElementById('lbl-left').textContent=q.left;
+                document.getElementById('lbl-right').textContent=q.right;
             },
 
             finish() {
                 document.getElementById('view-game').classList.remove('active');
                 document.getElementById('view-summary').classList.add('active');
-                
                 const score = Object.values(this.answers).reduce((a,b)=>a+b.score,0);
-                const mistakes = Object.values(this.answers).filter(a => !a.correct && a.dir !== 'left');
-                
-                document.getElementById('chart-score').textContent = score;
-                
-                // Generate Analytics Chart
+                const mistakes = Object.values(this.answers).filter(a=>!a.correct && a.dir!=='left');
+                document.getElementById('chart-score').textContent=score;
                 this.renderChart();
-
-                if (mistakes.length > 0) {
+                if(mistakes.length>0) {
                     document.getElementById('review-cta').classList.remove('hidden');
-                    this.reviewDeck = mistakes.map(a => a.q);
+                    this.reviewDeck = mistakes.map(a=>a.q);
                 }
-                
-                // Sync to Cloud
                 fetch(CONFIG.API_URL, {
-                    method: 'POST', 
-                    mode: 'no-cors', 
-                    headers: {'Content-Type': 'text/plain'},
-                    body: JSON.stringify({ 
-                        answers: this.answers, 
-                        score: score, 
-                        timestamp: new Date().toISOString() 
-                    })
+                    method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'},
+                    body:JSON.stringify({answers:this.answers, score, timestamp:new Date().toISOString()})
                 });
             },
 
             renderChart() {
-                const counts = {};
-                let totalCorrect = 0;
-                
-                Object.values(this.answers).forEach(a => {
-                    if(a.correct) {
-                        const t = a.q.type;
-                        counts[t] = (counts[t] || 0) + 1;
-                        totalCorrect++;
-                    }
+                const counts={}; let total=0;
+                Object.values(this.answers).forEach(a=>{ if(a.correct){ counts[a.q.type]=(counts[a.q.type]||0)+1; total++; }});
+                const chart = document.getElementById('chart-pie');
+                if(total===0) { chart.style.background='#27272a'; return; }
+                let grad=[]; let cur=0;
+                Object.keys(counts).forEach(t=>{
+                    const c = CONFIG.CHART[t] || '#fff';
+                    const deg = (counts[t]/total)*360;
+                    grad.push(`${c} ${cur}deg ${cur+deg}deg`);
+                    cur+=deg;
                 });
-
-                const chartEl = document.getElementById('chart-pie');
-                
-                if (totalCorrect === 0) {
-                    chartEl.style.background = '#1e293b';
-                    return;
-                }
-
-                let gradient = [];
-                let currentDeg = 0;
-                
-                Object.keys(counts).forEach((topic) => {
-                    const color = CONFIG.CHART_COLORS[topic] || '#cbd5e1';
-                    const deg = (counts[topic] / totalCorrect) * 360;
-                    gradient.push(`${color} ${currentDeg}deg ${currentDeg + deg}deg`);
-                    currentDeg += deg;
-                });
-
-                chartEl.style.background = `conic-gradient(${gradient.join(', ')})`;
+                chart.style.background = `conic-gradient(${grad.join(', ')})`;
             },
 
-            // --- REVIEW SYSTEM ---
             startReview() {
-                this.reviewIdx = 0;
+                this.reviewIdx=0;
                 document.getElementById('view-summary').classList.remove('active');
                 document.getElementById('view-review').classList.add('active');
                 this.renderReview();
             },
 
             renderReview() {
-                if (this.reviewIdx >= this.reviewDeck.length) {
+                if(this.reviewIdx>=this.reviewDeck.length) {
                     document.getElementById('view-review').classList.remove('active');
                     document.getElementById('view-summary').classList.add('active');
                     return;
                 }
                 const q = this.reviewDeck[this.reviewIdx];
-                
-                // Image Handling in Review
                 const box = document.getElementById('rev-q-box');
-                const existingImg = box.querySelector('img');
-                if(existingImg) existingImg.remove();
-                
+                const existing = box.querySelector('img'); if(existing) existing.remove();
                 if(q.image) {
-                    const img = document.createElement('img');
-                    img.src = q.image;
-                    img.className = 'rev-img';
-                    // Insert before text
+                    const img = document.createElement('img'); img.src=q.image; img.className='rev-img';
                     box.insertBefore(img, document.getElementById('rev-q'));
                 }
-
-                document.getElementById('rev-q').textContent = q.text;
-                document.getElementById('rev-sol').textContent = q.explanation;
-                document.getElementById('rev-count').textContent = `${this.reviewIdx + 1} / ${this.reviewDeck.length}`;
+                document.getElementById('rev-q').textContent=q.text;
+                document.getElementById('rev-sol').textContent=q.explanation;
+                document.getElementById('rev-count').textContent=`${this.reviewIdx+1} / ${this.reviewDeck.length}`;
             },
 
-            nextReview() {
-                this.reviewIdx++;
-                this.renderReview();
-            }
+            nextReview() { this.reviewIdx++; this.renderReview(); }
         };
 
-        // --- 4. PHYSICS ENGINE ---
         const PHYSICS = {
-            el: null, startX: 0, startY: 0, dragging: false, 
-            overlay: document.getElementById('ui-overlay'),
-
-            bind(el) {
-                this.el = el;
-                el.addEventListener('touchstart', this.start.bind(this), {passive:false});
-                el.addEventListener('mousedown', this.start.bind(this));
-            },
-
-            start(e) {
-                this.dragging = true;
-                const p = e.touches ? e.touches[0] : e;
-                this.startX = p.clientX; this.startY = p.clientY;
-                this.el.style.transition = 'none';
-                
-                window.addEventListener('touchmove', this.move.bind(this), {passive:false});
-                window.addEventListener('mousemove', this.move.bind(this));
-                window.addEventListener('touchend', this.end.bind(this));
-                window.addEventListener('mouseup', this.end.bind(this));
-            },
-
-            move(e) {
-                if(!this.dragging) return;
-                if(e.cancelable) e.preventDefault();
-                
-                const p = e.touches ? e.touches[0] : e;
-                const dx = p.clientX - this.startX;
-                const dy = p.clientY - this.startY;
-
-                // Move Center + Delta
-                this.el.style.transform = `translate(-50%, -50%) translate(${dx}px, ${dy}px) rotate(${dx*0.05}deg)`;
-                
-                this.feedback(dx, dy);
-            },
-
-            end(e) {
-                if(!this.dragging) return;
-                this.dragging = false;
-                window.removeEventListener('touchmove', this.move.bind(this));
-                window.removeEventListener('mousemove', this.move.bind(this));
-                window.removeEventListener('touchend', this.end.bind(this));
-                window.removeEventListener('mouseup', this.end.bind(this));
-
-                const p = e.changedTouches ? e.changedTouches[0] : e;
-                const dx = p.clientX - this.startX;
-                const dy = p.clientY - this.startY;
-
-                if(Math.abs(dy) > CONFIG.THRESHOLD && Math.abs(dy) > Math.abs(dx)) this.commit(dy<0?'up':'down');
-                else if(Math.abs(dx) > CONFIG.THRESHOLD) this.commit(dx>0?'right':'left');
-                else this.reset();
-            },
-
-            feedback(dx, dy) {
-                const ax=Math.abs(dx), ay=Math.abs(dy);
-                let color='', cls='';
-                
-                if(ay>ax) { color = dy<0 ? CONFIG.COLORS.UP : CONFIG.COLORS.DOWN; cls = dy<0 ? 'up' : 'down'; }
-                else { color = dx>0 ? CONFIG.COLORS.RIGHT : CONFIG.COLORS.LEFT; cls = dx>0 ? 'right' : 'left'; }
-                
-                const intensity = Math.min(Math.max(ax, ay) / CONFIG.THRESHOLD, 1);
-                
-                this.overlay.style.backgroundColor = color;
-                this.overlay.style.opacity = intensity * 0.5;
-
-                document.querySelectorAll('.ctrl').forEach(c => {
-                    c.classList.remove('active');
-                    c.style.color = '';
-                });
-                
-                if(intensity > 0.2) {
-                    const btn = document.querySelector(`.ctrl.${cls}`);
-                    btn.classList.add('active');
-                    btn.style.color = color;
-                }
-            },
-
-            reset() {
-                this.el.style.transition = 'transform 0.3s cubic-bezier(0.2,0.8,0.2,1)';
-                this.el.style.transform = 'translate(-50%, -50%)'; 
-                this.overlay.style.opacity = 0;
-                document.querySelectorAll('.ctrl').forEach(c => { c.classList.remove('active'); c.style.color = ''; });
-            },
-
-            commit(dir) {
-                const q = APP.deck[APP.idx];
-                const score = dir===q.correct ? 10*q.w : (dir==='left'?0:-5);
-                APP.answers[q.id] = { dir, score, correct: dir===q.correct, q: q };
-
-                let tx=0, ty=0; const d=800;
-                if(dir==='up') ty=-d; if(dir==='down') ty=d; if(dir==='left') tx=-d; if(dir==='right') tx=d;
-
-                this.el.style.transition = 'transform 0.4s ease-in';
-                this.el.style.transform = `translate(-50%, -50%) translate(${tx}px, ${ty}px) rotate(${tx*0.1}deg)`;
-                
-                this.overlay.style.opacity = 0;
-                document.querySelectorAll('.ctrl').forEach(c => { c.classList.remove('active'); c.style.color = ''; });
-
-                setTimeout(() => {
-                    this.el.remove();
-                    APP.idx++;
-                    APP.render();
-                }, 300);
-            }
+            el: null, startX: 0, startY: 0, dragging: false, overlay: document.getElementById('ui-overlay'),
+            bind(el) { this.el=el; el.addEventListener('touchstart',this.start.bind(this),{passive:false}); el.addEventListener('mousedown',this.start.bind(this)); },
+            start(e) { this.dragging=true; const p=e.touches?e.touches[0]:e; this.startX=p.clientX; this.startY=p.clientY; this.el.style.transition='none'; window.addEventListener('touchmove',this.move.bind(this),{passive:false}); window.addEventListener('mousemove',this.move.bind(this)); window.addEventListener('touchend',this.end.bind(this)); window.addEventListener('mouseup',this.end.bind(this)); },
+            move(e) { if(!this.dragging) return; if(e.cancelable) e.preventDefault(); const dx=(e.touches?e.touches[0]:e).clientX-this.startX; const dy=(e.touches?e.touches[0]:e).clientY-this.startY; this.el.style.transform=`translate(-50%,-50%) translate(${dx}px,${dy}px) rotate(${dx*0.05}deg)`; this.feedback(dx,dy); },
+            end(e) { if(!this.dragging) return; this.dragging=false; window.removeEventListener('touchmove',this.move.bind(this)); window.removeEventListener('mousemove',this.move.bind(this)); window.removeEventListener('touchend',this.end.bind(this)); window.removeEventListener('mouseup',this.end.bind(this)); const dx=(e.changedTouches?e.changedTouches[0]:e).clientX-this.startX; const dy=(e.changedTouches?e.changedTouches[0]:e).clientY-this.startY; if(Math.abs(dy)>CONFIG.THRESHOLD && Math.abs(dy)>Math.abs(dx)) this.commit(dy<0?'up':'down'); else if(Math.abs(dx)>CONFIG.THRESHOLD) this.commit(dx>0?'right':'left'); else this.reset(); },
+            feedback(dx, dy) { const ax=Math.abs(dx), ay=Math.abs(dy); let color='', cls=''; if(ay>ax) { color=dy<0?CONFIG.COLORS.UP:CONFIG.COLORS.DOWN; cls=dy<0?'up':'down'; } else { color=dx>0?CONFIG.COLORS.RIGHT:CONFIG.COLORS.LEFT; cls=dx>0?'right':'left'; } const intense = Math.min(Math.max(ax, ay)/CONFIG.THRESHOLD, 1); this.overlay.style.backgroundColor=color; this.overlay.style.opacity=intense*0.5; document.querySelectorAll('.ctrl').forEach(c=>{ c.classList.remove('active'); c.style.color=''; }); if(intense>0.2) { const btn=document.querySelector(`.ctrl.${cls}`); btn.classList.add('active'); btn.style.color=color; } },
+            reset() { this.el.style.transition='transform 0.3s cubic-bezier(0.2,0.8,0.2,1)'; this.el.style.transform='translate(-50%,-50%)'; this.overlay.style.opacity=0; document.querySelectorAll('.ctrl').forEach(c=>{ c.classList.remove('active'); c.style.color=''; }); },
+            commit(dir) { const q=APP.deck[APP.idx]; const score=dir===q.correct?10*q.w:(dir==='left'?0:-5); APP.answers[q.id]={dir,score,correct:dir===q.correct,q}; let tx=0, ty=0; const d=800; if(dir==='up') ty=-d; if(dir==='down') ty=d; if(dir==='left') tx=-d; if(dir==='right') tx=d; this.el.style.transition='transform 0.4s ease-in'; this.el.style.transform=`translate(-50%,-50%) translate(${tx}px,${ty}px) rotate(${tx*0.1}deg)`; this.overlay.style.opacity=0; document.querySelectorAll('.ctrl').forEach(c=>{ c.classList.remove('active'); c.style.color=''; }); setTimeout(()=>{ this.el.remove(); APP.idx++; APP.render(); },300); }
         };
 
-        // --- 5. INITIALIZATION ---
         document.body.addEventListener('touchmove', e => e.preventDefault(), {passive:false});
     </script>
 </body>
