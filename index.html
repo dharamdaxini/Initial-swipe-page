@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Chemistry Master V75.4</title>
+<title>Chemistry Master V75.5</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -83,7 +83,7 @@ sup { font-size: 0.65em; vertical-align: super; line-height: 0; font-family: var
 </head>
 
 <body>
-<div id="loader">LOCKED PRODUCTION V75.4…</div>
+<div id="loader">LOCKED PRODUCTION V75.5…</div>
 
 <div id="header">
     <div class="header-meta">
@@ -96,7 +96,7 @@ sup { font-size: 0.65em; vertical-align: super; line-height: 0; font-family: var
 <div id="stack"></div>
 
 <script>
-// UPDATED PRODUCTION ENDPOINT
+// PRODUCTION ENDPOINT
 const ENDPOINT="https://script.google.com/macros/s/AKfycbwnbpsFpWRjONnt1G9G74BW2QeTrATkiyMTlW3IdIcBYZq51XlJuf3Y-Sm1Ei94Nckd/exec";
 
 let RAW_DATA=[], POOL=[], MISTAKES=[], SCORE=0, isTransitioning=false;
@@ -128,9 +128,9 @@ function renderDatasetSelect(){
     MODE="DATASET_SELECT";
     const s=document.getElementById('stack'); s.innerHTML="";
     const c=document.createElement('div'); c.className="card";
-    c.innerHTML=`<div class="card-q">CHOOSE DATASET</div>
-        <div class="swipe-label sl-up">SET A</div><div class="swipe-label sl-left">SET B</div>
-        <div class="swipe-label sl-right">SET C</div><div class="swipe-label sl-down">SET D</div>`;
+    c.innerHTML=`<div class="card-q">SELECT CHAPTER</div>
+        <div class="swipe-label sl-up">CORE CHEMISTRY</div><div class="swipe-label sl-left">INDUSTRIAL</div>
+        <div class="swipe-label sl-right">REVISION SET</div><div class="swipe-label sl-down">EXPERT CHALLENGE</div>`;
     s.appendChild(c); bindPhysics(c);
 }
 
@@ -139,7 +139,7 @@ function renderTopicSelect(dataset){
     CURRENT_DATASET = dataset;
     const s=document.getElementById('stack'); s.innerHTML="";
     const c=document.createElement('div'); c.className="card";
-    c.innerHTML=`<div class="card-q">DATASET: ${dataset}<br>CHOOSE TOPIC</div>
+    c.innerHTML=`<div class="card-q">CHOOSE DOMAIN</div>
         <div class="swipe-label sl-up">PHYSICAL</div><div class="swipe-label sl-left">ORGANIC</div>
         <div class="swipe-label sl-right">INORGANIC</div><div class="swipe-label sl-down">ANALYTICAL</div>`;
     s.appendChild(c); bindPhysics(c);
@@ -150,9 +150,9 @@ function renderGenreSelect(topic){
     CURRENT_TOPIC = topic;
     const s=document.getElementById('stack'); s.innerHTML="";
     const c=document.createElement('div'); c.className="card";
-    c.innerHTML=`<div class="card-q">${topic.toUpperCase()}<br>SELECT MODE</div>
-        <div class="swipe-label sl-up">CONCEPT (CORE)</div>
-        <div class="swipe-label sl-down">APPLICATION (ADV)</div>`;
+    c.innerHTML=`<div class="card-q">CHOOSE MODE</div>
+        <div class="swipe-label sl-up">CONCEPT MASTERY</div>
+        <div class="swipe-label sl-down">APPLIED PROBLEMS</div>`;
     s.appendChild(c); bindPhysics(c);
 }
 
@@ -185,7 +185,7 @@ function renderNext(){
         <div class="swipe-label sl-right">${q.swipe_right_label}</div>
         <div class="swipe-label sl-down">${formatChem(q.hint)}</div>
         <div class="overlay">
-            <div class="overlay-label">ANALYSIS REPORT</div>
+            <div class="overlay-label">LOGIC ANALYSIS</div>
             <div class="overlay-body">${formatChem(q.explanation)}</div>
             <button class="btn" onclick="this.parentElement.classList.remove('active')">DISMISS</button>
         </div>`;
@@ -196,11 +196,11 @@ function renderEnd(){
     MODE="SESSION_END";
     const s=document.getElementById('stack'); s.innerHTML="";
     const c=document.createElement('div'); c.className="card";
-    c.innerHTML=`<div class="card-q">SESSION END<br><small>${SCORE} XP</small></div>
+    c.innerHTML=`<div class="card-q">SESSION END<br><small>${SCORE} XP COLLECTED</small></div>
         <div class="swipe-label sl-up">RESTART</div>
-        <div class="swipe-label sl-left">REVIEW ERRORS (${MISTAKES.length})</div>
-        <div class="swipe-label sl-right">TOGGLE MODE</div>
-        <div class="swipe-label sl-down">NEW DATASET</div>`;
+        <div class="swipe-label sl-left">REVIEW ERRORS</div>
+        <div class="swipe-label sl-right">TOGGLE DIFFICULTY</div>
+        <div class="swipe-label sl-down">CHANGE CHAPTER</div>`;
     s.appendChild(c); bindPhysics(c);
 }
 
