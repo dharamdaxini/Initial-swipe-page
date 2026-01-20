@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist Mastery V76.2</title>
+<title>Alchemist Mastery V76.5</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -76,7 +76,7 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 .overlay-body { font-size: 1.2rem; line-height: 1.7; color: #ccc; margin-bottom: 30px; font-family: var(--font-chem); }
 
 .btn { width: 100%; padding: 18px; border-radius: 60px; border: none; background: #fff; font-weight: 900; cursor: pointer; text-transform: uppercase; font-family: var(--font-ui); margin-top: 10px; }
-#loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: var(--font-code); font-size: 1rem; letter-spacing: 5px; color: var(--accent-gold); }
+#loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: var(--font-code); font-size: 1.2rem; letter-spacing: 5px; color: var(--accent-gold); }
 </style>
 </head>
 
@@ -94,7 +94,6 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 <div id="stack"></div>
 
 <script>
-// LIVE ENDPOINT INTEGRATED
 const ENDPOINT="https://script.google.com/macros/s/AKfycbxaMo1Gi8KjfYOr1_pHJI5XYJ1t9FK4PWkFCm8lU4MsCmUXvY0nSUIqYTAqhpumFRFL/exec";
 
 let RAW_DATA=[], POOL=[], MISTAKES=[], SCORE=0, isTransitioning=false;
@@ -112,7 +111,7 @@ async function init(){
         RAW_DATA = await r.json();
         l.remove();
         renderDatasetSelect();
-    } catch(e) { l.innerHTML = "SYNC ERROR<br><small>CHECK PERMISSIONS</small>"; }
+    } catch(e) { l.innerHTML = "SYNC ERROR"; }
 }
 
 function renderDatasetSelect(){
@@ -137,7 +136,8 @@ function renderGenreSelect(topic){
     MODE="GENRE_SELECT"; CURRENT_TOPIC=topic; const s=document.getElementById('stack'); s.innerHTML="";
     const c=document.createElement('div'); c.className="card";
     c.innerHTML=`<div class="card-q">SELECT DEPTH</div>
-        <div class="swipe-label sl-up">CONCEPT MASTERY</div><div class="swipe-label sl-down">APPLIED PROBLEMS</div>`;
+        <div class="swipe-label sl-up">CONCEPT MASTERY</div>
+        <div class="swipe-label sl-down">APPLIED PROBLEMS</div>`;
     s.appendChild(c); bindPhysics(c);
 }
 
@@ -156,7 +156,7 @@ function renderNext(){
     c.innerHTML=`<div class="card-q">${formatChem(q.question_text)}</div>
         <div class="swipe-label sl-up">${q.swipe_up_label}</div><div class="swipe-label sl-left">${q.swipe_left_label}</div>
         <div class="swipe-label sl-right">${q.swipe_right_label}</div><div class="swipe-label sl-down sl-down-hint">${formatChem(q.hint)}</div>
-        <div class="overlay"><div class="overlay-label">LOGIC ANALYSIS</div><div class="overlay-body">${formatChem(q.explanation)}</div><button class="btn" onclick="this.parentElement.classList.remove('active')">CONTINUE</button></div>`;
+        <div class="overlay"><div class="overlay-label">ANALYSIS</div><div class="overlay-body">${formatChem(q.explanation)}</div><button class="btn" onclick="this.parentElement.classList.remove('active')">CONTINUE</button></div>`;
     s.appendChild(c); bindPhysics(c, q);
 }
 
@@ -213,9 +213,12 @@ function handleAction(el, data, x, y, dir){
     if(MODE==="DATASET_SELECT"){ const map={UP:"SET_A", LEFT:"SET_B", RIGHT:"SET_C", DOWN:"SET_D"}; renderTopicSelect(map[dir]); }
     else if(MODE==="TOPIC_SELECT"){ const map={UP:"Physical", LEFT:"Organic", RIGHT:"Inorganic", DOWN:"Analytical"}; renderGenreSelect(map[dir]); }
     else if(MODE==="GENRE_SELECT"){ 
-        if(dir==="UP") startQuiz(CURRENT_TOPIC, "CONCEPT");
-        else if(dir==="DOWN") startQuiz(CURRENT_TOPIC, "APPLICATION");
+        if(dir==="UP") { startQuiz(CURRENT_TOPIC, "CONCEPT"); }
+        else if(dir==="DOWN") { startQuiz(CURRENT_TOPIC, "APPLICATION"); }
         else { isTransitioning=false; return; }
+        el.style.transition="transform .4s ease-in"; el.style.transform=`translate3d(${x*6}px,${y*6}px,0) rotate(${x/5}deg)`;
+        setTimeout(()=>{el.remove(); isTransitioning=false;}, 400);
+        return; 
     }
     else if(MODE==="QUIZ"){ 
         const w=parseInt(data.weight)||1;
@@ -228,12 +231,11 @@ function handleAction(el, data, x, y, dir){
         else { isTransitioning=false; return; }
     }
     el.style.transition="transform .4s ease-in"; el.style.transform=`translate3d(${x*6}px,${y*6}px,0) rotate(${x/5}deg)`;
-    updateUI(); setTimeout(()=>{el.remove(); isTransitioning=false;}, 350);
+    updateUI(); setTimeout(()=>{el.remove(); isTransitioning=false;}, 400);
 }
 
 function updateUI(){
     document.getElementById('xp-ui').innerText=`${SCORE} XP`;
-    document.getElementById('rank-ui').innerText=`RANK: ${SCORE > 500 ? "SCHOLAR" : "NOVICE"}`;
     document.getElementById('progress-bar').style.width=`${(SCORE%100)}%`;
 }
 window.onload=init;
