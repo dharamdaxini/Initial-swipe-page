@@ -3,57 +3,65 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist V78.2 Final</title>
+<title>Alchemist V78.5 Master</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,600;1,600&family=Inter:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 
 <style>
-/* V78.2 CSS - FULL PRODUCTION BUILD */
-:root { --bg-color: #000; --card-bg: #111; --accent-gold: #ffd600; --hint-blue: #3498db; --font-ui: 'Inter', sans-serif; --font-chem: 'Crimson Text', serif; }
+/* V78.5 CSS - GOLDEN MASTER */
+:root { 
+    --bg-color: #050505; --card-bg: #141414; --accent-gold: #ffcc00; --hint-blue: #4dabf7; 
+    --font-ui: 'Outfit', sans-serif; --font-chem: 'Libre Baskerville', serif; --font-code: 'JetBrains Mono', monospace; 
+}
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
 body { margin: 0; height: 100vh; background: var(--bg-color); color: #fff; font-family: var(--font-ui); overflow: hidden; touch-action: none; user-select: none; }
 sub { font-size: 0.7em; vertical-align: sub; line-height: 0; }
 sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 
 #header { width: 90%; margin: calc(20px + env(safe-area-inset-top)) auto 0; pointer-events: none; }
-.header-meta { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #555; margin-bottom: 8px; }
-.progress-track { width: 100%; height: 3px; background: #222; border-radius: 2px; }
-#progress-bar { height: 100%; background: var(--accent-gold); width: 0%; transition: width 0.4s ease; }
+.header-meta { display: flex; justify-content: space-between; font-family: var(--font-code); font-size: 0.75rem; color: #666; margin-bottom: 8px; letter-spacing: 0.5px; }
+.progress-track { width: 100%; height: 4px; background: #222; border-radius: 4px; }
+#progress-bar { height: 100%; background: var(--accent-gold); width: 0%; transition: width 0.4s ease; box-shadow: 0 0 12px rgba(255, 204, 0, 0.4); }
 
 #stack { position: relative; width: 92%; max-width: 400px; height: calc(100vh - 160px - env(safe-area-inset-top)); margin: 25px auto 0; perspective: 1200px; }
 
-.card { position: absolute; width: 100%; height: 100%; background: var(--card-bg); border-radius: 40px; border: 1px solid #282828; padding: 40px; display: flex; flex-direction: column; justify-content: center; transform-origin: center center; box-shadow: 0 20px 60px rgba(0,0,0,0.9); will-change: transform; }
-.card-q { font-family: var(--font-chem); font-size: 2rem; line-height: 1.35; font-style: italic; font-weight: 600; text-align: center; color: #f0f0f0; }
+.card { 
+    position: absolute; width: 100%; height: 100%; 
+    background: var(--card-bg); border-radius: 32px; border: 1px solid #333; padding: 35px; 
+    display: flex; flex-direction: column; justify-content: center; transform-origin: center center; 
+    box-shadow: 0 25px 50px rgba(0,0,0,0.95); will-change: transform; 
+}
+.card-q { font-family: var(--font-chem); font-size: 1.9rem; line-height: 1.5; font-weight: 400; text-align: center; color: #e0e0e0; }
 
-/* SWIPE LABELS */
-.swipe-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.9); font-weight: 900; font-size: 2.1rem; text-transform: uppercase; border-radius: 40px; opacity: 0; pointer-events: none; transition: opacity 0.08s linear; z-index:100; }
+.swipe-label { 
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; 
+    background: rgba(0,0,0,0.92); font-family: var(--font-ui); font-weight: 800; font-size: 2.2rem; 
+    text-transform: uppercase; border-radius: 32px; opacity: 0; pointer-events: none; z-index:100; letter-spacing: 2px;
+}
 .sl-down-hint { 
-    color: var(--hint-blue) !important; 
-    font-size: 1.6rem !important; 
-    text-transform: none !important; 
-    font-family: var(--font-chem) !important;
-    background: rgba(0,0,0,0.95) !important; 
-    padding: 30px !important;
+    color: var(--hint-blue) !important; font-size: 1.5rem !important; text-transform: none !important; 
+    font-family: var(--font-chem) !important; background: rgba(10, 10, 10, 0.98) !important; padding: 40px !important; line-height: 1.6 !important;
 }
 
-.overlay { position: absolute; inset: 0; background: #0d0d0d; z-index: 1100; padding: 45px 35px; opacity: 0; pointer-events: none; border-radius: 40px; display: flex; flex-direction: column; justify-content: center; transition: opacity 0.2s; }
+.overlay { position: absolute; inset: 0; background: #0a0a0a; z-index: 1100; padding: 45px 35px; opacity: 0; pointer-events: none; border-radius: 32px; display: flex; flex-direction: column; justify-content: center; transition: opacity 0.2s; }
 .overlay.active { opacity: 1; pointer-events: auto; }
-.overlay-label { font-size: 0.8rem; color: var(--accent-gold); font-family: 'JetBrains Mono', monospace; margin-bottom: 15px; text-transform: uppercase; }
-.overlay-body { font-size: 1.25rem; line-height: 1.6; color: #ccc; margin-bottom: 30px; font-family: var(--font-chem); }
+.overlay-label { font-size: 0.75rem; color: var(--accent-gold); font-family: var(--font-ui); font-weight: 700; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
+.overlay-body { font-size: 1.3rem; line-height: 1.7; color: #ccc; margin-bottom: 40px; font-family: var(--font-chem); }
 
-.input-name { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #333; background: #222; color: #fff; font-family: var(--font-ui); font-size: 1rem; margin-bottom: 15px; text-align: center; }
-.btn { width: 100%; padding: 18px; border-radius: 60px; border: none; background: #fff; color: #000; font-weight: 900; cursor: pointer; text-transform: uppercase; font-family: var(--font-ui); margin-top: 10px; }
-.btn-save { background: var(--accent-gold); color: #000; }
+.input-name { width: 100%; padding: 18px; border-radius: 16px; border: 1px solid #444; background: #1a1a1a; color: #fff; font-family: var(--font-ui); font-size: 1.1rem; margin-bottom: 15px; text-align: center; outline: none; }
+.input-name:focus { border-color: var(--accent-gold); }
+.btn { width: 100%; padding: 20px; border-radius: 100px; border: none; background: #fff; color: #000; font-weight: 800; cursor: pointer; text-transform: uppercase; font-family: var(--font-ui); letter-spacing: 1px; margin-top: 10px; font-size: 0.9rem; }
+.btn-save { background: var(--accent-gold); color: #000; box-shadow: 0 5px 20px rgba(255, 204, 0, 0.2); }
 
-#loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; letter-spacing: 5px; color: var(--accent-gold); flex-direction: column; }
-#status-msg { font-size: 0.8rem; margin-top: 10px; color: #666; font-family: var(--font-ui); text-align: center; min-height: 20px;}
+#loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: var(--font-ui); font-weight: 900; font-size: 1.5rem; letter-spacing: 4px; color: var(--accent-gold); flex-direction: column; }
+#status-msg { font-size: 0.9rem; margin-top: 15px; color: #888; font-family: var(--font-ui); text-align: center; min-height: 20px;}
 </style>
 </head>
 
 <body>
-<div id="loader">ALCHEMIST<br><small style="font-size:0.5em; opacity:0.5; margin-top:10px;">V78.2 LOADED</small></div>
+<div id="loader">ALCHEMIST<br><small style="font-size:0.4em; opacity:0.5; margin-top:15px; font-weight:400; font-family:var(--font-code);">INITIALIZING V78.5</small></div>
 
 <div id="header">
     <div class="header-meta"><span id="rank-ui">RANK: NOVICE</span><span id="xp-ui">0 XP</span></div>
@@ -63,10 +71,12 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 <div id="stack"></div>
 
 <script>
-// *** YOUR SCRIPT URL HERE ***
-const ENDPOINT = "https://script.google.com/macros/s/AKfycbxaMo1Gi8KjfYOr1_pHJI5XYJ1t9FK4PWkFCm8lU4MsCmUXvY0nSUIqYTAqhpumFRFL/exec";
+// =========================================================
+// ⚠️ ACTION REQUIRED: REPLACE THIS URL WITH YOUR OWN ⚠️
+// =========================================================
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbxaMo1Gi8KjfYOr1_pHJI5XYJ1t9FK4PWkFCm8lU4MsCmUXvY0nSUIqYTAqhpumFRFL/exec"; 
 
-// *** FULL 90-QUESTION DATASET ***
+// FULL 90-QUESTION DATABASE
 const BACKUP_DATA = [
   { "dataset": "SET_A", "topic": "Physical", "q_type": "CONCEPT", "question_text": "What does a negative ΔG value signify?", "hint": "Gibbs Energy.", "explanation": "✅ Spontaneous reaction.", "swipe_up_label": "Spontaneous", "swipe_right_label": "Equilibrium", "swipe_down_label": "HINT", "swipe_left_label": "Non-spontaneous", "correct": "UP", "weight": 1 },
   { "dataset": "SET_A", "topic": "Physical", "q_type": "APPLICATION", "question_text": "If reaction rate doubles when T increases from 298K to 308K, effect on k?", "hint": "Arrhenius equation.", "explanation": "✅ k increases exponentially.", "swipe_up_label": "k Increases", "swipe_right_label": "k is Constant", "swipe_down_label": "HINT", "swipe_left_label": "k Decreases", "correct": "UP", "weight": 2 },
@@ -152,20 +162,18 @@ const formatChem = t => { if(!t) return ""; return t.toString().replace(/([A-Z][
 
 async function init(){
     const l = document.getElementById('loader');
-    // Try cloud sync, default to backup
+    // Try to fetch new questions from cloud, else fallback to backup
     try {
         const r = await fetch(ENDPOINT);
         const json = await r.json();
         if(Array.isArray(json) && json.length > 0) RAW_DATA = json; 
     } catch(e) { console.log("Offline mode active"); }
 
-    CURRENT_DATASET = "SET_A";
-    if(!attemptAutoStart("Physical", "CONCEPT")){
-        const first = RAW_DATA[0];
-        CURRENT_DATASET = first.dataset;
-        attemptAutoStart(first.topic, first.q_type);
-    }
-    setTimeout(() => { l.remove(); }, 800);
+    // Start with Menu
+    setTimeout(() => { 
+        l.remove(); 
+        renderDatasetSelect(); 
+    }, 1000);
 }
 
 function attemptAutoStart(topic, genre){
@@ -173,6 +181,37 @@ function attemptAutoStart(topic, genre){
     POOL = RAW_DATA.filter(q => (q.dataset||"").toUpperCase() === cleanD || (q.dataset||"") === "").sort(() => Math.random() - .5);
     if(POOL.length > 0) { CURRENT_TOPIC = topic; CURRENT_GENRE = genre; renderNext(); return true; }
     return false;
+}
+
+function renderDatasetSelect(){
+    MODE="DATASET_SELECT"; const s=document.getElementById('stack'); s.innerHTML="";
+    const c=document.createElement('div'); c.className="card";
+    c.innerHTML=`<div class="card-q">SELECT CURRICULUM</div>
+        <div class="swipe-label sl-up">CORE CHEMISTRY</div><div class="swipe-label sl-left">INDUSTRIAL APPS</div>
+        <div class="swipe-label sl-right">REVISION SET</div><div class="swipe-label sl-down">EXPERT CHALLENGE</div>`;
+    s.appendChild(c); bindPhysics(c);
+}
+
+function renderTopicSelect(dataset){
+    MODE="TOPIC_SELECT"; CURRENT_DATASET=dataset; const s=document.getElementById('stack'); s.innerHTML="";
+    const c=document.createElement('div'); c.className="card";
+    c.innerHTML=`<div class="card-q">CHOOSE DOMAIN</div>
+        <div class="swipe-label sl-up">PHYSICAL</div><div class="swipe-label sl-left">ORGANIC</div>
+        <div class="swipe-label sl-right">INORGANIC</div><div class="swipe-label sl-down">ANALYTICAL</div>`;
+    s.appendChild(c); bindPhysics(c);
+}
+
+function renderGenreSelect(topic){
+    MODE="GENRE_SELECT"; CURRENT_TOPIC=topic; const s=document.getElementById('stack'); s.innerHTML="";
+    const c=document.createElement('div'); c.className="card";
+    c.innerHTML=`<div class="card-q">SELECT DEPTH</div>
+        <div class="swipe-label sl-up">CONCEPT MASTERY</div>
+        <div class="swipe-label sl-down">APPLIED PROBLEMS</div>`;
+    s.appendChild(c); bindPhysics(c);
+}
+
+function startQuiz(topic, genre){
+    if(!attemptAutoStart(topic, genre)) { alert("No questions found."); renderDatasetSelect(); }
 }
 
 function renderNext(){
@@ -261,7 +300,6 @@ function bindPhysics(el, data){
     const end=()=>{
         if(!active)return; active=false;
         if(triggerDir){
-            // V78.2 LOGIC: Down swipe = Hint Peek (Bounce back). UP/LEFT/RIGHT = Answer.
             if(MODE==="QUIZ" && triggerDir==="DOWN"){ 
                 el.style.transition="transform .3s"; 
                 el.style.transform="translate3d(0,0,0) rotate(0deg)"; 
@@ -281,11 +319,10 @@ function handleAction(el, data, x, y, dir){
         const w=parseInt(data.weight)||1; 
         if(dir===data.correct.toUpperCase()){ 
             SCORE+=(10*w); 
-            renderNext(); // Correct = Instant Next
+            renderNext();
         } 
         else { 
             SCORE=Math.max(0, SCORE-5); MISTAKES.push(data); 
-            // Wrong = Show Analysis Popup
             el.querySelector('.overlay').classList.add('active');
             el.style.transition="transform .3s";
             el.style.transform="translate3d(0,0,0) rotate(0deg)";
@@ -293,7 +330,6 @@ function handleAction(el, data, x, y, dir){
             return; 
         }
     }
-    // Handle Navigation Logic (Menus)
     else if(MODE==="DATASET_SELECT"){ const map={UP:"SET_A", LEFT:"SET_B", RIGHT:"SET_C", DOWN:"SET_D"}; renderTopicSelect(map[dir]); }
     else if(MODE==="TOPIC_SELECT"){ const map={UP:"Physical", LEFT:"Organic", RIGHT:"Inorganic", DOWN:"Analytical"}; renderGenreSelect(map[dir]); }
     else if(MODE==="GENRE_SELECT"){ 
@@ -302,10 +338,8 @@ function handleAction(el, data, x, y, dir){
         else { isTransitioning=false; return; }
     }
     else if(MODE==="SESSION_END"){ 
-        if(dir==="UP") location.reload(); // Restart
+        if(dir==="UP") location.reload();
     }
-    
-    // Animate Card Away
     el.style.transition="transform .4s ease-in"; 
     el.style.transform=`translate3d(${x*6}px,${y*6}px,0) rotate(${x/5}deg)`;
     updateUI(); 
