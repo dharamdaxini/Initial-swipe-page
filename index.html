@@ -1,317 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport"
-  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist V78.1</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alchemist – Swipe Engine</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,600;1,600&family=Inter:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
-
-<link rel="stylesheet" href="styles.css">
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
+  <!-- LOADER -->
+  <div id="loader">LOADING</div>
 
-<div id="loader">
-  <div class="loader-title">ALCHEMIST</div>
-</div>
-
-<div id="header">
-  <div class="header-meta">
-    <span id="rank-ui">RANK: NOVICE</span>
-    <span id="xp-ui">0 XP</span>
+  <!-- HEADER -->
+  <div id="header">
+    <div class="header-meta">
+      <span id="rank-ui">RANK: NOVICE</span>
+      <span id="xp-ui">0 XP</span>
+    </div>
+    <div class="progress-track">
+      <div id="progress-bar"></div>
+    </div>
   </div>
-  <div class="progress-track">
-    <div id="progress-bar"></div>
-  </div>
-</div>
 
-<div id="stack"></div>
+  <!-- CARD STACK -->
+  <div id="stack"></div>
 
-<script>
-// ============================================================
-// CONFIG
-// ============================================================
-
-const CONFIG = {
-  ENDPOINT: "data.json",   // local JSON for production bundle
-  SWIPE_THRESHOLD: 75,
-  HINT_THRESHOLD: 15,
-  FETCH_TIMEOUT: 8000,
-  RANK_THRESHOLDS: { NOVICE: 0, SCHOLAR: 500, GRAND_ALCHEMIST: 1000 }
-};
-
-const STATE = {
-  rawData: [],
-  pool: [],
-  score: 0,
-  isBusy: false,
-  mode: "INIT",
-  currentDataset: "",
-  currentTopic: "",
-  currentGenre: ""
-};
-
-// ============================================================
-// CHEM FORMATTER
-// ============================================================
-
-function formatChem(text) {
-  if (!text) return "";
-  return text
-    .replace(/([A-Z][a-z]?)(\d+)/g, "$1<sub>$2</sub>")
-    .replace(/(\d+)([+-])/g, "<sup>$1$2</sup>")
-    .replace(/\|\|/g, "<br><br>");
-}
-
-// ============================================================
-// INIT
-// ============================================================
-
-async function init() {
-  const loader = document.getElementById("loader");
-
-  try {
-    const res = await fetch(CONFIG.ENDPOINT);
-    const text = await res.text();
-
-    if (text.trim().startsWith("<")) {
-      throw new Error("HTML received instead of JSON");
-    }
-
-    const data = JSON.parse(text);
-    if (!Array.isArray(data) || data.length === 0) {
-      throw new Error("Invalid dataset");
-    }
-
-    STATE.rawData = data;
-    loader.remove();
-    renderDatasetSelect();
-
-  } catch (err) {
-    loader.innerHTML = `
-      <div class="loader-title">ERROR</div>
-      <div class="error-msg">${err.message}</div>
-      <button class="retry-btn" onclick="location.reload()">RETRY</button>
-    `;
-  }
-}
-
-// ============================================================
-// CARD ENGINE
-// ============================================================
-
-function createCard(title, labels, data = null) {
-  const stack = document.getElementById("stack");
-  stack.innerHTML = "";
-
-  const card = document.createElement("div");
-  card.className = "card";
-
-  card.innerHTML = `
-    <div class="card-q">${formatChem(title)}</div>
-    ${labels.up ? `<div class="swipe-label sl-up">${labels.up}</div>` : ""}
-    ${labels.left ? `<div class="swipe-label sl-lt">${labels.left}</div>` : ""}
-    ${labels.right ? `<div class="swipe-label sl-rt">${labels.right}</div>` : ""}
-    ${labels.down ? `<div class="swipe-label sl-dn sl-blue">${labels.down}</div>` : ""}
-    ${
-      STATE.mode === "QUIZ" && data?.explanation
-        ? `<div class="overlay">
-             <div class="overlay-label">ANALYSIS</div>
-             <div class="overlay-body">${formatChem(data.explanation)}</div>
-             <button class="btn" onclick="closeOverlay()">CONTINUE</button>
-           </div>`
-        : ""
-    }
-  `;
-
-  stack.appendChild(card);
-  bindPhysics(card, data);
-}
-
-function closeOverlay() {
-  document.querySelector(".overlay")?.classList.remove("active");
-}
-
-// ============================================================
-// NAVIGATION
-// ============================================================
-
-function renderDatasetSelect() {
-  STATE.mode = "DATASET_SELECT";
-  createCard("SELECT CURRICULUM", {
-    up: "SET_A",
-    left: "SET_B",
-    right: "SET_C",
-    down: "SET_D"
-  });
-}
-
-function renderTopicSelect(dataset) {
-  STATE.mode = "TOPIC_SELECT";
-  STATE.currentDataset = dataset;
-
-  createCard("DOMAIN", {
-    up: "PHYSICAL",
-    left: "ORGANIC",
-    right: "INORGANIC",
-    down: "ANALYTICAL"
-  });
-}
-
-function renderGenreSelect(topic) {
-  STATE.mode = "GENRE_SELECT";
-  STATE.currentTopic = topic;
-
-  createCard("DEPTH", {
-    up: "CONCEPT",
-    down: "APPLICATION"
-  });
-}
-
-function startQuiz(topic, genre) {
-  STATE.currentGenre = genre;
-
-  STATE.pool = STATE.rawData.filter(q =>
-    q.dataset === STATE.currentDataset &&
-    q.topic === topic &&
-    q.q_type === genre
-  ).sort(() => Math.random() - 0.5);
-
-  renderNext();
-}
-
-function renderNext() {
-  if (!STATE.pool.length) {
-    renderDatasetSelect();
-    return;
-  }
-
-  STATE.mode = "QUIZ";
-  const q = STATE.pool.shift();
-
-  createCard(q.question_text, {
-    up: q.swipe.UP,
-    left: q.swipe.LEFT,
-    right: q.swipe.RIGHT,
-    down: "HINT"
-  }, q);
-}
-
-// ============================================================
-// PHYSICS
-// ============================================================
-
-function bindPhysics(el, data) {
-  let sx = 0, sy = 0, dx = 0, dy = 0, active = false;
-
-  const start = e => {
-    if (STATE.isBusy) return;
-    active = true;
-    const p = e.touches ? e.touches[0] : e;
-    sx = p.clientX;
-    sy = p.clientY;
-    el.style.transition = "none";
-  };
-
-  const move = e => {
-    if (!active) return;
-    const p = e.touches ? e.touches[0] : e;
-    dx = p.clientX - sx;
-    dy = p.clientY - sy;
-    el.style.transform = `translate(${dx}px, ${dy}px) rotate(${dx / 20}deg)`;
-  };
-
-  const end = () => {
-    if (!active) return;
-    active = false;
-
-    const dist = Math.hypot(dx, dy);
-    let dir = null;
-
-    if (dist > CONFIG.SWIPE_THRESHOLD) {
-      const a = Math.atan2(-dy, dx) * 180 / Math.PI + 360;
-      if (a >= 45 && a < 135) dir = "UP";
-      else if (a >= 135 && a < 225) dir = "LEFT";
-      else if (a >= 225 && a < 315) dir = "DOWN";
-      else dir = "RIGHT";
-    }
-
-    if (STATE.mode === "QUIZ" && dir === "DOWN") {
-      el.querySelector(".overlay")?.classList.add("active");
-      reset();
-      return;
-    }
-
-    if (dir) handleAction(el, data, dir);
-    else reset();
-  };
-
-  function reset() {
-    el.style.transition = "transform 0.4s cubic-bezier(.2,.8,.2,1)";
-    el.style.transform = "translate(0,0) rotate(0)";
-  }
-
-  el.addEventListener("mousedown", start);
-  el.addEventListener("touchstart", start);
-  window.addEventListener("mousemove", move);
-  window.addEventListener("touchmove", move);
-  window.addEventListener("mouseup", end);
-  window.addEventListener("touchend", end);
-}
-
-// ============================================================
-// ACTION HANDLER
-// ============================================================
-
-function handleAction(el, data, dir) {
-  STATE.isBusy = true;
-
-  if (STATE.mode === "DATASET_SELECT") {
-    renderTopicSelect(dir === "UP" ? "SET_A" :
-                      dir === "LEFT" ? "SET_B" :
-                      dir === "RIGHT" ? "SET_C" : "SET_D");
-  }
-
-  else if (STATE.mode === "TOPIC_SELECT") {
-    renderGenreSelect(dir === "UP" ? "Physical" :
-                      dir === "LEFT" ? "Organic" :
-                      dir === "RIGHT" ? "Inorganic" : "Analytical");
-  }
-
-  else if (STATE.mode === "GENRE_SELECT") {
-    if (dir === "UP") startQuiz(STATE.currentTopic, "CONCEPT");
-    if (dir === "DOWN") startQuiz(STATE.currentTopic, "APPLICATION");
-  }
-
-  else if (STATE.mode === "QUIZ") {
-    if (dir === data.correct) {
-      STATE.score += 10 * (data.weight || 1);
-    } else {
-      STATE.score = Math.max(0, STATE.score - 5);
-    }
-    updateUI();
-    renderNext();
-  }
-
-  STATE.isBusy = false;
-}
-
-// ============================================================
-// UI
-// ============================================================
-
-function updateUI() {
-  document.getElementById("xp-ui").textContent = `${STATE.score} XP`;
-  document.getElementById("progress-bar").style.width = `${STATE.score % 100}%`;
-}
-
-// ============================================================
-
-window.addEventListener("load", init);
-</script>
+  <!-- LOGIC -->
+  <script src="swipe.js"></script>
 </body>
 </html>
