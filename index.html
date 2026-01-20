@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Chemistry Master V72.0 (Smooth Decoupled)</title>
+<title>Chemistry Master V72.2 (Detached Screen Pivot)</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,17 +29,8 @@ body {
     user-select:none; -webkit-user-select:none; touch-action:none;
 }
 
-sub { font-size:.75em; vertical-align:sub; line-height:0; }
-sup { font-size:.75em; vertical-align:super; line-height:0; }
-
-#header {
-    width:90%; margin-top:calc(15px + env(safe-area-inset-top));
-    z-index:100; pointer-events:none;
-}
-.header-meta {
-    display:flex; justify-content:space-between;
-    font-family:var(--font-code); font-size:.7rem; color:#666; margin-bottom:10px;
-}
+#header { width:90%; margin:calc(15px + env(safe-area-inset-top)) auto 0; z-index:100; pointer-events:none; }
+.header-meta { display:flex; justify-content:space-between; font-family:var(--font-code); font-size:.7rem; color:#666; margin-bottom:10px; }
 .progress-track { width:100%; height:3px; background:#222; border-radius:2px; }
 #progress-bar { height:100%; background:var(--accent-gold); width:0%; transition:width .4s ease; }
 
@@ -49,33 +40,35 @@ sup { font-size:.75em; vertical-align:super; line-height:0; }
     margin:30px auto 0; perspective:1200px;
 }
 
+/* V72.2 DETACHED PIVOT: Origin locked to Screen Center */
 .card {
     position:absolute; width:100%; height:100%;
     background:var(--card-bg); border-radius:40px; border:1px solid #282828;
     padding:40px; display:flex; flex-direction:column; justify-content:center;
     box-shadow:0 20px 60px rgba(0,0,0,.9);
-    transform-origin: center 50%; 
+    /* Pivot locked to the screen's geometric center */
+    transform-origin: center center; 
     will-change:transform; cursor:grab;
     backface-visibility: hidden;
     transform: translate3d(0,0,0);
 }
 
-.card-q {
-    font-family:var(--font-chem); font-size:2rem; line-height:1.35;
-    font-style:italic; font-weight:600; text-align:center; color:#f0f0f0;
-}
+.card-q { font-family:var(--font-chem); font-size:2rem; line-height:1.35; font-style:italic; font-weight:600; text-align:center; color:#f0f0f0; }
 
-/* V72.0: Smooth Visibility Shield */
+/* Blur-to-Focus Shield */
 .swipe-label {
     position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-    background:#000; color:#fff; font-weight:900; font-size:2.1rem;
+    background:transparent; color:#fff; font-weight:900; font-size:2.1rem;
     text-transform:uppercase; line-height:1.1; border-radius:40px;
     z-index:999; opacity:0; pointer-events:none;
     transform:scale(0.9);
-    will-change:opacity,transform;
-    /* Slow & Smooth Transition */
-    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    will-change:opacity, transform, backdrop-filter;
+    transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275), backdrop-filter 0.35s ease;
 }
+
+.swipe-label.focused { background: #000; opacity: 1 !important; transform: scale(1.1) !important; backdrop-filter: blur(0px); }
 
 .overlay {
     position:absolute; inset:0; background:var(--overlay-bg);
@@ -85,17 +78,14 @@ sup { font-size:.75em; vertical-align:super; line-height:0; }
 }
 .overlay.active { opacity:1; pointer-events:auto; }
 
-#loader {
-    position:fixed; inset:0; background:#000; z-index:500;
-    display:flex; align-items:center; justify-content:center;
-    font-family:var(--font-code); font-size:.7rem;
-}
+.btn { width:100%; padding:18px; border-radius:60px; border:none; background:#fff; font-weight:900; cursor:pointer; }
+
+#loader { position:fixed; inset:0; background:#000; z-index:500; display:flex; align-items:center; justify-content:center; font-family:var(--font-code); font-size:.7rem; }
 </style>
 </head>
 
 <body>
-<div id="loader">V72.0 SMOOTH_DECOUPLED_ACTIVE…</div>
-
+<div id="loader">V72.2 DETACHED_SCREEN_PIVOT…</div>
 <div id="header">
     <div class="header-meta">
         <span id="rank-ui">KNOWLEDGE: NOVICE</span>
@@ -103,7 +93,6 @@ sup { font-size:.75em; vertical-align:super; line-height:0; }
     </div>
     <div class="progress-track"><div id="progress-bar"></div></div>
 </div>
-
 <div id="stack"></div>
 
 <script>
@@ -141,7 +130,7 @@ function renderNext(){
         <div class="swipe-label sl-up">${q.swipe_up_label||"YES"}</div><div class="swipe-label sl-left">${q.swipe_left_label||"NO"}</div>
         <div class="swipe-label sl-right">${q.swipe_right_label||"MAYBE"}</div><div class="swipe-label sl-down">ANALYSIS</div>
         <div class="overlay"><div class="overlay-label">ANALYSIS</div><div class="overlay-body">${formatChem(q.explanation)}</div>
-        <button class="btn" style="width:100%; padding:18px; border-radius:60px; border:none; background:#fff; font-weight:900;" onclick="this.parentElement.classList.remove('active')">BACK</button></div>`;
+        <button class="btn" onclick="this.parentElement.classList.remove('active')">BACK</button></div>`;
     s.appendChild(c); bindPhysics(c,q);
 }
 
@@ -160,42 +149,43 @@ function bindPhysics(el,data){
     const labels = { up: el.querySelector('.sl-up'), dn: el.querySelector('.sl-down'), lt: el.querySelector('.sl-left'), rt: el.querySelector('.sl-right') };
 
     const updateLabels = (dx, dy) => {
-        const governorLimit = 20; // 0.5cm
+        const govLimit = 20; // 0.5cm
         const apply = (lbl, val) => {
-            // V72.0: Smooth opacity transition triggered at threshold
-            const isAtLimit = val >= governorLimit;
-            lbl.style.opacity = isAtLimit ? 1 : 0;
-            lbl.style.transform = isAtLimit ? "scale(1.1)" : "scale(0.9)";
+            if (val > 2) {
+                const blurVal = Math.min(val / 2, 12);
+                lbl.style.opacity = Math.min(val / 20, 0.7);
+                lbl.style.backdropFilter = `blur(${blurVal}px)`;
+                lbl.style.webkitBackdropFilter = `blur(${blurVal}px)`;
+                if (val >= govLimit) lbl.classList.add('focused');
+                else lbl.classList.remove('focused');
+            } else {
+                lbl.style.opacity = 0; lbl.style.backdropFilter = "blur(0px)"; lbl.classList.remove('focused');
+            }
         };
         apply(labels.up, -dy); apply(labels.dn, dy); apply(labels.lt, -dx); apply(labels.rt, dx);
     };
 
     const start = e => {
         if(isTransitioning || el.querySelector('.overlay.active')) return;
-        active = true; 
-        const p = e.touches ? e.touches[0] : e;
-        // V72.0: Initializing decoupled start coordinates
-        sx = p.clientX; sy = p.clientY; 
-        el.style.transition = "none";
+        active = true; const p = e.touches ? e.touches[0] : e;
+        // DETACHED: Save touch origin but don't move card yet
+        sx = p.clientX; sy = p.clientY; el.style.transition = "none";
     };
 
     const move = e => {
         if(!active) return; const p = e.touches ? e.touches[0] : e;
-        let dx = p.clientX - sx; 
-        let dy = p.clientY - sy;
-
-        const governorLimit = 20; // 0.5cm
-        const selectLimit = 40;   // 1cm
+        // Calculation is now RELATIVE displacement (Detached from screen finger location)
+        let dx = p.clientX - sx; let dy = p.clientY - sy;
+        const govLimit = 20; const selectLimit = 40;
         const dist = Math.sqrt(dx*dx + dy*dy);
 
-        if (dist > governorLimit && dist < selectLimit) {
+        if (dist > govLimit && dist < selectLimit) {
             const angle = Math.atan2(dy, dx);
-            dx = Math.cos(angle) * governorLimit;
-            dy = Math.sin(angle) * governorLimit;
+            dx = Math.cos(angle) * govLimit;
+            dy = Math.sin(angle) * govLimit;
         }
-
         x = dx; y = dy;
-        // V72.0 Physics: Direct relative translation (Decoupled from absolute touch position)
+        // SCREEN-PIVOT: Rotate around the geometric center of the screen
         el.style.transform = `translate3d(${x}px,${y}px,0) rotate(${x/14}deg)`;
         updateLabels(x, y);
     };
@@ -205,16 +195,15 @@ function bindPhysics(el,data){
         const selectThresh = 40; 
         if(MODE === "QUIZ" && y > selectThresh && Math.abs(y) > Math.abs(x)){
             el.querySelector('.overlay').classList.add('active');
-            el.style.transform = "translate3d(0,0,0)";
+            el.style.transform = "translate3d(0,0,0) rotate(0deg)";
         } else if(Math.abs(x) > selectThresh || Math.abs(y) > selectThresh){
             handleAction(el, data, x, y);
         } else {
             el.style.transition = "transform .4s cubic-bezier(.175,.885,.32,1.275)";
-            el.style.transform = "translate3d(0,0,0)";
+            el.style.transform = "translate3d(0,0,0) rotate(0deg)";
         }
         Object.values(labels).forEach(l => { 
-            l.style.opacity = 0; 
-            l.style.transform = "scale(0.9)"; 
+            l.style.opacity = 0; l.style.backdropFilter = "blur(0px)"; l.classList.remove('focused');
         });
     };
 
