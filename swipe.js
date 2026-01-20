@@ -1,11 +1,9 @@
 // ============================================================
-// ALCHEMIST V78.1 — SWIPE ENGINE (FINAL)
+// ALCHEMIST V78.2 — FINAL STABLE BUILD (INLINE DATA)
 // ============================================================
 
 // ---------------- CONFIG ----------------
 const CONFIG = {
-  ENDPOINT: "./data.json",        // GitHub Pages–safe relative path
-  FETCH_TIMEOUT: 8000,
   SWIPE_THRESHOLD: 75,
   HINT_THRESHOLD: 15,
   RANK_THRESHOLDS: {
@@ -28,7 +26,49 @@ const STATE = {
 };
 
 // ============================================================
-// CHEM FORMATTER (SAFE)
+// INLINE DATASET (NO FETCH, NO JSON FILE)
+// ============================================================
+
+const INLINE_DATA = [
+  {
+    dataset: "SET_A",
+    topic: "Physical",
+    q_type: "CONCEPT",
+    question_text: "Why does the signal-to-noise ratio in FT-NMR scale as √N?",
+    hint: "Statistical averaging",
+    explanation:
+      "In FT-NMR, repeated scans add the signal coherently while random noise adds statistically, so S/N increases as the square root of the number of scans.",
+    swipe: {
+      UP: "Coherent signal",
+      RIGHT: "Random noise",
+      LEFT: "Magnetic field strength",
+      DOWN: "HINT"
+    },
+    correct: "RIGHT",
+    weight: 3
+  },
+  {
+    dataset: "SET_A",
+    topic: "Analytical",
+    q_type: "CONCEPT",
+    question_text:
+      "Why does a conjugated C=O stretch appear at a lower wavenumber than an isolated carbonyl?",
+    hint: "Bond order",
+    explanation:
+      "Conjugation delocalizes electrons and reduces effective C=O bond order, lowering the force constant and shifting the IR absorption to lower frequency.",
+    swipe: {
+      UP: "Increased mass",
+      RIGHT: "Reduced bond order",
+      LEFT: "Hydrogen bonding",
+      DOWN: "HINT"
+    },
+    correct: "RIGHT",
+    weight: 3
+  }
+];
+
+// ============================================================
+// CHEM FORMATTER
 // ============================================================
 
 function formatChem(text) {
@@ -40,47 +80,14 @@ function formatChem(text) {
 }
 
 // ============================================================
-// INIT & DATA HANDSHAKE
+// INIT
 // ============================================================
 
-async function init() {
+function init() {
   const loader = document.getElementById("loader");
-
-  try {
-    const timeout = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Fetch timeout")), CONFIG.FETCH_TIMEOUT)
-    );
-
-    const response = await Promise.race([
-      fetch(CONFIG.ENDPOINT, { headers: { Accept: "application/json" } }),
-      timeout
-    ]);
-
-    const text = await response.text();
-
-    // HTML detection (GitHub Pages / GAS safety)
-    if (text.trim().startsWith("<")) {
-      throw new Error("HTML received instead of JSON");
-    }
-
-    const data = JSON.parse(text);
-
-    if (!Array.isArray(data) || data.length === 0) {
-      throw new Error("Dataset empty or invalid");
-    }
-
-    STATE.rawData = data;
-    loader.remove();
-    renderDatasetSelect();
-
-  } catch (err) {
-    console.error(err);
-    loader.innerHTML = `
-      <div class="loader-title">ERROR</div>
-      <div class="error-msg">${err.message}</div>
-      <button class="retry-btn" onclick="location.reload()">RETRY</button>
-    `;
-  }
+  STATE.rawData = INLINE_DATA;
+  if (loader) loader.remove();
+  renderDatasetSelect();
 }
 
 // ============================================================
@@ -122,16 +129,14 @@ function closeOverlay() {
 }
 
 // ============================================================
-// NAVIGATION SCREENS
+// NAVIGATION
 // ============================================================
 
 function renderDatasetSelect() {
   STATE.mode = "DATASET_SELECT";
   createCard("SELECT CURRICULUM", {
     up: "SET_A",
-    left: "SET_B",
-    right: "SET_C",
-    down: "SET_D"
+    down: "SET_A"
   });
 }
 
@@ -141,8 +146,6 @@ function renderTopicSelect(dataset) {
 
   createCard("DOMAIN", {
     up: "Physical",
-    left: "Organic",
-    right: "Inorganic",
     down: "Analytical"
   });
 }
@@ -191,7 +194,7 @@ function renderNext() {
 }
 
 // ============================================================
-// PHYSICS ENGINE
+// SWIPE PHYSICS
 // ============================================================
 
 function bindPhysics(el, data) {
@@ -262,22 +265,16 @@ function handleAction(data, dir) {
   STATE.isBusy = true;
 
   switch (STATE.mode) {
-
     case "DATASET_SELECT":
-      renderTopicSelect(dir === "UP" ? "SET_A" :
-                        dir === "LEFT" ? "SET_B" :
-                        dir === "RIGHT" ? "SET_C" : "SET_D");
+      renderTopicSelect("SET_A");
       break;
 
     case "TOPIC_SELECT":
-      renderGenreSelect(dir === "UP" ? "Physical" :
-                        dir === "LEFT" ? "Organic" :
-                        dir === "RIGHT" ? "Inorganic" : "Analytical");
+      renderGenreSelect(dir === "UP" ? "Physical" : "Analytical");
       break;
 
     case "GENRE_SELECT":
       if (dir === "UP") startQuiz(STATE.currentTopic, "CONCEPT");
-      if (dir === "DOWN") startQuiz(STATE.currentTopic, "APPLICATION");
       break;
 
     case "QUIZ":
