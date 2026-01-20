@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Chemistry Master V71.0 (Lag Fix)</title>
+    <title>Chemistry Master V71.2</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,7 +37,6 @@
         .progress-track { width: 100%; height: 3px; background: #222; border-radius: 2px; }
         #progress-bar { height: 100%; background: var(--accent-gold); width: 0%; transition: width 0.4s ease; }
 
-        /* PERFORMANCE FIX: will-change + optimized height */
         #stack { 
             position: relative; 
             width: 92%; 
@@ -45,7 +44,6 @@
             height: calc(100vh - 135px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); 
             margin-top: 25px; 
             perspective: 1200px; 
-            will-change: transform;
         }
 
         .card { 
@@ -53,28 +51,28 @@
             background: var(--card-bg); border-radius: 40px; border: 1px solid #282828;
             padding: 40px; display: flex; flex-direction: column; justify-content: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8); will-change: transform; cursor: grab;
-            transform-origin: center 150%; 
+            transform-origin: center 160%; 
             backface-visibility: hidden;
             transform: translate3d(0,0,0);
         }
         .card-q { font-family: var(--font-chem); font-size: 1.95rem; line-height: 1.4; font-weight: 600; font-style: italic; pointer-events: none; color: #f2f2f2; text-align: center; }
 
-        /* PERFORMANCE FIX: hardware accelerated opacity */
         .overlay {
             position: absolute; inset: 0; background: var(--overlay-bg); 
             z-index: 110; padding: 45px 35px; opacity: 0; pointer-events: none;
             display: flex; flex-direction: column; justify-content: center; border-radius: 40px;
-            transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: opacity 0.2s ease-out;
             will-change: opacity;
         }
         .overlay.active { opacity: 1; pointer-events: auto; }
         .overlay-label { font-family: var(--font-code); color: var(--accent-blue); font-size: 0.75rem; margin-bottom: 15px; text-transform: uppercase; }
         .overlay-body { font-family: var(--font-chem); font-size: 1.4rem; line-height: 1.6; color: #ddd; margin-bottom: 40px; }
 
+        /* V71.2 Visibility Shield: Deep Backdrop for Max Stretch */
         .swipe-label {
             position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-            font-size: 1.9rem; font-weight: 900; opacity: 0; pointer-events: none;
-            z-index: 100; background: rgba(0,0,0,0.95); border-radius: 40px; text-align: center; padding: 25px;
+            font-size: 2rem; font-weight: 900; opacity: 0; pointer-events: none;
+            z-index: 100; background: rgba(0,0,0,0.98); border-radius: 40px; text-align: center; padding: 25px;
             color: #fff; text-transform: uppercase; line-height: 1.1; 
             will-change: opacity;
         }
@@ -84,7 +82,7 @@
     </style>
 </head>
 <body>
-    <div id="loader"><span style="font-family:var(--font-code); font-size:0.7rem;">V71.0 GPU_OPTIMIZED...</span></div>
+    <div id="loader"><span style="font-family:var(--font-code); font-size:0.7rem;">V71.2 ARC_RESTORATION...</span></div>
 
     <div id="header">
         <div class="header-meta">
@@ -115,8 +113,7 @@
                 document.getElementById('loader').style.display = 'none';
                 renderTopicSelect();
             } catch (e) { 
-                console.error("Sync Error", e);
-                document.getElementById('loader').innerHTML = "<span style='color:red; font-family:var(--font-code)'>SYNC FAILED</span>";
+                document.getElementById('loader').innerHTML = "<span style='color:red;'>SYNC FAILED</span>";
             }
         }
 
@@ -141,7 +138,6 @@
             const stack = document.getElementById('stack');
             stack.innerHTML = "";
             if (POOL.length === 0) { renderEndSlide(); return; }
-
             MODE = "QUIZ";
             const q = POOL.shift();
             const card = document.createElement('div');
@@ -197,34 +193,31 @@
                 const p = e.touches ? e.touches[0] : e;
                 x = p.clientX - sX; y = p.clientY - sY;
                 
-                // PERFORMANCE FIX: Simplified rotation calc
+                // Centric Motion Arc (V70.2 Architecture)
                 const rotation = x / 14; 
-                if (Math.abs(x) > Math.abs(y)) y = 0; else x = 0;
                 el.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${rotation}deg)`;
                 
-                const thresh = 60;
-                // PERFORMANCE FIX: Linear opacity calc to reduce CPU load
-                const opacity = Math.min(1, Math.max(0, (Math.abs(x || y) - thresh) / 50));
-                
-                up.style.opacity = y < -thresh ? opacity : 0;
-                dn.style.opacity = y > thresh ? opacity : 0;
-                lt.style.opacity = x < -thresh ? opacity : 0;
-                rt.style.opacity = x > thresh ? opacity : 0;
+                // V71.2 Visibility: Linear high-contrast opacity for max stretch
+                const t = 40;
+                up.style.opacity = y < -t ? Math.min(1, Math.abs(y)/120) : 0;
+                dn.style.opacity = y > t ? Math.min(1, Math.abs(y)/120) : 0;
+                lt.style.opacity = x < -t ? Math.min(1, Math.abs(x)/120) : 0;
+                rt.style.opacity = x > t ? Math.min(1, Math.abs(x)/120) : 0;
             };
 
             const end = () => {
                 if (!active || isTransitioning) return;
                 active = false;
                 const t = 100;
-                if (MODE === "QUIZ" && y > t) {
-                    // PERFORMANCE FIX: Instant snap-back to prevent overlap lag
-                    el.style.transition = "transform 0.15s ease-out";
+                
+                if (MODE === "QUIZ" && y > t && Math.abs(y) > Math.abs(x)) {
+                    el.style.transition = "transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1)";
                     el.style.transform = "translate3d(0,0,0) rotate(0deg)";
                     el.querySelector('.overlay').classList.add('active');
                 } else if (Math.abs(x) > t || Math.abs(y) > t) {
                     handleAction(el, data, x, y);
                 } else {
-                    el.style.transition = "transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+                    el.style.transition = "transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
                     el.style.transform = "translate3d(0,0,0) rotate(0deg)";
                 }
                 [up, dn, lt, rt].forEach(l => l.style.opacity = 0);
@@ -247,10 +240,13 @@
                 if (dir === (data.correct || "UP").toUpperCase()) SCORE += parseInt(data.weight || 10);
                 else { SCORE = Math.max(0, SCORE - 5); MISTAKES.push(data); }
             } else if (MODE === "SESSION_END") {
-                if (dir === "UP" || dir === "RIGHT" || dir === "DOWN") { renderTopicSelect(); isTransitioning = false; return; }
-                if (dir === "LEFT") { 
-                    if (MISTAKES.length > 0) { POOL = [...MISTAKES]; MISTAKES = []; } 
-                    else { renderTopicSelect(); isTransitioning = false; return; }
+                // FIXED: Review Mistakes logic
+                if (dir === "LEFT" && MISTAKES.length > 0) {
+                    POOL = [...MISTAKES]; MISTAKES = [];
+                    isTransitioning = false; renderNext(); return;
+                } else {
+                    SCORE = 0; MISTAKES = [];
+                    renderTopicSelect(); isTransitioning = false; return;
                 }
             }
 
