@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chemistry Master V58 (Clean White)</title>
+    <title>Chemistry Master V57 (Review Fix)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -105,7 +105,6 @@
             margin-top: 10px; display: inline-block;
         }
 
-        /* --- UNIFIED SWIPE TEXT --- */
         .hint-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             border-radius: 32px; pointer-events: none; opacity: 0;
@@ -114,14 +113,16 @@
             font-weight: 900; font-size: 2.5rem; text-align: center;
             text-transform: uppercase; z-index: 10;
             text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            background: rgba(0,0,0,0.85); padding: 20px;
-            
-            /* ALL TEXT WHITE FOR CONSISTENCY */
-            color: #ffffff !important; 
+            background: rgba(0,0,0,0.9); padding: 20px; 
         }
         
         .hint-long { font-size: 1.8rem !important; }
         .hint-xl { font-size: 1.4rem !important; }
+
+        .hint-up { color: var(--accent-blue); }
+        .hint-left { color: var(--accent-red); }   
+        .hint-right { color: var(--accent-green); } 
+        .hint-down { color: #ffffff; }
 
         .info-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -194,6 +195,7 @@
         let CARD_START_TIME = 0;
         let STATS = { total_cards: 0, correct_count: 0, total_latency: 0, history: [] };
         let APP_MODE = 'QUIZ'; 
+        let CURRENT_QUESTION_DATA = null;
 
         async function loadQuestions(deck) {
             const status = document.getElementById('status-msg');
@@ -313,9 +315,16 @@
                 };
             }
 
+            // CRITICAL FIX: Handle 'question_text' (Raw) vs 'text' (Processed)
+            const finalText = q.question_text || q.text;
+            const finalSubs = q.subs ? (Array.isArray(q.subs) ? q.subs : q.subs.toString().split('|')) : [];
+
             return {
-                id: q.question_id, topic: q.topic, type: q.q_type,
-                text: q.question_text, subs: q.subs ? q.subs.toString().split('|') : [],
+                id: q.question_id || q.id, // Handle ID mapping
+                topic: q.topic, 
+                type: q.q_type || q.type,
+                text: finalText, 
+                subs: finalSubs,
                 explanation: q.explanation || "No details available.",
                 ...labels,
                 correct: q.correct, w: q.weight
@@ -336,7 +345,8 @@
                             SCORE += w;
                         } else {
                             SCORE -= 5;
-                            MISTAKE_POOL.push({...data}); 
+                            // Push a CLONE of the data to avoid reference issues
+                            MISTAKE_POOL.push(JSON.parse(JSON.stringify(data))); 
                         }
                     }
                     
@@ -401,14 +411,20 @@
             if(card) {
                 card.style.transition = 'transform 0.3s ease-in';
                 card.style.transform = 'translate(0, 1000px)'; 
-                setTimeout(() => { card.remove(); spawnCard(); }, 200);
+                setTimeout(() => { card.remove(); 
+                    if(CURRENT_QUESTION_DATA) spawnCard(CURRENT_QUESTION_DATA); // RELOOP
+                    else spawnCard(); 
+                }, 200);
             }
         }
 
-        function spawnCard() {
+        function spawnCard(forcedData = null) {
             try {
-                const data = nextQuestion();
+                const data = forcedData || nextQuestion();
                 if(!data) return;
+                
+                if(!forcedData) CURRENT_QUESTION_DATA = null;
+
                 const card = createCardDOM(data);
                 document.getElementById('stack').appendChild(card);
                 new Draggable(card, data);
@@ -437,7 +453,7 @@
 
             processMove(dx, dy) {
                 if (Math.abs(dx) > Math.abs(dy)) dy = 0; else dx = 0; 
-                const MAX_DRAG = 140; 
+                const MAX_DRAG = 120; 
                 dx = Math.max(-MAX_DRAG, Math.min(MAX_DRAG, dx));
                 dy = Math.max(-MAX_DRAG, Math.min(MAX_DRAG, dy));
                 this.update(dx, dy);
@@ -458,8 +474,15 @@
                 document.onmousemove = null; document.onmouseup = null;
                 const triggerDist = 80;
                 
-                if (this.y > triggerDist && APP_MODE === 'QUIZ') { this.triggerInfo(); return; } 
-                if (this.y < -triggerDist && APP_MODE === 'REVIEW') { this.triggerInfo(); return; }
+                // --- CRITICAL FIX: STOP PROPAGATION ON DEEP DIVE ---
+                if (this.y > triggerDist && APP_MODE === 'QUIZ') { 
+                    this.triggerInfo(); 
+                    return; 
+                } 
+                if (this.y < -triggerDist && APP_MODE === 'REVIEW') { 
+                    this.triggerInfo(); 
+                    return; 
+                }
 
                 if (this.y < -triggerDist) this.trigger('UP');
                 else if (this.x < -triggerDist) this.trigger('LEFT');
@@ -469,6 +492,7 @@
             }
 
             triggerInfo() {
+                CURRENT_QUESTION_DATA = this.data; 
                 this.el.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
                 this.el.style.transform = 'translate(0, 0)';
                 this.el.querySelectorAll('.hint-overlay').forEach(h => h.style.opacity = 0);
