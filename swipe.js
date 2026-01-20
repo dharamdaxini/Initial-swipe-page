@@ -1,279 +1,470 @@
 [
-  {
-    "question_id": "ORG-SYN-001",
-    "topic": "Advanced Organic Synthesis",
-    "subtopic": "Solvent/Catalyst Misfit",
-    "difficulty": "Hard",
-    "question": "Synthesis of an ether via $S_N2$ displacement on a secondary alkyl halide is attempted. Which set of conditions ensures the highest yield of the substitution product over elimination?",
-    "options": {
-      "1": "Sodium ethoxide ($NaOEt$) in Ethanol ($EtOH$) at $25^\\circ C$",
-      "2": "Sodium ethoxide ($NaOEt$) in Hexane at $0^\\circ C$",
-      "3": "Sodium hydride ($NaH$) to form the alkoxide, then reaction in $DMF$ at $0^\\circ C$"
-    },
-    "correct_vector": 3,
-    "pivot_explanation": "Secondary halides are highly sensitive to the base/nucleophile strength ratio. While ethoxide in ethanol is the textbook 'Williamson' setup, the protic solvent and basicity of ethoxide promote E2 pathways. Hexane prevents the salt from dissolving, stalling the reaction entirely. Using NaH to generate a 'naked' alkoxide in a polar aprotic solvent like DMF maximizes nucleophilicity while the low temperature suppresses the higher-activation-energy elimination pathway.",
-    "elimination_map": {
-      "1": "Protic solvents stabilize the nucleophile via hydrogen bonding, reducing its power and favoring E2 on hindered substrates.",
-      "2": "Non-polar solvents cannot solvate the ionic reagents, leading to zero reaction rate due to phase separation."
-    }
-  },
-  {
-    "question_id": "ORG-SYN-002",
-    "topic": "Advanced Organic Synthesis",
-    "subtopic": "Solvent/Catalyst Misfit",
-    "difficulty": "Hard",
-    "question": "A chemist intends to oxidize a primary alcohol to an aldehyde. Which protocol avoids the formation of the corresponding carboxylic acid under standard laboratory conditions?",
-    "options": {
-      "1": "$K_2Cr_2O_7$ in aqueous $H_2SO_4$ (Jones Reagent)",
-      "2": "$PCC$ ($Pyridinium\\ Chlorochromate$) in aqueous $Acetone$",
-      "3": "$PCC$ ($Pyridinium\\ Chlorochromate$) in anhydrous $CH_2Cl_2$"
-    },
-    "correct_vector": 3,
-    "pivot_explanation": "The critical factor in stopping alcohol oxidation at the aldehyde stage is the absence of water. In aqueous media, aldehydes exist in equilibrium with their hydrates (gem-diols), which are rapidly oxidized to carboxylic acids by Cr(VI) species. Jones reagent is inherently aqueous, and even PCC—which is designed for aldehyde selectivity—will fail to stop at the aldehyde if moisture is present to facilitate the hydrate intermediate.",
-    "elimination_map": {
-      "1": "Aqueous acidic conditions facilitate the formation of an aldehyde hydrate, which is the necessary substrate for over-oxidation.",
-      "2": "The presence of water, even with selective reagents like PCC, allows the formation of the gem-diol intermediate."
-    }
-  },
-  {
-    "question_id": "ORG-SYN-003",
-    "topic": "Advanced Organic Synthesis",
-    "subtopic": "Solvent/Catalyst Misfit",
-    "difficulty": "Hard",
-    "question": "To perform a Grignard addition to a sterically hindered ketone, which medium and protocol are necessary to prevent reagent quenching or enolization?",
-    "options": {
-      "1": "$MeMgBr$ in $Ethanol$ at reflux",
-      "2": "$MeMgBr$ in $Benzene$ at $25^\\circ C$",
-      "3": "$MeMgBr$ in anhydrous $THF$ at $0^\\circ C$"
-    },
-    "correct_vector": 3,
-    "pivot_explanation": "Grignard reagents are extremely strong bases ($pK_a \\approx 50$). Protic solvents like Ethanol will immediately quench the reagent to methane gas. While non-polar solvents like Benzene do not quench the reagent, they fail to coordinate with the Magnesium center, leading to aggregation and poor reactivity. THF acts as a Lewis base, solvating the Grignard species through coordination, which increases its nucleophilicity and allows for addition to hindered centers at low temperatures.",
-    "elimination_map": {
-      "1": "Protic solvents contain acidic hydrogens that react with the Grignard reagent faster than the carbonyl group.",
-      "2": "Lack of a coordinating ether solvent leads to reagent aggregation and dramatically reduced nucleophilic attack rates."
-    }
-  },
-  {
-    "question_id": "ORG-SYN-004",
-    "topic": "Advanced Organic Synthesis",
-    "subtopic": "Solvent/Catalyst Misfit",
-    "difficulty": "Hard",
-    "question": "A Diels-Alder reaction between a relatively unreactive diene and dienophile is required. Which condition set provides the highest rate acceleration via the 'hydrophobic effect'?",
-    "options": {
-      "1": "Refluxing in $Toluene$ with $AlCl_3$ catalyst",
-      "2": "Reaction in $DMF$ at $100^\\circ C$",
-      "3": "Reaction in $H_2O$ or $ethylene\\ glycol$ at $25^\\circ C$"
-    },
-    "correct_vector": 3,
-    "pivot_explanation": "While Lewis acid catalysis in Toluene is the standard method to lower the LUMO of a dienophile, certain Diels-Alder reactions exhibit a 'hydrophobic effect' where water forces the organic reactants together to minimize surface area contact with the solvent. This significantly increases the effective concentration and rate, often outperforming high-temperature organic solvent protocols. Water acts not just as a medium, but as a structural constraint for the transition state.",
-    "elimination_map": {
-      "1": "Standard Lewis acid catalysis is effective but does not utilize the entropy-driven hydrophobic force found in aqueous media.",
-      "2": "Polar aprotic solvents like DMF solvate the transition state but do not provide the forced-association effect of water."
-    }
-  },
-  {
-    "question_id": "ORG-SYN-005",
-    "topic": "Advanced Organic Synthesis",
-    "subtopic": "Solvent/Catalyst Misfit",
-    "difficulty": "Hard",
-    "question": "In the Birch reduction of benzene to 1,4-cyclohexadiene, which component acts as the essential proton source and how must it be handled?",
-    "options": {
-      "1": "$Na$ metal and $H_2O$ in $THF$ at $25^\\circ C$",
-      "2": "$Li$ metal in liquid $NH_3$ with concentrated $HCl$ added",
-      "3": "$Li$ metal in liquid $NH_3$ with $t-BuOH$ as a co-solvent",
-      "4": null
-    },
-    "options_meta": "Constraint: Option 3 is correct.",
-    "options": {
-      "1": "$Na$ metal and $H_2O$ in $THF$ at $25^\\circ C$",
-      "2": "$Li$ metal in liquid $NH_3$ with concentrated $HCl$",
-      "3": "$Li$ metal in liquid $NH_3$ with $t-Butanol$"
-    },
-    "correct_vector": 3,
-    "pivot_explanation": "The Birch reduction requires solvated electrons and a proton source with a very specific acidity. Water or HCl would react violently with the alkali metal or liquid ammonia before the benzene ring could be reduced. $t-Butanol$ is used because it is acidic enough to protonate the radical anion intermediate but sterically hindered and weak enough to coexist with the solvated electrons in ammonia long enough for the reaction to occur.",
-    "elimination_map": {
-      "1": "Sodium reacts explosively with water to produce hydrogen gas, destroying the reagent before any organic reduction happens.",
-      "2": "Strong acids quench the ammonia solvent and the metal electrons instantly, preventing the formation of the required reducing environment."
-    }
-  },
-  {
-    "question_id": "ORG-SYN-006",
-    "topic": "Advanced Organic Synthesis",
-    "subtopic": "Solvent/Catalyst Misfit",
-    "difficulty": "Hard",
-    "question": "For a Wittig reaction using an unstabilized ylide to produce a Z-alkene, which conditions are strictly required?",
-    "options": {
-      "1": "$Ph_3P=CHCH_3$ in $Methanol$ with $LiI$ salt",
-      "2": "$Ph_3P=CHCH_3$ in $THF$ with $LiBr$ present",
-      "3": "$Ph_3P=CHCH_3$ in $THF$ under Salt-Free conditions"
-    },
-    "correct_vector": 3,
-    "pivot_explanation": "Z-selectivity in Wittig reactions with unstabilized ylides is governed by the kinetic control of the oxaphosphetane formation. The presence of Lithium salts (like LiI or LiBr) coordinates with the intermediates, stabilizing them and allowing for equilibration or geometric shifts that lead to E-alkenes (Schlosser modification). To maintain high Z-selectivity, the reaction must be performed in an aprotic solvent like THF under 'salt-free' conditions to prevent coordination-induced scrambling.",
-    "elimination_map": {
-      "1": "Methanol is a protic solvent that will protonate the unstabilized ylide, reverting it to the phosphonium salt.",
-      "2": "Lithium salts coordinate to the betaine intermediate, facilitating equilibration which promotes the more stable E-isomer."
-    }
-  },
-  {
-    "question_id": "ORG-SYN-007",
-    "topic": "Advanced Organic Synthesis",
-    "subtopic": "Solvent/Catalyst Misfit",
-    "difficulty": "Hard",
-    "question": "A chemist performs a Friedel-Crafts acylation of an activated aromatic ring. Which solvent choice is most appropriate to ensure the catalyst remains active?",
-    "options": {
-      "1": "$N,N-Dimethylformamide$ ($DMF$)",
-      "2": "$Diethyl\\ Ether$ ($Et_2O$)",
-      "3": "$Nitrobenzene$ or $Dichloromethane$"
-    },
-    "correct_vector": 3,
-    "pivot_explanation": "Friedel-Crafts reactions utilize strong Lewis acids like $AlCl_3$. Solvents that contain basic lone pairs, such as DMF (amide) or Diethyl Ether (ether), will form stable Lewis acid-base complexes with the catalyst. This effectively 'poisons' the catalyst, making it unavailable to activate the acyl halide. Nitrobenzene and DCM are used because they are non-coordinating or poorly coordinating, allowing the AlCl3 to remain free to coordinate with the carbonyl group of the reactant.",
-    "elimination_map": {
-      "1": "The carbonyl oxygen of DMF is a strong Lewis base that irreversibly binds to $AlCl_3$, stopping the reaction.",
-      "2": "Ethers are Lewis bases that coordinate to the aluminum center, preventing it from activating the electrophile."
-    }
-  },
-  {
-    "question_id": "ORG-SYN-008",
-    "topic": "Advanced Organic Synthesis",
-    "subtopic": "Solvent/Catalyst Misfit",
-    "difficulty": "Hard",
-    "question": "Which set of conditions is optimal for the Reformatsky reaction to prevent the side reaction of enolate condensation?",
-    "options": {
-      "1": "Magnesium metal in $Diethyl\\ Ether$ at reflux",
-      "2": "Zinc dust in $H_2O/Ethanol$ mixture",
-      "3": "Activated Zinc dust in anhydrous $THF$ or $Benzene$"
-    },
-    "correct_vector": 3,
-    "pivot_explanation": "The Reformatsky reaction uses Zinc specifically because zinc enolates are less reactive (more covalent) than magnesium or lithium enolates. This lower reactivity allows the enolate to form in the presence of an ester without attacking itself. However, Zinc is highly sensitive to moisture; water would quench the organozinc intermediate. THF or Benzene provides the anhydrous, non-nucleophilic environment required for the zinc enolate to selectively attack an aldehyde or ketone.",
-    "elimination_map": {
-      "1": "Magnesium would form a Grignard-like reagent that is too reactive, causing the ester to undergo self-condensation.",
-      "2": "Water and alcohols protonate organometallic intermediates instantly, leading to the formation of the reduced alkane."
-    }
-  },
-  {
-    "question_id": "ORG-SYN-009",
-    "topic": "Advanced Organic Synthesis",
-    "subtopic": "Solvent/Catalyst Misfit",
-    "difficulty": "Hard",
-    "question": "To convert an internal alkyne to a trans-alkene, which set of conditions is mechanistically required to avoid cis-reduction?",
-    "options": {
-      "1": "$H_2$ gas with $Pd/BaSO_4$ and $Quinoline$ (Lindlar)",
-      "2": "$LiAlH_4$ in $Diethyl\\ Ether$ at $0^\\circ C$",
-      "3": "$Na$ or $Li$ metal in liquid $NH_3$ at $-33^\\circ C$"
-    },
-    "correct_vector": 3,
-    "pivot_explanation": "Trans-alkenes are formed via the Birch-type reduction of alkynes, which involves stepwise electron transfer to form a radical anion. The radical anion prefers the trans-configuration to minimize electronic repulsion. This intermediate is then protonated by the ammonia solvent. Lindlar's catalyst provides cis-alkenes because the hydrogen atoms are added simultaneously to one side of the alkyne on the metal surface. LiAlH4 generally does not reduce simple alkynes unless they are propargylic alcohols.",
-    "elimination_map": {
-      "1": "Lindlar's catalyst is designed for syn-addition, yielding the less stable cis-isomer due to surface-mediated delivery.",
-      "2": "Simple alkynes lack the coordination required for hydride attack; LiAlH4 is ineffective for this transformation."
-    }
-  },
-  {
-    "question_id": "ORG-SYN-010",
-    "topic": "Advanced Organic Synthesis",
-    "subtopic": "Solvent/Catalyst Misfit",
-    "difficulty": "Hard",
-    "question": "A chemist attempts a Swern oxidation of a primary alcohol. Which mistake in the protocol would lead to the formation of a methylthiomethyl (MTM) ether side product?",
-    "options": {
-      "1": "Using $DMSO$ and $Oxalyl\\ Chloride$ at $-78^\\circ C$",
-      "2": "Adding $Triethylamine$ ($Et_3N$) at $-78^\\circ C$",
-      "3": "Warming the reaction to $0^\\circ C$ before adding the alcohol"
-    },
-    "correct_vector": 3,
-    "pivot_explanation": "The Swern oxidation relies on the formation of the dimethylchlorosulfonium cation. This intermediate is unstable and decomposes at temperatures above $-60^\\circ C$ to a Pummerer-type intermediate. If the reaction is warmed before the alcohol is added, the active oxidant is lost, and the resulting species reacts with the alcohol to form the MTM ether side product ($R-O-CH_2SCH_3$). Maintaining cryogenic temperatures until the alcohol is fully incorporated is non-negotiable.",
-    "elimination_map": {
-      "1": "These are the correct reagents and temperature; they facilitate the formation of the active sulfonium electrophile.",
-      "2": "Triethylamine is the essential base added to deprotonate the intermediate and generate the aldehyde."
-    }
-  },
-  {
-    "question_id": "ORG-SYN-011",
-    "topic": "Advanced Organic Synthesis",
-    "subtopic": "Solvent/Catalyst Misfit",
-    "difficulty": "Hard",
-    "question": "In a Claisen condensation involving Ethyl Acetate, why is the choice of base ($NaOEt$) critical compared to using $NaOH$?",
-    "options": {
-      "1": "$NaOH$ is not a strong enough base to deprotonate the alpha-carbon",
-      "2": "$NaOEt$ provides better solubility in organic solvents like $EtOH$",
-      "3": "$NaOH$ would cause irreversible saponification of the ester"
-    },
-    "correct_vector": 3,
-    "pivot_explanation": "Claisen condensations must avoid nucleophilic attack on the ester carbonyl that leads to a different product. If $NaOH$ is used, the hydroxide ion will attack the ester, leading to saponification (hydrolysis to the carboxylate salt), which is irreversible and kills the reaction. Using $NaOEt$ ensures that if the base attacks the carbonyl, the leaving group is also ethoxide, recreating the starting material and allowing the equilibrium to eventually favor the enolate-driven condensation.",
-    "elimination_map": {
-      "1": "Hydroxide is basic enough to form the enolate, but its nucleophilicity creates a lethal side pathway for esters.",
-      "2": "Solubility is a secondary benefit; the primary driver is the chemical compatibility of the alkoxide with the ester group."
-    }
-  },
-  {
-    "question_id": "ORG-SYN-012",
-    "topic": "Advanced Organic Synthesis",
-    "subtopic": "Solvent/Catalyst Misfit",
-    "difficulty": "Hard",
-    "question": "Which set of conditions allows for the conjugate addition of an alkyl group to an $\\alpha,\\beta$-unsaturated ketone while minimizing 1,2-addition?",
-    "options": {
-      "1": "$RMgBr$ in $Diethyl\\ Ether$ at $0^\\circ C$",
-      "2": "$RLi$ in $THF$ at $-78^\\circ C$",
-      "3": "$R_2CuLi$ (Gilman Reagent) in $THF$ at $-20^\\circ C$"
-    },
-    "correct_vector": 3,
-    "pivot_explanation": "Hard nucleophiles like Grignard reagents ($RMgBr$) and Organolithiums ($RLi$) have a strong preference for 1,2-addition (attack at the carbonyl carbon) due to electrostatic attraction. Gilman reagents ($R_2CuLi$) are 'soft' nucleophiles. According to HSAB theory, they prefer to attack the soft beta-carbon of the enone system. The choice of the soft Copper metal over the hard Magnesium/Lithium is the defining constraint for achieving regioselective 1,4-addition.",
-    "elimination_map": {
-      "1": "Grignard reagents are hard nucleophiles that primarily attack the carbonyl carbon to yield 1,2-addition products.",
-      "2": "Organolithiums are even harder than Grignards and will almost exclusively perform 1,2-addition, especially at low temperatures."
-    }
-  },
-  {
-    "question_id": "ORG-SYN-013",
-    "topic": "Advanced Organic Synthesis",
-    "subtopic": "Solvent/Catalyst Misfit",
-    "difficulty": "Hard",
-    "question": "A chemist attempts the Robinson Annulation. Why is a protic solvent like $Methanol$ often preferred over an aprotic solvent like $Ether$ for this multi-step process?",
-    "options": {
-      "1": "$Methanol$ increases the nucleophilicity of the enolate intermediate",
-      "2": "$Ether$ is too volatile to allow the reaction to reach the required reflux temperature",
-      "3": "Protic solvents facilitate the essential proton transfers and the final dehydration step"
-    },
-    "correct_vector": 3,
-    "pivot_explanation": "The Robinson Annulation is a sequence of Michael addition followed by an Aldol condensation and finally dehydration. Each step involves equilibrium and multiple proton transfers. Protic solvents (MeOH/EtOH) stabilize the various oxyanion intermediates and act as a proton reservoir, facilitating the mobility of H+ required to move from the Michael adduct to the cyclic Aldol product. In aprotic solvents, these proton shifts are kinetically hindered.",
-    "elimination_map": {
-      "1": "Protic solvents actually decrease enolate nucleophilicity by solvating the lone pair via hydrogen bonding.",
-      "2": "Volatility can be managed with pressure; the chemical requirement for proton transfer is the true limiting factor."
-    }
-  },
-  {
-    "question_id": "ORG-SYN-014",
-    "topic": "Advanced Organic Synthesis",
-    "subtopic": "Solvent/Catalyst Misfit",
-    "difficulty": "Hard",
-    "question": "To perform a Heck reaction coupling an aryl halide with an alkene, which combination of catalyst and additive is essential?",
-    "options": {
-      "1": "$Pd(PPh_3)_4$ with $AlCl_3$ in $Benzene$",
-      "2": "$Pd(OAc)_2$ in $Methanol$ with $H_2SO_4$",
-      "3": "$Pd(OAc)_2/P(o-tol)_3$ with a base ($Et_3N$ or $K_2CO_3$) in $DMF$"
-    },
-    "correct_vector": 3,
-    "pivot_explanation": "The Heck reaction cycle involves oxidative addition, carbopalladation, and beta-hydride elimination. The final step releases a proton and the halide, forming $HX$. A base is strictly required to neutralize this acid and regenerate the $Pd(0)$ catalyst. Without a base, the cycle stalls. Furthermore, polar aprotic solvents like DMF or MeCN are needed to stabilize the ionic intermediates and the transition metal center throughout the complex cycle.",
-    "elimination_map": {
-      "1": "Lewis acids like $AlCl_3$ would deactivate the phosphine ligands and the palladium catalyst by coordinating to them.",
-      "2": "Acidic conditions prevent the regeneration of the $Pd(0)$ species by keeping the palladium in a protonated or oxidized state."
-    }
-  },
-  {
-    "question_id": "ORG-SYN-015",
-    "topic": "Advanced Organic Synthesis",
-    "subtopic": "Solvent/Catalyst Misfit",
-    "difficulty": "Hard",
-    "question": "In the Sharpess Asymmetric Epoxidation of an allylic alcohol, what is the role of the molecular sieves ($4\\text{\\AA}$) often added to the reaction?",
-    "options": {
-      "1": "They act as a solid-phase catalyst to increase the reaction rate",
-      "2": "They increase the surface area for the $Titanium$ complex to coordinate",
-      "3": "They remove trace water which would hydrolyze the $Titanium$ alkoxide catalyst"
-    },
-    "correct_vector": 3,
-    "pivot_explanation": "The Sharpless Epoxidation is highly sensitive to moisture. The active catalyst is a $Titanium(IV)$ isopropoxide complex coordinated with a tartrate ligand. Trace amounts of water can hydrolyze the Ti-O-R bonds, forming inactive Titanium oxides and destroying the chiral environment. The addition of molecular sieves allows for the use of catalytic amounts of Titanium rather than stoichiometric amounts, as it protects the complex from hydrolytic deactivation.",
-    "elimination_map": {
-      "1": "Molecular sieves are inert desiccants; they do not participate in the electronic transition states of the mechanism.",
-      "2": "Coordination occurs in the homogenous phase; surface area of the sieves is irrelevant to the chiral induction logic."
-    }
-  }
+{
+"topic": "Physical",
+"text": "For the reaction N2(g) + 3H2(g) ⇌ 2NH3(g), what happens to the equilibrium if the pressure is increased?",
+"correct": "UP",
+"swipe_up_label": "Shifts Right",
+"swipe_left_label": "Shifts Left",
+"swipe_right_label": "No Change",
+"explanation": "✅ Increasing pressure favors the side with fewer moles of gas (2 moles of NH3 vs 4 moles of reactants).  || ❌ Shifting left would increase total moles, opposing the pressure change. || ❌ Pressure affects equilibrium position when Δn_gas ≠ 0."
+},
+{
+"topic": "Physical",
+"text": "Which statement is true for a spontaneous reaction at all temperatures?",
+"correct": "LEFT",
+"swipe_up_label": "ΔH > 0, ΔS > 0",
+"swipe_left_label": "ΔH < 0, ΔS > 0",
+"swipe_right_label": "ΔH < 0, ΔS < 0",
+"explanation": "✅ When ΔH is negative (exothermic) and ΔS is positive (increased disorder), ΔG = ΔH - TΔS is always negative.  || ❌ ΔH > 0 and ΔS > 0 is only spontaneous at high temperatures. || ❌ ΔH < 0 and ΔS < 0 is only spontaneous at low temperatures."
+},
+{
+"topic": "Physical",
+"text": "In a first-order reaction, if the initial concentration is doubled, what happens to the half-life (t1/2)?",
+"correct": "RIGHT",
+"swipe_up_label": "Doubles",
+"swipe_left_label": "Halves",
+"swipe_right_label": "Constant",
+"explanation": "✅ Half-life for a first-order reaction is t1/2 = 0.693/k, which is independent of initial concentration.  || ❌ Doubling only affects the half-life of zero-order reactions. || ❌ Halving only affects the half-life of second-order reactions."
+},
+{
+"topic": "Physical",
+"text": "If the activation energy (Ea) of a reaction is zero, how does the rate constant (k) change with temperature?",
+"correct": "RIGHT",
+"swipe_up_label": "Increases",
+"swipe_left_label": "Decreases",
+"swipe_right_label": "Independent",
+"explanation": "✅ According to the Arrhenius equation k = Ae^(-Ea/RT), if Ea = 0, k = A (the frequency factor), making it independent of T.  || ❌ Rates typically increase with T only if there is a positive activation barrier. || ❌ Rates do not decrease with T for elementary steps unless it involves a complex pre-equilibrium."
+},
+{
+"topic": "Physical",
+"text": "What is the sign of ΔS for the process: H2O(g) → H2O(l)?",
+"correct": "LEFT",
+"swipe_up_label": "Positive",
+"swipe_left_label": "Negative",
+"swipe_right_label": "Zero",
+"explanation": "✅ Condensation reduces molecular chaos as gas molecules become constrained in a liquid, so ΔS < 0. || ❌ ΔS is positive during phase changes that increase entropy like melting or boiling. || ❌ ΔS can only be zero for a perfectly reversible process at 0K for a pure crystal."
+},
+{
+"topic": "Physical",
+"text": "For the reaction A + B → C, doubling [A] quadruples the rate. What is the order with respect to A?",
+"correct": "UP",
+"swipe_up_label": "Second",
+"swipe_left_label": "First",
+"swipe_right_label": "Zero",
+"explanation": "✅ Rate ∝ [A]^n; since 2^n = 4, n must be 2. || ❌ First order would result in a rate doubling. || ❌ Zero order would result in no rate change."
+},
+{
+"topic": "Physical",
+"text": "In an exothermic reaction, how does the equilibrium constant (K) change if temperature is increased?",
+"correct": "LEFT",
+"swipe_up_label": "Increases",
+"swipe_left_label": "Decreases",
+"swipe_right_label": "No Change",
+"explanation": "✅ According to Le Chatelier’s principle, heat is a product in exothermic reactions; adding T shifts equilibrium left, decreasing K.  || ❌ K only increases with T for endothermic reactions. || ❌ Temperature is the only factor that changes K."
+},
+{
+"topic": "Physical",
+"text": "What is the value of ΔG when a system is at equilibrium?",
+"correct": "RIGHT",
+"swipe_up_label": "Negative",
+"swipe_left_label": "Positive",
+"swipe_right_label": "Zero",
+"explanation": "✅ Equilibrium implies no net driving force for change, so the change in free energy is zero. || ❌ Negative ΔG implies a spontaneous forward process. || ❌ Positive ΔG implies a non-spontaneous forward process."
+},
+{
+"topic": "Physical",
+"text": "Which property is extensive?",
+"correct": "UP",
+"swipe_up_label": "Enthalpy",
+"swipe_left_label": "Density",
+"swipe_right_label": "Temperature",
+"explanation": "✅ Enthalpy depends on the amount of substance (mass) in the system. || ❌ Density is an intensive property (mass/volume ratio remains constant). || ❌ Temperature is intensive and does not depend on system size."
+},
+{
+"topic": "Physical",
+"text": "A catalyst speeds up a reaction by changing which parameter?",
+"correct": "LEFT",
+"swipe_up_label": "ΔH",
+"swipe_left_label": "Ea",
+"swipe_right_label": "K_eq",
+"explanation": "✅ Catalysts provide an alternative pathway with a lower activation energy barrier. 
+
+[Image of catalyst effect on activation energy graph]
+ || ❌ Catalysts do not change the enthalpy of the reaction (ΔH). || ❌ Catalysts speed up both forward and backward rates equally, so K_eq remains unchanged."
+},
+{
+"topic": "Organic",
+"text": "Which mechanism involves a carbocation intermediate?",
+"correct": "UP",
+"swipe_up_label": "SN1",
+"swipe_left_label": "SN2",
+"swipe_right_label": "E2",
+"explanation": "✅ SN1 is a unimolecular nucleophilic substitution where the leaving group departs first, forming a stable carbocation.  || ❌ SN2 is a concerted single-step mechanism with a pentacoordinate transition state. || ❌ E2 is a concerted bimolecular elimination."
+},
+{
+"topic": "Organic",
+"text": "What is the correct IUPAC name for CH3CH2CH(CH3)2?",
+"correct": "LEFT",
+"swipe_up_label": "Pentane",
+"swipe_left_label": "2-Methylbutane",
+"swipe_right_label": "Isopentane",
+"explanation": "✅ The longest chain has 4 carbons (butane) with a methyl group at the 2nd position.  || ❌ Pentane is a straight 5-carbon chain. || ❌ Isopentane is a common name, not the systematic IUPAC name."
+},
+{
+"topic": "Organic",
+"text": "In an SN2 reaction, which alkyl halide is most reactive?",
+"correct": "UP",
+"swipe_up_label": "Methyl Halide",
+"swipe_left_label": "Tertiary Halide",
+"swipe_right_label": "Secondary Halide",
+"explanation": "✅ SN2 reactivity depends on steric hindrance; methyl halides are the least hindered and react fastest.  || ❌ Tertiary halides are too bulky for backside attack, making them essentially unreactive in SN2. || ❌ Secondary halides are moderately reactive but slower than primary or methyl."
+},
+{
+"topic": "Organic",
+"text": "Which conformer of n-butane is the most stable?",
+"correct": "RIGHT",
+"swipe_up_label": "Gauche",
+"swipe_left_label": "Eclipsed",
+"swipe_right_label": "Anti",
+"explanation": "✅ The anti-conformer minimizes steric repulsion by placing the methyl groups 180° apart.  || ❌ Gauche has 60° separation, leading to some steric strain. || ❌ Eclipsed is the least stable due to maximum torsional and steric strain."
+},
+{
+"topic": "Organic",
+"text": "What is the product of the reaction between Propene and HBr in the presence of peroxides?",
+"correct": "LEFT",
+"swipe_up_label": "2-Bromopropane",
+"swipe_left_label": "1-Bromopropane",
+"swipe_right_label": "Propan-2-ol",
+"explanation": "✅ Peroxides induce a free-radical mechanism resulting in Anti-Markovnikov addition.  || ❌ 2-Bromopropane is the Markovnikov product formed in the absence of peroxides. || ❌ Alcohol formation would require hydration, not hydrobromination."
+},
+{
+"topic": "Organic",
+"text": "A molecule with a non-superimposable mirror image is called:",
+"correct": "UP",
+"swipe_up_label": "Chiral",
+"swipe_left_label": "Achiral",
+"swipe_right_label": "Meso",
+"explanation": "✅ Chirality is defined by the lack of an internal plane of symmetry, making mirror images non-superimposable. 
+
+[Image of enantiomers mirror images]
+ || ❌ Achiral molecules are superimposable on their mirror images. || ❌ Meso compounds contain chiral centers but have an internal plane of symmetry making them achiral overall."
+},
+{
+"topic": "Organic",
+"text": "Which functional group has the highest priority in IUPAC nomenclature?",
+"correct": "RIGHT",
+"swipe_up_label": "Alcohol",
+"swipe_left_label": "Aldehyde",
+"swipe_right_label": "Carboxylic Acid",
+"explanation": "✅ Carboxylic acids (-COOH) take precedence over aldehydes, ketones, and alcohols.  || ❌ Aldehydes are high priority but below carboxylic acids. || ❌ Alcohols are lower priority than carbonyl-containing groups."
+},
+{
+"topic": "Organic",
+"text": "What is the hybridization of the carbon atom in Ethyne (Acetylene)?",
+"correct": "UP",
+"swipe_up_label": "sp",
+"swipe_left_label": "sp2",
+"swipe_right_label": "sp3",
+"explanation": "✅ Ethyne has a triple bond; the carbon atom uses one s and one p orbital to form two linear hybrid orbitals.  || ❌ sp2 is for trigonal planar geometry (alkenes). || ❌ sp3 is for tetrahedral geometry (alkanes)."
+},
+{
+"topic": "Organic",
+"text": "Which reagent converts an Alkyne to a Cis-Alkene?",
+"correct": "LEFT",
+"swipe_up_label": "Na/NH3 (liq)",
+"swipe_left_label": "Lindlar's Catalyst",
+"swipe_right_label": "H2/Pt",
+"explanation": "✅ Lindlar's catalyst (Pd/CaCO3 poisoned by lead) performs partial hydrogenation to the cis-isomer.  || ❌ Na/NH3 (Birch-like reduction) produces the trans-alkene. || ❌ H2 over Pt or Pd performs full reduction to an alkane."
+},
+{
+"topic": "Organic",
+"text": "Friedel-Crafts Alkylation is an example of:",
+"correct": "RIGHT",
+"swipe_up_label": "Nucleophilic Substitution",
+"swipe_left_label": "Free Radical Substitution",
+"swipe_right_label": "Electrophilic Substitution",
+"explanation": "✅ The aromatic ring acts as a nucleophile and is attacked by a carbocation electrophile (EAS).  || ❌ The ring is electron-rich and does not undergo nucleophilic attack under standard conditions. || ❌ It involves an AlCl3-mediated ionic mechanism, not radicals."
+},
+{
+"topic": "Inorganic",
+"text": "What is the shape of SF6 according to VSEPR theory?",
+"correct": "UP",
+"swipe_up_label": "Octahedral",
+"swipe_left_label": "Square Planar",
+"swipe_right_label": "Trigonal Bipyramidal",
+"explanation": "✅ Sulfur has 6 valence electrons, all bonded to fluorine, resulting in an AX6 geometry.  || ❌ Square planar is AX4E2 (like XeF4). || ❌ Trigonal bipyramidal is AX5 (like PCl5)."
+},
+{
+"topic": "Inorganic",
+"text": "Which transition metal ion is colorless in aqueous solution?",
+"correct": "RIGHT",
+"swipe_up_label": "Cu2+",
+"swipe_left_label": "Fe3+",
+"swipe_right_label": "Sc3+",
+"explanation": "✅ Sc3+ has a d0 configuration; color in transition metals usually arises from d-d transitions. || ❌ Cu2+ is d9 and appears blue. || ❌ Fe3+ is d5 and appears yellow/brown."
+},
+{
+"topic": "Inorganic",
+"text": "In the coordination compound [Co(NH3)6]Cl3, what is the coordination number of Cobalt?",
+"correct": "LEFT",
+"swipe_up_label": "3",
+"swipe_left_label": "6",
+"swipe_right_label": "9",
+"explanation": "✅ There are 6 ammonia ligands directly bonded to the central cobalt atom.  || ❌ 3 is the primary valency (oxidation state) represented by the chloride ions outside the sphere. || ❌ 9 is not a standard coordination number for this complex."
+},
+{
+"topic": "Inorganic",
+"text": "Which element has the highest first ionization energy?",
+"correct": "UP",
+"swipe_up_label": "Helium",
+"swipe_left_label": "Fluorine",
+"swipe_right_label": "Cesium",
+"explanation": "✅ Helium has a stable 1s2 shell and the smallest atomic radius, making electron removal extremely difficult. 
+
+[Image of periodic table ionization energy trend]
+ || ❌ Fluorine is high but less than Helium. || ❌ Cesium has the lowest ionization energy as it is large and has one outer electron."
+},
+{
+"topic": "Inorganic",
+"text": "According to Crystal Field Theory, a 'strong field' ligand leads to:",
+"correct": "LEFT",
+"swipe_up_label": "High Spin complex",
+"swipe_left_label": "Low Spin complex",
+"swipe_right_label": "No d-orbital splitting",
+"explanation": "✅ Strong field ligands cause large Δo splitting, forcing electrons to pair in lower energy orbitals.  || ❌ High spin occurs with weak field ligands where splitting energy is less than pairing energy. || ❌ Splitting always occurs in coordination complexes."
+},
+{
+"topic": "Inorganic",
+"text": "Which geometry is associated with sp3d2 hybridization?",
+"correct": "RIGHT",
+"swipe_up_label": "Tetrahedral",
+"swipe_left_label": "Pentagonal Bipyramidal",
+"swipe_right_label": "Octahedral",
+"explanation": "✅ sp3d2 involves six hybrid orbitals pointing to the corners of an octahedron.  || ❌ Tetrahedral is sp3. || ❌ Pentagonal bipyramidal is sp3d3."
+},
+{
+"topic": "Inorganic",
+"text": "The 'Lanthanide Contraction' is primarily responsible for:",
+"correct": "UP",
+"swipe_up_label": "Similar radii of 4d/5d metals",
+"swipe_left_label": "High reactivity of Lanthanides",
+"swipe_right_label": "Color of f-block elements",
+"explanation": "✅ Poor shielding by 4f electrons causes the nucleus to pull 5d electrons tighter, making Zr/Hf radii nearly identical.  || ❌ Lanthanides are reactive, but the contraction specifically affects atomic sizes. || ❌ f-f transitions cause color, not the contraction."
+},
+{
+"topic": "Inorganic",
+"text": "Which of these is a polydentate ligand?",
+"correct": "LEFT",
+"swipe_up_label": "NH3",
+"swipe_left_label": "EDTA",
+"swipe_right_label": "Cl-",
+"explanation": "✅ EDTA (Ethylenediaminetetraacetate) is hexadentate, meaning it can bind via six donor atoms.  || ❌ NH3 is monodentate (one N donor). || ❌ Cl- is monodentate (one Cl donor)."
+},
+{
+"topic": "Inorganic",
+"text": "What is the bond order of O2+ according to Molecular Orbital theory?",
+"correct": "RIGHT",
+"swipe_up_label": "2",
+"swipe_left_label": "3",
+"swipe_right_label": "2.5",
+"explanation": "✅ O2 has a bond order of 2; removing one electron from an anti-bonding orbital (π*) increases bond order by 0.5. 
+
+[Image of molecular orbital diagram O2]
+ || ❌ 2 is the bond order for neutral O2. || ❌ 3 is the bond order for N2 or NO+."
+},
+{
+"topic": "Inorganic",
+"text": "Which molecule has a zero dipole moment?",
+"correct": "UP",
+"swipe_up_label": "CO2",
+"swipe_left_label": "H2O",
+"swipe_right_label": "NH3",
+"explanation": "✅ CO2 is linear; the two C=O bond dipoles are equal and opposite, canceling each other out.  || ❌ H2O is bent, so dipoles do not cancel. || ❌ NH3 is trigonal pyramidal, so dipoles do not cancel."
+},
+{
+"topic": "Analytical",
+"text": "Which NMR peak integration represents a methyl group (CH3)?",
+"correct": "UP",
+"swipe_up_label": "3",
+"swipe_left_label": "1",
+"swipe_right_label": "2",
+"explanation": "✅ Integration in 1H-NMR is proportional to the number of equivalent protons.  || ❌ 1 represents a single proton (like -OH or methine). || ❌ 2 represents a methylene group (CH2)."
+},
+{
+"topic": "Analytical",
+"text": "In IR spectroscopy, which functional group shows a strong, broad peak around 3300 cm-1?",
+"correct": "LEFT",
+"swipe_up_label": "Carbonyl (C=O)",
+"swipe_left_label": "Alcohol (O-H)",
+"swipe_right_label": "Alkyne (C≡C)",
+"explanation": "✅ Hydrogen bonding in alcohols causes a broad absorption in the 3200-3600 cm-1 range.  || ❌ Carbonyls show a sharp, strong peak near 1700 cm-1. || ❌ Alkynes show peaks around 2100-2250 cm-1."
+},
+{
+"topic": "Analytical",
+"text": "What is the pH of a 0.001 M HCl solution?",
+"correct": "RIGHT",
+"swipe_up_label": "1",
+"swipe_left_label": "2",
+"swipe_right_label": "3",
+"explanation": "✅ HCl is a strong acid; pH = -log[H+] = -log(10^-3) = 3. || ❌ 1 is for 0.1 M. || ❌ 2 is for 0.01 M."
+},
+{
+"topic": "Analytical",
+"text": "Which chromatography technique is best for separating volatile organic compounds?",
+"correct": "UP",
+"swipe_up_label": "GC",
+"swipe_left_label": "HPLC",
+"swipe_right_label": "TLC",
+"explanation": "✅ Gas Chromatography (GC) uses a gaseous mobile phase to separate substances based on boiling point and vapor pressure. 
+
+[Image of gas chromatography block diagram]
+ || ❌ HPLC is used for non-volatile or thermally unstable compounds in liquid phase. || ❌ TLC is a qualitative tool for non-volatile mixtures."
+},
+{
+"topic": "Analytical",
+"text": "The Beer-Lambert Law relates absorbance to which variable?",
+"correct": "LEFT",
+"swipe_up_label": "Temperature",
+"swipe_left_label": "Concentration",
+"swipe_right_label": "Wavelength",
+"explanation": "✅ A = εbc; absorbance (A) is directly proportional to concentration (c) and path length (b).  || ❌ Absorbance is wavelength-dependent but the law specifically relates it to concentration. || ❌ Temperature is not a variable in the basic law."
+},
+{
+"topic": "Analytical",
+"text": "What is the n+1 rule used for in NMR spectroscopy?",
+"correct": "RIGHT",
+"swipe_up_label": "Chemical Shift",
+"swipe_left_label": "Integration",
+"swipe_right_label": "Spin-Spin Splitting",
+"explanation": "✅ A proton's signal is split into n+1 peaks, where n is the number of neighboring equivalent protons.  || ❌ Chemical shift depends on shielding/deshielding. || ❌ Integration depends on the total number of protons in that group."
+},
+{
+"topic": "Analytical",
+"text": "During a titration of a weak acid with a strong base, the pH at the equivalence point is:",
+"correct": "UP",
+"swipe_up_label": "Above 7",
+"swipe_left_label": "Below 7",
+"swipe_right_label": "Exactly 7",
+"explanation": "✅ The conjugate base of the weak acid undergoes hydrolysis to produce OH-, making the solution basic.  || ❌ Below 7 occurs when titrating a weak base with a strong acid. || ❌ Exactly 7 only occurs for strong acid/strong base titrations."
+},
+{
+"topic": "Analytical",
+"text": "Which indicator is most suitable for a titration with an equivalence point at pH 9?",
+"correct": "LEFT",
+"swipe_up_label": "Methyl Orange",
+"swipe_left_label": "Phenolphthalein",
+"swipe_right_label": "Bromothymol Blue",
+"explanation": "✅ Phenolphthalein changes color in the range of pH 8.2-10.  || ❌ Methyl orange is used for acidic ranges (pH 3.1-4.4). || ❌ Bromothymol blue is used near neutral (pH 6.0-7.6)."
+},
+{
+"topic": "Analytical",
+"text": "Mass Spectrometry primarily separates ions based on:",
+"correct": "RIGHT",
+"swipe_up_label": "Molecular Weight",
+"swipe_left_label": "Polarity",
+"swipe_right_label": "m/z ratio",
+"explanation": "✅ Ions are accelerated and deflected in a magnetic field according to their mass-to-charge (m/z) ratio.  || ❌ Molecular weight is related but the instrument specifically measures the m/z of fragments. || ❌ Polarity is the basis for chromatography, not MS."
+},
+{
+"topic": "Analytical",
+"text": "In a redox titration, what is the role of KMnO4?",
+"correct": "UP",
+"swipe_up_label": "Self-indicator",
+"swipe_left_label": "Reducing Agent",
+"swipe_right_label": "Catalyst",
+"explanation": "✅ KMnO4 is intensely purple and becomes colorless Mn2+ at the end point, requiring no external indicator. || ❌ KMnO4 is a powerful oxidizing agent. || ❌ It is a reactant, not a catalyst."
+},
+{
+"topic": "Mixed/Hard",
+"text": "Calculate the pH of a solution where [H+] = [OH-].",
+"correct": "RIGHT",
+"swipe_up_label": "0",
+"swipe_left_label": "14",
+"swipe_right_label": "7",
+"explanation": "✅ In neutral water at 25°C, Kw = 10^-14, so [H+] = 10^-7. pH = -log(10^-7) = 7. || ❌ pH 0 is highly acidic. || ❌ pH 14 is highly basic."
+},
+{
+"topic": "Mixed/Hard",
+"text": "What is the coordination number and oxidation state of Fe in [Fe(CN)6]3-?",
+"correct": "LEFT",
+"swipe_up_label": "6, +2",
+"swipe_left_label": "6, +3",
+"swipe_right_label": "4, +3",
+"explanation": "✅ Six CN- ligands mean CN=6. Charge balance: x + 6(-1) = -3, so x = +3. || ❌ +2 oxidation state would be [Fe(CN)6]4-. || ❌ 4 is the wrong coordination number for this octahedral complex."
+},
+{
+"topic": "Mixed/Hard",
+"text": "Predict the major product of 1-Butene + HCl.",
+"correct": "UP",
+"swipe_up_label": "2-Chlorobutane",
+"swipe_left_label": "1-Chlorobutane",
+"swipe_right_label": "2,2-Dichlorobutane",
+"explanation": "✅ Markovnikov's rule: H adds to the carbon with more hydrogens, creating a stable secondary carbocation.  || ❌ 1-Chlorobutane is the Anti-Markovnikov product. || ❌ Dichlorination requires Cl2, not HCl."
+},
+{
+"topic": "Mixed/Hard",
+"text": "A reaction has K = 10^5. What is the value of ΔG°?",
+"correct": "LEFT",
+"swipe_up_label": "Positive",
+"swipe_left_label": "Negative",
+"swipe_right_label": "Zero",
+"explanation": "✅ ΔG° = -RT ln K. Since K > 1, ln K is positive, making ΔG° negative. || ❌ Positive ΔG° corresponds to K < 1. || ❌ ΔG° is zero only if K = 1."
+},
+{
+"topic": "Mixed/Hard",
+"text": "Which d-orbital configuration is most stable for a high-spin octahedral Mn2+ complex?",
+"correct": "RIGHT",
+"swipe_up_label": "t2g^3 eg^2",
+"swipe_left_label": "t2g^5 eg^0",
+"swipe_right_label": "t2g^6 eg^0",
+"explanation": "✅ Mn2+ is d5. High spin fills all 5 orbitals singly, maximizing exchange energy and stability.  || ❌ t2g^5 eg^0 is the low-spin configuration. || ❌ t2g^6 eg^0 is for a d6 configuration."
+},
+{
+"topic": "Mixed/Hard",
+"text": "What is the cell potential (E) of a concentration cell with identical electrodes?",
+"correct": "LEFT",
+"swipe_up_label": "E°",
+"swipe_left_label": "0.059/n * log(C2/C1)",
+"swipe_right_label": "0",
+"explanation": "✅ E° is 0 for identical electrodes. The Nernst equation provides the potential based on concentration ratio.  || ❌ E° is 0. || ❌ E is only 0 if C1 = C2."
+},
+{
+"topic": "Mixed/Hard",
+"text": "How many signals appear in the 1H-NMR spectrum of p-Xylene?",
+"correct": "UP",
+"swipe_up_label": "2",
+"swipe_left_label": "3",
+"swipe_right_label": "4",
+"explanation": "✅ p-Xylene has symmetry; the 6 methyl protons are equivalent (1st signal) and the 4 aromatic protons are equivalent (2nd signal).  || ❌ 3 signals would appear in o-Xylene or m-Xylene. || ❌ p-Xylene is too symmetric for 4 signals."
+},
+{
+"topic": "Mixed/Hard",
+"text": "Which molecule has the highest boiling point?",
+"correct": "RIGHT",
+"swipe_up_label": "Ethane",
+"swipe_left_label": "Ethanol",
+"swipe_right_label": "Ethanoic Acid",
+"explanation": "✅ Ethanoic acid forms stable dimers via two hydrogen bonds per pair, surpassing ethanol's single H-bond capability.  || ❌ Ethane has only weak van der Waals forces. || ❌ Ethanol has H-bonding but less than the carboxylic acid dimer."
+},
+{
+"topic": "Mixed/Hard",
+"text": "For a reaction where ΔH = -100 kJ and ΔS = -200 J/K, at what T does it become non-spontaneous?",
+"correct": "UP",
+"swipe_up_label": "Above 500 K",
+"swipe_left_label": "Below 500 K",
+"swipe_right_label": "Never",
+"explanation": "✅ Equilibrium at T = ΔH/ΔS = -100,000 / -200 = 500 K. Since both are negative, entropy opposes spontaneity at high T. || ❌ Below 500 K, the enthalpy term dominates and it is spontaneous. || ❌ It becomes non-spontaneous when TΔS > ΔH."
+},
+{
+"topic": "Mixed/Hard",
+"text": "What is the bond order of CN-?",
+"correct": "LEFT",
+"swipe_up_label": "2",
+"swipe_left_label": "3",
+"swipe_right_label": "2.5",
+"explanation": "✅ CN- is isoelectronic with N2 (14 electrons); both have a triple bond and bond order of 3. 
+
+[Image of molecular orbital diagram CN-]
+ || ❌ 2 is the bond order for O2. || ❌ 2.5 is the bond order for O2+ or NO."
+}
 ]
