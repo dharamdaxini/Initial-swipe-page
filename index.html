@@ -2,691 +2,802 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Strategic Convergence 2026</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Chemistry Master: Monolith V37</title>
+
     <style>
-        /* --- CSS VARIABLES --- */
+        /* FONTS */
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&family=Inter:wght@400;600;700;800&display=swap');
+
+        /* DESIGN TOKENS */
         :root {
-            --color-bg: #f4f4f5;
-            --color-card: #ffffff;
-            --color-text: #18181b;
-            --color-subtext: #71717a;
-            --color-up: #22c55e;
-            --color-down: #ef4444;
-            --color-right: #eab308;
-            --color-left: #64748b;
-            --shadow-card: 0 20px 40px -5px rgba(0, 0, 0, 0.1), 0 10px 20px -5px rgba(0, 0, 0, 0.04);
-            --shadow-desktop: 0 0 50px rgba(0,0,0,0.5);
-            --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --bg-void: #000000;       
+            --bg-card: #ffffff;       
+            --text-main: #111111;     
+            --text-sub: #4b5563;      
+            --text-light: #ffffff;
+            --accent-blue: #3b82f6;   
+            --green: #22c55e;
+            --red: #ef4444;
+            --grey: #374151;
+            --card-w: 90vw;
+            --card-max: 380px;
         }
 
-        /* --- GLOBAL RESET --- */
+        /* CORE RESET */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             -webkit-tap-highlight-color: transparent;
-            touch-action: none; /* Critical: Stops browser scroll hijacking */
+            touch-action: none;
+            user-select: none;
         }
 
         body {
-            font-family: var(--font-stack);
-            background-color: #27272a; /* Dark background for desktop focus */
-            color: var(--color-text);
+            background-color: var(--bg-void);
+            color: var(--text-light);
+            font-family: 'Inter', -apple-system, sans-serif;
             height: 100svh;
             width: 100vw;
             overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            user-select: none;
         }
 
-        /* --- DEVICE CONTAINER (Desktop Proof) --- */
-        #app-container {
+        #app-shell {
             position: relative;
             width: 100%;
             height: 100%;
-            max-width: 450px; /* Mobile width constraint */
-            max-height: 900px; /* Height constraint for monitors */
-            background-color: var(--color-bg);
-            display: grid;
-            /* STRICT GRID: Header (15%) | Card Space (Auto) | Footer (25%) */
-            grid-template-rows: 15% 1fr 25%; 
-            grid-template-columns: 100%;
-            box-shadow: var(--shadow-desktop);
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-void);
             overflow: hidden;
         }
 
-        /* --- ZONE 1: TOP HEADER --- */
-        #ui-header {
+        #ui-overlay {
+            position: absolute;
+            inset: 0;
+            background: transparent;
+            opacity: 0;
+            transition: opacity 0.1s linear;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* HEADER */
+        .header {
+            height: 18%;
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
             align-items: center;
-            padding-bottom: 1.5rem;
-            z-index: 20;
-            text-align: center;
-            transition: opacity 0.2s;
+            padding-bottom: 2rem;
+            z-index: 50;
         }
 
-        .header-topic {
-            font-size: 0.7rem;
+        .progress-bar {
+            width: 100px;
+            height: 5px;
+            background: #262626;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #ffffff;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .meta-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: #666666;
+            margin-bottom: 0.4rem;
             text-transform: uppercase;
             letter-spacing: 0.2em;
-            color: var(--color-subtext);
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            opacity: 0.8;
         }
 
-        .header-type {
-            font-size: 1.4rem;
-            font-weight: 800;
-            color: var(--color-text);
+        .meta-title {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: #ffffff;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            line-height: 1;
+            letter-spacing: 0.02em;
         }
 
-        /* --- ZONE 2: CARD STACK (Middle) --- */
-        #card-stack {
+        /* CARD STAGE */
+        .stage {
             position: relative;
+            flex: 1;
             width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            perspective: 1000px;
-            padding: 1rem;
+            perspective: 1200px;
+            z-index: 20;
         }
 
         .card {
             position: absolute;
-            width: 90%;
-            aspect-ratio: 1/1; /* Keeps card square-ish */
-            max-height: 400px;
-            background: var(--color-card);
-            border-radius: 28px;
-            box-shadow: var(--shadow-card);
+            left: 50%;
+            top: 48%;
+            transform: translate(-50%, -50%);
+            width: var(--card-w);
+            max-width: var(--card-max);
+            aspect-ratio: 1/1.3;
+            background: var(--bg-card);
+            border-radius: 40px;
+            box-shadow: 0 30px 60px -12px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             padding: 2.5rem;
-            text-align: center;
-            
             will-change: transform;
-            transform: translateZ(0); 
-            backface-visibility: hidden;
-            
-            /* Center vertically in grid cell */
-            top: 50%;
-            left: 50%;
-            margin-top: -45%; /* Approx half width to center anchor */
-            margin-left: -45%;
+            transform-style: flat;
+        }
+
+        /* DARK PIVOT STATE */
+        .card.pivot-card {
+            background: #111111;
+            border: 1px solid #333333;
+        }
+
+        .card.pivot-card p {
+            color: #ffffff;
+        }
+
+        .card.pivot-card .card-list li {
+            color: #9ca3af;
+        }
+
+        .card.pivot-card .card-id {
+            color: var(--accent-blue);
+            opacity: 1;
+        }
+
+        .card.correction-border {
+            border: 2px solid var(--red);
         }
 
         .card p {
-            font-size: 1.5rem;
-            line-height: 1.4;
-            font-weight: 600;
-            color: var(--color-text);
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1.3;
             pointer-events: none;
-            margin: 0;
+            margin-bottom: 1.5rem;
+            text-align: left;
+            width: 100%;
+            letter-spacing: -0.02em;
         }
 
-        /* --- ZONE 3: BOTTOM FOOTER (Arrows) --- */
-        #ui-footer {
+        /* SELECTION LIST */
+        .card-list {
+            width: 100%;
+            padding-left: 0rem;
+            margin: 0;
+            pointer-events: none;
+            counter-reset: selection-counter;
+        }
+
+        .card-list li {
+            font-size: 1.05rem;
+            color: #4b5563;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            line-height: 1.4;
+            list-style-type: none;
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .card-list li::before {
+            counter-increment: selection-counter;
+            content: counter(selection-counter) ".";
+            color: var(--accent-blue);
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .card.pivot-card .card-list li::before {
+            content: "•";
+            font-size: 1.8rem;
+            top: -0.4rem;
+        }
+
+        /* SCIENTIFIC FORMATTING */
+        sub { font-size: 0.7em; vertical-align: sub; }
+        sup { font-size: 0.7em; vertical-align: super; }
+
+        .card-id {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 0;
+            right: 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: #e5e7eb;
+            pointer-events: none;
+            text-align: center;
+            opacity: 0.4;
+        }
+
+        /* FOOTER */
+        .footer {
+            height: 22%;
             display: grid;
-            grid-template-columns: 1fr auto 1fr;
+            grid-template-columns: 1fr 100px 1fr;
             grid-template-rows: 1fr 1fr;
-            gap: 0;
             align-content: center;
             justify-items: center;
-            padding-bottom: 2rem;
-            z-index: 20;
+            z-index: 50;
         }
 
-        .legend-item {
+        .ctrl {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: var(--color-subtext);
-            transition: transform 0.1s linear, opacity 0.15s ease, color 0.15s ease;
-            width: 80px; /* Hit area */
+            color: #404040;
+            transition: 0.2s;
         }
 
-        /* Grid Placement */
-        .legend-item.up { grid-column: 2; grid-row: 1; align-self: end; margin-bottom: 0.5rem; }
-        .legend-item.left { grid-column: 1; grid-row: 2; justify-self: end; margin-right: 0.5rem; }
-        .legend-item.down { grid-column: 2; grid-row: 2; align-self: start; margin-top: 0.5rem; }
-        .legend-item.right { grid-column: 3; grid-row: 2; justify-self: start; margin-left: 0.5rem; }
-        
-        .legend-item .icon { font-size: 2rem; margin-bottom: 4px; display: block; line-height: 1; }
+        .ctrl.active {
+            color: #ffffff;
+            transform: scale(1.1);
+        }
 
-        /* --- RESULTS OVERLAY --- */
-        #summary-view {
+        .ctrl.up { grid-column: 2; grid-row: 1; margin-bottom: 0.8rem; }
+        .ctrl.down { grid-column: 2; grid-row: 2; }
+        .ctrl.left { grid-column: 1; grid-row: 2; }
+        .ctrl.right { grid-column: 3; grid-row: 2; }
+
+        .icon {
+            font-size: 2rem;
+            line-height: 1;
+            margin-bottom: 6px;
+            font-weight: 300;
+        }
+
+        .label {
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        /* VIEW STATES */
+        .view {
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--color-bg);
+            inset: 0;
+            background: var(--bg-void);
             z-index: 100;
             display: flex;
             flex-direction: column;
-            padding: 2rem;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            overflow-y: auto;
-        }
-
-        #summary-view.visible { opacity: 1; pointer-events: auto; }
-
-        .summary-stats {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-        .stat-box { text-align: center; }
-        .stat-num { font-size: 2rem; font-weight: 800; display: block; margin-bottom: 0.25rem; }
-        .stat-label { font-size: 0.75rem; color: var(--color-subtext); text-transform: uppercase; letter-spacing: 0.05em; }
-
-        #summary-list { margin-bottom: 2rem; }
-
-        .summary-item {
-            background: white;
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            border-left: 6px solid transparent;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-        }
-
-        .confirmation-zone {
-            height: 120px;
-            margin-bottom: 2rem;
-            position: relative;
-            margin-top: auto;
-        }
-
-        #confirmation-card {
-            width: 100%;
-            height: 100%;
-            background: #1e293b;
-            color: white;
-            border-radius: 16px;
-            display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            position: absolute;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-            will-change: transform;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
         }
 
-        .confirm-legend {
+        .view.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .btn-main {
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 1.2rem 3.5rem;
+            font-size: 1rem;
+            font-weight: 800;
+            border-radius: 100px;
+            cursor: pointer;
+            margin-top: 2rem;
+            transition: transform 0.1s;
+        }
+
+        /* REVIEW PORTAL */
+        #view-review {
+            justify-content: flex-start;
+            padding-top: 4rem;
+            overflow-y: auto;
+            touch-action: auto;
+        }
+
+        .review-scroll {
+            width: 90%;
             display: flex;
-            justify-content: space-between;
-            width: 80%;
-            margin-top: 0.75rem;
-            font-size: 0.7rem;
-            opacity: 0.6;
-            text-transform: uppercase;
+            flex-direction: column;
+            gap: 1.5rem;
+            padding-bottom: 4rem;
         }
 
-        .hidden { display: none; }
+        .review-item {
+            background: #111111;
+            border-radius: 20px;
+            padding: 1.5rem;
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        .review-item.wrong {
+            border-left-color: var(--red);
+        }
+
+        .review-q {
+            font-size: 1rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+        }
+
+        .review-s {
+            font-size: 0.85rem;
+            color: #9ca3af;
+            line-height: 1.5;
+        }
+
+        /* TOPIC GRID */
+        .topic-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            width: 90%;
+            max-width: 400px;
+            margin-top: 2rem;
+        }
+
+        .btn-topic {
+            background: #111111;
+            border: 1px solid #333333;
+            color: #ffffff;
+            padding: 1.2rem;
+            border-radius: 20px;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .btn-topic strong {
+            display: block;
+            font-size: 0.95rem;
+            margin-bottom: 0.3rem;
+            font-weight: 800;
+        }
+
+        .btn-topic span {
+            font-size: 0.7rem;
+            color: #666;
+            text-transform: uppercase;
+            font-family: 'JetBrains Mono';
+        }
+
+        /* ANALYTICS */
+        .chart-container {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: #111111;
+            margin-bottom: 2.5rem;
+        }
+
+        .chart-hole {
+            position: absolute;
+            inset: 18px;
+            background: var(--bg-void);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        #status-bar {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 9px;
+            color: #222;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
 
-    <div id="app-container">
-        
-        <header id="ui-header">
-            <span class="header-topic" id="header-topic">Topic</span>
-            <span class="header-type" id="header-type">Type</span>
-        </header>
+    <div id="app-shell">
+        <div id="ui-overlay"></div>
 
-        <div id="card-stack" aria-live="polite">
-            </div>
+        <section id="view-start" class="view active">
+            <h1 style="font-size:3.5rem; font-weight:900; line-height:0.85; text-align:center; margin-bottom:2rem; letter-spacing:-0.05em;">CHEMISTRY<br>MASTER</h1>
+            <p style="color:#666; text-align:center; margin-bottom:3rem; font-size:1.1rem; font-weight:600;">Monolith System V37<br>Cognitive Pruning Active</p>
+            <button class="btn-main" onclick="APP.start('CORE')">START EVALUATION</button>
+        </section>
 
-        <footer id="ui-footer">
-            <div class="legend-item up">
-                <span class="icon">↑</span>
-                <span class="label" id="label-up">True</span>
-            </div>
-            <div class="legend-item left">
-                <span class="icon">←</span>
-                <span class="label" id="label-left">Skip</span>
-            </div>
-            <div class="legend-item down">
-                <span class="icon">↓</span>
-                <span class="label" id="label-down">False</span>
-            </div>
-            <div class="legend-item right">
-                <span class="icon">→</span>
-                <span class="label" id="label-right">Unsure</span>
-            </div>
-        </footer>
+        <section id="view-game" class="view" style="background:transparent;">
+            <header class="header">
+                <div class="progress-bar"><div class="progress-fill" id="ui-progress"></div></div>
+                <span class="meta-tag" id="ui-topic">MODULE</span>
+                <span class="meta-title" id="ui-type">TYPE</span>
+            </header>
+            <div class="stage" id="card-stack"></div>
+            <footer class="footer">
+                <div class="ctrl up"><span class="icon">↑</span><span class="label" id="lbl-up">1</span></div>
+                <div class="ctrl left"><span class="icon">←</span><span class="label" id="lbl-left">2</span></div>
+                <div class="ctrl right"><span class="icon">→</span><span class="label" id="lbl-right">3</span></div>
+                <div class="ctrl down"><span class="icon">↓</span><span class="label" id="lbl-down">ELIMINATE</span></div>
+            </footer>
+        </section>
 
-        <section id="summary-view" class="hidden">
-            <h2 style="font-size:1.5rem; margin-bottom:1.5rem; text-transform:uppercase; color:var(--color-subtext); text-align:center;">Session Complete</h2>
-            
-            <div class="summary-stats">
-                <div class="stat-box">
-                    <span class="stat-num" id="stat-total-score">0</span>
-                    <span class="stat-label">Total Score</span>
-                </div>
-                <div class="stat-box">
-                    <span class="stat-num" id="stat-accuracy">0%</span>
-                    <span class="stat-label">Accuracy</span>
+        <section id="view-summary" class="view">
+            <h2 style="font-size:1.8rem; font-weight:800; margin-bottom:2.5rem;">EVALUATION COMPLETE</h2>
+            <div class="chart-container" id="chart-pie">
+                <div class="chart-hole">
+                    <span style="font-size:3rem; font-weight:900; color:#ffffff;" id="chart-score">0</span>
+                    <span style="font-size:0.8rem; color:#666; font-weight:700; letter-spacing:0.1em;">SCORE</span>
                 </div>
             </div>
-
-            <div id="summary-list"></div>
-            
-            <div class="confirmation-zone">
-                <div id="confirmation-card">
-                    <p style="font-weight:600; font-size:1.1rem;">SWIPE TO SUBMIT</p>
-                    <div class="confirm-legend">
-                        <span>← Cancel</span>
-                        <span>Confirm →</span>
-                    </div>
-                </div>
+            <div class="topic-grid">
+                <button class="btn-topic" onclick="APP.openReview()"><strong>REVIEW SESSION</strong><span>Concept Audit</span></button>
+                <button class="btn-topic" onclick="location.reload()"><strong>RESTART</strong><span>System</span></button>
+                <button class="btn-topic" onclick="APP.start('ATOMS_HARD')"><strong>ATOMS</strong><span>Advanced</span></button>
+                <button class="btn-topic" onclick="APP.start('BONDS_HARD')"><strong>BONDS</strong><span>Advanced</span></button>
             </div>
         </section>
 
+        <section id="view-review" class="view">
+            <h2 style="margin-bottom:2rem; font-weight:800; font-size:1.5rem;">SESSION AUDIT</h2>
+            <div class="review-scroll" id="review-list"></div>
+            <button class="btn-main" onclick="APP.closeReview()">CLOSE REVIEW</button>
+        </section>
+        
+        <div id="status-bar">Sync Ready</div>
     </div>
 
     <script>
-        /**
-         * ------------------------------------------------------------------
-         * CONFIGURATION
-         * ------------------------------------------------------------------
-         */
-        const CONFIG = {
-            API_URL: "https://script.google.com/macros/s/AKfycbz_ziu5Dezrz35J2FksQtNEYuZ5Kk6TrQvg3pM5O5eBYUDzWCCtqlGWwZj8D-TBQLFw/exec",
-            SWIPE_THRESHOLD: 80,
-            ROTATION_FACTOR: 0.05,
-            ARROW_MOVE_LIMIT: 25, // Pixels arrows move towards finger
-            COLORS: { UP: '#22c55e', DOWN: '#ef4444', RIGHT: '#eab308', LEFT: '#64748b', NEUTRAL: '#71717a' }
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxVI2gj8rupl-lRG7K3TJJ8X6PbsOtPwLyonLt5ebK8uUuOdP7u4tqL45idUslDZurP/exec"; 
+
+        const DECKS = {
+            CORE: [
+                {
+                    id: "c1",
+                    topic: "Mass Distribution",
+                    type: "ATOM",
+                    text: "Where is the majority of an atom's mass found?",
+                    options: [
+                        "Concentrated in a dense central core",
+                        "Diffuse in electron probability clouds",
+                        "Homogenous across the entire atom"
+                    ],
+                    elimination: [
+                        "1. Nucleons are ~1836x heavier than electrons.",
+                        "2. Electron shells provide volume but negligible mass.",
+                        "3. Rutherford's gold foil confirms a dense positive core."
+                    ],
+                    explanation: "Atomic mass is localized in the sub-femtometer dense nucleus; the remaining volume is primarily vacuum energy.",
+                    correct: "up",
+                    w: 1
+                },
+                {
+                    id: "c2",
+                    topic: "Charge Logic",
+                    type: "ATOM",
+                    text: "Identify the fundamental charge of an Electron.",
+                    options: [
+                        "Unit Positive Vector (+1)",
+                        "Unit Negative Vector (-1)",
+                        "Electrically Inert (Neutral)"
+                    ],
+                    elimination: [
+                        "1. Protons occupy the positive electrical vector.",
+                        "2. Electrons are the negative carriers in chemical systems.",
+                        "3. Neutrons provide nuclear stability without charge."
+                    ],
+                    explanation: "Electrons carry the fundamental unit of negative charge, balancing nuclear protons in neutral atoms.",
+                    correct: "left",
+                    w: 1
+                },
+                {
+                    id: "c3",
+                    topic: "Atomic Identity",
+                    type: "ATOM",
+                    text: "Changing which particle count changes the element?",
+                    options: [
+                        "Neutron Count (Isotope factor)",
+                        "Proton Count (Atomic fingerprint)",
+                        "Electron Count (Ionic factor)"
+                    ],
+                    elimination: [
+                        "1. Neutron variance only changes mass (A), not identity.",
+                        "2. Protons (Z) determine nuclear charge and element name.",
+                        "3. Electrons only change net charge, creating ions."
+                    ],
+                    explanation: "The Proton count is the unique identifier for every element on the periodic table.",
+                    correct: "left",
+                    w: 1
+                },
+                {
+                    id: "c4",
+                    topic: "Bonding Logic",
+                    type: "BOND",
+                    text: "Which bond type involves electron transfer?",
+                    options: [
+                        "Covalent Bonding (Shared pairs)",
+                        "Ionic Bonding (Electrostastic pull)",
+                        "Metallic Bonding (Pool sharing)"
+                    ],
+                    elimination: [
+                        "1. Covalent bonding relies on shared localized pairs.",
+                        "2. Ionic logic is a 'theft' of electrons due to high EN delta.",
+                        "3. Metallic logic uses delocalized pools for conductivity."
+                    ],
+                    explanation: "Ionic bonds form when one atom steals electrons to reach an octet, creating attraction between cations and anions.",
+                    correct: "left",
+                    w: 1
+                },
+                {
+                    id: "c5",
+                    topic: "Equilibrium",
+                    type: "SOLN",
+                    text: "Pure water at standard conditions has a pH of:",
+                    options: [
+                        "pH 1.0 (Highly Acidic)",
+                        "pH 7.0 (Perfectly Neutral)",
+                        "pH 14.0 (Highly Basic)"
+                    ],
+                    elimination: [
+                        "1. Low pH indicates a massive surplus of H+ ions.",
+                        "2. pH 7 is the logarithmic balance of H+ and OH-.",
+                        "3. High pH represents a massive hydroxyl surplus."
+                    ],
+                    explanation: "Neutrality is the state where auto-ionization of water ($K_w$) is perfectly balanced.",
+                    correct: "left",
+                    w: 1
+                },
+                {
+                    id: "c6",
+                    topic: "Stoichiometry",
+                    type: "REAC",
+                    text: "What occurs during an Exothermic chemical reaction?",
+                    options: [
+                        "Energy is sequestered into the system",
+                        "Zero thermal energy movement is detected",
+                        "Thermal energy is released to surroundings"
+                    ],
+                    elimination: [
+                        "1. Sequestering energy is the Endothermic vector.",
+                        "2. Zero movement would imply no reaction occurred.",
+                        "3. 'Exo' means energy leaves the system as heat/light."
+                    ],
+                    explanation: "Negative Enthalpy (&Delta;H) signals that the products are more stable than the reactants.",
+                    correct: "right",
+                    w: 1
+                }
+            ],
+            ATOMS_HARD: [
+                {
+                    id: "ah1",
+                    topic: "Quantum Mechanics",
+                    type: "ATOM",
+                    text: "Why is the 4s orbital filled before the 3d orbital?",
+                    options: [
+                        "4s has a lower potential energy state",
+                        "4s occupies a larger volumetric shell",
+                        "3d has a higher nuclear attraction pull"
+                    ],
+                    elimination: [
+                        "1. Orbital filling seeks the lowest energy gap first.",
+                        "2. Volume is not a primary driver for Aufbau logic.",
+                        "3. Penetration allows 4s to sit deeper than shielded 3d."
+                    ],
+                    explanation: "The n+l rule (4+0=4) vs (3+2=5) explains why 4s is lower in potential energy.",
+                    correct: "up",
+                    w: 2
+                }
+            ],
+            BONDS_HARD: [
+                {
+                    id: "bh1",
+                    topic: "Molecular Geometry",
+                    type: "BOND",
+                    text: "The bond angle in a Tetrahedral (CH<sub>4</sub>) molecule is:",
+                    options: [
+                        "90.0 Degrees (Planar)",
+                        "109.5 Degrees (3D Spacing)",
+                        "120.0 Degrees (Trigonal)"
+                    ],
+                    elimination: [
+                        "1. 90 deg is for square planar, failing to use 3D space.",
+                        "2. 109.5 deg is the max repulsion spacing for 4 pairs.",
+                        "3. 120 deg is the spacing for planar sp2 systems."
+                    ],
+                    explanation: "VSEPR theory requires pairs to stay as far apart as possible in three dimensions.",
+                    correct: "left",
+                    w: 2
+                }
+            ]
         };
 
-        const QUESTIONS = [
-            {
-                question_id: "q1", topic: "Strategic", q_type: "FACT RECALL", active: true,
-                question_text: "The Dholera semiconductor facility is fully operational as of Jan 2026.",
-                swipe_up_label: "True", swipe_right_label: "Unsure", swipe_down_label: "False", swipe_left_label: "Skip",
-                correct_swipe: "up", score_up: 10, score_right: 0, score_down: -5, score_left: 0, weight: 1
-            },
-            {
-                question_id: "q2", topic: "Logistics", q_type: "CONTEXT", active: true,
-                question_text: "ULIP integration has fully decoupled supply chain efficiency from crude oil volatility.",
-                swipe_up_label: "Agree", swipe_right_label: "Partial", swipe_down_label: "Disagree", swipe_left_label: "Skip",
-                correct_swipe: "right", score_up: -5, score_right: 10, score_down: -5, score_left: 0, weight: 2
-            },
-            {
-                question_id: "q3", topic: "Finance", q_type: "TRAP", active: true,
-                question_text: "The Indian Rupee was inducted into the IMF SDR basket in late 2025.",
-                swipe_up_label: "True", swipe_right_label: "Plausible", swipe_down_label: "False", swipe_left_label: "Skip",
-                correct_swipe: "down", score_up: -10, score_right: -5, score_down: 10, score_left: 0, weight: 1
-            }
-        ];
-
-        /**
-         * ------------------------------------------------------------------
-         * STATE MANAGEMENT
-         * ------------------------------------------------------------------
-         */
-        const STATE = { IDLE: 'IDLE', DRAGGING: 'DRAGGING', ANIMATING: 'ANIMATING', SUMMARY: 'SUMMARY' };
-        
         const APP = {
-            currentState: STATE.IDLE,
-            deck: [],
-            currentIndex: 0,
-            answers: {}, 
-            activeCard: null,
-            startX: 0, startY: 0
-        };
+            deck: [], idx: 0, answers: {}, activeEl: null, startTime: 0, history: [],
 
-        const DOM = {
-            stack: document.getElementById('card-stack'),
-            headerTopic: document.getElementById('header-topic'),
-            headerType: document.getElementById('header-type'),
-            labelUp: document.getElementById('label-up'),
-            labelDown: document.getElementById('label-down'),
-            labelLeft: document.getElementById('label-left'),
-            labelRight: document.getElementById('label-right'),
-            footer: document.getElementById('ui-footer'),
-            summaryView: document.getElementById('summary-view'),
-            summaryList: document.getElementById('summary-list'),
-            confirmCard: document.getElementById('confirmation-card'),
-            totalScore: document.getElementById('stat-total-score'),
-            accuracy: document.getElementById('stat-accuracy'),
-            container: document.getElementById('app-container')
-        };
+            start(key) {
+                this.idx = 0; this.answers = {}; this.history = [];
+                this.deck = [...DECKS[key] || DECKS['CORE']];
+                document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+                document.getElementById('view-game').classList.add('active');
+                this.render();
+            },
 
-        function init() {
-            APP.deck = QUESTIONS.filter(q => q.active === true || q.active === "TRUE");
-            renderStack();
-        }
+            render() {
+                const stack = document.getElementById('card-stack'); 
+                stack.innerHTML = '';
+                if(this.idx >= this.deck.length) return this.finish();
 
-        function renderStack() {
-            DOM.stack.innerHTML = '';
-            // Render in reverse so first index is on top visually
-            [...APP.deck].reverse().forEach((q, index) => {
-                const card = document.createElement('div');
-                card.classList.add('card');
-                card.style.zIndex = APP.deck.length - index;
-                // Only Question Text lives here now
-                card.innerHTML = `<p>${q.question_text}</p>`;
-                DOM.stack.appendChild(card);
-            });
-            updateTopCard();
-        }
+                const buffer = this.deck.slice(this.idx, this.idx + 2).reverse();
+                buffer.forEach((q, i) => {
+                    const realIdx = this.idx + (buffer.length - 1 - i);
+                    const el = document.createElement('div');
+                    el.className = 'card';
+                    if (q.isPivot) el.classList.add('pivot-card');
+                    if (q.isCorrection) el.classList.add('correction-border');
 
-        function updateTopCard() {
-            const topCard = DOM.stack.lastElementChild;
-            if (topCard && APP.currentIndex < APP.deck.length) {
-                APP.activeCard = topCard;
-                bindInputEvents(topCard);
-                updateUI(APP.deck[APP.currentIndex]);
-            } else {
-                finishDeck();
-            }
-        }
+                    let listHTML = `<ul class="card-list">`;
+                    const listSource = q.isPivot ? q.elimination : q.options;
+                    listSource.forEach(s => listHTML += `<li>${s}</li>`);
+                    listHTML += `</ul>`;
 
-        function updateUI(data) {
-            // Update Headers
-            DOM.headerTopic.textContent = data.topic;
-            DOM.headerType.textContent = data.q_type;
-
-            // Update Labels
-            DOM.labelUp.textContent = data.swipe_up_label || "Up";
-            DOM.labelDown.textContent = data.swipe_down_label || "Down";
-            DOM.labelLeft.textContent = data.swipe_left_label || "Left";
-            DOM.labelRight.textContent = data.swipe_right_label || "Right";
-        }
-
-        /**
-         * ------------------------------------------------------------------
-         * PHYSICS & INPUT HANDLING
-         * ------------------------------------------------------------------
-         */
-        function bindInputEvents(card) {
-            // Touch
-            card.addEventListener('touchstart', (e) => {
-                if (APP.currentState !== STATE.IDLE) return;
-                if (e.touches.length > 1) return; // Single touch only
-                startDrag(e.touches[0].clientX, e.touches[0].clientY);
-            }, { passive: false });
-
-            // Mouse (Desktop)
-            card.addEventListener('mousedown', (e) => {
-                if (APP.currentState !== STATE.IDLE) return;
-                startDrag(e.clientX, e.clientY);
-            });
-        }
-
-        function startDrag(x, y) {
-            APP.startX = x;
-            APP.startY = y;
-            APP.currentState = STATE.DRAGGING;
-            APP.activeCard.style.transition = 'none';
-
-            // Global listeners to catch fast swipes
-            window.addEventListener('touchmove', handleMove, { passive: false });
-            window.addEventListener('touchend', handleEnd);
-            window.addEventListener('mousemove', handleMove);
-            window.addEventListener('mouseup', handleEnd);
-        }
-
-        function handleMove(e) {
-            if (APP.currentState !== STATE.DRAGGING) return;
-            
-            let clientX, clientY;
-            if (e.type === 'touchmove') {
-                e.preventDefault(); 
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            } else {
-                clientX = e.clientX;
-                clientY = e.clientY;
-            }
-
-            const deltaX = clientX - APP.startX;
-            const deltaY = clientY - APP.startY;
-
-            // 1. Move Card
-            const rotate = deltaX * CONFIG.ROTATION_FACTOR;
-            APP.activeCard.style.transform = `translate(${deltaX}px, ${deltaY}px) rotate(${rotate}deg)`;
-
-            // 2. Animate Footer Arrows
-            updateFooterVisuals(deltaX, deltaY);
-        }
-
-        function handleEnd(e) {
-            if (APP.currentState !== STATE.DRAGGING) return;
-
-            window.removeEventListener('touchmove', handleMove);
-            window.removeEventListener('touchend', handleEnd);
-            window.removeEventListener('mousemove', handleMove);
-            window.removeEventListener('mouseup', handleEnd);
-
-            let clientX, clientY;
-            if (e.changedTouches && e.changedTouches.length > 0) {
-                clientX = e.changedTouches[0].clientX;
-                clientY = e.changedTouches[0].clientY;
-            } else {
-                clientX = e.clientX;
-                clientY = e.clientY;
-            }
-
-            const deltaX = clientX - APP.startX;
-            const deltaY = clientY - APP.startY;
-            const absX = Math.abs(deltaX);
-            const absY = Math.abs(deltaY);
-
-            resetFooterVisuals();
-            APP.currentState = STATE.ANIMATING;
-
-            let decision = null;
-            if (absY > absX && absY > CONFIG.SWIPE_THRESHOLD) {
-                decision = deltaY < 0 ? 'up' : 'down';
-            } else if (absX > absY && absX > CONFIG.SWIPE_THRESHOLD) {
-                decision = deltaX > 0 ? 'right' : 'left';
-            }
-
-            decision ? commitSwipe(decision) : resetCard();
-        }
-
-        /**
-         * ------------------------------------------------------------------
-         * VISUALS & ANIMATION
-         * ------------------------------------------------------------------
-         */
-        function updateFooterVisuals(dx, dy) {
-            const absX = Math.abs(dx);
-            const absY = Math.abs(dy);
-            
-            let activeClass = '';
-            let activeColor = '';
-            let xMove = 0, yMove = 0;
-
-            if (absY > absX) {
-                if (dy < 0) { activeClass = 'up'; activeColor = CONFIG.COLORS.UP; yMove = -CONFIG.ARROW_MOVE_LIMIT; }
-                else { activeClass = 'down'; activeColor = CONFIG.COLORS.DOWN; yMove = CONFIG.ARROW_MOVE_LIMIT; }
-            } else {
-                if (dx > 0) { activeClass = 'right'; activeColor = CONFIG.COLORS.RIGHT; xMove = CONFIG.ARROW_MOVE_LIMIT; }
-                else { activeClass = 'left'; activeColor = CONFIG.COLORS.LEFT; xMove = -CONFIG.ARROW_MOVE_LIMIT; }
-            }
-
-            const intensity = Math.min((Math.max(absX, absY) / CONFIG.SWIPE_THRESHOLD), 1);
-
-            const items = DOM.footer.querySelectorAll('.legend-item');
-            items.forEach(item => {
-                if (item.classList.contains(activeClass)) {
-                    // Active: Scale & Move towards finger
-                    const scale = 1 + (0.3 * intensity);
-                    const tx = xMove * intensity;
-                    const ty = yMove * intensity;
+                    const footerLabel = q.isPivot ? (q.isCorrection ? "SYNTHESIS REPORT" : "ELIMINATION MAP") : q.id;
+                    el.innerHTML = `<p>${q.text}</p>${listHTML}<div class="card-id">${footerLabel}</div>`;
                     
-                    item.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
-                    item.style.color = activeColor;
-                    item.style.opacity = 1;
+                    if(realIdx === this.idx) {
+                        el.style.zIndex = 100;
+                        this.activeEl = el;
+                        this.startTime = Date.now();
+                        PHYSICS.bind(el);
+                    } else {
+                        el.style.zIndex = 90;
+                        el.style.transform = 'translate(-50%, -46%) scale(0.94)';
+                        el.style.opacity = 0.4;
+                    }
+                    stack.appendChild(el);
+                });
+                this.updateUI();
+            },
+
+            updateUI() {
+                const q = this.deck[this.idx];
+                document.getElementById('ui-topic').textContent = q.topic;
+                document.getElementById('ui-type').textContent = q.type;
+                document.getElementById('ui-progress').style.width = `${(this.idx/this.deck.length)*100}%`;
+                
+                if (q.isPivot) {
+                    document.getElementById('lbl-up').textContent = "GOT IT";
+                    document.getElementById('lbl-left').textContent = "GOT IT";
+                    document.getElementById('lbl-right').textContent = "GOT IT";
+                    document.getElementById('lbl-down').textContent = "CONTINUE";
                 } else {
-                    // Inactive: Shrink & Fade
-                    item.style.transform = `scale(${1 - (0.15 * intensity)})`;
-                    item.style.opacity = 1 - (0.6 * intensity);
-                    item.style.color = CONFIG.COLORS.NEUTRAL;
+                    document.getElementById('lbl-up').textContent = "1";
+                    document.getElementById('lbl-left').textContent = "2";
+                    document.getElementById('lbl-right').textContent = "3";
+                    document.getElementById('lbl-down').textContent = "ELIMINATE";
                 }
-            });
-        }
+            },
 
-        function resetFooterVisuals() {
-            const items = DOM.footer.querySelectorAll('.legend-item');
-            items.forEach(item => {
-                item.style.transform = '';
-                item.style.opacity = '';
-                item.style.color = '';
-            });
-        }
+            injectPivot(q, mode) {
+                const pivot = {
+                    id: "LEARNING PIVOT", topic: "ANALYSIS", type: "PIVOT",
+                    text: mode === 'elimination' ? "Process of Elimination" : "Scientific Correction",
+                    elimination: mode === 'elimination' ? q.elimination : [q.explanation, "Conceptual Synthesis Complete", "Resuming Session"],
+                    isPivot: true,
+                    isCorrection: mode === 'correction',
+                    correct: "up", w: 0
+                };
+                this.deck.splice(this.idx + 1, 0, pivot);
+            },
 
-        function resetCard() {
-            APP.activeCard.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-            APP.activeCard.style.transform = 'translate(0, 0) rotate(0)';
-            setTimeout(() => APP.currentState = STATE.IDLE, 400);
-        }
-
-        function commitSwipe(direction) {
-            const qData = APP.deck[APP.currentIndex];
-            let score = 0;
-            if (direction === 'up') score = qData.score_up;
-            if (direction === 'down') score = qData.score_down;
-            if (direction === 'right') score = qData.score_right;
-            if (direction === 'left') score = qData.score_left;
-
-            APP.answers[qData.question_id] = {
-                direction: direction,
-                raw_score: score,
-                weighted_score: score * qData.weight
-            };
-
-            let transX = 0, transY = 0;
-            const dist = window.innerWidth * 1.5;
-            if (direction === 'up') transY = -dist;
-            if (direction === 'down') transY = dist;
-            if (direction === 'left') transX = -dist;
-            if (direction === 'right') transX = dist;
-            
-            APP.activeCard.style.transition = 'transform 0.3s ease-in';
-            APP.activeCard.style.transform = `translate(${transX}px, ${transY}px) rotate(${transX * 0.1}deg)`;
-            
-            setTimeout(() => {
-                APP.activeCard.remove();
-                APP.currentIndex++;
-                APP.currentState = STATE.IDLE;
-                updateTopCard();
-            }, 300);
-        }
-
-        /**
-         * ------------------------------------------------------------------
-         * SUMMARY & SUBMISSION
-         * ------------------------------------------------------------------
-         */
-        function finishDeck() {
-            APP.currentState = STATE.SUMMARY;
-            DOM.summaryView.classList.remove('hidden');
-            setTimeout(() => DOM.summaryView.classList.add('visible'), 50);
-
-            let totalScore = 0;
-            let correctCount = 0;
-            const listHtml = APP.deck.map(q => {
-                const ans = APP.answers[q.question_id];
-                totalScore += ans.weighted_score;
-                if (ans.direction === q.correct_swipe) correctCount++;
-                let c = CONFIG.COLORS[ans.direction.toUpperCase()];
-                return `<div class="summary-item" style="border-left-color:${c}"><strong>${q.topic}</strong><br>${q.question_text}<br><div style="display:flex;justify-content:space-between;margin-top:0.5rem;font-size:0.8rem;"><span style="color:${c};font-weight:700;">${ans.direction.toUpperCase()}</span><span>Score: ${ans.weighted_score}</span></div></div>`;
-            }).join('');
-
-            DOM.totalScore.textContent = totalScore;
-            DOM.accuracy.textContent = Math.round((correctCount / APP.deck.length) * 100) + "%";
-            DOM.summaryList.innerHTML = listHtml;
-            initConfirmationSwipe();
-        }
-
-        function initConfirmationSwipe() {
-            const card = DOM.confirmCard;
-            let startX = 0;
-            
-            card.addEventListener('touchstart', (e) => { 
-                startX = e.touches[0].clientX; 
-                card.style.transition = 'none'; 
-            }, { passive: false });
-            
-            card.addEventListener('touchmove', (e) => {
-                e.preventDefault();
-                const dx = e.touches[0].clientX - startX;
-                card.style.transform = `translateX(${dx}px)`;
-                if (dx > 50) card.style.background = CONFIG.COLORS.UP;
-                else if (dx < -50) card.style.background = CONFIG.COLORS.DOWN;
-                else card.style.background = '#1e293b';
-            }, { passive: false });
-            
-            card.addEventListener('touchend', (e) => {
-                const dx = e.changedTouches[0].clientX - startX;
-                if (dx > 100) submitData();
-                else if (dx < -100) location.reload();
-                else { 
-                    card.style.transition = 'transform 0.3s ease, background 0.3s'; 
-                    card.style.transform = 'translateX(0)'; 
-                    card.style.background = '#1e293b'; 
+            finish() {
+                document.getElementById('view-game').classList.remove('active');
+                document.getElementById('view-summary').classList.add('active');
+                const score = Object.values(this.answers).reduce((a,b)=>a+b.score,0);
+                document.getElementById('chart-score').textContent = score;
+                this.renderChart();
+                if (GOOGLE_SCRIPT_URL) {
+                    fetch(GOOGLE_SCRIPT_URL, { 
+                        method: 'POST', mode: 'no-cors', 
+                        body: JSON.stringify({ answers: this.answers, score, ts: new Date().toISOString() }) 
+                    }).then(() => { document.getElementById('status-bar').textContent = "Synced"; });
                 }
-            });
-        }
+            },
 
-        function submitData() {
-            const card = DOM.confirmCard;
-            card.innerHTML = "<h3>SYNCING...</h3>";
-            card.style.background = CONFIG.COLORS.LEFT;
-            
-            const payload = {
-                session_data: APP.answers,
-                total_score: parseInt(DOM.totalScore.textContent),
-                device: /Mobi|Android/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
-                timestamp: new Date().toISOString()
-            };
+            openReview() {
+                const list = document.getElementById('review-list');
+                list.innerHTML = '';
+                this.history.forEach(item => {
+                    const el = document.createElement('div');
+                    el.className = `review-item ${item.correct ? '' : 'wrong'}`;
+                    el.innerHTML = `<div class="review-q">${item.q.text}</div><div class="review-s">${item.q.explanation}</div>`;
+                    list.appendChild(el);
+                });
+                document.getElementById('view-summary').classList.remove('active');
+                document.getElementById('view-review').classList.add('active');
+            },
 
-            fetch(CONFIG.API_URL, { 
-                method: "POST", 
-                mode: "no-cors", 
-                headers: { "Content-Type": "text/plain" }, 
-                body: JSON.stringify(payload) 
-            })
-            .then(() => {
-                card.innerHTML = "<h3>SUBMITTED</h3>";
-                card.style.background = CONFIG.COLORS.UP;
-                card.style.transform = "translateX(0)";
-                const clone = card.cloneNode(true);
-                card.parentNode.replaceChild(clone, card);
-            })
-            .catch(error => {
-                console.error("Submission Error", error);
-                card.innerHTML = "<h3>ERROR</h3>";
-                card.style.background = CONFIG.COLORS.DOWN;
-            });
-        }
+            closeReview() {
+                document.getElementById('view-review').classList.remove('active');
+                document.getElementById('view-summary').classList.add('active');
+            },
 
-        init();
+            renderChart() {
+                const counts={}; let total=0;
+                Object.values(this.answers).forEach(a=>{ if(a.correct){ counts[a.q.type]=(counts[a.q.type]||0)+1; total++; }});
+                const chart = document.getElementById('chart-pie');
+                if(total===0) { chart.style.background='#111'; return; }
+                let grad=[]; let cur=0;
+                Object.keys(counts).forEach(t=>{
+                    const deg = (counts[t]/total)*360;
+                    grad.push(`${CONFIG.CHART[t] || '#fff'} ${cur}deg ${cur+deg}deg`);
+                    cur+=deg;
+                });
+                chart.style.background = `conic-gradient(${grad.join(', ')})`;
+            }
+        };
+
+        const PHYSICS = {
+            el: null, startX: 0, startY: 0, dragging: false, overlay: document.getElementById('ui-overlay'),
+            bind(el) { this.el=el; el.addEventListener('touchstart',this.start.bind(this),{passive:false}); el.addEventListener('mousedown',this.start.bind(this)); },
+            start(e) { this.dragging=true; const p=e.touches?e.touches[0]:e; this.startX=p.clientX; this.startY=p.clientY; this.el.style.transition='none'; window.addEventListener('touchmove',this.move.bind(this),{passive:false}); window.addEventListener('mousemove',this.move.bind(this)); window.addEventListener('touchend',this.end.bind(this)); window.addEventListener('mouseup',this.end.bind(this)); },
+            move(e) { if(!this.dragging) return; const p=e.touches?e.touches[0]:e; const dx=p.clientX-this.startX; const dy=p.clientY-this.startY; this.el.style.transform=`translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) rotate(${dx*0.05}deg)`; this.feedback(dx,dy); },
+            end(e) { 
+                if(!this.dragging) return; this.dragging=false; 
+                const p=e.changedTouches?e.changedTouches[0]:e; 
+                const dx=p.clientX-this.startX; const dy=p.clientY-this.startY; 
+                const absX = Math.abs(dx); const absY = Math.abs(dy);
+                if (Math.max(absX, absY) < 70) return this.reset();
+                if (absY > absX) this.commit('vert', dy < 0 ? 'up' : 'down');
+                else this.commit('side', dx < 0 ? 'left' : 'right');
+            },
+            feedback(dx, dy) {
+                const absX = Math.abs(dx); const absY = Math.abs(dy);
+                const op = Math.min(Math.max(absX, absY)/100, 0.4);
+                if (absY > absX) this.overlay.style.backgroundColor = dy < 0 ? '#3b82f6' : '#6b7280';
+                else this.overlay.style.backgroundColor = '#3b82f6';
+                this.overlay.style.opacity = op;
+            },
+            reset() { this.el.style.transition='0.3s ease'; this.el.style.transform='translate(-50%, -50%)'; this.overlay.style.opacity=0; },
+            commit(axis, dir) {
+                const q = APP.deck[APP.idx];
+                const latency = Date.now() - APP.startTime;
+                if (!q.isPivot) {
+                    if (dir === 'down') {
+                        APP.injectPivot(q, 'elimination');
+                        APP.answers[q.id] = { correct:false, score:0, mode:'elimination', latency };
+                    } else {
+                        const correct = dir === q.correct;
+                        APP.answers[q.id] = { correct, score: correct ? 10 : -5, mode:'eval', latency };
+                        APP.history.push({ q, correct, dir });
+                        if (!correct) APP.injectPivot(q, 'correction');
+                    }
+                }
+                this.el.style.transition='0.4s cubic-bezier(0.1, 0, 0.3, 1)';
+                if (axis === 'vert') this.el.style.transform=`translate(-50%, ${dir==='up'?'-150%':'150%'}) rotate(${dir==='up'?'10deg':'-10deg'})`;
+                else this.el.style.transform=`translate(${dir==='left'?'-150%':'150%'}, -50%) rotate(${dir==='left'?'-10deg':'10deg'})`;
+                this.overlay.style.opacity=0;
+                setTimeout(() => { APP.idx++; APP.render(); }, 300);
+            }
+        };
+
+        document.body.addEventListener('touchmove', e => e.preventDefault(), {passive:false});
     </script>
 </body>
 </html>
