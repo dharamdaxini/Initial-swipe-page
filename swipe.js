@@ -1,87 +1,310 @@
-[
-  { "dataset": "SET_A", "topic": "Physical", "q_type": "CONCEPT", "question_text": "What does a negative ΔG value signify?", "hint": "Gibbs Energy.", "explanation": "✅ A negative ΔG indicates the reaction is spontaneous at the given temperature. || ❌ Positive ΔG means non-spontaneous.", "swipe_up_label": "Spontaneous", "swipe_right_label": "Equilibrium", "swipe_down_label": "HINT", "swipe_left_label": "Non-spontaneous", "correct": "UP", "weight": 1 },
-  { "dataset": "SET_A", "topic": "Physical", "q_type": "APPLICATION", "question_text": "If a reaction rate doubles when T increases from 298 K to 308 K, effect on k?", "hint": "Arrhenius eq.", "explanation": "✅ k increases exponentially with temperature as more molecules exceed Ea.", "swipe_up_label": "k Increases", "swipe_right_label": "k is Constant", "swipe_down_label": "HINT", "swipe_left_label": "k Decreases", "correct": "UP", "weight": 2 },
-  { "dataset": "SET_A", "topic": "Physical", "q_type": "CONCEPT", "question_text": "How does half-life change with concentration in a 1st order reaction?", "hint": "t1/2 = 0.693/k", "explanation": "✅ Independent of initial concentration.", "swipe_up_label": "Increases", "swipe_right_label": "Independent", "swipe_down_label": "HINT", "swipe_left_label": "Decreases", "correct": "RIGHT", "weight": 1 },
-  { "dataset": "SET_A", "topic": "Physical", "q_type": "APPLICATION", "question_text": "Calculate Eo cell for Zn2+/Zn and Cu2+/Cu.", "hint": "Cathode - Anode.", "explanation": "✅ 0.34 - (-0.76) = 1.10 V.", "swipe_up_label": "-0.42 V", "swipe_right_label": "1.10 V", "swipe_down_label": "HINT", "swipe_left_label": "0.42 V", "correct": "RIGHT", "weight": 2 },
-  { "dataset": "SET_A", "topic": "Physical", "q_type": "CONCEPT", "question_text": "At equilibrium, relationship between forward and backward rates?", "hint": "Dynamic state.", "explanation": "✅ Rates are equal; no net concentration change.", "swipe_up_label": "Zero", "swipe_right_label": "Equal", "swipe_down_label": "HINT", "swipe_left_label": "Faster", "correct": "RIGHT", "weight": 1 },
-  { "dataset": "SET_A", "topic": "Physical", "q_type": "APPLICATION", "question_text": "What is the pH of a 0.001 M HCl solution?", "hint": "-log[H+].", "explanation": "✅ -log(10^-3) = 3.", "swipe_up_label": "pH 7", "swipe_right_label": "pH 3", "swipe_down_label": "HINT", "swipe_left_label": "pH 1", "correct": "RIGHT", "weight": 1 },
-  { "dataset": "SET_B", "topic": "Physical", "q_type": "CONCEPT", "question_text": "Why does a catalyst speed up a reaction?", "hint": "Alternative path.", "explanation": "✅ Lowers the Activation Energy (Ea).", "swipe_up_label": "Changes K", "swipe_right_label": "Lowers Ea", "swipe_down_label": "HINT", "swipe_left_label": "Enthalpy", "correct": "RIGHT", "weight": 1 },
-  { "dataset": "SET_B", "topic": "Physical", "q_type": "APPLICATION", "question_text": "Effect of high pressure on Haber process?", "hint": "Le Chatelier.", "explanation": "✅ Shifts right toward fewer gas moles.", "swipe_up_label": "Left", "swipe_right_label": "None", "swipe_down_label": "HINT", "swipe_left_label": "Right", "correct": "LEFT", "weight": 2 },
-  { "dataset": "SET_B", "topic": "Physical", "q_type": "CONCEPT", "question_text": "What causes rusting of iron?", "hint": "Electrochemical.", "explanation": "✅ Needs both O2 and Moisture.", "swipe_up_label": "O2 and H2O", "swipe_right_label": "H2O only", "swipe_down_label": "HINT", "swipe_left_label": "N2 Gas", "correct": "UP", "weight": 1 },
-  { "dataset": "SET_B", "topic": "Physical", "q_type": "APPLICATION", "question_text": "Product at anode during brine electrolysis?", "hint": "Oxidation.", "explanation": "✅ Cl- forms Cl2 gas.", "swipe_up_label": "H2 Gas", "swipe_right_label": "Cl2 Gas", "swipe_down_label": "HINT", "swipe_left_label": "Na Metal", "correct": "RIGHT", "weight": 2 },
-  { "dataset": "SET_B", "topic": "Physical", "q_type": "CONCEPT", "question_text": "Why use Helium in diving tanks?", "hint": "Blood solubility.", "explanation": "✅ Prevents bends due to lower solubility.", "swipe_up_label": "Cheap", "swipe_right_label": "Low Solubility", "swipe_down_label": "HINT", "swipe_left_label": "Light", "correct": "RIGHT", "weight": 1 },
-  { "dataset": "SET_B", "topic": "Physical", "q_type": "APPLICATION", "question_text": "Amount of isotope after 4 half-lives?", "hint": "(1/2)^4.", "explanation": "✅ 6.25% remains.", "swipe_up_label": "12.5%", "swipe_right_label": "25%", "swipe_down_label": "HINT", "swipe_left_label": "6.25%", "correct": "LEFT", "weight": 2 },
-  { "dataset": "SET_A", "topic": "Organic", "q_type": "CONCEPT", "question_text": "What defines a chiral carbon?", "hint": "Substituents.", "explanation": "✅ Bonded to four unique groups.", "swipe_up_label": "4 Groups", "swipe_right_label": "Symmetry", "swipe_down_label": "HINT", "swipe_left_label": "Doubles", "correct": "UP", "weight": 1 },
-  { "dataset": "SET_A", "topic": "Organic", "q_type": "APPLICATION", "question_text": "Fastest SN2 alkyl halide?", "hint": "Sterics.", "explanation": "✅ Methyl is least hindered.", "swipe_up_label": "Tertiary", "swipe_right_label": "Secondary", "swipe_down_label": "HINT", "swipe_left_label": "Methyl", "correct": "LEFT", "weight": 2 },
-  { "dataset": "SET_A", "topic": "Organic", "q_type": "CONCEPT", "question_text": "Intermediate in SN1 reaction?", "hint": "Two-step.", "explanation": "✅ Planar carbocation formed.", "swipe_up_label": "Carbanion", "swipe_right_label": "Radical", "swipe_down_label": "HINT", "swipe_left_label": "Carbocation", "correct": "LEFT", "weight": 1 },
-  { "dataset": "SET_A", "topic": "Organic", "q_type": "APPLICATION", "question_text": "IUPAC of CH3CH2CH(CH3)2?", "hint": "Longest chain.", "explanation": "✅ 2-Methylbutane.", "swipe_up_label": "Pentane", "swipe_right_label": "Isopentane", "swipe_down_label": "HINT", "swipe_left_label": "2-Me-Butane", "correct": "LEFT", "weight": 2 },
-  { "dataset": "SET_A", "topic": "Organic", "q_type": "CONCEPT", "question_text": "Hybridization in Ethene?", "hint": "Double bond.", "explanation": "✅ sp2 for trigonal planar.", "swipe_up_label": "sp", "swipe_right_label": "sp2", "swipe_down_label": "HINT", "swipe_left_label": "sp3", "correct": "RIGHT", "weight": 1 },
-  { "dataset": "SET_A", "topic": "Organic", "q_type": "APPLICATION", "question_text": "Markovnikov H-addition to propene?", "hint": "Stable cation.", "explanation": "✅ H adds to C1.", "swipe_up_label": "C3", "swipe_right_label": "C1", "swipe_down_label": "HINT", "swipe_left_label": "C2", "correct": "RIGHT", "weight": 2 },
-  { "dataset": "SET_B", "topic": "Organic", "q_type": "CONCEPT", "question_text": "Polymer from tetrafluoroethene?", "hint": "Non-stick.", "explanation": "✅ Teflon (PTFE).", "swipe_up_label": "Nylon", "swipe_right_label": "Teflon", "swipe_down_label": "HINT", "swipe_left_label": "PVC", "correct": "RIGHT", "weight": 1 },
-  { "dataset": "SET_B", "topic": "Organic", "q_type": "APPLICATION", "question_text": "Products of saponification?", "hint": "Soap-making.", "explanation": "✅ Soap and Glycerol.", "swipe_up_label": "Soap+Glyc", "swipe_right_label": "Ester+H2O", "swipe_down_label": "HINT", "swipe_left_label": "Acid+Alc", "correct": "UP", "weight": 2 },
-  { "dataset": "SET_B", "topic": "Organic", "q_type": "CONCEPT", "question_text": "Why are CFCs harmful?", "hint": "Ozone layer.", "explanation": "✅ Catalyze ozone depletion.", "swipe_up_label": "Smog", "swipe_right_label": "Ozone", "swipe_down_label": "HINT", "swipe_left_label": "Acid Rain", "correct": "RIGHT", "weight": 1 },
-  { "dataset": "SET_B", "topic": "Organic", "q_type": "APPLICATION", "question_text": "Aspirin synthesis group formed?", "hint": "Acid+Anhydride.", "explanation": "✅ Ester group.", "swipe_up_label": "Ether", "swipe_right_label": "Amide", "swipe_down_label": "HINT", "swipe_left_label": "Ester", "correct": "LEFT", "weight": 2 },
-  { "dataset": "SET_B", "topic": "Organic", "q_type": "CONCEPT", "question_text": "High octane rating meaning?", "hint": "Engine knock.", "explanation": "✅ Resistance to knocking.", "swipe_up_label": "Energy", "swipe_right_label": "Knock Res", "swipe_down_label": "HINT", "swipe_left_label": "Burning", "correct": "RIGHT", "weight": 1 },
-  { "dataset": "SET_B", "topic": "Organic", "q_type": "APPLICATION", "question_text": "Catalyst for oil hydrogenation?", "hint": "Industry.", "explanation": "✅ Nickel.", "swipe_up_label": "Vanadium", "swipe_right_label": "Platinum", "swipe_down_label": "HINT", "swipe_left_label": "Nickel", "correct": "LEFT", "weight": 2 },
-  { "dataset": "SET_A", "topic": "Inorganic", "q_type": "CONCEPT", "question_text": "Geometry of SF6?", "hint": "6 bond pairs.", "explanation": "✅ Octahedral.", "swipe_up_label": "Octahedral", "swipe_right_label": "Tetra", "swipe_down_label": "HINT", "swipe_left_label": "Sq Planar", "correct": "UP", "weight": 1 },
-  { "dataset": "SET_A", "topic": "Inorganic", "q_type": "APPLICATION", "question_text": "Hybridization of P in PCl5?", "hint": "5 domains.", "explanation": "✅ sp3d.", "swipe_up_label": "sp3d", "swipe_right_label": "sp3", "swipe_down_label": "HINT", "swipe_left_label": "sp3d2", "correct": "UP", "weight": 2 },
-  { "dataset": "SET_A", "topic": "Inorganic", "q_type": "CONCEPT", "question_text": "Why transition metal complexes color?", "hint": "d-orbitals.", "explanation": "✅ d-d transitions.", "swipe_up_label": "d-d Trans", "swipe_right_label": "s-p overlap", "swipe_down_label": "HINT", "swipe_left_label": "Mass", "correct": "UP", "weight": 1 },
-  { "dataset": "SET_A", "topic": "Inorganic", "q_type": "APPLICATION", "question_text": "Mn oxidation in KMnO4?", "hint": "Sum = 0.", "explanation": "✅ +7.", "swipe_up_label": "+7", "swipe_right_label": "+2", "swipe_down_label": "HINT", "swipe_left_label": "+4", "correct": "UP", "weight": 2 },
-  { "dataset": "SET_A", "topic": "Inorganic", "q_type": "CONCEPT", "question_text": "What is a strong-field ligand?", "hint": "Splitting size.", "explanation": "✅ Large d-splitting; low spin.", "swipe_up_label": "Low Spin", "swipe_right_label": "High Spin", "swipe_down_label": "HINT", "swipe_left_label": "Neutral", "correct": "UP", "weight": 1 },
-  { "dataset": "SET_A", "topic": "Inorganic", "q_type": "APPLICATION", "question_text": "Paramagnetic ion?", "hint": "Unpaired e-.", "explanation": "✅ Fe3+ (d5).", "swipe_up_label": "Sc3+", "swipe_right_label": "Zn2+", "swipe_down_label": "HINT", "swipe_left_label": "Fe3+", "correct": "LEFT", "weight": 2 },
-  { "dataset": "SET_B", "topic": "Inorganic", "q_type": "CONCEPT", "question_text": "Purpose of froth flotation?", "hint": "Sulfide ores.", "explanation": "✅ Ore concentration.", "swipe_up_label": "Refining", "swipe_right_label": "Concentration", "swipe_down_label": "HINT", "swipe_left_label": "Reduction", "correct": "RIGHT", "weight": 1 },
-  { "dataset": "SET_B", "topic": "Inorganic", "q_type": "APPLICATION", "question_text": "Blast furnace reducing agent?", "hint": "Iron extraction.", "explanation": "✅ Carbon Monoxide (CO).", "swipe_up_label": "CO2", "swipe_right_label": "CO", "swipe_down_label": "HINT", "swipe_left_label": "O2", "correct": "RIGHT", "weight": 2 },
-  { "dataset": "SET_B", "topic": "Inorganic", "q_type": "CONCEPT", "question_text": "P in N-P-K fertilizer?", "hint": "Macronutrient.", "explanation": "✅ Phosphorus.", "swipe_up_label": "Lead", "swipe_right_label": "Phosphorus", "swipe_down_label": "HINT", "swipe_left_label": "Potash", "correct": "RIGHT", "weight": 1 },
-  { "dataset": "SET_B", "topic": "Inorganic", "q_type": "APPLICATION", "question_text": "How zeolites soften water?", "hint": "Exchange.", "explanation": "✅ Exchange Na+ for Ca/Mg.", "swipe_up_label": "Ion Ex", "swipe_right_label": "Filter", "swipe_down_label": "HINT", "swipe_left_label": "Precip", "correct": "UP", "weight": 2 },
-  { "dataset": "SET_B", "topic": "Inorganic", "q_type": "CONCEPT", "question_text": "Stainless steel 2nd main component?", "hint": "Rust resistance.", "explanation": "✅ Chromium.", "swipe_up_label": "Chromium", "swipe_right_label": "Copper", "swipe_down_label": "HINT", "swipe_left_label": "Carbon", "correct": "UP", "weight": 1 },
-  { "dataset": "SET_B", "topic": "Inorganic", "q_type": "APPLICATION", "question_text": "Why AgBr in photography?", "hint": "Light sensitivity.", "explanation": "✅ Decomposes on light exposure.", "swipe_up_label": "Develop", "swipe_right_label": "Sensitivity", "swipe_down_label": "HINT", "swipe_left_label": "Reflect", "correct": "RIGHT", "weight": 2 },
-  { "dataset": "SET_A", "topic": "Analytical", "q_type": "CONCEPT", "question_text": "Reference in NMR?", "hint": "0.0 ppm.", "explanation": "✅ TMS.", "swipe_up_label": "TMS", "swipe_right_label": "Benzene", "swipe_down_label": "HINT", "swipe_left_label": "Water", "correct": "UP", "weight": 1 },
-  { "dataset": "SET_A", "topic": "Analytical", "q_type": "APPLICATION", "question_text": "IR peak at 1710 cm-1?", "hint": "Strong/Sharp.", "explanation": "✅ Carbonyl (C=O).", "swipe_up_label": "Carbonyl", "swipe_right_label": "Alkane", "swipe_down_label": "HINT", "swipe_left_label": "Alcohol", "correct": "UP", "weight": 2 },
-  { "dataset": "SET_A", "topic": "Analytical", "q_type": "CONCEPT", "question_text": "Molecular ion in MS?", "hint": "M+ peak.", "explanation": "✅ Intact mass minus 1 e-.", "swipe_up_label": "Mol Ion", "swipe_right_label": "Fragment", "swipe_down_label": "HINT", "swipe_left_label": "Base", "correct": "UP", "weight": 1 },
-  { "dataset": "SET_A", "topic": "Analytical", "q_type": "APPLICATION", "question_text": "pH at equivalence HCl vs NaOH?", "hint": "Strong/Strong.", "explanation": "✅ pH 7.", "swipe_up_label": "pH 9", "swipe_right_label": "pH 7", "swipe_down_label": "HINT", "swipe_left_label": "pH 4", "correct": "RIGHT", "weight": 2 },
-  { "dataset": "SET_A", "topic": "Analytical", "q_type": "CONCEPT", "question_text": "Beer-Lambert prop to?", "hint": "A = ecl.", "explanation": "✅ Concentration.", "swipe_up_label": "Volume", "swipe_right_label": "Concentration", "swipe_down_label": "HINT", "swipe_left_label": "Temp", "correct": "RIGHT", "weight": 1 },
-  { "dataset": "SET_B", "topic": "Analytical", "q_type": "CONCEPT", "question_text": "What BOD measures?", "hint": "Pollution.", "explanation": "✅ Oxygen for bacteria.", "swipe_up_label": "O2 Demand", "swipe_right_label": "CO2", "swipe_down_label": "HINT", "swipe_left_label": "Minerals", "correct": "UP", "weight": 1 },
-  { "dataset": "SET_B", "topic": "Analytical", "q_type": "APPLICATION", "question_text": "Rf calculation chromatography?", "hint": "Ratio.", "explanation": "✅ Solute/Solvent distance.", "swipe_up_label": "Solute/Solv", "swipe_right_label": "Mass", "swipe_down_label": "HINT", "swipe_left_label": "Solv/Solute", "correct": "UP", "weight": 2 },
-  { "dataset": "SET_B", "topic": "Analytical", "q_type": "CONCEPT", "question_text": "HPLC soft drink preservative?", "hint": "Antifungal.", "explanation": "✅ Sodium Benzoate.", "swipe_up_label": "Glucose", "swipe_right_label": "Na Benzoate", "swipe_down_label": "HINT", "swipe_left_label": "Salt", "correct": "RIGHT", "weight": 1 },
-  { "dataset": "SET_B", "topic": "Analytical", "q_type": "APPLICATION", "question_text": "Why soil pH test?", "hint": "Agriculture.", "explanation": "✅ Nutrient access.", "swipe_up_label": "Moisture", "swipe_right_label": "Nutrient", "swipe_down_label": "HINT", "swipe_left_label": "Density", "correct": "UP", "weight": 2 },
-  { "dataset": "SET_B", "topic": "Analytical", "q_type": "CONCEPT", "question_text": "Spectro 'blank' purpose?", "hint": "Zeroing.", "explanation": "✅ Subtract solvent signal.", "swipe_up_label": "Zeroing", "swipe_right_label": "Color", "swipe_down_label": "HINT", "swipe_left_label": "Calib", "correct": "UP", "weight": 1 },
-  { "dataset": "SET_A", "topic": "Mixed", "q_type": "CONCEPT", "question_text": "Favors SN2 over SN1?", "hint": "Substrate/Solvent.", "explanation": "✅ Primary + Aprotic.", "swipe_up_label": "Pri+Aprotic", "swipe_right_label": "Protic", "swipe_down_label": "HINT", "swipe_left_label": "Tertiary", "correct": "UP", "weight": 1 },
-  { "dataset": "SET_A", "topic": "Mixed", "q_type": "APPLICATION", "question_text": "ΔH=-100kJ, ΔS=-200 J/K. Non-spont?", "hint": "ΔG=ΔH-TΔS.", "explanation": "✅ Above 500 K.", "swipe_up_label": "500 K", "swipe_right_label": "100 K", "swipe_down_label": "HINT", "swipe_left_label": "250 K", "correct": "UP", "weight": 2 },
-  { "dataset": "SET_B", "topic": "Mixed", "q_type": "CONCEPT", "question_text": "Pool pH maintenance?", "hint": "Neutralize.", "explanation": "✅ Soda Ash.", "swipe_up_label": "Soda Ash", "swipe_right_label": "Salt", "swipe_down_label": "HINT", "swipe_left_label": "Acid", "correct": "UP", "weight": 1 },
-  { "dataset": "SET_B", "topic": "Mixed", "q_type": "APPLICATION", "question_text": "Limestone in blast furnace?", "hint": "Flux.", "explanation": "✅ Slag formation.", "swipe_up_label": "Flux/Slag", "swipe_right_label": "Carbon", "swipe_down_label": "HINT", "swipe_left_label": "Reducer", "correct": "UP", "weight": 2 },
-  { "dataset": "SET_D", "topic": "Physical", "q_type": "CONCEPT", "question_text": "Rate constant temp exponential?", "hint": "Arrhenius.", "explanation": "✅ More molecules exceed Ea.", "swipe_up_label": "Exceed Ea", "swipe_right_label": "Collision", "swipe_down_label": "HINT", "swipe_left_label": "Ea drops", "correct": "UP", "weight": 1 },
-  { "dataset": "SET_D", "topic": "Physical", "q_type": "APPLICATION", "question_text": "ΔG at equilibrium?", "hint": "Condition.", "explanation": "✅ ΔG = 0.", "swipe_up_label": "<0", "swipe_right_label": ">0", "swipe_down_label": "HINT", "swipe_left_label": "=0", "correct": "LEFT", "weight": 1 },
-  { "dataset": "SET_D", "topic": "Physical", "q_type": "CONCEPT", "question_text": "Entropy increase melting?", "hint": "Microstates.", "explanation": "✅ Molecular freedom.", "swipe_up_label": "Energy drop", "swipe_right_label": "Volume drop", "swipe_down_label": "HINT", "swipe_left_label": "Microstates", "correct": "LEFT", "weight": 1 },
-  { "dataset": "SET_D", "topic": "Physical", "q_type": "APPLICATION", "question_text": "K vs Catalyst?", "hint": "Kinetics/Thermo.", "explanation": "✅ Lowers Ea equally both ways.", "swipe_up_label": "Kinetics only", "swipe_right_label": "Changes H", "swipe_down_label": "HINT", "swipe_left_label": "Stable prod", "correct": "UP", "weight": 2 },
-  { "dataset": "SET_D", "topic": "Physical", "q_type": "CONCEPT", "question_text": "Pressure vs Gas Moles?", "hint": "Le Chatelier.", "explanation": "✅ Shift to minimize stress.", "swipe_up_label": "Vol up", "swipe_right_label": "Min stress", "swipe_down_label": "HINT", "swipe_left_label": "Faster", "correct": "RIGHT", "weight": 1 },
-  { "dataset": "SET_D", "topic": "Organic", "q_type": "CONCEPT", "question_text": "Tertiary carbocation speed?", "hint": "Stability.", "explanation": "✅ Hyperconjugation stabilization.", "swipe_up_label": "Stability", "swipe_right_label": "Mass", "swipe_down_label": "HINT", "swipe_left_label": "Sterics", "correct": "UP", "weight": 1 },
-  { "dataset": "SET_D", "topic": "Organic", "q_type": "APPLICATION", "question_text": "SN2 tertiary centers?", "hint": "Backside.", "explanation": "✅ Steric hindrance block.", "swipe_up_label": "Instability", "swipe_right_label": "Weak Nuc", "swipe_down_label": "HINT", "swipe_left_label": "Steric Block", "correct": "LEFT", "weight": 2 },
-  { "dataset": "SET_D", "topic": "Organic", "q_type": "CONCEPT", "question_text": "Aldehyde vs Ketone react?", "hint": "Sterics/Elec.", "explanation": "✅ Less hindrance in aldehydes.", "swipe_up_label": "Strong C=O", "swipe_right_label": "Resonance", "swipe_down_label": "HINT", "swipe_left_label": "Less Steric", "correct": "LEFT", "weight": 1 },
-  { "dataset": "SET_D", "topic": "Organic", "q_type": "APPLICATION", "question_text": "Conjugation UV-Vis energy?", "hint": "Gap.", "explanation": "✅ Decreases HOMO-LUMO gap.", "swipe_up_label": "Bond order", "swipe_right_label": "Lower Gap", "swipe_down_label": "HINT", "swipe_left_label": "Mass", "correct": "RIGHT", "weight": 2 },
-  { "dataset": "SET_D", "topic": "Organic", "q_type": "CONCEPT", "question_text": "Phenol acid vs Alcohol?", "hint": "Base.", "explanation": "✅ Resonance phenoxide.", "swipe_up_label": "Resonance", "swipe_right_label": "Mass", "swipe_down_label": "HINT", "swipe_left_label": "H-Bond", "correct": "UP", "weight": 1 },
-  { "dataset": "SET_D", "topic": "Inorganic", "q_type": "CONCEPT", "question_text": "Transition metal var ox state?", "hint": "Orbital energy.", "explanation": "✅ ns and d comparable.", "swipe_up_label": "Energy Match", "swipe_right_label": "High EN", "swipe_down_label": "HINT", "swipe_left_label": "Radius", "correct": "UP", "weight": 1 },
-  { "dataset": "SET_D", "topic": "Inorganic", "q_type": "APPLICATION", "question_text": "Strong-field low-spin?", "hint": "Splitting.", "explanation": "✅ Large Delta favors pairing.", "swipe_up_label": "Large Delta", "swipe_right_label": "Coord", "swipe_down_label": "HINT", "swipe_left_label": "Weak bond", "correct": "UP", "weight": 2 },
-  { "dataset": "SET_D", "topic": "Inorganic", "q_type": "CONCEPT", "question_text": "Zn2+ diamagnetic?", "hint": "Config.", "explanation": "✅ Filled d10.", "swipe_up_label": "All paired", "swipe_right_label": "Oxidat", "swipe_down_label": "HINT", "swipe_left_label": "Strong field", "correct": "UP", "weight": 1 },
-  { "dataset": "SET_D", "topic": "Inorganic", "q_type": "APPLICATION", "question_text": "BF3 Lewis acid?", "hint": "Vacancy.", "explanation": "✅ Incomplete octet.", "swipe_up_label": "High EN", "swipe_right_label": "Bond Pol", "swipe_down_label": "HINT", "swipe_left_label": "Inc Octet", "correct": "LEFT", "weight": 2 },
-  { "dataset": "SET_D", "topic": "Inorganic", "q_type": "CONCEPT", "question_text": "Lattice energy vs Charge?", "hint": "Coulomb.", "explanation": "✅ Attraction increases with charge.", "swipe_up_label": "Large size", "swipe_right_label": "Covalent", "swipe_down_label": "HINT", "swipe_left_label": "Attraction", "correct": "LEFT", "weight": 1 },
-  { "dataset": "SET_C", "topic": "Analytical", "q_type": "CONCEPT", "question_text": "n+1 vs spin I?", "hint": "General formula.", "explanation": "✅ 2nI + 1.", "swipe_up_label": "n+1", "swipe_right_label": "2nI+1", "swipe_down_label": "HINT", "swipe_left_label": "nI+1", "correct": "RIGHT", "weight": 2 },
-  { "dataset": "SET_C", "topic": "Analytical", "q_type": "CONCEPT", "question_text": "Aldehyde proton NMR shift?", "hint": "Anisotropy.", "explanation": "✅ Deshielding by C=O.", "swipe_up_label": "H-bond", "swipe_right_label": "Shield", "swipe_down_label": "HINT", "swipe_left_label": "C=O Anis", "correct": "LEFT", "weight": 1 },
-  { "dataset": "SET_C", "topic": "Analytical", "q_type": "APPLICATION", "question_text": "C=O freq conjugation?", "hint": "Order.", "explanation": "✅ Reduced bond order.", "swipe_up_label": "Red Order", "swipe_right_label": "Dipole", "swipe_down_label": "HINT", "swipe_left_label": "Steric", "correct": "UP", "weight": 1 },
-  { "dataset": "SET_C", "topic": "Analytical", "q_type": "CONCEPT", "question_text": "Homonuclear diatomic IR?", "hint": "Dipole.", "explanation": "✅ No dipole change.", "swipe_up_label": "Bond strength", "swipe_right_label": "No Dipole", "swipe_down_label": "HINT", "swipe_left_label": "Symm", "correct": "RIGHT", "weight": 1 },
-  { "dataset": "SET_C", "topic": "Analytical", "q_type": "APPLICATION", "question_text": "MS 3:1 M/M+2 ratio?", "hint": "Chlorine.", "explanation": "✅ Characteristic isotope pattern.", "swipe_up_label": "Bromine", "swipe_right_label": "Sulfur", "swipe_down_label": "HINT", "swipe_left_label": "Chlorine", "correct": "LEFT", "weight": 2 },
-  { "dataset": "SET_C", "topic": "Analytical", "q_type": "CONCEPT", "question_text": "Mass spec base peak?", "hint": "Relative.", "explanation": "✅ Most stable fragment.", "swipe_up_label": "Mol Ion", "swipe_right_label": "Most stable", "swipe_down_label": "HINT", "swipe_left_label": "High m/z", "correct": "RIGHT", "weight": 1 },
-  { "dataset": "SET_C", "topic": "Analytical", "q_type": "APPLICATION", "question_text": "Weak acid titration equivalence pH?", "hint": "Hydrolysis.", "explanation": "✅ Conjugate base hydrolyzes.", "swipe_up_label": "Hydrolysis", "swipe_right_label": "Precip", "swipe_down_label": "HINT", "swipe_left_label": "Error", "correct": "UP", "weight": 2 },
-  { "dataset": "SET_C", "topic": "Analytical", "q_type": "CONCEPT", "question_text": "Van Deemter high velocity term?", "hint": "Flow.", "explanation": "✅ C term (Mass transfer).", "swipe_up_label": "C term", "swipe_right_label": "A term", "swipe_down_label": "HINT", "swipe_left_label": "B term", "correct": "UP", "weight": 2 },
-  { "dataset": "SET_C", "topic": "Analytical", "q_type": "APPLICATION", "question_text": "Larmor frequency NMR?", "hint": "Magnetic.", "explanation": "✅ Gamma and B0.", "swipe_up_label": "Electron", "swipe_right_label": "Temp", "swipe_down_label": "HINT", "swipe_left_label": "Gamma/B0", "correct": "LEFT", "weight": 2 },
-  { "dataset": "SET_C", "topic": "Analytical", "q_type": "APPLICATION", "question_text": "Faraday plating thickness?", "hint": "Charge-mass.", "explanation": "✅ Charge to moles.", "swipe_up_label": "V/R", "swipe_right_label": "Charge/Mol", "swipe_down_label": "HINT", "swipe_left_label": "pH", "correct": "RIGHT", "weight": 2 },
-  { "dataset": "SET_E", "topic": "Organic", "q_type": "CONCEPT", "question_text": "Chair vs Boat cyclohexane?", "hint": "Strain.", "explanation": "✅ Chair minimizes torsional strain.", "swipe_up_label": "Min Strain", "swipe_right_label": "Mass", "swipe_down_label": "HINT", "swipe_left_label": "Entropy", "correct": "UP", "weight": 3 },
-  { "dataset": "SET_E", "topic": "Physical", "q_type": "CONCEPT", "question_text": "Schrodinger eq meaning?", "hint": "Probability.", "explanation": "✅ System quantum state change.", "swipe_up_label": "Wave func", "swipe_right_label": "Exact orbit", "swipe_down_label": "HINT", "swipe_left_label": "Energy", "correct": "UP", "weight": 3 },
-  { "dataset": "SET_E", "topic": "Inorganic", "q_type": "CONCEPT", "question_text": "Jahn-Teller effect?", "hint": "Degeneracy.", "explanation": "✅ Geometrical distortion.", "swipe_up_label": "Splitting", "swipe_right_label": "Distortion", "swipe_down_label": "HINT", "swipe_left_label": "Bonding", "correct": "RIGHT", "weight": 3 },
-  { "dataset": "SET_E", "topic": "Analytical", "q_type": "APPLICATION", "question_text": "Internal standard Chromatography?", "hint": "Injection.", "explanation": "✅ Compensate prep/inject error.", "swipe_up_label": "Errors", "swipe_right_label": "Overlap", "swipe_down_label": "HINT", "swipe_left_label": "Mobile", "correct": "UP", "weight": 3 },
-  { "dataset": "SET_E", "topic": "Organic", "q_type": "APPLICATION", "question_text": "Hoffmann Bromamide product?", "hint": "Amine.", "explanation": "✅ 1o Amine minus 1 Carbon.", "swipe_up_label": "Amine", "swipe_right_label": "Nitrile", "swipe_down_label": "HINT", "swipe_left_label": "Acid", "correct": "UP", "weight": 3 },
-  { "dataset": "SET_E", "topic": "Inorganic", "q_type": "APPLICATION", "question_text": "Ground state d2 term symbol?", "hint": "Hunds.", "explanation": "✅ 3F.", "swipe_up_label": "1D", "swipe_right_label": "3F", "swipe_down_label": "HINT", "swipe_left_label": "3P", "correct": "RIGHT", "weight": 3 },
-  { "dataset": "SET_E", "topic": "Analytical", "q_type": "CONCEPT", "question_text": "Resolution (Rs) Chromatography?", "hint": "Separation.", "explanation": "✅ Peak separation measure.", "swipe_up_label": "Separation", "swipe_right_label": "Width", "swipe_down_label": "HINT", "swipe_left_label": "Flow", "correct": "UP", "weight": 3 },
-  { "dataset": "SET_A", "topic": "Mixed", "q_type": "CONCEPT", "question_text": "Acid strength Trichloro vs Acetic?", "hint": "Inductive.", "explanation": "✅ Trichloro much stronger.", "swipe_up_label": "Acetic", "swipe_right_label": "Trichloro", "swipe_down_label": "HINT", "swipe_left_label": "Equal", "correct": "RIGHT", "weight": 1 },
-  { "dataset": "SET_B", "topic": "Mixed", "q_type": "APPLICATION", "question_text": "Bicarb + Ethanoic gas?", "hint": "Carbonate.", "explanation": "✅ CO2 gas.", "swipe_up_label": "Oxygen", "swipe_right_label": "CO2", "swipe_down_label": "HINT", "swipe_left_label": "H2", "correct": "RIGHT", "weight": 2 },
-  { "dataset": "SET_C", "topic": "Mixed", "q_type": "CONCEPT", "question_text": "Zeolite petrochemical role?", "hint": "Cracking.", "explanation": "✅ Shape selective catalyst.", "swipe_up_label": "Pore size", "swipe_right_label": "Stability", "swipe_down_label": "HINT", "swipe_left_label": "Filter", "correct": "UP", "weight": 2 }
-]
+// ============================================================
+// ALCHEMIST V78.1 — SWIPE ENGINE (FINAL)
+// ============================================================
+
+// ---------------- CONFIG ----------------
+const CONFIG = {
+  ENDPOINT: "./data.json",        // GitHub Pages–safe relative path
+  FETCH_TIMEOUT: 8000,
+  SWIPE_THRESHOLD: 75,
+  HINT_THRESHOLD: 15,
+  RANK_THRESHOLDS: {
+    NOVICE: 0,
+    SCHOLAR: 500,
+    GRAND_ALCHEMIST: 1000
+  }
+};
+
+// ---------------- STATE ----------------
+const STATE = {
+  rawData: [],
+  pool: [],
+  score: 0,
+  isBusy: false,
+  mode: "INIT",
+  currentDataset: "",
+  currentTopic: "",
+  currentGenre: ""
+};
+
+// ============================================================
+// CHEM FORMATTER (SAFE)
+// ============================================================
+
+function formatChem(text) {
+  if (!text || typeof text !== "string") return "";
+  return text
+    .replace(/([A-Z][a-z]?)(\d+)/g, "$1<sub>$2</sub>")
+    .replace(/(\d+)([+-])/g, "<sup>$1$2</sup>")
+    .replace(/\|\|/g, "<br><br>");
+}
+
+// ============================================================
+// INIT & DATA HANDSHAKE
+// ============================================================
+
+async function init() {
+  const loader = document.getElementById("loader");
+
+  try {
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Fetch timeout")), CONFIG.FETCH_TIMEOUT)
+    );
+
+    const response = await Promise.race([
+      fetch(CONFIG.ENDPOINT, { headers: { Accept: "application/json" } }),
+      timeout
+    ]);
+
+    const text = await response.text();
+
+    // HTML detection (GitHub Pages / GAS safety)
+    if (text.trim().startsWith("<")) {
+      throw new Error("HTML received instead of JSON");
+    }
+
+    const data = JSON.parse(text);
+
+    if (!Array.isArray(data) || data.length === 0) {
+      throw new Error("Dataset empty or invalid");
+    }
+
+    STATE.rawData = data;
+    loader.remove();
+    renderDatasetSelect();
+
+  } catch (err) {
+    console.error(err);
+    loader.innerHTML = `
+      <div class="loader-title">ERROR</div>
+      <div class="error-msg">${err.message}</div>
+      <button class="retry-btn" onclick="location.reload()">RETRY</button>
+    `;
+  }
+}
+
+// ============================================================
+// CARD RENDERING
+// ============================================================
+
+function createCard(title, labels, data = null) {
+  const stack = document.getElementById("stack");
+  stack.innerHTML = "";
+
+  const card = document.createElement("div");
+  card.className = "card";
+
+  card.innerHTML = `
+    <div class="card-q">${formatChem(title)}</div>
+
+    ${labels.up ? `<div class="swipe-label sl-up">${labels.up}</div>` : ""}
+    ${labels.left ? `<div class="swipe-label sl-lt">${labels.left}</div>` : ""}
+    ${labels.right ? `<div class="swipe-label sl-rt">${labels.right}</div>` : ""}
+    ${labels.down ? `<div class="swipe-label sl-dn sl-blue">${labels.down}</div>` : ""}
+
+    ${
+      STATE.mode === "QUIZ" && data?.explanation
+        ? `<div class="overlay">
+             <div class="overlay-label">ANALYSIS</div>
+             <div class="overlay-body">${formatChem(data.explanation)}</div>
+             <button class="btn" onclick="closeOverlay()">CONTINUE</button>
+           </div>`
+        : ""
+    }
+  `;
+
+  stack.appendChild(card);
+  bindPhysics(card, data);
+}
+
+function closeOverlay() {
+  document.querySelector(".overlay")?.classList.remove("active");
+}
+
+// ============================================================
+// NAVIGATION SCREENS
+// ============================================================
+
+function renderDatasetSelect() {
+  STATE.mode = "DATASET_SELECT";
+  createCard("SELECT CURRICULUM", {
+    up: "SET_A",
+    left: "SET_B",
+    right: "SET_C",
+    down: "SET_D"
+  });
+}
+
+function renderTopicSelect(dataset) {
+  STATE.mode = "TOPIC_SELECT";
+  STATE.currentDataset = dataset;
+
+  createCard("DOMAIN", {
+    up: "Physical",
+    left: "Organic",
+    right: "Inorganic",
+    down: "Analytical"
+  });
+}
+
+function renderGenreSelect(topic) {
+  STATE.mode = "GENRE_SELECT";
+  STATE.currentTopic = topic;
+
+  createCard("DEPTH", {
+    up: "CONCEPT",
+    down: "APPLICATION"
+  });
+}
+
+// ============================================================
+// QUIZ ENGINE
+// ============================================================
+
+function startQuiz(topic, genre) {
+  STATE.currentGenre = genre;
+
+  STATE.pool = STATE.rawData.filter(q =>
+    q.dataset === STATE.currentDataset &&
+    q.topic === topic &&
+    q.q_type === genre
+  ).sort(() => Math.random() - 0.5);
+
+  renderNext();
+}
+
+function renderNext() {
+  if (!STATE.pool.length) {
+    renderDatasetSelect();
+    return;
+  }
+
+  STATE.mode = "QUIZ";
+  const q = STATE.pool.shift();
+
+  createCard(q.question_text, {
+    up: q.swipe.UP,
+    left: q.swipe.LEFT,
+    right: q.swipe.RIGHT,
+    down: "HINT"
+  }, q);
+}
+
+// ============================================================
+// PHYSICS ENGINE
+// ============================================================
+
+function bindPhysics(el, data) {
+  let sx = 0, sy = 0, dx = 0, dy = 0, active = false;
+
+  const start = e => {
+    if (STATE.isBusy) return;
+    if (el.querySelector(".overlay.active")) return;
+    active = true;
+    const p = e.touches ? e.touches[0] : e;
+    sx = p.clientX;
+    sy = p.clientY;
+    el.style.transition = "none";
+  };
+
+  const move = e => {
+    if (!active) return;
+    const p = e.touches ? e.touches[0] : e;
+    dx = p.clientX - sx;
+    dy = p.clientY - sy;
+    el.style.transform = `translate(${dx}px, ${dy}px) rotate(${dx / 18}deg)`;
+  };
+
+  const end = () => {
+    if (!active) return;
+    active = false;
+
+    const dist = Math.hypot(dx, dy);
+    let dir = null;
+
+    if (dist > CONFIG.SWIPE_THRESHOLD) {
+      const angle = Math.atan2(-dy, dx) * 180 / Math.PI + 360;
+      if (angle >= 45 && angle < 135) dir = "UP";
+      else if (angle >= 135 && angle < 225) dir = "LEFT";
+      else if (angle >= 225 && angle < 315) dir = "DOWN";
+      else dir = "RIGHT";
+    }
+
+    if (STATE.mode === "QUIZ" && dir === "DOWN") {
+      el.querySelector(".overlay")?.classList.add("active");
+      reset();
+      return;
+    }
+
+    if (dir) handleAction(data, dir);
+    reset();
+  };
+
+  function reset() {
+    el.style.transition = "transform 0.4s cubic-bezier(.2,.8,.2,1)";
+    el.style.transform = "translate(0,0) rotate(0)";
+    dx = dy = 0;
+  }
+
+  el.addEventListener("mousedown", start);
+  el.addEventListener("touchstart", start, { passive: true });
+  window.addEventListener("mousemove", move);
+  window.addEventListener("touchmove", move, { passive: true });
+  window.addEventListener("mouseup", end);
+  window.addEventListener("touchend", end);
+}
+
+// ============================================================
+// ACTION HANDLER
+// ============================================================
+
+function handleAction(data, dir) {
+  STATE.isBusy = true;
+
+  switch (STATE.mode) {
+
+    case "DATASET_SELECT":
+      renderTopicSelect(dir === "UP" ? "SET_A" :
+                        dir === "LEFT" ? "SET_B" :
+                        dir === "RIGHT" ? "SET_C" : "SET_D");
+      break;
+
+    case "TOPIC_SELECT":
+      renderGenreSelect(dir === "UP" ? "Physical" :
+                        dir === "LEFT" ? "Organic" :
+                        dir === "RIGHT" ? "Inorganic" : "Analytical");
+      break;
+
+    case "GENRE_SELECT":
+      if (dir === "UP") startQuiz(STATE.currentTopic, "CONCEPT");
+      if (dir === "DOWN") startQuiz(STATE.currentTopic, "APPLICATION");
+      break;
+
+    case "QUIZ":
+      if (dir === data.correct) {
+        STATE.score += 10 * (data.weight || 1);
+      } else {
+        STATE.score = Math.max(0, STATE.score - 5);
+      }
+      updateUI();
+      renderNext();
+      break;
+  }
+
+  STATE.isBusy = false;
+}
+
+// ============================================================
+// UI UPDATE
+// ============================================================
+
+function updateUI() {
+  document.getElementById("xp-ui").textContent = `${STATE.score} XP`;
+  document.getElementById("progress-bar").style.width = `${STATE.score % 100}%`;
+}
+
+// ============================================================
+// ENTRY POINT
+// ============================================================
+
+window.addEventListener("load", init);
