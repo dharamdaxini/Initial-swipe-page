@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist Mastery V76.7</title>
+<title>Alchemist Mastery V76.5 [Tactile]</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -54,7 +54,8 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
     background: #000; color: #fff; font-weight: 900; font-size: 2.1rem;
     text-transform: uppercase; border-radius: 40px; z-index: 999; opacity: 0; pointer-events: none;
     text-align: center; padding: 20px; transform: scale(0.85) translateZ(0);
-    will-change: opacity, transform; transition: opacity 0.08s linear; /* Faster transition for tighter clamp */
+    will-change: opacity, transform; 
+    transition: opacity 0.05s linear; /* Ultra-fast response for linear ramp */
 }
 
 .sl-down-hint { 
@@ -99,14 +100,9 @@ const ENDPOINT="https://script.google.com/macros/s/AKfycbxaMo1Gi8KjfYOr1_pHJI5XY
 let RAW_DATA=[], POOL=[], MISTAKES=[], SCORE=0, isTransitioning=false;
 let MODE="DATASET_SELECT", CURRENT_DATASET="", CURRENT_TOPIC="", CURRENT_GENRE="";
 
-/**
- * V76.7 PHYSICS CALIBRATION
- * 1cm approx 40px
- * Hard Clamp reduced to 0.8cm (32px)
- */
-const PX_PER_CM = 40; 
-const OPACITY_FULL_AT = 0.6 * PX_PER_CM; // 24px (Text visible early)
-const CLAMP_AT = 0.8 * PX_PER_CM;        // 32px (Card stops moving)
+// --- INTEGRATED PHYSICS CONFIGURATION ---
+const CLAMP_DIST = 40;   // 1.0cm Hard Clamp
+const OPACITY_DIST = 24; // 0.6cm Opacity Ramp
 
 const formatChem = t => {
     if(!t) return "";
@@ -189,24 +185,24 @@ function bindPhysics(el, data){
         const rawDy = p.clientY - sy;
         const rawDist = Math.sqrt(rawDx*rawDx + rawDy*rawDy);
         
-        // 1. Calculate Opacity based on 0.6cm (24px)
-        const opacity = Math.min(rawDist / OPACITY_FULL_AT, 1);
+        // 1. OPACITY RAMP (0px -> 24px = 0% -> 100%)
+        const opacity = Math.min(rawDist / OPACITY_DIST, 1);
         
-        // 2. Clamp Movement at 0.8cm (32px)
+        // 2. HARD CLAMP (stops at 40px)
         let clampedDx = rawDx;
         let clampedDy = rawDy;
-        if(rawDist > CLAMP_AT){
-            const ratio = CLAMP_AT / rawDist;
+        if(rawDist > CLAMP_DIST){
+            const ratio = CLAMP_DIST / rawDist;
             clampedDx = rawDx * ratio;
             clampedDy = rawDy * ratio;
         }
 
-        // 3. Determine Angle & Active Label
+        // 3. ANGLE & LABEL SELECTION
         let ang = Math.atan2(-clampedDy, clampedDx)*(180/Math.PI); 
         if(ang<0) ang+=360;
         
         let activeLabel = null;
-        Object.values(labels).forEach(l=>{if(l)l.style.opacity=0;}); // Reset all
+        Object.values(labels).forEach(l=>{if(l)l.style.opacity=0;}); // Reset
 
         if(rawDist > 5){
             if(ang>=45&&ang<135) activeLabel=labels.up; 
@@ -215,20 +211,20 @@ function bindPhysics(el, data){
             else activeLabel=labels.rt;
         }
 
-        // Apply Opacity & Scale
         if(activeLabel){
             activeLabel.style.opacity = opacity;
+            // Subtle scale for feedback
             activeLabel.style.transform = `scale(${0.85 + (opacity * 0.15)})`;
         }
 
-        // Apply Clamped Transform
+        // 4. APPLY TRANSFORM
         x = clampedDx; y = clampedDy;
         requestAnimationFrame(()=>{
             el.style.transform=`translate3d(${x}px,${y}px,0) rotate(${x/25}deg)`;
         });
         
-        // Store direction if we hit the clamp limit (trigger ready)
-        if(rawDist >= CLAMP_AT) {
+        // 5. TRIGGER LOGIC (Only fires if we hit the 40px clamp)
+        if(rawDist >= CLAMP_DIST) {
              triggerDir = (ang>=45&&ang<135)?"UP":(ang>=135&&ang<225)?"LEFT":(ang>=225&&ang<315)?"DOWN":"RIGHT";
         } else {
              triggerDir = null;
@@ -238,7 +234,6 @@ function bindPhysics(el, data){
     const end=()=>{
         if(!active)return; active=false;
         
-        // Execute Action ONLY if we hit the clamp limit (0.8cm)
         if(triggerDir){
             if(MODE==="QUIZ" && triggerDir==="DOWN"){ 
                 el.querySelector('.overlay').classList.add('active'); 
@@ -249,7 +244,7 @@ function bindPhysics(el, data){
                 handleAction(el, data, x, y, triggerDir);
             }
         } else {
-            // Snap back if didn't reach limit
+            // SNAP BACK if release < 40px
             el.style.transition="transform .2s cubic-bezier(0.175, 0.885, 0.32, 1.275)"; 
             el.style.transform="translate3d(0,0,0) rotate(0deg)";
         }
