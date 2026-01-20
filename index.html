@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Chemistry Master V73.3</title>
+<title>Chemistry Master V73.3 [FINAL]</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,6 +15,7 @@
     --card-bg:#111;
     --overlay-bg:#0d0d0d;
     --accent-gold:#ffd600;
+    --text-main:#fff;
     --font-chem:'Crimson Text',serif;
     --font-ui:'Inter',sans-serif;
     --font-code:'JetBrains Mono',monospace;
@@ -54,7 +55,6 @@ sup { font-size:.75em; vertical-align:super; line-height:0; }
 
 .card-q { font-family:var(--font-chem); font-size:2rem; line-height:1.35; font-style:italic; font-weight:600; text-align:center; color:#f0f0f0; }
 
-/* V73.3: Optimized for Hint text density */
 .swipe-label {
     position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
     background:#000; color:#fff; font-weight:900; font-size:2.1rem;
@@ -65,22 +65,19 @@ sup { font-size:.75em; vertical-align:super; line-height:0; }
     will-change: opacity, transform;
 }
 
-/* Down Label specific sizing for hints */
-.sl-down { font-size: 1.4rem; font-style: normal; text-transform: none; color: var(--accent-gold); }
-
 .overlay {
     position:absolute; inset:0; background:var(--overlay-bg);
-    z-index:110; padding:45px 35px; opacity:0; pointer-events:none;
+    z-index:1100; padding:45px 35px; opacity:0; pointer-events:none;
     border-radius:40px; transition:opacity .25s ease-out;
     display:flex; flex-direction:column; justify-content:center;
     overflow-y:auto;
 }
 .overlay.active { opacity:1; pointer-events:auto; }
-.overlay-label { font-size:.8rem; color:var(--accent-gold); font-family:var(--font-code); margin-bottom:15px; }
+.overlay-label { font-size:.8rem; color:var(--accent-gold); font-family:var(--font-code); margin-bottom:15px; text-transform:uppercase; }
 .overlay-body { font-size:1.1rem; line-height:1.6; color:#ccc; margin-bottom:30px; }
 
 .btn { width:100%; padding:18px; border-radius:60px; border:none; background:#fff; font-weight:900; cursor:pointer; text-transform:uppercase; }
-#loader { position:fixed; inset:0; background:#000; z-index:500; display:flex; align-items:center; justify-content:center; font-family:var(--font-code); font-size:.7rem; }
+#loader { position:fixed; inset:0; background:#000; z-index:5000; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:var(--font-code); font-size:.8rem; text-align:center; }
 </style>
 </head>
 
@@ -98,7 +95,8 @@ sup { font-size:.75em; vertical-align:super; line-height:0; }
 <div id="stack"></div>
 
 <script>
-const ENDPOINT="https://script.google.com/macros/s/AKfycbX7BYWwtuCXAItt6mpUrMUcNnmhDBb5OdYNckmSo9tzuAeR6V9v2eEttBtFNV4Fw2j/exec";
+// REPLACE WITH YOUR ACTUAL APPS SCRIPT URL
+const ENDPOINT="https://script.google.com/macros/s/AKfycbxX7BYWwtuCXAItt6mpUrMUcNnmhDBb5OdYNckmSo9tzuAeR6V9v2eEttBtFNV4Fw2j/exec";
 
 let RAW_DATA=[], POOL=[], MISTAKES=[], SCORE=0, isTransitioning=false;
 let MODE="TOPIC_SELECT";
@@ -112,11 +110,19 @@ const formatChem = t => {
 
 async function init(){
     try {
+        console.log("Syncing with Endpoint...");
         const r = await fetch(ENDPOINT);
+        if (!r.ok) throw new Error(`Network response was not ok: ${r.status}`);
+        
         RAW_DATA = await r.json();
+        console.log("Sync Complete. Records found:", RAW_DATA.length);
+        
         document.getElementById('loader').remove();
         renderTopicSelect();
-    } catch(e) { document.getElementById('loader').innerText="SYNC FAILED"; }
+    } catch(e) {
+        console.error("Critical Sync Error:", e);
+        document.getElementById('loader').innerHTML = `SYNC FAILED<br><br><small style="color:#ff4444; font-size:0.6rem;">Check console or Deployment "Anyone" access.<br>${e.message}</small>`;
+    }
 }
 
 function renderTopicSelect(){
@@ -139,7 +145,7 @@ function renderNext(){
         <div class="swipe-label sl-up">${q.swipe_up_label}</div>
         <div class="swipe-label sl-left">${q.swipe_left_label}</div>
         <div class="swipe-label sl-right">${q.swipe_right_label}</div>
-        <div class="swipe-label sl-down">${formatChem(q.hint)}</div>
+        <div class="swipe-label sl-down">${q.swipe_down_label}</div>
         <div class="overlay">
             <div class="overlay-label">DEEP DIVE REPORT</div>
             <div class="overlay-body">${formatChem(q.explanation)}</div>
@@ -162,6 +168,8 @@ function bindPhysics(el, data){
     let x=0, y=0, sx=0, sy=0, active=false;
     let isFrozen = false;
     const labels = { up: el.querySelector('.sl-up'), dn: el.querySelector('.sl-down'), lt: el.querySelector('.sl-left'), rt: el.querySelector('.sl-right') };
+    const qTextEl = el.querySelector('.card-q');
+    const originalQText = qTextEl.innerHTML;
 
     const start = e => {
         if(isTransitioning || el.querySelector('.overlay.active')) return;
@@ -174,11 +182,15 @@ function bindPhysics(el, data){
         if(!active) return;
         const p = e.touches ? e.touches[0] : e;
         let dx = p.clientX - sx; let dy = p.clientY - sy;
-        const transitionLimit = 30; const selectLimit = 40;
+        
+        const transitionLimit = 30; // 0.75cm
+        const selectLimit = 40;     // 1.0cm
         const dist = Math.sqrt(dx*dx + dy*dy);
+        
         let angle = Math.atan2(-dy, dx) * (180 / Math.PI);
         if (angle < 0) angle += 360;
 
+        // V73.3 TACTILE LATCH
         if (dist >= selectLimit) isFrozen = true;
         else if (dist < 20) isFrozen = false;
 
@@ -189,16 +201,29 @@ function bindPhysics(el, data){
         x = dx; y = dy;
 
         requestAnimationFrame(() => {
+            // V73.3 ORIGIN PIVOT (Card Center)
             el.style.transform = `translate3d(${x}px,${y}px,0) rotate(${x/18}deg)`;
-            Object.values(labels).forEach(l => { l.style.opacity = 0; l.style.transform = "scale(0.85) translateZ(0)"; });
+            
+            Object.values(labels).forEach(l => { 
+                l.style.opacity = 0; 
+                l.style.transform = "scale(0.85) translateZ(0)"; 
+            });
             
             if (dist > 1) {
                 let activeLabel;
                 if (angle >= 45 && angle < 135) activeLabel = labels.up;
                 else if (angle >= 135 && angle < 225) activeLabel = labels.lt;
-                else if (angle >= 225 && angle < 315) activeLabel = labels.dn;
+                else if (angle >= 225 && angle < 315) {
+                    activeLabel = labels.dn;
+                    // SHOW HINT IN QUESTION AREA
+                    if (MODE === "QUIZ" && data.hint) qTextEl.innerHTML = `<span style="font-size:1.2rem; color:var(--accent-gold); font-style:normal;">HINT: ${formatChem(data.hint)}</span>`;
+                }
                 else activeLabel = labels.rt;
 
+                // Reset text if not swiping down
+                if (!(angle >= 225 && angle < 315)) qTextEl.innerHTML = originalQText;
+
+                // Symmetric LERP Fade
                 const alpha = Math.min(dist / transitionLimit, 1);
                 activeLabel.style.opacity = alpha;
                 activeLabel.style.transform = `scale(${0.85 + (alpha * 0.25)}) translateZ(0)`;
@@ -223,7 +248,12 @@ function bindPhysics(el, data){
             el.style.transition = "transform .4s cubic-bezier(.175,.885,.32,1.275)";
             el.style.transform = "translate3d(0,0,0) rotate(0deg)";
         }
-        Object.values(labels).forEach(l => { l.style.transition = "opacity .2s ease-out"; l.style.opacity = 0; });
+        
+        qTextEl.innerHTML = originalQText;
+        Object.values(labels).forEach(l => { 
+            l.style.transition = "opacity .2s ease-out"; 
+            l.style.opacity = 0; 
+        });
         isFrozen = false;
     };
 
@@ -238,10 +268,21 @@ function handleAction(el, data, x, y, dir){
         POOL = RAW_DATA.filter(q => q.topic === map[dir]).sort(() => Math.random() - .5);
         SCORE = 0; MISTAKES = [];
     } else if(MODE === "QUIZ"){
-        if(dir === (data.correct || "UP").toString().toUpperCase()) SCORE += 10;
-        else { SCORE = Math.max(0, SCORE - 5); MISTAKES.push(data); }
+        // Sync: Validate against uppercase Spreadsheet value
+        if(dir === (data.correct || "UP").toString().toUpperCase()) {
+            SCORE += 10;
+        } else {
+            SCORE = Math.max(0, SCORE - 5);
+            MISTAKES.push(data);
+        }
     } else if(MODE === "SESSION_END"){
-        if(dir === "LEFT" && MISTAKES.length){ POOL = [...MISTAKES]; MISTAKES = []; isTransitioning = false; renderNext(); return; }
+        if(dir === "LEFT" && MISTAKES.length){ 
+            POOL = [...MISTAKES]; 
+            MISTAKES = []; 
+            isTransitioning = false; 
+            renderNext(); 
+            return; 
+        }
         SCORE = 0; MISTAKES = []; renderTopicSelect(); isTransitioning = false; return;
     }
     updateUI();
