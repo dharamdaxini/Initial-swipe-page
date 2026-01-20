@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chemistry Master V71.0</title>
+    <title>Chemistry Master V72.0 (Stable)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,600;1,600&family=Inter:wght@400;700;900&family=JetBrains+Mono&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,600;1,600&family=Inter:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 
     <style>
         :root {
@@ -23,66 +23,59 @@
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { background: var(--bg-color); color: var(--text-main); font-family: var(--font-ui); margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
+        body { 
+            background: var(--bg-color); color: var(--text-main); font-family: var(--font-ui); 
+            margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center;
+            user-select: none; -webkit-user-select: none; touch-action: none;
+        }
 
-        /* Scientific Typography Engine Styling */
+        /* Scientific Typography */
         sub { vertical-align: sub; font-size: 0.75em; line-height: 0; }
         sup { vertical-align: super; font-size: 0.75em; line-height: 0; }
-        .bond { font-family: var(--font-ui); font-weight: 400; padding: 0 2px; color: #888; }
+        .bond { font-family: var(--font-ui); color: #888; padding: 0 2px; }
 
-        /* Header & Progress Logic */
+        /* Header UI */
         #header { width: 90%; margin-top: 25px; z-index: 100; pointer-events: none; }
-        .header-meta { display: flex; justify-content: space-between; font-family: var(--font-code); font-size: 0.7rem; letter-spacing: 1px; margin-bottom: 10px; color: #666; }
+        .header-meta { display: flex; justify-content: space-between; font-family: var(--font-code); font-size: 0.7rem; margin-bottom: 10px; color: #666; }
         .progress-track { width: 100%; height: 3px; background: #222; border-radius: 2px; }
-        #progress-bar { height: 100%; background: var(--accent-gold); width: 0%; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        #progress-bar { height: 100%; background: var(--accent-gold); width: 0%; transition: width 0.4s ease; }
 
-        /* Card Architecture */
+        /* Card System */
         #stack { position: relative; width: 100%; max-width: 380px; height: 65vh; margin-top: 40px; }
         .card { 
             position: absolute; width: 100%; height: 100%; 
             background: var(--card-bg); border-radius: 35px; border: 1px solid #222;
             padding: 40px; display: flex; flex-direction: column; justify-content: center;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.9); will-change: transform; touch-action: none;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.9); will-change: transform; cursor: grab;
         }
-        .card-q { font-family: var(--font-chem); font-size: 2.1rem; line-height: 1.3; font-weight: 600; font-style: italic; color: #eee; }
+        .card:active { cursor: grabbing; }
+        .card-q { font-family: var(--font-chem); font-size: 2.1rem; line-height: 1.3; font-weight: 600; font-style: italic; pointer-events: none; }
 
-        /* Solid Overlay System (Anti-Transparency) */
+        /* Labels & Overlays */
+        .swipe-label {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            font-size: 2.2rem; font-weight: 900; opacity: 0; pointer-events: none;
+            z-index: 10; background: rgba(0,0,0,0.9); border-radius: 35px; text-align: center; padding: 20px;
+        }
         .overlay {
             position: absolute; inset: 0; background: var(--overlay-bg); 
             z-index: 60; padding: 45px 35px; opacity: 0; pointer-events: none;
-            display: flex; flex-direction: column; justify-content: center; transition: opacity 0.25s ease;
-            border-radius: 35px;
+            display: flex; flex-direction: column; justify-content: center; border-radius: 35px;
         }
         .overlay.active { opacity: 1; pointer-events: auto; }
-        .overlay-label { font-family: var(--font-code); color: var(--accent-blue); font-size: 0.75rem; margin-bottom: 15px; text-transform: uppercase; }
-        .overlay-body { font-family: var(--font-chem); font-size: 1.4rem; line-height: 1.6; margin-bottom: 40px; color: #ccc; }
+        .overlay-label { font-family: var(--font-code); color: var(--accent-blue); font-size: 0.75rem; margin-bottom: 15px; }
+        .overlay-body { font-family: var(--font-chem); font-size: 1.4rem; line-height: 1.6; margin-bottom: 40px; }
 
-        /* Interactive Swipe Labels */
-        .swipe-label {
-            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-            font-size: 2.2rem; font-weight: 900; text-transform: uppercase; opacity: 0; pointer-events: none;
-            z-index: 10; background: rgba(0,0,0,0.9); border-radius: 35px; color: #fff;
-            font-family: var(--font-ui); text-align: center; padding: 20px;
-        }
-
-        /* End Slide System */
-        .end-slide { text-align: center; width: 100%; padding: 40px; animation: fadeIn 0.5s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .btn { 
-            width: 100%; padding: 20px; border-radius: 60px; border: none; font-weight: 900; 
-            margin-bottom: 12px; font-size: 0.85rem; text-transform: uppercase; cursor: pointer; transition: 0.2s;
-        }
+        /* Buttons */
+        .btn { width: 100%; padding: 20px; border-radius: 60px; border: none; font-weight: 900; margin-bottom: 12px; font-size: 0.85rem; text-transform: uppercase; cursor: pointer; }
         .btn-primary { background: #fff; color: #000; }
         .btn-outline { background: transparent; color: #777; border: 1px solid #333; }
-        .btn:active { transform: scale(0.96); }
 
-        #loader { position: fixed; inset: 0; background: #000; z-index: 500; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .spinner { width: 40px; height: 40px; border: 4px solid #111; border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 15px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        #loader { position: fixed; inset: 0; background: #000; z-index: 500; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
-    <div id="loader"><div class="spinner"></div><span style="font-family:var(--font-code); font-size:0.7rem; color:#444;">V71.0 INITIALIZING...</span></div>
+    <div id="loader"><span style="font-family:var(--font-code); font-size:0.8rem;">V72.0 BOOTING...</span></div>
 
     <div id="header">
         <div class="header-meta">
@@ -104,8 +97,7 @@
                     .replace(/(\d+)([+\-])/g, '<sup>$1$2</sup>')
                     .replace(/([A-Za-z\)\]])([+\-])(?=\s|$)/g, '$1<sup>$2</sup>')
                     .replace(/=/g, '<span class="bond">═</span>')
-                    .replace(/#/g, '<span class="bond">≡</span>')
-                    .replace(/-/g, '<span class="bond">–</span>');
+                    .replace(/#/g, '<span class="bond">≡</span>');
         }
 
         async function init() {
@@ -115,19 +107,13 @@
                 POOL = d.filter(q => q.deck === "Chemistry_Master_1").sort(() => Math.random() - 0.5);
                 document.getElementById('loader').style.display = 'none';
                 renderNext();
-            } catch (e) { 
-                document.getElementById('loader').innerHTML = "<span style='color:red'>SYNC ERROR. CHECK DEPLOYMENT.</span>";
-            }
+            } catch (e) { console.error("Sync Failed", e); }
         }
 
         function renderNext() {
             const stack = document.getElementById('stack');
             stack.innerHTML = "";
-            
-            if (POOL.length === 0) {
-                renderEndSlide();
-                return;
-            }
+            if (POOL.length === 0) { renderEnd(); return; }
 
             const q = POOL.shift();
             const card = document.createElement('div');
@@ -138,88 +124,79 @@
                 <div class="swipe-label sl-up">${formatChem(q.swipe_up_label || q.up || "YES")}</div>
                 <div class="swipe-label sl-left">${formatChem(q.swipe_left_label || q.left || "NO")}</div>
                 <div class="swipe-label sl-right">${formatChem(q.swipe_right_label || q.right || "MAYBE")}</div>
-                <div class="swipe-label sl-down">ANALYSIS / HINT</div>
+                <div class="swipe-label sl-down">ANALYSIS</div>
                 <div class="overlay">
-                    <div class="overlay-label">ANALYSIS</div>
+                    <div class="overlay-label">DEEP ANALYSIS</div>
                     <div class="overlay-body">${formatChem(q.explanation.split('||')[0])}</div>
-                    <button class="btn btn-primary" onclick="this.parentElement.classList.remove('active')">BACK TO STUDY</button>
+                    <button class="btn btn-primary" onclick="this.parentElement.classList.remove('active')">BACK</button>
                 </div>
             `;
-
             stack.appendChild(card);
             bindPhysics(card, q);
         }
 
-        function renderEndSlide() {
-            const stack = document.getElementById('stack');
-            stack.innerHTML = `
-                <div class="end-slide">
-                    <div style="font-family:var(--font-chem); font-size:2.5rem; font-style:italic; margin-bottom:10px">Session Complete</div>
-                    <div style="font-family:var(--font-code); color:#888; margin-bottom:30px">${SCORE} XP EARNED</div>
-                    <button class="btn btn-primary" onclick="location.reload()">RESTART CORE</button>
-                    ${MISTAKES.length > 0 ? `<button class="btn btn-outline" onclick="startReview()">REVIEW MISTAKES (${MISTAKES.length})</button>` : ''}
-                    <button class="btn btn-outline">CHANGE TOPIC</button>
-                    <button class="btn btn-outline">EXIT MODULE</button>
-                </div>
-            `;
+        function renderEnd() {
+            document.getElementById('stack').innerHTML = `
+                <div style="text-align:center; padding:40px;">
+                    <h1 style="font-family:var(--font-chem); font-size:2.4rem;">Session Complete</h1>
+                    <p style="color:#666; margin-bottom:30px">${SCORE} XP Earned</p>
+                    <button class="btn btn-primary" onclick="location.reload()">RESTART</button>
+                    ${MISTAKES.length > 0 ? `<button class="btn btn-outline" onclick="reviewErrors()">REVIEW ERRORS (${MISTAKES.length})</button>` : ''}
+                </div>`;
         }
 
-        function startReview() {
-            POOL = [...MISTAKES];
-            MISTAKES = [];
-            renderNext();
-        }
+        function reviewErrors() { POOL = [...MISTAKES]; MISTAKES = []; renderNext(); }
 
-        function bindPhysics(el, data) {
-            let x = 0, y = 0, sX = 0, sY = 0;
+        function bindPhysics(el, q) {
+            let x = 0, y = 0, sX = 0, sY = 0, active = false;
             const up = el.querySelector('.sl-up'), lt = el.querySelector('.sl-left'), 
                   rt = el.querySelector('.sl-right'), dn = el.querySelector('.sl-down');
 
             const start = (e) => {
-                if (isBusy) return;
+                if (isBusy || el.querySelector('.overlay.active')) return;
+                active = true;
                 const p = e.touches ? e.touches[0] : e;
                 sX = p.clientX; sY = p.clientY;
                 el.style.transition = "none";
             };
 
             const move = (e) => {
-                if (sX === 0 || isBusy) return;
+                if (!active || isBusy) return;
                 const p = e.touches ? e.touches[0] : e;
                 x = p.clientX - sX; y = p.clientY - sY;
-
-                // Locked Axis Swiping
                 if (Math.abs(x) > Math.abs(y)) y = 0; else x = 0;
-
                 el.style.transform = `translate(${x}px, ${y}px) rotate(${x/25}deg)`;
-                
                 up.style.opacity = y < -60 ? 1 : 0;
                 dn.style.opacity = y > 60 ? 1 : 0;
                 lt.style.opacity = x < -60 ? 1 : 0;
                 rt.style.opacity = x > 60 ? 1 : 0;
             };
 
-            const end = () => {
-                if (sX === 0 || isBusy) return;
-                const t = 100;
-                
-                if (y > t) {
+            const end = (e) => {
+                if (!active || isBusy) return;
+                active = false;
+                const thresh = 100;
+                if (y > thresh) {
                     el.style.transform = "translate(0,0)";
                     el.querySelector('.overlay').classList.add('active');
-                } else if (y < -t || Math.abs(x) > t) {
-                    processSwipe(el, data, x, y);
+                } else if (y < -thresh || Math.abs(x) > thresh) {
+                    processSwipe(el, q, x, y, thresh);
                 } else {
-                    el.style.transition = "transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)";
+                    el.style.transition = "transform 0.2s";
                     el.style.transform = "translate(0,0)";
                 }
-                sX = 0; sY = 0;
                 [up, dn, lt, rt].forEach(l => l.style.opacity = 0);
             };
 
-            el.addEventListener('touchstart', start); el.addEventListener('touchmove', move); el.addEventListener('touchend', end);
-            el.addEventListener('mousedown', start); window.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
+            el.addEventListener('mousedown', start);
+            window.addEventListener('mousemove', move);
+            window.addEventListener('mouseup', end);
+            el.addEventListener('touchstart', start);
+            el.addEventListener('touchmove', move);
+            el.addEventListener('touchend', end);
         }
 
-        function processSwipe(el, q, x, y) {
+        function processSwipe(el, q, x, y, t) {
             isBusy = true;
             const dir = y < -t ? "UP" : x < -t ? "LEFT" : "RIGHT";
             const isCorrect = (dir === (q.correct || "UP").toUpperCase());
@@ -230,19 +207,13 @@
             updateUI();
             el.style.transition = "transform 0.4s ease-in";
             el.style.transform = `translate(${x * 6}px, ${y * 6}px)`;
-            
-            setTimeout(() => {
-                el.remove();
-                isBusy = false;
-                renderNext();
-            }, 350);
+            setTimeout(() => { el.remove(); isBusy = false; renderNext(); }, 350);
         }
 
         function updateUI() {
             document.getElementById('xp-ui').innerText = `${SCORE} XP`;
             document.getElementById('rank-ui').innerText = SCORE > 300 ? "RANK: ALCHEMIST" : "RANK: NOVICE";
-            const prog = Math.min(100, (SCORE % 100));
-            document.getElementById('progress-bar').style.width = `${prog}%`;
+            document.getElementById('progress-bar').style.width = `${SCORE % 100}%`;
         }
 
         window.onload = init;
