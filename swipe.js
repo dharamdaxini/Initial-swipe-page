@@ -1,132 +1,69 @@
-// ---------------- CONFIG ----------------
-const CONFIG = { SWIPE: 70 };
-
-// ---------------- STATE ----------------
-const STATE = {
-  data: [],
-  pool: [],
-  score: 0,
-  mode: "INIT",
-  topic: ""
+// ============================================================================
+// 1. CHEMISTRY RENDERING ENGINE
+// ============================================================================
+const formatChem = (text) => {
+    if (!text || typeof text !== 'string') return "";
+    return text
+        .replace(/([A-Z][a-z]?)(\d+)/g, '$1<sub>$2</sub>') // Subscripts for H2O
+        .replace(/(\d*)([+\-])/g, '<sup>$1$2</sup>')      // Superscripts for ions like Fe3+
+        .replace(/\|\|/g, '<br><br>');                    // Paragraph breaks
 };
 
-// ---------------- DATA ----------------
-const DATA = [
-  {
-    topic: "PHYSICAL",
-    q: "Why does signal-to-noise in FT-NMR improve as √N?",
-    explanation:
-      "Signal adds coherently across scans, while noise adds randomly. Therefore S/N increases as the square root of the number of scans.",
-    swipe: {
-      UP: "Coherent signal",
-      RIGHT: "Random noise",
-      LEFT: "Magnetic field",
-      DOWN: "HINT"
-    },
-    correct: "RIGHT"
-  },
-  {
-    topic: "ANALYTICAL",
-    q: "Why does a conjugated C=O stretch shift to lower IR frequency?",
-    explanation:
-      "Conjugation reduces effective bond order of C=O, lowering force constant and IR frequency.",
-    swipe: {
-      UP: "Higher mass",
-      RIGHT: "Lower bond order",
-      LEFT: "Hydrogen bonding",
-      DOWN: "HINT"
-    },
-    correct: "RIGHT"
-  }
-];
-
-// ---------------- INIT ----------------
-window.addEventListener("load", () => {
-  STATE.data = DATA;
-  document.getElementById("loader").remove();
-  renderDomain();
-});
-
-// ---------------- RENDER ----------------
-function renderDomain() {
-  STATE.mode = "DOMAIN";
-  card("DOMAIN", { UP: "PHYSICAL", DOWN: "ANALYTICAL" });
-}
-
-function startQuiz(topic) {
-  STATE.mode = "QUIZ";
-  STATE.topic = topic;
-  STATE.pool = STATE.data.filter(q => q.topic === topic);
-  next();
-}
-
-function next() {
-  if (!STATE.pool.length) return renderDomain();
-  const q = STATE.pool.shift();
-  card(q.q, q.swipe, q);
-}
-
-function card(text, labels, data) {
-  const stack = document.getElementById("stack");
-  stack.innerHTML = "";
-
-  const c = document.createElement("div");
-  c.className = "card";
-  c.innerHTML = `
-    <div class="card-q">${text}</div>
-    ${Object.entries(labels).map(
-      ([k,v]) => `<div class="swipe-label sl-${k.toLowerCase().slice(0,2)}">${v}</div>`
-    ).join("")}
-    ${data ? `
-      <div class="overlay">
-        <div class="overlay-label">ANALYSIS</div>
-        <div class="overlay-body">${data.explanation}</div>
-        <button class="btn" onclick="this.parentNode.classList.remove('active')">CONTINUE</button>
-      </div>` : ""}
-  `;
-  stack.appendChild(c);
-  bind(c, data);
-}
-
-// ---------------- SWIPE ----------------
-function bind(el, data) {
-  let sx=0, sy=0, dx=0, dy=0, on=false;
-
-  el.onmousedown = e => { on=true; sx=e.clientX; sy=e.clientY; };
-  window.onmousemove = e => {
-    if(!on) return;
-    dx=e.clientX-sx; dy=e.clientY-sy;
-    el.style.transform=`translate(${dx}px,${dy}px) rotate(${dx/20}deg)`;
-  };
-  window.onmouseup = () => {
-    if(!on) return; on=false;
-    const d=Math.hypot(dx,dy);
-    let dir=null;
-    if(d>CONFIG.SWIPE){
-      const a=Math.atan2(-dy,dx)*180/Math.PI+360;
-      dir=a<135&&a>=45?"UP":a<225?"LEFT":a<315?"DOWN":"RIGHT";
+// ============================================================================
+// 2. QUIZ POOL MANAGER
+// ============================================================================
+function startQuiz(topic, genre) {
+    STATE.currentGenre = genre;
+    
+    // Filter logic to isolate specific curriculum tracks
+    STATE.pool = STATE.rawData.filter(q => 
+        q.dataset.toUpperCase() === STATE.currentDataset.toUpperCase() &&
+        q.topic.toLowerCase() === topic.toLowerCase() &&
+        q.q_type.toUpperCase() === genre.toUpperCase()
+    ).sort(() => Math.random() - 0.5); // Fisher-Yates style shuffle
+    
+    if (STATE.pool.length === 0) {
+        alert("Section empty. Returning to curriculum selection.");
+        renderDatasetSelect();
+        return;
     }
-
-    if(STATE.mode==="DOMAIN"){
-      if(dir==="UP") startQuiz("PHYSICAL");
-      if(dir==="DOWN") startQuiz("ANALYTICAL");
-    } else if(STATE.mode==="QUIZ"){
-      if(dir==="DOWN"){
-        el.querySelector(".overlay")?.classList.add("active");
-      } else {
-        if(dir===data.correct) STATE.score+=10;
-        updateUI();
-        next();
-      }
-    }
-
-    el.style.transform="translate(0,0)";
-    dx=dy=0;
-  };
+    renderNext();
 }
 
-// ---------------- UI ----------------
-function updateUI(){
-  document.getElementById("xp-ui").textContent = STATE.score+" XP";
-  document.getElementById("progress-bar").style.width = (STATE.score%100)+"%";
+// ============================================================================
+// 3. DYNAMIC CARD GENERATOR
+// ============================================================================
+function renderNext() {
+    if (STATE.pool.length === 0) {
+        STATE.mode = "SESSION_END";
+        createCard("SESSION COMPLETE", { up: "RESTART", dn: "MAIN MENU" });
+        return;
+    }
+    
+    STATE.mode = "QUIZ";
+    const q = STATE.pool.shift(); // Pull next unit from the randomized pool
+    
+    createCard(q.question_text, {
+        up: q.swipe_up_label,
+        lt: q.swipe_left_label,
+        rt: q.swipe_right_label,
+        dn: q.hint || "SWIPE FOR HINT"
+    }, q);
+}
+
+// ============================================================================
+// 4. ACTION GATEKEEPER
+// ============================================================================
+function handleQuizAction(data, direction) {
+    const weight = parseInt(data.weight) || 1; // XP weighting (1-3)
+    
+    if (direction === data.correct.toUpperCase()) {
+        STATE.score += (10 * weight); // Award weighted XP
+    } else {
+        STATE.score = Math.max(0, STATE.score - 5); // Standard penalty
+        STATE.mistakes.push(data); // Store for end-of-session review
+    }
+    
+    updateUI();
+    renderNext();
 }
