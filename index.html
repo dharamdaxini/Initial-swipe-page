@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist Mastery V76.8</title>
+<title>Alchemist Mastery V76.9</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -77,7 +77,7 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 .overlay-body { font-size: 1.2rem; line-height: 1.7; color: #ccc; margin-bottom: 30px; font-family: var(--font-chem); }
 
 .btn { width: 100%; padding: 18px; border-radius: 60px; border: none; background: #fff; font-weight: 900; cursor: pointer; text-transform: uppercase; font-family: var(--font-ui); margin-top: 10px; }
-#loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: var(--font-code); font-size: 1.2rem; letter-spacing: 5px; color: var(--accent-gold); }
+#loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: var(--font-code); font-size: 1.2rem; letter-spacing: 5px; color: var(--accent-gold); flex-direction: column; text-align: center;}
 </style>
 </head>
 
@@ -100,9 +100,8 @@ const ENDPOINT="https://script.google.com/macros/s/AKfycbxaMo1Gi8KjfYOr1_pHJI5XY
 let RAW_DATA=[], POOL=[], MISTAKES=[], SCORE=0, isTransitioning=false;
 let MODE="DATASET_SELECT", CURRENT_DATASET="", CURRENT_TOPIC="", CURRENT_GENRE="";
 
-// --- INTEGRATED PHYSICS CONFIGURATION ---
-const CLAMP_DIST = 40;   // 1.0cm Hard Clamp
-const OPACITY_DIST = 24; // 0.6cm Opacity Ramp
+const CLAMP_DIST = 40;   
+const OPACITY_DIST = 24; 
 
 const formatChem = t => {
     if(!t) return "";
@@ -113,16 +112,45 @@ async function init(){
     const l = document.getElementById('loader');
     try {
         const r = await fetch(ENDPOINT);
-        RAW_DATA = await r.json();
-        l.remove();
+        const json = await r.json();
         
-        // --- AUTO-START SEQUENCE ---
-        // Automatically skips selection screens and starts Set A / Physical / Concept
+        // --- V76.9 SAFETY CHECK ---
+        if(!Array.isArray(json)) { throw new Error("INVALID DATA FORMAT"); }
+        RAW_DATA = json;
+        
+        // --- SAFE AUTO-START ---
+        // Try to start Set A. If empty, fall back to menu.
         CURRENT_DATASET = "SET_A";
         CURRENT_TOPIC = "Physical";
-        startQuiz("Physical", "CONCEPT"); 
         
-    } catch(e) { l.innerHTML = "SYNC ERROR"; }
+        // Only remove loader if we successfully render something
+        const autoStartSuccess = attemptAutoStart("Physical", "CONCEPT");
+        
+        if(!autoStartSuccess) {
+            console.warn("Auto-start failed (empty pool). Loading Menu.");
+            renderDatasetSelect();
+        }
+        
+        l.remove();
+        
+    } catch(e) { 
+        console.error(e);
+        l.innerHTML = `SYNC ERROR<br><small style="font-size:0.6rem; opacity:0.7; letter-spacing:0;">${e.message}</small><br><button class="btn" style="width:auto; margin-top:20px; font-size:0.7rem;" onclick="location.reload()">RETRY</button>`; 
+    }
+}
+
+// Helper to safely try starting quiz without crashing
+function attemptAutoStart(topic, genre){
+    CURRENT_GENRE=genre;
+    POOL=RAW_DATA.filter(q => 
+        (q.dataset||"").toUpperCase() === CURRENT_DATASET.toUpperCase() && 
+        (q.topic||"").toLowerCase() === topic.toLowerCase() && 
+        (q.q_type||"").toUpperCase() === genre.toUpperCase()
+    ).sort(() => Math.random() - .5);
+    
+    if(!POOL.length) return false;
+    renderNext();
+    return true;
 }
 
 function renderDatasetSelect(){
@@ -153,15 +181,11 @@ function renderGenreSelect(topic){
 }
 
 function startQuiz(topic, genre){
-    CURRENT_GENRE=genre;
-    POOL=RAW_DATA.filter(q => q.dataset.toUpperCase() === CURRENT_DATASET.toUpperCase() && q.topic.toLowerCase() === topic.toLowerCase() && q.q_type.toUpperCase() === genre.toUpperCase()).sort(() => Math.random() - .5);
-    if(!POOL.length){ 
-        // Fallback if default selection is empty
-        alert("Section empty. Loading Menu."); 
-        renderDatasetSelect(); 
-        return; 
+    const success = attemptAutoStart(topic, genre);
+    if(!success) {
+        alert("No questions found for this section.");
+        renderDatasetSelect();
     }
-    renderNext();
 }
 
 function renderNext(){
@@ -196,10 +220,8 @@ function bindPhysics(el, data){
         const rawDy = p.clientY - sy;
         const rawDist = Math.sqrt(rawDx*rawDx + rawDy*rawDy);
         
-        // 1. OPACITY RAMP (0px -> 24px = 0% -> 100%)
         const opacity = Math.min(rawDist / OPACITY_DIST, 1);
         
-        // 2. HARD CLAMP (stops at 40px)
         let clampedDx = rawDx;
         let clampedDy = rawDy;
         if(rawDist > CLAMP_DIST){
@@ -208,12 +230,11 @@ function bindPhysics(el, data){
             clampedDy = rawDy * ratio;
         }
 
-        // 3. ANGLE & LABEL SELECTION
         let ang = Math.atan2(-clampedDy, clampedDx)*(180/Math.PI); 
         if(ang<0) ang+=360;
         
         let activeLabel = null;
-        Object.values(labels).forEach(l=>{if(l)l.style.opacity=0;}); // Reset
+        Object.values(labels).forEach(l=>{if(l)l.style.opacity=0;});
 
         if(rawDist > 5){
             if(ang>=45&&ang<135) activeLabel=labels.up; 
@@ -227,13 +248,11 @@ function bindPhysics(el, data){
             activeLabel.style.transform = `scale(${0.85 + (opacity * 0.15)})`;
         }
 
-        // 4. APPLY TRANSFORM
         x = clampedDx; y = clampedDy;
         requestAnimationFrame(()=>{
             el.style.transform=`translate3d(${x}px,${y}px,0) rotate(${x/25}deg)`;
         });
         
-        // 5. TRIGGER LOGIC (Only fires if we hit the 40px clamp)
         if(rawDist >= CLAMP_DIST) {
              triggerDir = (ang>=45&&ang<135)?"UP":(ang>=135&&ang<225)?"LEFT":(ang>=225&&ang<315)?"DOWN":"RIGHT";
         } else {
@@ -254,7 +273,6 @@ function bindPhysics(el, data){
                 handleAction(el, data, x, y, triggerDir);
             }
         } else {
-            // SNAP BACK
             el.style.transition="transform .2s cubic-bezier(0.175, 0.885, 0.32, 1.275)"; 
             el.style.transform="translate3d(0,0,0) rotate(0deg)";
         }
