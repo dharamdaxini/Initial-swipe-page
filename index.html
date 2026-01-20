@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chemistry Master V50.1 (Info Swipe)</title>
+    <title>Chemistry Master V52 (MCQ Mode)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,7 +15,7 @@
             --bg-color: #000000;
             --card-bg: #1a1a1a;
             --context-bg: #1a2333; 
-            --info-bg: rgba(0, 0, 0, 0.98); /* Deep Dive Overlay */
+            --info-bg: rgba(0, 0, 0, 0.98); 
             --report-bg: #111111;
             --text-main: #ffffff;
             --text-muted: #888888;
@@ -41,7 +41,6 @@
             justify-content: center;
         }
 
-        /* --- LOADING OVERLAY --- */
         #loader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 9999;
@@ -56,7 +55,6 @@
         .status-text { font-family: var(--font-code); font-size: 0.9rem; color: var(--text-muted); }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* --- UI LAYER --- */
         #header {
             position: absolute; top: 20px; width: 90%;
             display: flex; justify-content: space-between; z-index: 100;
@@ -70,13 +68,11 @@
             z-index: 50; pointer-events: none;
         }
 
-        /* --- CARD STACK --- */
         #stack {
             position: relative; width: 100%; max-width: 360px; height: 65vh;
             margin-top: 40px; perspective: 1000px;
         }
 
-        /* --- CARD STYLES --- */
         .card {
             position: absolute; width: 100%; height: 100%;
             background: var(--card-bg);
@@ -91,7 +87,7 @@
         .card.card-context { background: var(--context-bg); border-color: var(--accent-blue); }
 
         .card-q { 
-            font-size: 1.8rem; font-weight: 800; line-height: 1.2; 
+            font-size: 1.6rem; font-weight: 800; line-height: 1.3; 
             margin-bottom: 10px; margin-top: 20px; 
         }
 
@@ -101,29 +97,43 @@
             margin-top: 10px; display: inline-block;
         }
 
-        /* --- HINT OVERLAYS --- */
+        /* --- UPDATED HINT OVERLAYS (MCQ OPTIMIZED) --- */
         .hint-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             border-radius: 32px; pointer-events: none; opacity: 0;
             transition: opacity 0.1s;
             display: flex; align-items: center; justify-content: center;
-            font-weight: 900; font-size: 2.5rem; text-transform: uppercase;
-            z-index: 10; text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+            font-weight: 800; 
+            font-size: 1.8rem; /* Smaller font for longer text */
+            padding: 20px;
+            text-align: center; /* Wrap text nicely */
+            text-transform: none; /* Allow Mixed Case for Chemical Formulas */
+            z-index: 10; text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
         }
-        .hint-up { color: var(--accent-blue); }
-        .hint-left { color: var(--accent-red); } 
-        .hint-right { color: var(--accent-green); }
-        .hint-down { color: #ffffff; }
+        .hint-up { color: var(--accent-blue); align-items: flex-start; padding-top: 60px; }
+        .hint-left { color: var(--accent-red); justify-content: flex-end; padding-right: 40px; } 
+        .hint-right { color: var(--accent-green); justify-content: flex-start; padding-left: 40px; }
+        .hint-down { color: #ffffff; align-items: flex-end; padding-bottom: 60px; }
 
-        /* --- INFO / DEEP DIVE OVERLAY --- */
+        /* Guide Dots to show 3 Options */
+        .guide-dot {
+            position: absolute; width: 6px; height: 6px; border-radius: 50%;
+            background: #333; opacity: 0.5;
+        }
+        .guide-top { top: 15px; left: 50%; transform: translateX(-50%); }
+        .guide-left { left: 15px; top: 50%; transform: translateY(-50%); }
+        .guide-right { right: 15px; top: 50%; transform: translateY(-50%); }
+
+
+        /* --- INFO OVERLAY --- */
         .info-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--info-bg);
             padding: 30px;
             display: flex; flex-direction: column; justify-content: center;
             opacity: 0; pointer-events: none;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.1s ease;
             z-index: 20;
         }
         .info-overlay.active { opacity: 1; pointer-events: auto; }
@@ -137,8 +147,8 @@
             width: 100%; cursor: pointer; text-transform: uppercase;
             box-shadow: 0 10px 20px rgba(255,255,255,0.2);
         }
+        .btn-next:active { transform: scale(0.95); transition: 0.05s; }
 
-        /* --- REPORT CARD --- */
         .report-card {
             background: var(--report-bg); border: 2px solid var(--accent-blue);
             align-items: center; justify-content: center; text-align: center;
@@ -268,12 +278,13 @@
             return {
                 id: q.question_id, topic: q.topic, type: q.q_type,
                 text: q.question_text, subs: q.subs ? q.subs.toString().split('|') : [],
-                explanation: q.explanation || "No details available.", // Fetch Explanation
+                explanation: q.explanation || "No details available.",
                 up: q.swipe_up_label || "YES", 
                 right: q.swipe_right_label || "MAYBE",
                 down: q.swipe_down_label || "SKIP", 
                 left: q.swipe_left_label || "NO", 
-                correct: q.correct, w: q.weight
+                correct: q.correct.toUpperCase(), // FIXED: Normalize Case
+                w: q.weight
             };
         }
 
@@ -301,6 +312,10 @@
             const subHTML = data.subs.length > 0 ? `<div class="card-sub">${data.subs.join(' ')}</div>` : '';
             
             el.innerHTML = `
+                <div class="guide-dot guide-top"></div>
+                <div class="guide-dot guide-left"></div>
+                <div class="guide-dot guide-right"></div>
+
                 <div class="card-content">
                     <div class="card-q">${data.text}</div>
                     ${subHTML}
@@ -320,13 +335,12 @@
             return el;
         }
 
-        // Global Helper for the "GOT IT" Button
         window.forceNext = function() {
             const card = document.querySelector('.card:not(.report-card)');
             if(card) {
-                card.style.transition = 'transform 0.3s ease-in';
-                card.style.transform = 'translate(0, 1000px)'; // Fly down
-                setTimeout(() => { card.remove(); spawnCard(); }, 200);
+                card.style.transition = 'transform 0.15s ease-in'; 
+                card.style.transform = 'translate(0, 1000px)'; 
+                setTimeout(() => { card.remove(); spawnCard(); }, 50); 
             }
         }
 
@@ -353,12 +367,12 @@
             }
 
             start(e) { 
-                if(this.el.querySelector('.info-overlay.active')) return; // Block drag if info open
+                if(this.el.querySelector('.info-overlay.active')) return; 
                 this.startX = e.touches[0].clientX; this.startY = e.touches[0].clientY; 
                 this.isDragging = true; this.el.style.transition = 'none'; 
             }
             startMouse(e) { 
-                if(this.el.querySelector('.info-overlay.active')) return; // Block drag if info open
+                if(this.el.querySelector('.info-overlay.active')) return; 
                 this.startX = e.clientX; this.startY = e.clientY; 
                 this.isDragging = true; this.el.style.transition = 'none'; 
                 document.onmousemove = this.moveMouse.bind(this); document.onmouseup = this.end.bind(this); 
@@ -391,7 +405,6 @@
 
                 const triggerDist = 80;
                 
-                // CHECK: If DOWN Swipe, Trigger Info Mode
                 if (this.y > triggerDist) {
                     this.triggerInfo();
                     return;
@@ -404,8 +417,7 @@
             }
 
             triggerInfo() {
-                // Snap back and show info
-                this.el.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
+                this.el.style.transition = 'transform 0.1s cubic-bezier(0.2, 0.8, 0.2, 1)';
                 this.el.style.transform = 'translate(0, 0)';
                 this.el.querySelectorAll('.hint-overlay').forEach(h => h.style.opacity = 0);
                 
@@ -427,7 +439,7 @@
             }
 
             reset() {
-                this.el.style.transition = 'transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1)';
+                this.el.style.transition = 'transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1)'; 
                 this.el.style.transform = 'translate(0, 0)';
                 this.el.querySelectorAll('.hint-overlay').forEach(h => h.style.opacity = 0);
             }
