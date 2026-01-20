@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chemistry Master V40 (Stable)</title>
+    <title>Chemistry Master V40.1 (Auto-Detect)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -110,7 +110,7 @@
             transform-origin: 50% 100%;
             transition: transform 0.1s linear;
             will-change: transform;
-            touch-action: none; /* CRITICAL FOR PHYSICS ENGINE */
+            touch-action: none; 
             user-select: none;
         }
 
@@ -159,7 +159,6 @@
             z-index: 10;
         }
         
-        /* Directional Styles */
         .hint-up { 
             background: rgba(41, 98, 255, 0.2); 
             color: var(--accent-blue); 
@@ -195,7 +194,6 @@
             font-family: var(--font-code);
             font-size: 0.8rem;
         }
-
     </style>
 </head>
 <body>
@@ -222,19 +220,19 @@
         // CONFIGURATION & STATE
         // ==========================================
         
-        // YOUR DEPLOYMENT URL
+        // YOUR DEPLOYMENT URL (Last Known ID)
         const DATA_ENDPOINT = "https://script.google.com/macros/s/AKfycbxGZyuQOGf6eXwNZzcJwQYKk6pNw91nYcA403nOR4Ldma5zzLUb1Fz5P_U8-DLyEGOk/exec"; 
         
         // Session Variables
         const SESSION_ID = "SESS_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
-        let CURRENT_DECK = "Chemistry_Master_1"; // Matches 'deck' column in Sheet
+        let CURRENT_DECK = "Chemistry_Master_1"; // Default attempt
         let SCORE = 0;
         let QUESTION_POOL = [];
         let USED_IDS = new Set();
         let CARD_START_TIME = 0;
 
         // ==========================================
-        // 1. DATA ENGINE (Live Loader - GET)
+        // 1. DATA ENGINE (Live Loader + Auto Detect)
         // ==========================================
         async function loadQuestions(deck) {
             const status = document.getElementById('status-msg');
@@ -244,13 +242,28 @@
                 
                 status.innerText = "Parsing Vectors...";
                 const all = await res.json();
+                
+                // --- AUTO-DETECT FIX ---
+                if (all.length === 0) throw new Error("Sheet is completely empty!");
 
-                // Filter by Deck and Remove duplicates
+                // Get list of ALL decks found in the sheet
+                const availableDecks = [...new Set(all.map(q => q.deck))];
+                console.log("Found Decks:", availableDecks);
+
+                // If requested deck is missing, switch to the FIRST available one
+                let targetDeck = deck;
+                if (!availableDecks.includes(deck)) {
+                    console.warn(`Deck "${deck}" not found. Switching to "${availableDecks[0]}"`);
+                    targetDeck = availableDecks[0];
+                    CURRENT_DECK = targetDeck; // Update global state
+                }
+
+                // Filter & Shuffle
                 QUESTION_POOL = all
-                    .filter(q => q.deck === deck && !USED_IDS.has(q.question_id))
+                    .filter(q => q.deck === targetDeck && !USED_IDS.has(q.question_id))
                     .sort(() => Math.random() - 0.5);
 
-                console.log(`[SYS] Loaded ${QUESTION_POOL.length} items for ${deck}`);
+                console.log(`[SYS] Loaded ${QUESTION_POOL.length} items for ${targetDeck}`);
                 
                 if(QUESTION_POOL.length === 0) {
                      status.innerText = "NO DATA FOUND (Check Sheet)";
@@ -259,7 +272,6 @@
                 }
                 
             } catch (error) {
-                // PRINT ERROR TO SCREEN FOR DEBUGGING
                 status.innerHTML = `ERROR: ${error.message}<br><br>Check Console.`;
                 status.style.color = "red";
                 console.error(error);
@@ -268,10 +280,9 @@
         }
 
         // ==========================================
-        // 2. LOGGING ENGINE (Analytics - POST)
+        // 2. LOGGING ENGINE (Analytics)
         // ==========================================
         function logAnswer(q, swipe, score, ms) {
-            // Send data to Sheet without waiting (Fire & Forget)
             fetch(DATA_ENDPOINT, {
                 method: "POST",
                 mode: "no-cors",
@@ -305,7 +316,6 @@
             const q = QUESTION_POOL.shift();
             USED_IDS.add(q.question_id);
 
-            // Map Google Sheet columns to App schema
             return {
                 id: q.question_id,
                 topic: q.topic,
@@ -326,7 +336,6 @@
             const el = document.createElement('div');
             el.className = 'card';
             
-            // Format Subscripts if they exist
             const subHTML = data.subs.length > 0 
                 ? `<div class="card-sub">${data.subs.join(' ')}</div>` 
                 : '';
@@ -353,7 +362,6 @@
             const card = createCardDOM(data);
             document.getElementById('stack').appendChild(card);
             
-            // Activate Physics
             new Draggable(card, data);
             
             // START TIMER
@@ -371,12 +379,9 @@
                 this.y = 0;
                 this.isDragging = false;
                 
-                // Touch Events
                 this.el.addEventListener('touchstart', this.start.bind(this));
                 this.el.addEventListener('touchmove', this.move.bind(this));
                 this.el.addEventListener('touchend', this.end.bind(this));
-                
-                // Mouse Events (Debugging)
                 this.el.addEventListener('mousedown', this.startMouse.bind(this));
             }
 
@@ -412,10 +417,8 @@
 
             update(dx, dy) {
                 this.x = dx; this.y = dy;
-                // Add slight rotation for realism
                 this.el.style.transform = `translate(${dx}px, ${dy}px) rotate(${dx * 0.05}deg)`;
                 
-                // Show HINTS based on direction
                 const t = 50;
                 this.el.querySelector('.hint-up').style.opacity = dy < -t ? 1 : 0;
                 this.el.querySelector('.hint-down').style.opacity = dy > t ? 1 : 0;
@@ -439,7 +442,6 @@
 
             trigger(dir) {
                 let tx = 0, ty = 0;
-                // Throw card off screen
                 if (dir === 'UP') ty = -1000;
                 if (dir === 'DOWN') ty = 1000;
                 if (dir === 'LEFT') tx = -1000;
@@ -447,10 +449,8 @@
 
                 this.el.style.transform = `translate(${tx}px, ${ty}px) rotate(${tx * 0.1}deg)`;
                 
-                // Process Data
                 processAnswer(this.data, dir);
 
-                // Destroy & Respawn
                 setTimeout(() => {
                     this.el.remove();
                     spawnCard();
@@ -458,7 +458,6 @@
             }
 
             reset() {
-                // Snap back to center
                 this.el.style.transform = 'translate(0, 0) rotate(0deg)';
                 this.el.querySelectorAll('.hint-overlay').forEach(h => h.style.opacity = 0);
             }
@@ -468,21 +467,17 @@
         // 5. GAME LOGIC & ROUTING
         // ==========================================
         function processAnswer(data, direction) {
-            // 1. Calculate Thinking Time
             const ms = Date.now() - CARD_START_TIME;
 
-            // 2. Update Score based on 'correct' field
             if (direction === data.correct) {
                 SCORE += parseInt(data.w || 10);
             } else if (direction === 'DOWN') {
-                // Elimination/Skip Logic (Neutral Score)
                 console.log("Player Skipped / Eliminated");
             } else {
                 SCORE -= 5;
             }
             document.getElementById('score-label').innerText = `SCORE: ${SCORE}`;
 
-            // 3. Send Analytics to Cloud
             logAnswer(data, direction, SCORE, ms);
         }
 
@@ -492,14 +487,13 @@
         window.onload = async () => {
             const loader = document.getElementById('loader');
             
-            // Step 1: Fetch Data
+            // Step 1: Fetch Data (With Auto-Detect)
             await loadQuestions(CURRENT_DECK);
             
-            // Step 2: Hide Loader
+            // Step 2: Hide Loader & Start
             loader.style.opacity = 0;
             setTimeout(() => {
                 loader.style.display = 'none';
-                // Step 3: Begin Game
                 spawnCard();
             }, 500);
         };
