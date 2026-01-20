@@ -1,307 +1,132 @@
-// ============================================================
-// ALCHEMIST V78.2 — FINAL STABLE BUILD (INLINE DATA)
-// ============================================================
-
 // ---------------- CONFIG ----------------
-const CONFIG = {
-  SWIPE_THRESHOLD: 75,
-  HINT_THRESHOLD: 15,
-  RANK_THRESHOLDS: {
-    NOVICE: 0,
-    SCHOLAR: 500,
-    GRAND_ALCHEMIST: 1000
-  }
-};
+const CONFIG = { SWIPE: 70 };
 
 // ---------------- STATE ----------------
 const STATE = {
-  rawData: [],
+  data: [],
   pool: [],
   score: 0,
-  isBusy: false,
   mode: "INIT",
-  currentDataset: "",
-  currentTopic: "",
-  currentGenre: ""
+  topic: ""
 };
 
-// ============================================================
-// INLINE DATASET (NO FETCH, NO JSON FILE)
-// ============================================================
-
-const INLINE_DATA = [
+// ---------------- DATA ----------------
+const DATA = [
   {
-    dataset: "SET_A",
-    topic: "Physical",
-    q_type: "CONCEPT",
-    question_text: "Why does the signal-to-noise ratio in FT-NMR scale as √N?",
-    hint: "Statistical averaging",
+    topic: "PHYSICAL",
+    q: "Why does signal-to-noise in FT-NMR improve as √N?",
     explanation:
-      "In FT-NMR, repeated scans add the signal coherently while random noise adds statistically, so S/N increases as the square root of the number of scans.",
+      "Signal adds coherently across scans, while noise adds randomly. Therefore S/N increases as the square root of the number of scans.",
     swipe: {
       UP: "Coherent signal",
       RIGHT: "Random noise",
-      LEFT: "Magnetic field strength",
+      LEFT: "Magnetic field",
       DOWN: "HINT"
     },
-    correct: "RIGHT",
-    weight: 3
+    correct: "RIGHT"
   },
   {
-    dataset: "SET_A",
-    topic: "Analytical",
-    q_type: "CONCEPT",
-    question_text:
-      "Why does a conjugated C=O stretch appear at a lower wavenumber than an isolated carbonyl?",
-    hint: "Bond order",
+    topic: "ANALYTICAL",
+    q: "Why does a conjugated C=O stretch shift to lower IR frequency?",
     explanation:
-      "Conjugation delocalizes electrons and reduces effective C=O bond order, lowering the force constant and shifting the IR absorption to lower frequency.",
+      "Conjugation reduces effective bond order of C=O, lowering force constant and IR frequency.",
     swipe: {
-      UP: "Increased mass",
-      RIGHT: "Reduced bond order",
+      UP: "Higher mass",
+      RIGHT: "Lower bond order",
       LEFT: "Hydrogen bonding",
       DOWN: "HINT"
     },
-    correct: "RIGHT",
-    weight: 3
+    correct: "RIGHT"
   }
 ];
 
-// ============================================================
-// CHEM FORMATTER
-// ============================================================
+// ---------------- INIT ----------------
+window.addEventListener("load", () => {
+  STATE.data = DATA;
+  document.getElementById("loader").remove();
+  renderDomain();
+});
 
-function formatChem(text) {
-  if (!text || typeof text !== "string") return "";
-  return text
-    .replace(/([A-Z][a-z]?)(\d+)/g, "$1<sub>$2</sub>")
-    .replace(/(\d+)([+-])/g, "<sup>$1$2</sup>")
-    .replace(/\|\|/g, "<br><br>");
+// ---------------- RENDER ----------------
+function renderDomain() {
+  STATE.mode = "DOMAIN";
+  card("DOMAIN", { UP: "PHYSICAL", DOWN: "ANALYTICAL" });
 }
 
-// ============================================================
-// INIT
-// ============================================================
-
-function init() {
-  const loader = document.getElementById("loader");
-  STATE.rawData = INLINE_DATA;
-  if (loader) loader.remove();
-  renderDatasetSelect();
+function startQuiz(topic) {
+  STATE.mode = "QUIZ";
+  STATE.topic = topic;
+  STATE.pool = STATE.data.filter(q => q.topic === topic);
+  next();
 }
 
-// ============================================================
-// CARD RENDERING
-// ============================================================
+function next() {
+  if (!STATE.pool.length) return renderDomain();
+  const q = STATE.pool.shift();
+  card(q.q, q.swipe, q);
+}
 
-function createCard(title, labels, data = null) {
+function card(text, labels, data) {
   const stack = document.getElementById("stack");
   stack.innerHTML = "";
 
-  const card = document.createElement("div");
-  card.className = "card";
-
-  card.innerHTML = `
-    <div class="card-q">${formatChem(title)}</div>
-
-    ${labels.up ? `<div class="swipe-label sl-up">${labels.up}</div>` : ""}
-    ${labels.left ? `<div class="swipe-label sl-lt">${labels.left}</div>` : ""}
-    ${labels.right ? `<div class="swipe-label sl-rt">${labels.right}</div>` : ""}
-    ${labels.down ? `<div class="swipe-label sl-dn sl-blue">${labels.down}</div>` : ""}
-
-    ${
-      STATE.mode === "QUIZ" && data?.explanation
-        ? `<div class="overlay">
-             <div class="overlay-label">ANALYSIS</div>
-             <div class="overlay-body">${formatChem(data.explanation)}</div>
-             <button class="btn" onclick="closeOverlay()">CONTINUE</button>
-           </div>`
-        : ""
-    }
+  const c = document.createElement("div");
+  c.className = "card";
+  c.innerHTML = `
+    <div class="card-q">${text}</div>
+    ${Object.entries(labels).map(
+      ([k,v]) => `<div class="swipe-label sl-${k.toLowerCase().slice(0,2)}">${v}</div>`
+    ).join("")}
+    ${data ? `
+      <div class="overlay">
+        <div class="overlay-label">ANALYSIS</div>
+        <div class="overlay-body">${data.explanation}</div>
+        <button class="btn" onclick="this.parentNode.classList.remove('active')">CONTINUE</button>
+      </div>` : ""}
   `;
-
-  stack.appendChild(card);
-  bindPhysics(card, data);
+  stack.appendChild(c);
+  bind(c, data);
 }
 
-function closeOverlay() {
-  document.querySelector(".overlay")?.classList.remove("active");
-}
+// ---------------- SWIPE ----------------
+function bind(el, data) {
+  let sx=0, sy=0, dx=0, dy=0, on=false;
 
-// ============================================================
-// NAVIGATION
-// ============================================================
-
-function renderDatasetSelect() {
-  STATE.mode = "DATASET_SELECT";
-  createCard("SELECT CURRICULUM", {
-    up: "SET_A",
-    down: "SET_A"
-  });
-}
-
-function renderTopicSelect(dataset) {
-  STATE.mode = "TOPIC_SELECT";
-  STATE.currentDataset = dataset;
-
-  createCard("DOMAIN", {
-    up: "Physical",
-    down: "Analytical"
-  });
-}
-
-function renderGenreSelect(topic) {
-  STATE.mode = "GENRE_SELECT";
-  STATE.currentTopic = topic;
-
-  createCard("DEPTH", {
-    up: "CONCEPT",
-    down: "APPLICATION"
-  });
-}
-
-// ============================================================
-// QUIZ ENGINE
-// ============================================================
-
-function startQuiz(topic, genre) {
-  STATE.currentGenre = genre;
-
-  STATE.pool = STATE.rawData.filter(q =>
-    q.dataset === STATE.currentDataset &&
-    q.topic === topic &&
-    q.q_type === genre
-  ).sort(() => Math.random() - 0.5);
-
-  renderNext();
-}
-
-function renderNext() {
-  if (!STATE.pool.length) {
-    renderDatasetSelect();
-    return;
-  }
-
-  STATE.mode = "QUIZ";
-  const q = STATE.pool.shift();
-
-  createCard(q.question_text, {
-    up: q.swipe.UP,
-    left: q.swipe.LEFT,
-    right: q.swipe.RIGHT,
-    down: "HINT"
-  }, q);
-}
-
-// ============================================================
-// SWIPE PHYSICS
-// ============================================================
-
-function bindPhysics(el, data) {
-  let sx = 0, sy = 0, dx = 0, dy = 0, active = false;
-
-  const start = e => {
-    if (STATE.isBusy) return;
-    if (el.querySelector(".overlay.active")) return;
-    active = true;
-    const p = e.touches ? e.touches[0] : e;
-    sx = p.clientX;
-    sy = p.clientY;
-    el.style.transition = "none";
+  el.onmousedown = e => { on=true; sx=e.clientX; sy=e.clientY; };
+  window.onmousemove = e => {
+    if(!on) return;
+    dx=e.clientX-sx; dy=e.clientY-sy;
+    el.style.transform=`translate(${dx}px,${dy}px) rotate(${dx/20}deg)`;
   };
-
-  const move = e => {
-    if (!active) return;
-    const p = e.touches ? e.touches[0] : e;
-    dx = p.clientX - sx;
-    dy = p.clientY - sy;
-    el.style.transform = `translate(${dx}px, ${dy}px) rotate(${dx / 18}deg)`;
-  };
-
-  const end = () => {
-    if (!active) return;
-    active = false;
-
-    const dist = Math.hypot(dx, dy);
-    let dir = null;
-
-    if (dist > CONFIG.SWIPE_THRESHOLD) {
-      const angle = Math.atan2(-dy, dx) * 180 / Math.PI + 360;
-      if (angle >= 45 && angle < 135) dir = "UP";
-      else if (angle >= 135 && angle < 225) dir = "LEFT";
-      else if (angle >= 225 && angle < 315) dir = "DOWN";
-      else dir = "RIGHT";
+  window.onmouseup = () => {
+    if(!on) return; on=false;
+    const d=Math.hypot(dx,dy);
+    let dir=null;
+    if(d>CONFIG.SWIPE){
+      const a=Math.atan2(-dy,dx)*180/Math.PI+360;
+      dir=a<135&&a>=45?"UP":a<225?"LEFT":a<315?"DOWN":"RIGHT";
     }
 
-    if (STATE.mode === "QUIZ" && dir === "DOWN") {
-      el.querySelector(".overlay")?.classList.add("active");
-      reset();
-      return;
-    }
-
-    if (dir) handleAction(data, dir);
-    reset();
-  };
-
-  function reset() {
-    el.style.transition = "transform 0.4s cubic-bezier(.2,.8,.2,1)";
-    el.style.transform = "translate(0,0) rotate(0)";
-    dx = dy = 0;
-  }
-
-  el.addEventListener("mousedown", start);
-  el.addEventListener("touchstart", start, { passive: true });
-  window.addEventListener("mousemove", move);
-  window.addEventListener("touchmove", move, { passive: true });
-  window.addEventListener("mouseup", end);
-  window.addEventListener("touchend", end);
-}
-
-// ============================================================
-// ACTION HANDLER
-// ============================================================
-
-function handleAction(data, dir) {
-  STATE.isBusy = true;
-
-  switch (STATE.mode) {
-    case "DATASET_SELECT":
-      renderTopicSelect("SET_A");
-      break;
-
-    case "TOPIC_SELECT":
-      renderGenreSelect(dir === "UP" ? "Physical" : "Analytical");
-      break;
-
-    case "GENRE_SELECT":
-      if (dir === "UP") startQuiz(STATE.currentTopic, "CONCEPT");
-      break;
-
-    case "QUIZ":
-      if (dir === data.correct) {
-        STATE.score += 10 * (data.weight || 1);
+    if(STATE.mode==="DOMAIN"){
+      if(dir==="UP") startQuiz("PHYSICAL");
+      if(dir==="DOWN") startQuiz("ANALYTICAL");
+    } else if(STATE.mode==="QUIZ"){
+      if(dir==="DOWN"){
+        el.querySelector(".overlay")?.classList.add("active");
       } else {
-        STATE.score = Math.max(0, STATE.score - 5);
+        if(dir===data.correct) STATE.score+=10;
+        updateUI();
+        next();
       }
-      updateUI();
-      renderNext();
-      break;
-  }
+    }
 
-  STATE.isBusy = false;
+    el.style.transform="translate(0,0)";
+    dx=dy=0;
+  };
 }
 
-// ============================================================
-// UI UPDATE
-// ============================================================
-
-function updateUI() {
-  document.getElementById("xp-ui").textContent = `${STATE.score} XP`;
-  document.getElementById("progress-bar").style.width = `${STATE.score % 100}%`;
+// ---------------- UI ----------------
+function updateUI(){
+  document.getElementById("xp-ui").textContent = STATE.score+" XP";
+  document.getElementById("progress-bar").style.width = (STATE.score%100)+"%";
 }
-
-// ============================================================
-// ENTRY POINT
-// ============================================================
-
-window.addEventListener("load", init);
