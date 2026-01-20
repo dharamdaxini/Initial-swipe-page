@@ -1,58 +1,206 @@
 :root {
-    --bg: #000; --card: #111; --border: #282828;
-    --gold: #ffd600; --blue: #3498db; --green: #2ecc71; --red: #ff5555;
-    --font-chem: 'Crimson Text', serif; --font-ui: 'Inter', sans-serif;
+    /* V72.3 Brand Palette */
+    --bg: #000; 
+    --card: #111; 
+    --border: #282828;
+    --gold: #ffd600; 
+    --blue: #3498db; 
+    --green: #2ecc71; 
+    --red: #ff5555;
+    
+    /* Typography HUD */
+    --font-chem: 'Crimson Text', serif; 
+    --font-ui: 'Inter', sans-serif;
+    --font-code: 'JetBrains Mono', monospace;
+    
+    /* Animation Physics */
     --spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+* { 
+    box-sizing: border-box; 
+    -webkit-tap-highlight-color: transparent; 
+    outline: none; 
+}
 
 body { 
-    margin: 0; height: 100vh; background: var(--bg); color: #fff; 
-    font-family: var(--font-ui); overflow: hidden; touch-action: none; 
+    margin: 0; 
+    height: 100vh; 
+    background: var(--bg); 
+    color: #fff; 
+    font-family: var(--font-ui); 
+    overflow: hidden; 
+    touch-action: none; 
+    user-select: none; 
+    -webkit-user-select: none;
 }
+
+/* Chemical Notation Formatting */
+sub { font-size: 0.7em; vertical-align: sub; line-height: 0; }
+sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 
 /* 1. Spatial Physics Container */
 #viewport { 
-    position: relative; width: 100%; height: 100%; 
-    display: flex; align-items: center; justify-content: center;
-    perspective: 1200px; /* Locked 3D Depth */
+    position: relative; 
+    width: 100%; 
+    height: 100%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    perspective: 1200px; /* Locked 3D Perspective Depth */
 }
 
-#stack { position: relative; width: 92%; max-width: 400px; height: 520px; }
+#stack { 
+    position: relative; 
+    width: 92%; 
+    max-width: 400px; 
+    height: 520px; 
+}
 
-/* The Pivot Engine Card */
+/* 2. The Pivot Engine Card */
 .card { 
-    position: absolute; inset: 0; background: var(--card); 
-    border-radius: 40px; border: 1px solid var(--border); padding: 40px;
-    display: flex; flex-direction: column; justify-content: center;
+    position: absolute; 
+    inset: 0; 
+    background: var(--card); 
+    border-radius: 40px; 
+    border: 1px solid var(--border); 
+    padding: 40px;
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center;
     box-shadow: 0 20px 60px rgba(0,0,0,0.9);
-    transform-origin: center center; /* Critical Pivot Point */
-    will-change: transform; backface-visibility: hidden;
+    
+    /* Critical Pivot Point Logic */
+    transform-origin: center center; 
+    will-change: transform; 
+    backface-visibility: hidden;
 }
 
 .card-q { 
-    font-family: var(--font-chem); font-size: 2.1rem; line-height: 1.35; 
-    font-style: italic; font-weight: 600; text-align: center; color: #f0f0f0; 
+    font-family: var(--font-chem); 
+    font-size: 2.1rem; 
+    line-height: 1.35; 
+    font-style: italic; 
+    font-weight: 600; 
+    text-align: center; 
+    color: #f0f0f0; 
 }
 
-/* 2. Unit Circle Feedback Labels */
+/* 3. Unit Circle Intent Feedback */
 .swipe-label { 
-    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; 
-    font-weight: 900; font-size: 2.1rem; text-transform: uppercase; 
-    border-radius: 40px; background: #000; opacity: 0; pointer-events: none; 
+    position: absolute; 
+    inset: 0; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-weight: 900; 
+    font-size: 2.1rem; 
+    text-transform: uppercase; 
+    border-radius: 40px; 
+    background: #000; 
+    opacity: 0; 
+    pointer-events: none; 
+    transition: opacity 0.1s linear;
 }
 
 .sl-up { color: var(--green); }
 .sl-le { color: var(--red); }
 .sl-ri { color: var(--gold); }
-.sl-do { color: var(--blue); font-size: 1.4rem; font-family: var(--font-chem); text-transform: none; }
-
-/* Dashboard Header (HUD) */
-#header { 
-    position: absolute; top: calc(20px + env(safe-area-inset-top)); 
-    width: 90%; left: 5%; z-index: 100; pointer-events: none; 
+.sl-do { 
+    color: var(--blue); 
+    font-size: 1.4rem; 
+    font-family: var(--font-chem); 
+    text-transform: none; 
 }
-.header-meta { display: flex; justify-content: space-between; font-size: 0.75rem; color: #555; font-family: monospace; margin-bottom: 8px; }
-.progress-track { width: 100%; height: 3px; background: #222; border-radius: 2px; overflow: hidden; }
-#progress-bar { height: 100%; background: var(--gold); width: 0%; transition: width 0.4s var(--spring); }
+
+/* V72.3 HUD HUD/Overlay HUD HUD Style */
+#header { 
+    position: absolute; 
+    top: calc(20px + env(safe-area-inset-top)); 
+    width: 90%; 
+    left: 5%; 
+    z-index: 100; 
+    pointer-events: none; 
+}
+
+.header-meta { 
+    display: flex; 
+    justify-content: space-between; 
+    font-size: 0.75rem; 
+    color: #555; 
+    font-family: var(--font-code); 
+    margin-bottom: 8px; 
+}
+
+.progress-track { 
+    width: 100%; 
+    height: 3px; 
+    background: #222; 
+    border-radius: 2px; 
+    overflow: hidden; 
+}
+
+#progress-bar { 
+    height: 100%; 
+    background: var(--gold); 
+    width: 0%; 
+    transition: width 0.4s var(--spring); 
+}
+
+/* Analysis Overlay Engine */
+.overlay { 
+    position: absolute; 
+    inset: 0; 
+    background: #0d0d0d; 
+    border-radius: 40px; 
+    padding: 35px; 
+    display: none; 
+    flex-direction: column; 
+    justify-content: center; 
+    z-index: 1100;
+}
+
+.overlay.active { display: flex; }
+
+.overlay-label { 
+    font-size: 0.75rem; 
+    letter-spacing: 2px; 
+    margin-bottom: 15px; 
+    color: var(--gold); 
+    font-family: var(--font-code); 
+}
+
+.overlay-body { 
+    font-size: 1.25rem; 
+    line-height: 1.7; 
+    font-family: var(--font-chem); 
+    color: #ccc; 
+}
+
+.btn { 
+    margin-top: 30px; 
+    padding: 20px; 
+    border-radius: 50px; 
+    border: none; 
+    font-weight: 900; 
+    cursor: pointer; 
+    background: #fff; 
+    color: #000; 
+    text-transform: uppercase; 
+    font-family: var(--font-ui);
+}
+
+/* Entrance Loader */
+#loader { 
+    position: fixed; 
+    inset: 0; 
+    background: #000; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-weight: 900; 
+    letter-spacing: 5px; 
+    color: var(--gold); 
+    z-index: 9999; 
+    font-family: var(--font-code);
+}
