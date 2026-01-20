@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist Mastery V76.2</title>
+<title>Alchemist Kinetic V76.3</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,8 +42,9 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
     position: absolute; width: 100%; height: 100%;
     background: var(--card-bg); border-radius: 40px; border: 1px solid #282828;
     padding: 40px; display: flex; flex-direction: column; justify-content: center;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.9); transform-origin: center center;
-    will-change: transform; cursor: grab; backface-visibility: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.9);
+    transform-origin: center center; /* PIVOT POINT LOCKED */
+    will-change: transform; cursor: grab;
     transform: translate3d(0,0,0);
 }
 
@@ -53,11 +54,10 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
     position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
     background: #000; color: #fff; font-weight: 900; font-size: 2.1rem;
     text-transform: uppercase; border-radius: 40px; z-index: 999; opacity: 0; pointer-events: none;
-    text-align: center; padding: 20px; transform: scale(0.85) translateZ(0);
+    text-align: center; padding: 20px; transform: scale(0.85); /* BASE ANIMATION STATE */
     will-change: opacity, transform;
 }
 
-/* V76.2 BLUE HINT UI */
 .sl-down-hint { 
     color: var(--hint-blue) !important; 
     font-size: 1.4rem !important; 
@@ -70,34 +70,21 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
     z-index: 1100; padding: 45px 35px; opacity: 0; pointer-events: none;
     border-radius: 40px; transition: opacity 0.25s ease-out;
     display: flex; flex-direction: column; justify-content: center;
-    overflow-y: auto;
 }
 .overlay.active { opacity: 1; pointer-events: auto; }
-.overlay-label { font-size: 0.8rem; color: var(--accent-gold); font-family: var(--font-code); margin-bottom: 15px; text-transform: uppercase; }
-.overlay-body { font-size: 1.2rem; line-height: 1.7; color: #ccc; margin-bottom: 30px; font-family: var(--font-chem); }
-
-.btn { width: 100%; padding: 18px; border-radius: 60px; border: none; background: #fff; font-weight: 900; cursor: pointer; text-transform: uppercase; font-family: var(--font-ui); margin-top: 10px; }
-#loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: var(--font-code); font-size: 1rem; letter-spacing: 5px; color: var(--accent-gold); }
+.btn { width: 100%; padding: 18px; border-radius: 60px; border: none; background: #fff; font-weight: 900; cursor: pointer; text-transform: uppercase; }
+#loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: var(--font-code); font-size: 1.2rem; letter-spacing: 6px; color: var(--accent-gold); }
 </style>
 </head>
 
 <body>
 <div id="loader">ALCHEMIST</div>
-
-<div id="header">
-    <div class="header-meta">
-        <span id="rank-ui">RANK: NOVICE</span>
-        <span id="xp-ui">0 XP</span>
-    </div>
-    <div class="progress-track"><div id="progress-bar"></div></div>
-</div>
-
+<div id="header"><div class="header-meta"><span id="rank-ui">RANK: NOVICE</span><span id="xp-ui">0 XP</span></div><div class="progress-track"><div id="progress-bar"></div></div></div>
 <div id="stack"></div>
 
 <script>
-const ENDPOINT="https://script.google.com/macros/s/AKfycbPvkuXpkFPZfwoj4H9Kevn2VXDcjjpOPxHtDqGDFxdclDdlwH0_0sHV-g4K1AGgfUJ/exec";
-
-let RAW_DATA=[], POOL=[], MISTAKES=[], SCORE=0, isTransitioning=false;
+const ENDPOINT="https://script.google.com/macros/s/AKfycbwnbpsFpWRjONnt1G9G74BW2QeTrATkiyMTlW3IdIcBYZq51XlJuf3Y-Sm1Ei94Nckd/exec";
+let RAW_DATA=[], POOL=[], SCORE=0, isTransitioning=false;
 let MODE="DATASET_SELECT", CURRENT_DATASET="", CURRENT_TOPIC="", CURRENT_GENRE="";
 
 const formatChem = t => {
@@ -106,13 +93,12 @@ const formatChem = t => {
 };
 
 async function init(){
-    const l = document.getElementById('loader');
     try {
         const r = await fetch(ENDPOINT);
         RAW_DATA = await r.json();
-        l.remove();
+        document.getElementById('loader').remove();
         renderDatasetSelect();
-    } catch(e) { l.innerHTML = "SYNC ERROR"; }
+    } catch(e) { document.getElementById('loader').innerHTML="SYNC ERROR"; }
 }
 
 function renderDatasetSelect(){
@@ -173,28 +159,34 @@ function bindPhysics(el, data){
     const labels={up:el.querySelector('.sl-up'), dn:el.querySelector('.sl-down'), lt:el.querySelector('.sl-left'), rt:el.querySelector('.sl-right')};
 
     const start=e=>{ if(isTransitioning||(el.querySelector('.overlay')&&el.querySelector('.overlay').classList.contains('active')))return; active=true; const p=e.touches?e.touches[0]:e; sx=p.clientX; sy=p.clientY; el.style.transition="none"; };
+    
     const move=e=>{
         if(!active)return; const p=e.touches?e.touches[0]:e;
         let dx=p.clientX-sx; let dy=p.clientY-sy; const dist=Math.sqrt(dx*dx+dy*dy);
         let ang=Math.atan2(-dy, dx)*(180/Math.PI); if(ang<0)ang+=360; 
+        
+        // UNIT CIRCLE RADIUS LOCK (40px)
         if(dist>=40) isFrozen=true; else if(dist<20) isFrozen=false;
         if(isFrozen){ const rad=ang*(Math.PI/180); dx=Math.cos(rad)*40; dy=-Math.sin(rad)*40; }
         x=dx; y=dy;
+        
         requestAnimationFrame(()=>{
             el.style.transform=`translate3d(${x}px,${y}px,0) rotate(${x/18}deg)`;
-            Object.values(labels).forEach(l=>{if(l)l.style.opacity=0; l.style.transform="scale(0.85)";});
+            Object.values(labels).forEach(l=>{if(l) { l.style.opacity=0; l.style.transform="scale(0.85)"; }});
             if(dist>1){
                 let activeLabel;
                 if(ang>=45&&ang<135)activeLabel=labels.up; else if(ang>=135&&ang<225)activeLabel=labels.lt;
                 else if(ang>=225&&ang<315)activeLabel=labels.dn; else activeLabel=labels.rt;
+                
                 if(activeLabel){
-                    const alpha=Math.min(dist/30, 1);
+                    const alpha=Math.min(dist/35, 1);
                     activeLabel.style.opacity=alpha;
-                    activeLabel.style.transform=`scale(${0.85 + (alpha * 0.25)})`;
+                    activeLabel.style.transform=`scale(${0.85 + (alpha * 0.25)})`; // TEXT ANIMATION
                 }
             }
         });
     };
+
     const end=()=>{
         if(!active)return; active=false; const dist=Math.sqrt(x*x+y*y);
         let ang=Math.atan2(-y, x)*(180/Math.PI); if(ang<0)ang+=360;
@@ -215,25 +207,23 @@ function handleAction(el, data, x, y, dir){
     else if(MODE==="GENRE_SELECT"){ 
         if(dir==="UP") startQuiz(CURRENT_TOPIC, "CONCEPT");
         else if(dir==="DOWN") startQuiz(CURRENT_TOPIC, "APPLICATION");
-        else { isTransitioning=false; return; } // Locked Side-Swipes
+        else { isTransitioning=false; return; } 
     }
     else if(MODE==="QUIZ"){ 
         const w=parseInt(data.weight)||1;
-        if(dir===data.correct.toUpperCase()){ SCORE+=(10*w); } 
-        else { SCORE=Math.max(0, SCORE-5); MISTAKES.push(data); }
+        if(dir===data.correct.toUpperCase()){ SCORE+=(10*w); } else { SCORE=Math.max(0, SCORE-5); }
         renderNext();
     } else if(MODE==="SESSION_END"){ 
         if(dir==="UP") startQuiz(CURRENT_TOPIC, CURRENT_GENRE); 
         else if(dir==="DOWN") renderDatasetSelect();
-        else { isTransitioning=false; return; } // Locked Side-Swipes
+        else { isTransitioning=false; return; }
     }
-    el.style.transition="transform .4s ease-in"; el.style.transform=`translate3d(${x*6}px,${y*6}px,0) rotate(${x/5}deg)`;
-    updateUI(); setTimeout(()=>{el.remove(); isTransitioning=false;}, 350);
+    el.style.transition="transform .5s ease-in"; el.style.transform=`translate3d(${x*6}px,${y*6}px,0)`;
+    updateUI(); setTimeout(()=>{el.remove(); isTransitioning=false;}, 400);
 }
 
 function updateUI(){
     document.getElementById('xp-ui').innerText=`${SCORE} XP`;
-    document.getElementById('rank-ui').innerText=`RANK: ${SCORE > 500 ? "SCHOLAR" : "NOVICE"}`;
     document.getElementById('progress-bar').style.width=`${(SCORE%100)}%`;
 }
 window.onload=init;
