@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Chemistry Master V71.9 (Snap Visibility)</title>
+<title>Chemistry Master V72.0 (Smooth Decoupled)</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -65,16 +65,16 @@ sup { font-size:.75em; vertical-align:super; line-height:0; }
     font-style:italic; font-weight:600; text-align:center; color:#f0f0f0;
 }
 
-/* V71.9: Snap-Visibility Shield */
+/* V72.0: Smooth Visibility Shield */
 .swipe-label {
     position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
     background:#000; color:#fff; font-weight:900; font-size:2.1rem;
     text-transform:uppercase; line-height:1.1; border-radius:40px;
     z-index:999; opacity:0; pointer-events:none;
-    transform:scale(.85);
+    transform:scale(0.9);
     will-change:opacity,transform;
-    /* Faster snap transition */
-    transition: opacity 0.08s ease-in, transform 0.12s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    /* Slow & Smooth Transition */
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .overlay {
@@ -94,7 +94,7 @@ sup { font-size:.75em; vertical-align:super; line-height:0; }
 </head>
 
 <body>
-<div id="loader">V71.9 SNAP_VISIBILITY_ACTIVE…</div>
+<div id="loader">V72.0 SMOOTH_DECOUPLED_ACTIVE…</div>
 
 <div id="header">
     <div class="header-meta">
@@ -162,18 +162,21 @@ function bindPhysics(el,data){
     const updateLabels = (dx, dy) => {
         const governorLimit = 20; // 0.5cm
         const apply = (lbl, val) => {
-            // V71.9: Snap to full opacity as soon as governorLimit is reached
+            // V72.0: Smooth opacity transition triggered at threshold
             const isAtLimit = val >= governorLimit;
             lbl.style.opacity = isAtLimit ? 1 : 0;
-            lbl.style.transform = isAtLimit ? "scale(1.15)" : "scale(0.85)";
+            lbl.style.transform = isAtLimit ? "scale(1.1)" : "scale(0.9)";
         };
         apply(labels.up, -dy); apply(labels.dn, dy); apply(labels.lt, -dx); apply(labels.rt, dx);
     };
 
     const start = e => {
         if(isTransitioning || el.querySelector('.overlay.active')) return;
-        active = true; const p = e.touches ? e.touches[0] : e;
-        sx = p.clientX; sy = p.clientY; el.style.transition = "none";
+        active = true; 
+        const p = e.touches ? e.touches[0] : e;
+        // V72.0: Initializing decoupled start coordinates
+        sx = p.clientX; sy = p.clientY; 
+        el.style.transition = "none";
     };
 
     const move = e => {
@@ -192,13 +195,14 @@ function bindPhysics(el,data){
         }
 
         x = dx; y = dy;
+        // V72.0 Physics: Direct relative translation (Decoupled from absolute touch position)
         el.style.transform = `translate3d(${x}px,${y}px,0) rotate(${x/14}deg)`;
         updateLabels(x, y);
     };
 
     const end = () => {
         if(!active) return; active = false; 
-        const selectThresh = 40; // 1cm
+        const selectThresh = 40; 
         if(MODE === "QUIZ" && y > selectThresh && Math.abs(y) > Math.abs(x)){
             el.querySelector('.overlay').classList.add('active');
             el.style.transform = "translate3d(0,0,0)";
@@ -208,7 +212,10 @@ function bindPhysics(el,data){
             el.style.transition = "transform .4s cubic-bezier(.175,.885,.32,1.275)";
             el.style.transform = "translate3d(0,0,0)";
         }
-        Object.values(labels).forEach(l => { l.style.opacity = 0; l.style.transform = "scale(0.85)"; });
+        Object.values(labels).forEach(l => { 
+            l.style.opacity = 0; 
+            l.style.transform = "scale(0.9)"; 
+        });
     };
 
     el.onmousedown = start; window.onmousemove = move; window.onmouseup = end;
