@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Chemistry Master V70.1 | Stability Build</title>
+    <title>Chemistry Master V71 | Performance Build</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,7 +13,7 @@
         :root {
             --bg-color: #000000;
             --card-bg: #1a1a1a;
-            --info-bg: #0d0d0d;
+            --info-bg: #000000; /* Force Opaque */
             --text-main: #ffffff;
             --accent-blue: #2962ff;
             --accent-gold: #ffd600;
@@ -24,32 +24,55 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: none; user-select: none; outline: none; }
         body { background-color: var(--bg-color); color: var(--text-main); font-family: var(--font-ui); margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
+        /* Typography Engine */
         sub { vertical-align: sub; font-size: 0.65em; line-height: 0; }
         sup { vertical-align: super; font-size: 0.65em; line-height: 0; }
+        .chem-bond { font-family: var(--font-ui); font-weight: 400; padding: 0 2px; color: #888; }
 
+        /* Level & XP UI */
         #header { position: absolute; top: 20px; width: 90%; display: flex; flex-direction: column; z-index: 1000; pointer-events: none; }
         .header-top { display: flex; justify-content: space-between; font-size: 0.75rem; color: #888; margin-bottom: 8px; font-family: 'JetBrains Mono'; }
-        #rank-label { color: var(--accent-gold); font-weight: 800; }
-        .progress-container { width: 100%; height: 4px; background: #222; border-radius: 2px; }
-        #progress-bar { width: 0%; height: 100%; background: var(--accent-gold); transition: width 0.3s ease; }
+        #rank-label { color: var(--accent-gold); font-weight: 800; text-transform: uppercase; }
+        .progress-container { width: 100%; height: 6px; background: #222; border-radius: 3px; overflow: hidden; }
+        #progress-bar { width: 0%; height: 100%; background: var(--accent-gold); transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px rgba(255,214,0,0.4); }
 
+        /* Stack Architecture */
         #stack { position: relative; width: 100%; max-width: 380px; height: 65vh; margin-top: 50px; perspective: 1000px; }
-        .card { position: absolute; width: 100%; height: 100%; background: var(--card-bg); border-radius: 32px; border: 1px solid #333; padding: 30px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 20px 50px rgba(0,0,0,0.9); transform-style: preserve-3d; will-change: transform; cursor: grab; z-index: 10; }
+        .card { 
+            position: absolute; width: 100%; height: 100%; 
+            background: var(--card-bg); border-radius: 32px; border: 1px solid #333; 
+            padding: 35px; display: flex; flex-direction: column; justify-content: space-between; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9); 
+            will-change: transform; backface-visibility: hidden; transform: translate3d(0,0,0);
+            z-index: 10;
+        }
         .card-q { font-family: var(--font-chem); font-size: 1.9rem; font-weight: 600; line-height: 1.4; color: #f5f5f5; font-style: italic; pointer-events: none; }
 
-        .hint-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 32px; opacity: 0; pointer-events: none; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 2rem; text-align: center; background: #000; z-index: 50; color: #fff; text-transform: uppercase; padding: 25px; }
-        .info-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--info-bg); padding: 40px 25px; display: flex; flex-direction: column; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s ease; z-index: 100; border-radius: 32px; }
+        /* Interaction Overlays */
+        .hint-overlay { 
+            position: absolute; inset: 0; border-radius: 32px; opacity: 0; pointer-events: none; 
+            display: flex; align-items: center; justify-content: center; 
+            font-weight: 800; font-size: 2rem; text-align: center; 
+            background: #000000; z-index: 50; color: #fff; 
+            text-transform: uppercase; padding: 25px; transition: opacity 0.1s linear;
+        }
+        .info-overlay { 
+            position: absolute; inset: 0; background: var(--info-bg); padding: 40px 25px; 
+            display: flex; flex-direction: column; justify-content: center; 
+            opacity: 0; pointer-events: none; transition: 0.3s ease-out; z-index: 100; border-radius: 32px;
+        }
         .info-overlay.active { opacity: 1; pointer-events: auto; }
         .info-text { font-family: var(--font-chem); font-size: 1.3rem; line-height: 1.6; color: #eee; overflow-y: auto; max-height: 70%; }
-        .btn-next { background: #fff; color: #000; border: none; padding: 20px; border-radius: 50px; font-weight: 800; width: 100%; margin-top: 20px; cursor: pointer; }
+        .btn-next { background: #fff; color: #000; border: none; padding: 22px; border-radius: 50px; font-weight: 800; width: 100%; margin-top: 20px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
 
-        #loader { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        #loader { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .spinner { width: 50px; height: 50px; border: 5px solid #222; border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-    <div id="loader"><div class="spinner"></div></div>
+    <div id="loader"><div class="spinner"></div><p style="font-family: 'JetBrains Mono'; margin-top: 20px;">LINKING TO SHEET...</p></div>
+    
     <div id="header">
         <div class="header-top">
             <span id="rank-label">RANK: NOVICE</span>
@@ -57,29 +80,42 @@
         </div>
         <div class="progress-container"><div id="progress-bar"></div></div>
     </div>
+
     <div id="stack"></div>
 
     <script>
         const ENDPOINT = "https://script.google.com/macros/s/AKfycbwQ-gvzyZe2sGwKTpjr1iJLo-MV-fy4yD0YhvOWBPN9342QDd-EpEiZOrhmyjIO6Gkd/exec";
-        let SCORE = 0, POOL = [], IS_BUSY = false;
+        
+        let State = {
+            score: 0,
+            pool: [],
+            isBusy: false,
+            axisLocked: null // 'h' or 'v'
+        };
 
-        function updateUI() {
-            const level = Math.floor(SCORE / 100) + 1;
-            document.getElementById('xp-text').innerText = `LV. ${level} | ${Math.max(0, SCORE)} XP`;
-            document.getElementById('progress-bar').style.width = `${SCORE % 100}%`;
-            
+        function updateLevelUI() {
+            const level = Math.floor(State.score / 100) + 1;
+            const progress = State.score % 100;
             let rank = "NOVICE";
-            if(level >= 10) rank = "MASTER";
-            else if(level >= 6) rank = "SPECIALIST";
-            else if(level >= 3) rank = "ALCHEMIST";
+            if (level >= 10) rank = "MASTER";
+            else if (level >= 6) rank = "SPECIALIST";
+            else if (level >= 3) rank = "ALCHEMIST";
+
+            document.getElementById('xp-text').innerText = `LV. ${level} | ${State.score} XP`;
             document.getElementById('rank-label').innerText = `RANK: ${rank}`;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
         }
 
-        function formatChem(t) {
-            if (!t) return "";
-            return t.replace(/([A-Z][a-z]?)(\d+)/g, '$1<sub>$2</sub>')
-                    .replace(/(\d+)([+\-])/g, '<sup>$1$2</sup>')
-                    .replace(/([A-Za-z\)\]])([+\-])(?=\s|$|[.,;\]\|])/g, '$1<sup>$2</sup>');
+        function formatChem(text) {
+            if (!text) return "";
+            return text
+                .replace(/([A-Z][a-z]?)(\d+)/g, '$1<sub>$2</sub>')
+                .replace(/(\d+)([+\-])/g, '<sup>$1$2</sup>')
+                .replace(/([A-Za-z\)\]])([+\-])(?=\s|$|[.,;\]\|])/g, '$1<sup>$2</sup>')
+                .replace(/(\s)-(\s|(?=[A-Z]))/g, '<span class="chem-bond"> – </span>')
+                .replace(/([A-Za-z0-9\)\]<sub>])-(?=[A-Za-z\(])/g, '$1<span class="chem-bond">–</span>')
+                .replace(/=/g, '<span class="chem-bond">═</span>')
+                .replace(/#/g, '<span class="chem-bond">≡</span>');
         }
 
         class Card {
@@ -94,82 +130,137 @@
                 const el = document.createElement('div');
                 el.className = 'card';
                 const q = this.data;
+                
+                const labels = {
+                    up: q.swipe_up_label || "CORRECT",
+                    left: q.swipe_left_label || "INCORRECT",
+                    right: q.swipe_right_label || "YES",
+                    down: "HINT & CONTEXT"
+                };
+
+                const explanation = (q.explanation || "").split('||')[0].replace(/✅|❌/g, '').trim();
+
                 el.innerHTML = `
                     <div class="card-q">${formatChem(q.question_text || q.text)}</div>
-                    <div class="hint-overlay hint-up">${formatChem(q.swipe_up_label || "OPTION A")}</div>
-                    <div class="hint-overlay hint-left">${formatChem(q.swipe_left_label || "OPTION B")}</div>
-                    <div class="hint-overlay hint-right">${formatChem(q.swipe_right_label || "OPTION C")}</div>
-                    <div class="hint-overlay hint-down">HINT & CONTEXT</div>
+                    <div class="hint-overlay h-up">${formatChem(labels.up)}</div>
+                    <div class="hint-overlay h-left">${formatChem(labels.left)}</div>
+                    <div class="hint-overlay h-right">${formatChem(labels.right)}</div>
+                    <div class="hint-overlay h-down">${labels.down}</div>
                     <div class="info-overlay">
-                        <div class="info-text">${formatChem(q.explanation?.split('||')[0].replace(/✅|❌/g, ''))}</div>
-                        <button class="btn-next">BACK TO QUESTION</button>
+                        <div style="font-family:'JetBrains Mono'; color:var(--accent-blue); margin-bottom:15px; font-size:0.8rem">CHEMICAL CONTEXT</div>
+                        <div class="info-text">${formatChem(explanation)}</div>
+                        <button class="btn-next">GOT IT</button>
                     </div>
                 `;
                 return el;
             }
 
             initEvents() {
-                const start = (e) => { 
-                    if(IS_BUSY || this.dom.querySelector('.info-overlay.active')) return;
-                    this.isDragging = true;
-                    const p = e.touches ? e.touches[0] : e;
-                    this.sx = p.clientX; this.sy = p.clientY;
-                    this.dom.style.transition = 'none';
-                };
-                const move = (e) => {
-                    if(!this.isDragging) return;
-                    const p = e.touches ? e.touches[0] : e;
-                    const dx = p.clientX - this.sx, dy = p.clientY - this.sy;
-                    let mx = 0, my = 0;
-                    if(Math.abs(dx) > Math.abs(dy)) mx = dx; else my = dy;
-                    this.dom.style.transform = `translate3d(${mx}px, ${my}px, 0) rotate(${mx/25}deg)`;
-                    this.dom.querySelector('.hint-up').style.opacity = my < -50 ? 1 : 0;
-                    this.dom.querySelector('.hint-down').style.opacity = my > 50 ? 1 : 0;
-                    this.dom.querySelector('.hint-left').style.opacity = mx < -50 ? 1 : 0;
-                    this.dom.querySelector('.hint-right').style.opacity = mx > 50 ? 1 : 0;
-                };
-                const end = (e) => {
-                    if(!this.isDragging) return;
-                    this.isDragging = false;
-                    const p = e.changedTouches ? e.changedTouches[0] : e;
-                    const dx = p.clientX - this.sx, dy = p.clientY - this.sy;
-                    if(dy > 100 && Math.abs(dy) > Math.abs(dx)) {
-                        this.dom.style.transform = 'translate3d(0,0,0)';
-                        this.dom.querySelector('.info-overlay').classList.add('active');
-                    } else if(Math.abs(dx) > 100 || dy < -100) {
-                        this.swipe(dx, dy);
-                    } else {
-                        this.dom.style.transition = '0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-                        this.dom.style.transform = 'translate3d(0,0,0)';
-                        this.dom.querySelectorAll('.hint-overlay').forEach(h => h.style.opacity = 0);
-                    }
-                };
+                const start = (e) => this.onStart(e);
+                const move = (e) => this.onMove(e);
+                const end = (e) => this.onEnd(e);
+
                 this.dom.addEventListener('mousedown', start);
-                this.dom.addEventListener('touchstart', start);
+                this.dom.addEventListener('touchstart', start, {passive: false});
                 window.addEventListener('mousemove', move);
-                window.addEventListener('touchmove', move, {passive:false});
+                window.addEventListener('touchmove', move, {passive: false});
                 window.addEventListener('mouseup', end);
                 window.addEventListener('touchend', end);
+
                 this.dom.querySelector('.btn-next').onclick = () => {
                     this.dom.querySelector('.info-overlay').classList.remove('active');
+                    State.isBusy = false;
                 };
             }
 
+            onStart(e) {
+                if (State.isBusy || this.dom.querySelector('.info-overlay.active')) return;
+                this.isDragging = true;
+                const pos = e.touches ? e.touches[0] : e;
+                this.startX = pos.clientX;
+                this.startY = pos.clientY;
+                this.dom.style.transition = 'none';
+                State.axisLocked = null;
+            }
+
+            onMove(e) {
+                if (!this.isDragging) return;
+                const pos = e.touches ? e.touches[0] : e;
+                const dx = pos.clientX - this.startX;
+                const dy = pos.clientY - this.startY;
+
+                if (!State.axisLocked) {
+                    if (Math.abs(dx) > 10) State.axisLocked = 'h';
+                    else if (Math.abs(dy) > 10) State.axisLocked = 'v';
+                }
+
+                let mx = 0, my = 0;
+                if (State.axisLocked === 'h') mx = dx;
+                else if (State.axisLocked === 'v') my = dy;
+
+                this.dom.style.transform = `translate3d(${mx}px, ${my}px, 0) rotate(${mx/20}deg)`;
+                
+                const t = 45;
+                this.dom.querySelector('.h-up').style.opacity = my < -t ? 1 : 0;
+                this.dom.querySelector('.h-down').style.opacity = my > t ? 1 : 0;
+                this.dom.querySelector('.h-left').style.opacity = mx < -t ? 1 : 0;
+                this.dom.querySelector('.h-right').style.opacity = mx > t ? 1 : 0;
+            }
+
+            onEnd(e) {
+                if (!this.isDragging) return;
+                this.isDragging = false;
+                const endPos = e.changedTouches ? e.changedTouches[0] : e;
+                const dx = endPos.clientX - this.startX;
+                const dy = endPos.clientY - this.startY;
+
+                // Thresholds
+                if (dy > 100 && State.axisLocked === 'v') {
+                    this.dom.style.transform = 'translate3d(0,0,0)';
+                    this.dom.querySelector('.info-overlay').classList.add('active');
+                    State.isBusy = true;
+                } else if (Math.abs(dx) > 100 || dy < -100) {
+                    this.swipe(dx, dy);
+                } else {
+                    this.reset();
+                }
+            }
+
             swipe(dx, dy) {
-                IS_BUSY = true;
-                const dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'RIGHT' : 'LEFT') : 'UP';
-                if(dir === (this.data.correct || "UP").toUpperCase()) SCORE += parseInt(this.data.weight) || 10;
-                else SCORE = Math.max(0, SCORE - 5);
-                updateUI();
-                this.dom.style.transition = '0.4s ease-out';
-                this.dom.style.transform = `translate3d(${dx*5}px, ${dy*5}px, 0)`;
-                setTimeout(() => { this.dom.remove(); IS_BUSY = false; spawn(); }, 200);
+                State.isBusy = true;
+                const dir = State.axisLocked === 'h' ? (dx > 0 ? 'RIGHT' : 'LEFT') : 'UP';
+                
+                if (dir === (this.data.correct || "UP").toUpperCase()) {
+                    State.score += parseInt(this.data.weight) || 10;
+                } else {
+                    State.score = Math.max(0, State.score - 5);
+                }
+                
+                updateLevelUI();
+                this.dom.style.transition = '0.4s cubic-bezier(0.1, 0.1, 0.1, 1)';
+                this.dom.style.transform = `translate3d(${dx * 5}px, ${dy * 5}px, 0)`;
+                this.dom.style.opacity = '0';
+                
+                setTimeout(() => {
+                    this.dom.remove();
+                    State.isBusy = false;
+                    spawn();
+                }, 300);
+            }
+
+            reset() {
+                this.dom.style.transition = '0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                this.dom.style.transform = 'translate3d(0,0,0)';
+                this.dom.querySelectorAll('.hint-overlay').forEach(h => h.style.opacity = 0);
             }
         }
 
         async function spawn() {
-            if(POOL.length === 0) { document.getElementById('stack').innerHTML = "<h2 style='text-align:center'>Deck Finished.</h2>"; return; }
-            const card = new Card(POOL.shift());
+            if (State.pool.length === 0) {
+                document.getElementById('stack').innerHTML = `<div class='card-q' style='text-align:center; width:100%'>DECK COMPLETED<br><span style='font-size:1rem; font-style:normal'>Refining knowledge...</span></div>`;
+                return;
+            }
+            const card = new Card(State.pool.shift());
             document.getElementById('stack').appendChild(card.dom);
         }
 
@@ -177,11 +268,11 @@
             try {
                 const res = await fetch(ENDPOINT);
                 const data = await res.json();
-                POOL = data.filter(q => q.deck === "Chemistry_Master_1").sort(() => Math.random() - 0.5);
+                State.pool = data.filter(q => q.deck === "Chemistry_Master_1").sort(() => Math.random() - 0.5);
                 document.getElementById('loader').style.display = 'none';
                 spawn();
             } catch (e) {
-                document.getElementById('loader').innerHTML = "<div style='color:white;text-align:center'>Error Loading Sheet Data.<br>Check GAS Deployment Settings.</div>";
+                document.getElementById('loader').innerHTML = `<p style='color:red'>FAILED TO LOAD SHEET DATA</p>`;
             }
         };
     </script>
