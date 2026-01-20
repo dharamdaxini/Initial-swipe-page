@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist V77.1 - Final Optimized</title>
+<title>Alchemist V77.2 - Stable Sync</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -54,34 +54,36 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 <div id="stack"></div>
 
 <script>
+// --- V77.2 MASTER CONFIG ---
 const CONFIG = {
     ENDPOINT: "https://script.google.com/macros/s/AKfycbxaMo1Gi8KjfYOr1_pHJI5XYJ1t9FK4PWkFCm8lU4MsCmUXvY0nSUIqYTAqhpumFRFL/exec",
     SWIPE_THRESHOLD: 75,
-    HINT_THRESHOLD: 15,
-    ANIMATION_DURATION: 400,
-    MAX_RETRIES: 3
+    ANIMATION_DURATION: 400
 };
 
-const STATE = { rawData: [], pool: [], mistakes: [], score: 0, isBusy: false, mode: "INIT", currentDataset: "", currentTopic: "", currentGenre: "", retryCount: 0 };
+const STATE = { rawData: [], pool: [], score: 0, isBusy: false, mode: "INIT", currentDataset: "", currentTopic: "", currentGenre: "" };
 
 const formatChem = t => !t ? "" : t.toString().replace(/([A-Z][a-z]?)(\d+)/g,'$1<sub>$2</sub>').replace(/(\d*)([+\-])/g, '<sup>$1$2</sup>').replace(/\|\|/g, '<br><br>');
 
+// --- CRITICAL SYNC FIX ---
 async function init() {
+    const l = document.getElementById('loader');
     try {
-        const response = await fetch(CONFIG.ENDPOINT);
-        if (!response.ok) throw new Error(`Server status ${response.status}`);
-        const data = await response.json();
-        if (!Array.isArray(data)) throw new Error("Invalid format");
-        STATE.rawData = data;
-        document.getElementById('loader').remove();
-        renderDatasetSelect();
-    } catch (error) {
-        if (STATE.retryCount < CONFIG.MAX_RETRIES) {
-            STATE.retryCount++;
-            setTimeout(init, 1000);
-        } else {
-            document.getElementById('loader').innerHTML = `<div>SYNC ERROR</div><div class="error-msg">${error.message}</div><button class="retry-btn" onclick="location.reload()">RETRY</button>`;
+        // Force cross-origin fetch for Google Apps Script
+        const response = await fetch(CONFIG.ENDPOINT, { redirect: "follow" });
+        const text = await response.text();
+        
+        // Anti-HTML Detection: Google often returns an HTML login page if permissions are wrong
+        if (text.trim().startsWith("<!DOCTYPE")) {
+            throw new Error("Invalid Format: Received HTML instead of JSON. Check Apps Script 'Anyone' permissions.");
         }
+        
+        STATE.rawData = JSON.parse(text);
+        l.remove();
+        renderDatasetSelect();
+    } catch (e) {
+        console.error(e);
+        l.innerHTML = `<div>SYNC ERROR</div><div class="error-msg">${e.message}</div><button class="retry-btn" onclick="location.reload()">RETRY</button>`;
     }
 }
 
