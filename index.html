@@ -1,210 +1,257 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist Mastery V79.6</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Alchemist Pivot Engine V80.0</title>
+    <style>
+        :root {
+            --bg: #000; --card: #111; --border: #282828;
+            --gold: #ffd600; --blue: #3498db; --green: #2ecc71; --red: #ff5555;
+            --font-main: 'Inter', system-ui, sans-serif;
+        }
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,600;1,600&family=Inter:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            margin: 0; height: 100vh; background: var(--bg); color: #fff;
+            font-family: var(--font-main); overflow: hidden; touch-action: none;
+        }
 
-<style>
-:root {
-    --bg-color: #000; --card-bg: #111; --overlay-bg: #0d0d0d;
-    --accent-gold: #ffd600; --hint-blue: #3498db;
-    --font-chem: 'Crimson Text', serif; --font-ui: 'Inter', sans-serif;
-    --font-code: 'JetBrains Mono', monospace;
-    --spring-ease: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
+        /* 1. Spatial Physics Container */
+        #viewport {
+            position: relative; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            perspective: 1200px; /* 3D Depth */
+        }
 
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-body { 
-    margin: 0; height: 100vh; background: var(--bg-color); color: #fff; 
-    font-family: var(--font-ui); overflow: hidden; touch-action: none; 
-    user-select: none; -webkit-user-select: none;
-}
+        #stack { position: relative; width: 90%; max-width: 380px; height: 500px; }
 
-sub { font-size: 0.7em; vertical-align: sub; line-height: 0; }
-sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
+        /* Card Architecture */
+        .card {
+            position: absolute; inset: 0; background: var(--card);
+            border-radius: 40px; border: 1px solid var(--border);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 40px; text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            transform-origin: center center; /* Critical Pivot Point */
+            will-change: transform; backface-visibility: hidden;
+        }
 
-/* V72.3 HUD Aesthetic */
-#header { width: 90%; margin: calc(20px + env(safe-area-inset-top)) auto 0; z-index: 100; pointer-events: none; }
-.header-meta { display: flex; justify-content: space-between; font-family: var(--font-code); font-size: 0.75rem; color: #555; margin-bottom: 8px; }
-.progress-track { width: 100%; height: 3px; background: #222; border-radius: 2px; }
-#progress-bar { height: 100%; background: var(--accent-gold); width: 0%; transition: width 0.4s var(--spring-ease); }
+        .card-content { font-size: 1.8rem; font-weight: 700; pointer-events: none; }
 
-#stack { position: relative; width: 92%; max-width: 400px; height: calc(100vh - 160px - env(safe-area-inset-top)); margin: 25px auto 0; perspective: 1200px; }
+        /* 3. Feedback Dynamics (Labels) */
+        .swipe-label {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 2.5rem; text-transform: uppercase;
+            border-radius: 40px; background: rgba(0,0,0,0.8);
+            opacity: 0; pointer-events: none; z-index: 10;
+        }
 
-/* V72.3 Card & Pivot Physics */
-.card { 
-    position: absolute; width: 100%; height: 100%; background: var(--card-bg); 
-    border-radius: 40px; border: 1px solid #282828; padding: 40px; 
-    display: flex; flex-direction: column; justify-content: center; 
-    box-shadow: 0 20px 60px rgba(0,0,0,0.9); transform-origin: center center; 
-    transform: translate3d(0,0,0); backface-visibility: hidden; will-change: transform;
-}
+        .sl-up { color: var(--green); }
+        .sl-le { color: var(--red); }
+        .sl-ri { color: var(--gold); }
+        .sl-do { color: var(--blue); font-size: 1.5rem; } /* Blue Logic Hint */
 
-.card-q { font-family: var(--font-chem); font-size: 2.1rem; line-height: 1.35; font-style: italic; font-weight: 600; text-align: center; color: #f0f0f0; }
-
-.swipe-label { 
-    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; 
-    background: #000; color: #fff; font-weight: 900; font-size: 2.1rem; 
-    text-transform: uppercase; border-radius: 40px; z-index: 999; opacity: 0; 
-    pointer-events: none; text-align: center; padding: 20px; transform: scale(0.85); 
-    transition: opacity 0.1s linear; 
-}
-
-.sl-blue { color: var(--hint-blue) !important; font-size: 1.4rem !important; text-transform: none !important; font-family: var(--font-chem) !important; }
-
-.overlay { 
-    position: absolute; inset: 0; background: var(--overlay-bg); z-index: 1100; 
-    padding: 45px 35px; opacity: 0; pointer-events: none; border-radius: 40px; 
-    transition: opacity 0.25s ease; display: flex; flex-direction: column; justify-content: center; 
-}
-.overlay.active { opacity: 1; pointer-events: auto; }
-.overlay-label { font-size: 0.8rem; color: var(--accent-gold); font-family: var(--font-code); margin-bottom: 15px; letter-spacing: 2px; }
-.overlay-body { font-size: 1.25rem; line-height: 1.7; color: #ccc; margin-bottom: 30px; font-family: var(--font-chem); }
-
-.btn { width: 100%; padding: 18px; border-radius: 60px; border: none; background: #fff; font-weight: 900; cursor: pointer; text-transform: uppercase; }
-
-#loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: var(--font-code); font-size: 1rem; letter-spacing: 6px; color: var(--accent-gold); }
-</style>
+        /* Overlays */
+        #overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+            z-index: 2000; display: none; flex-direction: column;
+            align-items: center; justify-content: center; padding: 40px;
+        }
+        #overlay.active { display: flex; }
+    </style>
 </head>
-
 <body>
-<div id="loader">ALCHEMIST SYNC</div>
-<div id="header"><div class="header-meta"><span id="rank-ui">RANK: NOVICE</span><span id="xp-ui">0 XP</span></div><div class="progress-track"><div id="progress-bar"></div></div></div>
-<div id="stack"></div>
+
+<div id="viewport">
+    <div id="stack"></div>
+</div>
+
+<div id="overlay">
+    <h2 style="color: var(--blue)">ANALYSIS</h2>
+    <p id="overlay-text" style="text-align: center; line-height: 1.6;"></p>
+    <button onclick="closeOverlay()" style="margin-top: 30px; padding: 15px 40px; border-radius: 30px; border: none; font-weight: 900; cursor: pointer;">CONTINUE</button>
+</div>
 
 <script>
-// UPDATED LIVE ENDPOINT
-const ENDPOINT="https://script.google.com/macros/s/AKfycbyuMf28j63OJd9V3aa3LWEPbaU7ttSdHtnXxOrEuha3IU4qf6d82H-JIYr-X5OQiR8D/exec";
+/**
+ * CORE LOGIC ENGINE
+ */
+const CONFIG = {
+    THRESHOLD: 80,
+    DAMPING: 18, // 18px = 1deg
+    SMOOTHING: 0.8, // 120Hz Velocity Clamp
+    OPACITY_DIV: 50
+};
 
-let RAW_DATA=[], POOL=[], SCORE=0, isBusy=false, MODE="QUIZ";
+let STATE = {
+    mode: "QUIZ", // QUIZ or END
+    isBusy: false,
+    currentX: 0, currentY: 0,
+    targetX: 0, targetY: 0,
+    startX: 0, startY: 0,
+    active: false
+};
 
-const formatChem = t => !t ? "" : t.toString().replace(/([A-Z][a-z]?)(\d+)/g,'$1<sub>$2</sub>').replace(/(\d*)([+\-])/g, '<sup>$1$2</sup>').replace(/\|\|/g, '<br><br>');
+// Mock Data for Implementation
+const MOCK_DATA = [
+    { q: "Alchemist Pivot Engine V80.0", hint: "Swiping is now physics-locked." },
+    { q: "Unit Circle Intent Detection", hint: "atan2 math is active." }
+];
 
-async function init(){
-    const l = document.getElementById('loader');
-    try {
-        const response = await fetch(ENDPOINT, { redirect: "follow" });
-        const text = await response.text();
-        
-        if (text.trim().startsWith("<!DOCTYPE")) {
-            throw new Error("ACCESS_DENIED: Check Script Permissions.");
+/**
+ * 2. UNIT CIRCLE LOGIC
+ */
+function getSwipeDirection(x, y) {
+    let angle = Math.atan2(-y, x) * (180 / Math.PI);
+    if (angle < 0) angle += 360;
+
+    if (angle >= 45 && angle < 135) return "UP";
+    if (angle >= 135 && angle < 225) return "LEFT";
+    if (angle >= 225 && angle < 315) return "DOWN";
+    return "RIGHT";
+}
+
+
+
+/**
+ * 3. VELOCITY CLAMPING & PHYSICS LOOP
+ */
+function update() {
+    if (!STATE.active && !STATE.isBusy) return;
+
+    // Smoothing Factor for 120Hz jitter prevention
+    STATE.currentX += (STATE.targetX - STATE.currentX) * CONFIG.SMOOTHING;
+    STATE.currentY += (STATE.targetY - STATE.currentY) * CONFIG.SMOOTHING;
+
+    const el = document.querySelector('.card');
+    if (el && !STATE.isBusy) {
+        const dist = Math.sqrt(STATE.currentX ** 2 + STATE.currentY ** 2);
+        const rotation = STATE.currentX / CONFIG.DAMPING;
+
+        // Apply Spatial Physics
+        el.style.transform = `translate3d(${STATE.currentX}px, ${STATE.currentY}px, 0) rotate(${rotation}deg)`;
+
+        // Update Label Opacity
+        const dir = getSwipeDirection(STATE.currentX, STATE.currentY);
+        const labels = el.querySelectorAll('.swipe-label');
+        labels.forEach(l => l.style.opacity = 0);
+
+        if (dist > 10) {
+            const activeLabel = el.querySelector(`.sl-${dir.toLowerCase().slice(0,2)}`);
+            if (activeLabel) activeLabel.style.opacity = Math.min(dist / CONFIG.OPACITY_DIV, 1);
         }
-        
-        const raw = JSON.parse(text);
-        if (raw.error) throw new Error(raw.details || raw.error);
-
-        // Key Sanitizer
-        RAW_DATA = raw.map(row => {
-            const cleanRow = {};
-            Object.keys(row).forEach(key => cleanRow[key.trim().toLowerCase()] = row[key]);
-            return cleanRow;
-        });
-        
-        POOL = [...RAW_DATA].sort(() => Math.random() - 0.5);
-        l.remove();
-        renderNext();
-    } catch(e) { 
-        l.innerHTML = `SYNC ERROR<br><small style="font-size:0.6rem;letter-spacing:1px;text-align:center;max-width:80%">${e.message}</small>`;
     }
+    requestAnimationFrame(update);
 }
 
-function createCard(title, labels, dataObj = null) {
-    const s = document.getElementById('stack'); s.innerHTML = "";
-    const c = document.createElement('div'); c.className = "card";
-    const hintClass = (MODE === 'QUIZ') ? 'sl-blue' : '';
-    c.innerHTML = `<div class="card-q">${formatChem(title)}</div>
-        ${labels.up ? `<div class="swipe-label sl-up">${labels.up}</div>` : ''}
-        ${labels.lt ? `<div class="swipe-label sl-lt">${labels.lt}</div>` : ''}
-        ${labels.rt ? `<div class="swipe-label sl-rt">${labels.rt}</div>` : ''}
-        ${labels.dn ? `<div class="swipe-label sl-dn ${hintClass}">${labels.dn}</div>` : ''}`;
-    
-    if (MODE === "QUIZ") {
-        c.innerHTML += `<div class="overlay"><div class="overlay-label">ANALYSIS</div><div class="overlay-body">${formatChem(dataObj.explanation)}</div><button class="btn" onclick="this.parentElement.classList.remove('active')" style="margin-top:20px">CONTINUE</button></div>`;
-    }
-    s.appendChild(c);
-    bindPhysics(c, dataObj);
-}
+/**
+ * 4. STATE MACHINE & INPUT GUARDRAILS
+ */
+function handleInput(event) {
+    if (STATE.isBusy) return;
 
-function renderNext(){
-    if(!POOL.length){ 
-        MODE="END"; createCard("SESSION COMPLETE", {up:"RESTART", dn:"RELOAD"}); return; 
-    }
-    MODE="QUIZ"; const q = POOL.shift();
-    createCard(q.question_text, {up:q.swipe_up_label, lt:q.swipe_left_label, rt:q.swipe_right_label, dn:q.hint}, q);
-}
+    const p = event.touches ? event.touches[0] : event;
 
-function bindPhysics(el, data){
-    let x=0, y=0, sx=0, sy=0, active=false;
-    const labels={up:el.querySelector('.sl-up'), dn:el.querySelector('.sl-dn'), lt:el.querySelector('.sl-lt'), rt:el.querySelector('.sl-rt')};
-    
-    const start = e => { 
-        if(isBusy || el.querySelector('.overlay.active')) return; 
-        active=true; const p=e.touches?e.touches[0]:e; 
-        sx=p.clientX; sy=p.clientY; el.style.transition="none"; 
-    };
-    
-    const move = e => {
-        if(!active) return; const p=e.touches?e.touches[0]:e;
-        let targetX = p.clientX - sx;
-        let targetY = p.clientY - sy;
-        
-        x += (targetX - x) * 0.8;
-        y += (targetY - y) * 0.8;
-        
-        const dist = Math.sqrt(x*x + y*y);
-        let ang = Math.atan2(-y, x) * (180 / Math.PI); if(ang<0)ang+=360;
-        
-        requestAnimationFrame(() => {
-            el.style.transform=`translate3d(${x}px,${y}px,0) rotate(${x/18}deg)`;
-            Object.values(labels).forEach(l => { if(l) l.style.opacity = 0; });
-            if(dist>15){
-                let activeL = (ang>=45&&ang<135)?labels.up:(ang>=135&&ang<225)?labels.lt:(ang>=225&&ang<315)?labels.dn:labels.rt;
-                if(activeL) activeL.style.opacity = Math.min(dist/50, 1);
-            }
-        });
-    };
-    
-    const end = () => {
-        if(!active) return; active=false; const dist=Math.sqrt(x*x+y*y);
-        let ang=Math.atan2(-y, x)*(180/Math.PI); if(ang<0)ang+=360;
-        
-        if(dist >= 80){
-            let dir=(ang>=45&&ang<135)?"UP":(ang>=135&&ang<225)?"LEFT":(ang>=225&&ang<315)?"DOWN":"RIGHT";
-            if(MODE==="QUIZ" && dir==="DOWN") { 
-                el.querySelector('.overlay').classList.add('active'); 
-                el.style.transition="transform 0.4s var(--spring-ease)"; el.style.transform="translate3d(0,0,0) rotate(0deg)"; 
-            } else handleAction(el, data, x, y, dir);
-        } else { el.style.transition="transform 0.4s var(--spring-ease)"; el.style.transform="translate3d(0,0,0) rotate(0deg)"; }
-    };
-    
-    el.onmousedown=start; window.onmousemove=move; window.onmouseup=end;
-    el.ontouchstart=start; el.ontouchmove=move; el.ontouchend=end;
-}
-
-function handleAction(el, data, x, y, dir){
-    isBusy=true;
-    if(MODE === "QUIZ") {
-        const weight = parseInt(data.weight) || 1;
-        if(dir===data.correct.toUpperCase()){ SCORE+=(10 * weight); } else { SCORE=Math.max(0, SCORE-5); }
-        renderNext();
+    if (event.type === 'touchstart' || event.type === 'mousedown') {
+        STATE.active = true;
+        STATE.startX = p.clientX;
+        STATE.startY = p.clientY;
+        STATE.targetX = 0; STATE.targetY = 0;
+        update();
+    } else if (event.type === 'touchmove' || event.type === 'mousemove') {
+        if (!STATE.active) return;
+        STATE.targetX = p.clientX - STATE.startX;
+        STATE.targetY = p.clientY - STATE.startY;
     } else {
-        if(dir === "UP") { POOL = [...RAW_DATA].sort(() => Math.random() - 0.5); renderNext(); }
-        else if(dir === "DOWN") location.reload();
+        if (!STATE.active) return;
+        STATE.active = false;
+        processRelease();
     }
-    el.style.transition="transform .4s ease-in"; el.style.transform=`translate3d(${x*5}px,${y*5}px,0)`;
-    updateUI(); setTimeout(()=>{ el.remove(); isBusy=false; }, 400);
 }
 
-function updateUI(){ 
-    document.getElementById('xp-ui').innerText=`${SCORE} XP`; 
-    document.getElementById('progress-bar').style.width=`${(SCORE%100)}%`; 
+function processRelease() {
+    const dist = Math.sqrt(STATE.targetX ** 2 + STATE.targetY ** 2);
+    const dir = getSwipeDirection(STATE.targetX, STATE.targetY);
+
+    if (dist > CONFIG.THRESHOLD) {
+        // MODE-BASED GATING
+        if (dir === "DOWN") {
+            if (STATE.mode === "QUIZ") {
+                triggerOverlay("Detailed logic analysis enabled.");
+                resetCard();
+            } else {
+                location.reload(); // MODE === "END"
+            }
+        } else {
+            exitAnimation(dir);
+        }
+    } else {
+        resetCard();
+    }
 }
-window.onload=init;
+
+function exitAnimation(dir) {
+    STATE.isBusy = true;
+    const el = document.querySelector('.card');
+    el.style.transition = "transform 0.5s ease-in";
+    
+    const multiplier = 5;
+    el.style.transform = `translate3d(${STATE.targetX * multiplier}px, ${STATE.targetY * multiplier}px, 0) rotate(${STATE.targetX / 5}deg)`;
+    
+    setTimeout(() => {
+        el.remove();
+        STATE.isBusy = false;
+        spawnCard();
+    }, 500);
+}
+
+function resetCard() {
+    STATE.targetX = 0; STATE.targetY = 0;
+    const el = document.querySelector('.card');
+    el.style.transition = "transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+    el.style.transform = `translate3d(0,0,0) rotate(0deg)`;
+    setTimeout(() => { if(el) el.style.transition = "none"; }, 400);
+}
+
+/**
+ * UTILS
+ */
+function spawnCard() {
+    const item = MOCK_DATA[Math.floor(Math.random() * MOCK_DATA.length)];
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+        <div class="swipe-label sl-up">RESTART</div>
+        <div class="swipe-label sl-le">INCORRECT</div>
+        <div class="swipe-label sl-ri">CORRECT</div>
+        <div class="swipe-label sl-do">ANALYSIS</div>
+        <div class="card-content">${item.q}</div>
+    `;
+    document.getElementById('stack').appendChild(card);
+}
+
+function triggerOverlay(text) {
+    document.getElementById('overlay-text').innerText = text;
+    document.getElementById('overlay').classList.add('active');
+}
+
+function closeOverlay() {
+    document.getElementById('overlay').classList.remove('active');
+}
+
+// Global Listeners
+window.addEventListener('mousedown', handleInput);
+window.addEventListener('mousemove', handleInput);
+window.addEventListener('mouseup', handleInput);
+window.addEventListener('touchstart', handleInput, { passive: false });
+window.addEventListener('touchmove', handleInput, { passive: false });
+window.addEventListener('touchend', handleInput);
+
+// Init
+spawnCard();
+
 </script>
 </body>
 </html>
