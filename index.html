@@ -3,31 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Alchemist – Swipe Engine</title>
+  <title>Swipe Page</title>
 
-  <!-- CSS MUST LOAD -->
+  <!-- Single CSS file -->
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
-  <!-- LOADER -->
-  <div id="loader">LOADING</div>
-
-  <!-- HEADER (JS UPDATES THESE IDS) -->
+  <!-- Header (optional but supported) -->
   <div id="header">
-    <div class="header-meta">
-      <span id="rank-ui">RANK: NOVICE</span>
-      <span id="xp-ui">0 XP</span>
-    </div>
-    <div class="progress-track">
-      <div id="progress-bar"></div>
-    </div>
+    <span id="xp-ui">0 XP</span>
   </div>
 
-  <!-- CARD STACK (CRITICAL) -->
+  <!-- Single swipe card container -->
   <div id="stack"></div>
 
-  <!-- LOGIC (ONLY ONE SCRIPT) -->
+  <!-- Single JS file -->
   <script src="swipe.js"></script>
 </body>
 </html>
