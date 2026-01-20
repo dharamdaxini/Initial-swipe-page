@@ -69,28 +69,19 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
     z-index: 1100; padding: 45px 35px; opacity: 0; pointer-events: none;
     border-radius: 40px; transition: opacity 0.25s ease-out;
     display: flex; flex-direction: column; justify-content: center;
-    overflow-y: auto;
 }
 .overlay.active { opacity: 1; pointer-events: auto; }
 .overlay-label { font-size: 0.8rem; color: var(--accent-gold); font-family: var(--font-code); margin-bottom: 15px; text-transform: uppercase; }
 .overlay-body { font-size: 1.2rem; line-height: 1.7; color: #ccc; margin-bottom: 30px; font-family: var(--font-chem); }
 
-.btn { width: 100%; padding: 18px; border-radius: 60px; border: none; background: #fff; font-weight: 900; cursor: pointer; text-transform: uppercase; font-family: var(--font-ui); margin-top: 10px; }
+.btn { width: 100%; padding: 18px; border-radius: 60px; border: none; background: #fff; font-weight: 900; cursor: pointer; text-transform: uppercase; }
 #loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: var(--font-code); font-size: 1.2rem; letter-spacing: 5px; color: var(--accent-gold); }
 </style>
 </head>
 
 <body>
 <div id="loader">ALCHEMIST</div>
-
-<div id="header">
-    <div class="header-meta">
-        <span id="rank-ui">RANK: NOVICE</span>
-        <span id="xp-ui">0 XP</span>
-    </div>
-    <div class="progress-track"><div id="progress-bar"></div></div>
-</div>
-
+<div id="header"><div class="header-meta"><span id="rank-ui">RANK: NOVICE</span><span id="xp-ui">0 XP</span></div><div class="progress-track"><div id="progress-bar"></div></div></div>
 <div id="stack"></div>
 
 <script>
@@ -132,6 +123,8 @@ function renderTopicSelect(dataset){
     s.appendChild(c); bindPhysics(c);
 }
 
+/** * CRITICAL FIX: INJECTED LABELS FOR GENRE_SELECT 
+ */
 function renderGenreSelect(topic){
     MODE="GENRE_SELECT"; CURRENT_TOPIC=topic; const s=document.getElementById('stack'); s.innerHTML="";
     const c=document.createElement('div'); c.className="card";
@@ -210,13 +203,24 @@ function bindPhysics(el, data){
 
 function handleAction(el, data, x, y, dir){
     isTransitioning=true;
-    if(MODE==="DATASET_SELECT"){ const map={UP:"SET_A", LEFT:"SET_B", RIGHT:"SET_C", DOWN:"SET_D"}; renderTopicSelect(map[dir]); }
-    else if(MODE==="TOPIC_SELECT"){ const map={UP:"Physical", LEFT:"Organic", RIGHT:"Inorganic", DOWN:"Analytical"}; renderGenreSelect(map[dir]); }
+    if(MODE==="DATASET_SELECT"){ 
+        const map={UP:"SET_A", LEFT:"SET_B", RIGHT:"SET_C", DOWN:"SET_D"}; 
+        renderTopicSelect(map[dir]);
+    }
+    else if(MODE==="TOPIC_SELECT"){ 
+        const map={UP:"Physical", LEFT:"Organic", RIGHT:"Inorganic", DOWN:"Analytical"}; 
+        renderGenreSelect(map[dir]);
+    }
     else if(MODE==="GENRE_SELECT"){ 
+        /**
+         * CRITICAL HARD-LOCK:
+         * Swiping UP/DOWN starts quiz. Side-swiping is killed.
+         */
         if(dir==="UP") { startQuiz(CURRENT_TOPIC, "CONCEPT"); }
         else if(dir==="DOWN") { startQuiz(CURRENT_TOPIC, "APPLICATION"); }
         else { isTransitioning=false; return; }
-        el.style.transition="transform .4s ease-in"; el.style.transform=`translate3d(${x*6}px,${y*6}px,0) rotate(${x/5}deg)`;
+        
+        el.style.transition="transform .4s ease-in"; el.style.transform=`translate3d(${x*6}px,${y*6}px,0)`;
         setTimeout(()=>{el.remove(); isTransitioning=false;}, 400);
         return; 
     }
@@ -225,12 +229,13 @@ function handleAction(el, data, x, y, dir){
         if(dir===data.correct.toUpperCase()){ SCORE+=(10*w); } 
         else { SCORE=Math.max(0, SCORE-5); MISTAKES.push(data); }
         renderNext();
-    } else if(MODE==="SESSION_END"){ 
-        if(dir==="UP") startQuiz(CURRENT_TOPIC, CURRENT_GENRE); 
-        else if(dir==="DOWN") renderDatasetSelect();
+    } 
+    else if(MODE==="SESSION_END"){ 
+        if(dir==="UP") { startQuiz(CURRENT_TOPIC, CURRENT_GENRE); }
+        else if(dir==="DOWN") { renderDatasetSelect(); }
         else { isTransitioning=false; return; }
     }
-    el.style.transition="transform .4s ease-in"; el.style.transform=`translate3d(${x*6}px,${y*6}px,0) rotate(${x/5}deg)`;
+    el.style.transition="transform .4s ease-in"; el.style.transform=`translate3d(${x*6}px,${y*6}px,0)`;
     updateUI(); setTimeout(()=>{el.remove(); isTransitioning=false;}, 400);
 }
 
