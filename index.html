@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chemistry Master V54 (Review Logic)</title>
+    <title>Chemistry Master V56 (Global Clamp)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,7 +14,7 @@
             --bg-color: #000000;
             --card-bg: #1a1a1a;
             --context-bg: #1a2333; 
-            --review-bg: #1a0f0f; /* Reddish BG for Review */
+            --review-bg: #1a0f0f;
             --info-bg: rgba(0, 0, 0, 0.98);
             --report-bg: #111111;
             --text-main: #ffffff;
@@ -22,6 +22,7 @@
             --accent-blue: #2962ff;
             --accent-red: #ff1744;
             --accent-green: #00e676;
+            --accent-gold: #ffd600;
             --font-main: 'Inter', sans-serif;
             --font-code: 'JetBrains Mono', monospace;
         }
@@ -61,6 +62,12 @@
             font-family: var(--font-code); font-size: 0.8rem; color: var(--text-muted); pointer-events: none;
         }
 
+        #score-label {
+            color: var(--accent-gold);
+            font-weight: 800;
+            text-shadow: 0 0 10px rgba(255, 214, 0, 0.3);
+        }
+
         #controls {
             position: absolute; top: 70px; width: 100%;
             text-align: center; color: #555;
@@ -73,7 +80,6 @@
             margin-top: 40px; perspective: 1000px;
         }
 
-        /* --- CARD STYLES --- */
         .card {
             position: absolute; width: 100%; height: 100%;
             background: var(--card-bg);
@@ -86,12 +92,7 @@
         }
 
         .card.card-context { background: var(--context-bg); border-color: var(--accent-blue); }
-        
-        /* REVIEW MODE STYLE (Red Border) */
-        .card.card-review { 
-            background: var(--review-bg); 
-            border: 2px solid var(--accent-red); 
-        }
+        .card.card-review { background: var(--review-bg); border: 2px solid var(--accent-red); }
 
         .card-q { 
             font-size: 1.8rem; font-weight: 800; line-height: 1.2; 
@@ -115,7 +116,6 @@
             background: rgba(0,0,0,0.85); padding: 20px;
         }
         
-        /* Modifiers for Long Text */
         .hint-long { font-size: 1.8rem !important; }
         .hint-xl { font-size: 1.4rem !important; }
 
@@ -174,7 +174,7 @@
 
     <div id="header">
         <span id="deck-label">CHEM_MASTERY</span>
-        <span id="score-label">SCORE: 0</span>
+        <span id="score-label">XP: 0 ⚡</span>
     </div>
 
     <div id="controls">
@@ -189,13 +189,11 @@
         
         let SCORE = 0;
         let QUESTION_POOL = [];
-        let MISTAKE_POOL = []; // Store wrong answers
+        let MISTAKE_POOL = []; 
         let REVIEW_STATS = { learned: 0, confused: 0 };
         let USED_IDS = new Set();
         let CARD_START_TIME = 0;
         let STATS = { total_cards: 0, correct_count: 0, total_latency: 0, history: [] };
-        
-        // Mode Flag: 'QUIZ' or 'REVIEW'
         let APP_MODE = 'QUIZ'; 
 
         async function loadQuestions(deck) {
@@ -230,13 +228,11 @@
             }).catch(e => console.warn(e));
         }
 
-        // --- REPORT CARDS ---
         function showQuizReport() {
             const accuracy = STATS.total_cards > 0 ? ((STATS.correct_count / STATS.total_cards) * 100).toFixed(0) : 0;
             const avg_lat_ms = STATS.total_cards > 0 ? (STATS.total_latency / STATS.total_cards) : 0;
             const avg_lat_sec = (avg_lat_ms / 1000).toFixed(1) + "s";
 
-            // Log Session
             logData("SESSION_END", {
                 timestamp: new Date().toISOString(),
                 total_score: SCORE, accuracy: accuracy, avg_latency: Math.round(avg_lat_ms), raw_stats: STATS.history
@@ -245,7 +241,6 @@
             const el = document.createElement('div');
             el.className = 'card report-card';
             
-            // Show Review Button if mistakes exist
             let reviewBtn = '';
             if(MISTAKE_POOL.length > 0) {
                 reviewBtn = `<button class="btn-review" onclick="startReviewMode()">REVIEW MISTAKES (${MISTAKE_POOL.length})</button><br>`;
@@ -288,15 +283,12 @@
             document.getElementById('stack').appendChild(el);
         }
 
-        // --- GAME LOGIC ---
         function startReviewMode() {
             APP_MODE = 'REVIEW';
-            QUESTION_POOL = [...MISTAKE_POOL]; // Load mistakes
-            MISTAKE_POOL = []; // Clear queue
+            QUESTION_POOL = [...MISTAKE_POOL]; 
+            MISTAKE_POOL = []; 
             document.getElementById('deck-label').innerText = "REVIEW MODE";
             document.getElementById('deck-label').style.color = "var(--accent-red)";
-            
-            // Clear stack
             document.getElementById('stack').innerHTML = '';
             spawnCard();
         }
@@ -310,12 +302,9 @@
             const q = QUESTION_POOL.shift();
             USED_IDS.add(q.question_id);
             
-            // Logic Split for Labels
             let labels = {};
             if(APP_MODE === 'REVIEW') {
-                labels = {
-                    up: "MORE INFO", right: "GOT IT", down: "NEXT", left: "CONFUSED"
-                };
+                labels = { up: "MORE INFO", right: "GOT IT", down: "NEXT", left: "CONFUSED" };
             } else {
                 labels = {
                     up: q.swipe_up_label || "YES", 
@@ -335,38 +324,40 @@
         }
 
         function processAnswer(data, direction) {
-            const ms = Date.now() - CARD_START_TIME;
-            
-            if(APP_MODE === 'QUIZ') {
-                let isCorrect = (direction === data.correct);
+            try {
+                const ms = Date.now() - CARD_START_TIME;
                 
-                if (direction !== 'DOWN') {
-                    if (isCorrect) {
-                        let w = parseInt(data.w); if (isNaN(w)) w = 10; SCORE += w;
-                    } else {
-                        SCORE -= 5;
-                        MISTAKE_POOL.push(data); // Add to review pile
+                if(APP_MODE === 'QUIZ') {
+                    let isCorrect = (direction === data.correct);
+                    
+                    if (direction !== 'DOWN') {
+                        if (isCorrect) {
+                            let w = parseInt(data.w); 
+                            if (isNaN(w)) w = 10; 
+                            SCORE += w;
+                        } else {
+                            SCORE -= 5;
+                            MISTAKE_POOL.push({...data}); 
+                        }
                     }
+                    
+                    const safeScore = isNaN(SCORE) ? 0 : SCORE;
+                    document.getElementById('score-label').innerText = `XP: ${safeScore} ⚡`;
+                    
+                    STATS.total_cards++; STATS.total_latency += ms;
+                    if(isCorrect) STATS.correct_count++;
+                    STATS.history.push({id: data.id, res: isCorrect});
+                    
+                    logData("SWIPE", { type: "SWIPE", question_id: data.id, swipe: direction, correct: isCorrect, response_ms: ms });
+                } 
+                else if (APP_MODE === 'REVIEW') {
+                    if (direction === 'RIGHT') REVIEW_STATS.learned++;
+                    if (direction === 'LEFT') REVIEW_STATS.confused++;
+                    
+                    logData("REVIEW_SWIPE", { question_id: data.id, decision: direction });
                 }
-                
-                document.getElementById('score-label').innerText = `SCORE: ${SCORE}`;
-                STATS.total_cards++; STATS.total_latency += ms;
-                if(isCorrect) STATS.correct_count++;
-                STATS.history.push({id: data.id, res: isCorrect});
-                
-                logSwipe(data, direction, isCorrect, ms);
-            } 
-            else if (APP_MODE === 'REVIEW') {
-                // REVIEW LOGIC
-                if (direction === 'RIGHT') REVIEW_STATS.learned++;
-                if (direction === 'LEFT') REVIEW_STATS.confused++;
-                
-                // Log Review Decision
-                logData("REVIEW_SWIPE", {
-                    timestamp: new Date().toISOString(),
-                    question_id: data.id,
-                    decision: direction // RIGHT=GotIt, LEFT=Confused
-                });
+            } catch (err) {
+                console.error("Logic Error:", err);
             }
         }
 
@@ -379,7 +370,6 @@
             
             const subHTML = data.subs.length > 0 ? `<div class="card-sub">${data.subs.join(' ')}</div>` : '';
             
-            // Helper for Text Size
             const getSizeClass = (text) => {
                 if(!text) return "";
                 if(text.length > 15) return "hint-xl";
@@ -417,12 +407,17 @@
         }
 
         function spawnCard() {
-            const data = nextQuestion();
-            if(!data) return;
-            const card = createCardDOM(data);
-            document.getElementById('stack').appendChild(card);
-            new Draggable(card, data);
-            CARD_START_TIME = Date.now();
+            try {
+                const data = nextQuestion();
+                if(!data) return;
+                const card = createCardDOM(data);
+                document.getElementById('stack').appendChild(card);
+                new Draggable(card, data);
+                CARD_START_TIME = Date.now();
+            } catch(e) {
+                console.error("Spawn Error", e);
+                setTimeout(() => spawnCard(), 100); 
+            }
         }
 
         class Draggable {
@@ -443,7 +438,7 @@
 
             processMove(dx, dy) {
                 if (Math.abs(dx) > Math.abs(dy)) dy = 0; else dx = 0; 
-                // CLAMP DISTANCE: 140px ensures text stays ON screen
+                // 🔒 GLOBAL RULE: 140px CLAMP
                 const MAX_DRAG = 140; 
                 dx = Math.max(-MAX_DRAG, Math.min(MAX_DRAG, dx));
                 dy = Math.max(-MAX_DRAG, Math.min(MAX_DRAG, dy));
@@ -465,9 +460,8 @@
                 document.onmousemove = null; document.onmouseup = null;
                 const triggerDist = 80;
                 
-                // Review Logic Special: Up Swipe = Info
-                if (this.y > triggerDist && APP_MODE === 'QUIZ') { this.triggerInfo(); return; } // Main Game Down = Info
-                if (this.y < -triggerDist && APP_MODE === 'REVIEW') { this.triggerInfo(); return; } // Review Game Up = Info
+                if (this.y > triggerDist && APP_MODE === 'QUIZ') { this.triggerInfo(); return; } 
+                if (this.y < -triggerDist && APP_MODE === 'REVIEW') { this.triggerInfo(); return; }
 
                 if (this.y < -triggerDist) this.trigger('UP');
                 else if (this.x < -triggerDist) this.trigger('LEFT');
