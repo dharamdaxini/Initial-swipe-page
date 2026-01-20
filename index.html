@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>ALCHEMIST V75.0</title>
+<title>Alchemist Mastery V76.2</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,13 +11,9 @@
 
 <style>
 :root {
-    --bg-color: #000;
-    --card-bg: #111;
-    --overlay-bg: #0d0d0d;
-    --accent-gold: #ffd600;
-    --hint-blue: #3498db;
-    --font-chem: 'Crimson Text', serif;
-    --font-ui: 'Inter', sans-serif;
+    --bg-color: #000; --card-bg: #111; --overlay-bg: #0d0d0d;
+    --accent-gold: #ffd600; --hint-blue: #3498db;
+    --font-chem: 'Crimson Text', serif; --font-ui: 'Inter', sans-serif;
     --font-code: 'JetBrains Mono', monospace;
 }
 
@@ -28,17 +24,14 @@ body {
     user-select: none; -webkit-user-select: none; touch-action: none;
 }
 
-/* Chemical Notation Formatting */
 sub { font-size: 0.7em; vertical-align: sub; line-height: 0; }
 sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 
-/* HUD Header */
 #header { width: 90%; margin: calc(20px + env(safe-area-inset-top)) auto 0; z-index: 100; pointer-events: none; }
-.header-meta { display: flex; justify-content: space-between; font-family: var(--font-code); font-size: 0.75rem; color: #555; margin-bottom: 10px; }
+.header-meta { display: flex; justify-content: space-between; font-family: var(--font-code); font-size: 0.75rem; color: #555; margin-bottom: 8px; }
 .progress-track { width: 100%; height: 3px; background: #222; border-radius: 2px; }
 #progress-bar { height: 100%; background: var(--accent-gold); width: 0%; transition: width 0.4s ease; }
 
-/* The Stack Engine */
 #stack {
     position: relative; width: 92%; max-width: 400px;
     height: calc(100vh - 160px - env(safe-area-inset-top));
@@ -51,18 +44,20 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
     padding: 40px; display: flex; flex-direction: column; justify-content: center;
     box-shadow: 0 20px 60px rgba(0,0,0,0.9); transform-origin: center center;
     will-change: transform; cursor: grab; backface-visibility: hidden;
+    transform: translate3d(0,0,0);
 }
 
 .card-q { font-family: var(--font-chem); font-size: 2rem; line-height: 1.35; font-style: italic; font-weight: 600; text-align: center; color: #f0f0f0; }
 
-/* Feedback Overlays */
 .swipe-label {
     position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-    background: #000; color: #fff; font-weight: 900; font-size: 2rem;
+    background: #000; color: #fff; font-weight: 900; font-size: 2.1rem;
     text-transform: uppercase; border-radius: 40px; z-index: 999; opacity: 0; pointer-events: none;
-    text-align: center; padding: 20px; transform: scale(0.9);
+    text-align: center; padding: 20px; transform: scale(0.85) translateZ(0);
+    will-change: opacity, transform;
 }
 
+/* V76.2 BLUE HINT UI */
 .sl-down-hint { 
     color: var(--hint-blue) !important; 
     font-size: 1.4rem !important; 
@@ -73,14 +68,15 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 .overlay {
     position: absolute; inset: 0; background: var(--overlay-bg);
     z-index: 1100; padding: 45px 35px; opacity: 0; pointer-events: none;
-    border-radius: 40px; transition: opacity 0.25s ease;
+    border-radius: 40px; transition: opacity 0.25s ease-out;
     display: flex; flex-direction: column; justify-content: center;
+    overflow-y: auto;
 }
 .overlay.active { opacity: 1; pointer-events: auto; }
-.overlay-label { font-size: 0.8rem; color: var(--accent-gold); font-family: var(--font-code); margin-bottom: 15px; }
+.overlay-label { font-size: 0.8rem; color: var(--accent-gold); font-family: var(--font-code); margin-bottom: 15px; text-transform: uppercase; }
 .overlay-body { font-size: 1.2rem; line-height: 1.7; color: #ccc; margin-bottom: 30px; font-family: var(--font-chem); }
 
-.btn { width: 100%; padding: 18px; border-radius: 60px; border: none; background: #fff; font-weight: 900; cursor: pointer; text-transform: uppercase; }
+.btn { width: 100%; padding: 18px; border-radius: 60px; border: none; background: #fff; font-weight: 900; cursor: pointer; text-transform: uppercase; font-family: var(--font-ui); margin-top: 10px; }
 #loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: var(--font-code); font-size: 1rem; letter-spacing: 5px; color: var(--accent-gold); }
 </style>
 </head>
@@ -99,8 +95,7 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 <div id="stack"></div>
 
 <script>
-// Replace with your Apps Script Deployment URL
-const ENDPOINT="https://script.google.com/macros/s/AKfycbwnbpsFpWRjONnt1G9G74BW2QeTrATkiyMTlW3IdIcBYZq51XlJuf3Y-Sm1Ei94Nckd/exec";
+const ENDPOINT="https://script.google.com/macros/s/AKfycbPvkuXpkFPZfwoj4H9Kevn2VXDcjjpOPxHtDqGDFxdclDdlwH0_0sHV-g4K1AGgfUJ/exec";
 
 let RAW_DATA=[], POOL=[], MISTAKES=[], SCORE=0, isTransitioning=false;
 let MODE="DATASET_SELECT", CURRENT_DATASET="", CURRENT_TOPIC="", CURRENT_GENRE="";
@@ -111,12 +106,13 @@ const formatChem = t => {
 };
 
 async function init(){
+    const l = document.getElementById('loader');
     try {
         const r = await fetch(ENDPOINT);
         RAW_DATA = await r.json();
-        document.getElementById('loader').remove();
+        l.remove();
         renderDatasetSelect();
-    } catch(e) { document.getElementById('loader').innerHTML="SYNC ERROR"; }
+    } catch(e) { l.innerHTML = "SYNC ERROR"; }
 }
 
 function renderDatasetSelect(){
@@ -160,7 +156,7 @@ function renderNext(){
     c.innerHTML=`<div class="card-q">${formatChem(q.question_text)}</div>
         <div class="swipe-label sl-up">${q.swipe_up_label}</div><div class="swipe-label sl-left">${q.swipe_left_label}</div>
         <div class="swipe-label sl-right">${q.swipe_right_label}</div><div class="swipe-label sl-down sl-down-hint">${formatChem(q.hint)}</div>
-        <div class="overlay"><div class="overlay-label">ANALYSIS</div><div class="overlay-body">${formatChem(q.explanation)}</div><button class="btn" onclick="this.parentElement.classList.remove('active')">CONTINUE</button></div>`;
+        <div class="overlay"><div class="overlay-label">LOGIC ANALYSIS</div><div class="overlay-body">${formatChem(q.explanation)}</div><button class="btn" onclick="this.parentElement.classList.remove('active')">CONTINUE</button></div>`;
     s.appendChild(c); bindPhysics(c, q);
 }
 
@@ -173,33 +169,41 @@ function renderEnd(){
 }
 
 function bindPhysics(el, data){
-    let x=0, y=0, sx=0, sy=0, active=false;
+    let x=0, y=0, sx=0, sy=0, active=false, isFrozen = false;
     const labels={up:el.querySelector('.sl-up'), dn:el.querySelector('.sl-down'), lt:el.querySelector('.sl-left'), rt:el.querySelector('.sl-right')};
 
     const start=e=>{ if(isTransitioning||(el.querySelector('.overlay')&&el.querySelector('.overlay').classList.contains('active')))return; active=true; const p=e.touches?e.touches[0]:e; sx=p.clientX; sy=p.clientY; el.style.transition="none"; };
     const move=e=>{
         if(!active)return; const p=e.touches?e.touches[0]:e;
         let dx=p.clientX-sx; let dy=p.clientY-sy; const dist=Math.sqrt(dx*dx+dy*dy);
-        let ang=Math.atan2(-dy, dx)*(180/Math.PI); if(ang<0)ang+=360; x=dx; y=dy;
+        let ang=Math.atan2(-dy, dx)*(180/Math.PI); if(ang<0)ang+=360; 
+        if(dist>=40) isFrozen=true; else if(dist<20) isFrozen=false;
+        if(isFrozen){ const rad=ang*(Math.PI/180); dx=Math.cos(rad)*40; dy=-Math.sin(rad)*40; }
+        x=dx; y=dy;
         requestAnimationFrame(()=>{
             el.style.transform=`translate3d(${x}px,${y}px,0) rotate(${x/18}deg)`;
-            Object.values(labels).forEach(l=>{if(l)l.style.opacity=0;});
-            if(dist>10){
+            Object.values(labels).forEach(l=>{if(l)l.style.opacity=0; l.style.transform="scale(0.85)";});
+            if(dist>1){
                 let activeLabel;
                 if(ang>=45&&ang<135)activeLabel=labels.up; else if(ang>=135&&ang<225)activeLabel=labels.lt;
                 else if(ang>=225&&ang<315)activeLabel=labels.dn; else activeLabel=labels.rt;
-                if(activeLabel)activeLabel.style.opacity=Math.min(dist/40, 1);
+                if(activeLabel){
+                    const alpha=Math.min(dist/30, 1);
+                    activeLabel.style.opacity=alpha;
+                    activeLabel.style.transform=`scale(${0.85 + (alpha * 0.25)})`;
+                }
             }
         });
     };
     const end=()=>{
         if(!active)return; active=false; const dist=Math.sqrt(x*x+y*y);
         let ang=Math.atan2(-y, x)*(180/Math.PI); if(ang<0)ang+=360;
-        if(dist>=70){
+        if(dist>=40){
             let dir=(ang>=45&&ang<135)?"UP":(ang>=135&&ang<225)?"LEFT":(ang>=225&&ang<315)?"DOWN":"RIGHT";
             if(MODE==="QUIZ"&&dir==="DOWN"){ el.querySelector('.overlay').classList.add('active'); el.style.transition="transform .3s"; el.style.transform="translate3d(0,0,0) rotate(0deg)"; }
             else handleAction(el, data, x, y, dir);
-        } else { el.style.transition="transform .4s ease"; el.style.transform="translate3d(0,0,0) rotate(0deg)"; }
+        } else { el.style.transition="transform .4s cubic-bezier(.175,.885,.32,1.275)"; el.style.transform="translate3d(0,0,0) rotate(0deg)"; }
+        Object.values(labels).forEach(l=>{if(l)l.style.opacity=0;});
     };
     el.onmousedown=start; window.onmousemove=move; window.onmouseup=end; el.ontouchstart=start; el.ontouchmove=move; el.ontouchend=end;
 }
@@ -211,23 +215,25 @@ function handleAction(el, data, x, y, dir){
     else if(MODE==="GENRE_SELECT"){ 
         if(dir==="UP") startQuiz(CURRENT_TOPIC, "CONCEPT");
         else if(dir==="DOWN") startQuiz(CURRENT_TOPIC, "APPLICATION");
-        else { isTransitioning=false; return; }
+        else { isTransitioning=false; return; } // Locked Side-Swipes
     }
     else if(MODE==="QUIZ"){ 
         const w=parseInt(data.weight)||1;
-        if(dir===data.correct.toUpperCase()){ SCORE+=(10*w); } else { SCORE=Math.max(0, SCORE-5); }
+        if(dir===data.correct.toUpperCase()){ SCORE+=(10*w); } 
+        else { SCORE=Math.max(0, SCORE-5); MISTAKES.push(data); }
         renderNext();
     } else if(MODE==="SESSION_END"){ 
         if(dir==="UP") startQuiz(CURRENT_TOPIC, CURRENT_GENRE); 
         else if(dir==="DOWN") renderDatasetSelect();
-        else { isTransitioning=false; return; }
+        else { isTransitioning=false; return; } // Locked Side-Swipes
     }
-    el.style.transition="transform .5s ease-in"; el.style.transform=`translate3d(${x*5}px,${y*5}px,0)`;
-    updateUI(); setTimeout(()=>{el.remove(); isTransitioning=false;}, 400);
+    el.style.transition="transform .4s ease-in"; el.style.transform=`translate3d(${x*6}px,${y*6}px,0) rotate(${x/5}deg)`;
+    updateUI(); setTimeout(()=>{el.remove(); isTransitioning=false;}, 350);
 }
 
 function updateUI(){
     document.getElementById('xp-ui').innerText=`${SCORE} XP`;
+    document.getElementById('rank-ui').innerText=`RANK: ${SCORE > 500 ? "SCHOLAR" : "NOVICE"}`;
     document.getElementById('progress-bar').style.width=`${(SCORE%100)}%`;
 }
 window.onload=init;
