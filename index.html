@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist V80.0 Platinum</title>
+<title>Alchemist V81.1 Final</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 
 <style>
-/* V80.0 CSS - FINAL POLISH */
+/* V81.1 CSS - INTEGRATED BUILD */
 :root { 
-    --bg-color: #050505; --card-bg: #141414; --accent-gold: #ffcc00; --hint-blue: #4dabf7; 
+    --bg-color: #050505; --card-bg: #141414; --accent-gold: #ffcc00; --hint-blue: #4dabf7; --err-red: #ff4d4d;
     --font-ui: 'Outfit', sans-serif; --font-chem: 'Libre Baskerville', serif; --font-code: 'JetBrains Mono', monospace; 
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
@@ -45,15 +45,30 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
     font-family: var(--font-chem) !important; background: rgba(10, 10, 10, 0.98) !important; padding: 40px !important; line-height: 1.6 !important;
 }
 
-.overlay { position: absolute; inset: 0; background: #0a0a0a; z-index: 1100; padding: 45px 35px; opacity: 0; pointer-events: none; border-radius: 32px; display: flex; flex-direction: column; justify-content: center; transition: opacity 0.2s; }
-.overlay.active { opacity: 1; pointer-events: auto; }
-.overlay-label { font-size: 0.75rem; color: var(--accent-gold); font-family: var(--font-ui); font-weight: 700; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
-.overlay-body { font-size: 1.3rem; line-height: 1.7; color: #ccc; margin-bottom: 40px; font-family: var(--font-chem); }
+/* ANALYSIS MODAL STYLES */
+#analysis-modal {
+    position: absolute; inset: 0; background: #000; z-index: 2000; 
+    display: flex; flex-direction: column; opacity: 0; pointer-events: none; 
+    transition: opacity 0.3s ease; padding-top: env(safe-area-inset-top);
+}
+#analysis-modal.active { opacity: 1; pointer-events: auto; }
+
+.analysis-header { padding: 20px; text-align: center; border-bottom: 1px solid #333; font-family: var(--font-ui); color: var(--accent-gold); font-weight: 900; letter-spacing: 2px; }
+.analysis-scroll { flex: 1; overflow-y: auto; padding: 20px; -webkit-overflow-scrolling: touch; }
+
+.mistake-card {
+    background: #111; border: 1px solid #333; border-radius: 16px; padding: 20px; margin-bottom: 20px;
+}
+.mistake-q { font-family: var(--font-chem); font-size: 1.1rem; color: #fff; margin-bottom: 10px; }
+.mistake-ans { font-family: var(--font-code); font-size: 0.8rem; color: var(--err-red); margin-bottom: 10px; text-transform: uppercase; }
+.mistake-exp { font-family: var(--font-chem); font-size: 0.95rem; color: #aaa; line-height: 1.5; border-top: 1px solid #222; padding-top: 10px; }
 
 .input-name { width: 100%; padding: 18px; border-radius: 16px; border: 1px solid #444; background: #1a1a1a; color: #fff; font-family: var(--font-ui); font-size: 1.1rem; margin-bottom: 15px; text-align: center; outline: none; }
 .input-name:focus { border-color: var(--accent-gold); }
 .btn { width: 100%; padding: 20px; border-radius: 100px; border: none; background: #fff; color: #000; font-weight: 800; cursor: pointer; text-transform: uppercase; font-family: var(--font-ui); letter-spacing: 1px; margin-top: 10px; font-size: 0.9rem; }
 .btn-save { background: var(--accent-gold); color: #000; box-shadow: 0 5px 20px rgba(255, 204, 0, 0.2); }
+.btn-review { background: #333; color: #fff; border: 1px solid #555; }
+.btn-close { background: transparent; color: #fff; border: 1px solid #333; margin: 20px; width: calc(100% - 40px); }
 
 #loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: var(--font-ui); font-weight: 900; font-size: 1.5rem; letter-spacing: 4px; color: var(--accent-gold); flex-direction: column; }
 #status-msg { font-size: 0.9rem; margin-top: 15px; color: #888; font-family: var(--font-ui); text-align: center; min-height: 20px;}
@@ -61,7 +76,14 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 </head>
 
 <body>
-<div id="loader">ALCHEMIST<br><small style="font-size:0.4em; opacity:0.5; margin-top:15px; font-weight:400; font-family:var(--font-code);">V80.0 PLATINUM</small></div>
+<div id="loader">ALCHEMIST<br><small style="font-size:0.4em; opacity:0.5; margin-top:15px; font-weight:400; font-family:var(--font-code);">V81.1 FINAL</small></div>
+
+<div id="analysis-modal">
+    <div class="analysis-header">SESSION ANALYSIS</div>
+    <div class="analysis-scroll" id="analysis-content">
+        </div>
+    <button class="btn btn-close" onclick="document.getElementById('analysis-modal').classList.remove('active')">CLOSE ANALYSIS</button>
+</div>
 
 <div id="header">
     <div class="header-meta"><span id="rank-ui">RANK: NOVICE</span><span id="xp-ui">0 XP</span></div>
@@ -72,11 +94,11 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 
 <script>
 // =========================================================
-// ⚠️ PASTE YOUR GOOGLE SCRIPT URL BELOW ⚠️
+// YOUR DEPLOYMENT URL IS HARDCODED HERE
 // =========================================================
-const ENDPOINT = "YOUR_SCRIPT_URL_HERE"; 
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbx0MOn2CEOHtwcraedSgmR_622esgwSAiWks3tNV51yc9XeKGrIip7lIxAu5iT460YT/exec"; 
 
-// FULL 90-QUESTION DATABASE (CRYPTIC HINTS ENABLED)
+// FULL 90-QUESTION DATABASE
 const BACKUP_DATA = [
   { "dataset": "SET_A", "topic": "Physical", "q_type": "CONCEPT", "question_text": "What does a negative ΔG value signify?", "hint": "Thermodynamic direction.", "explanation": "✅ Spontaneous reaction.", "swipe_up_label": "Spontaneous", "swipe_right_label": "Equilibrium", "swipe_down_label": "HINT", "swipe_left_label": "Non-spontaneous", "correct": "UP", "weight": 1 },
   { "dataset": "SET_A", "topic": "Physical", "q_type": "APPLICATION", "question_text": "If reaction rate doubles when T increases from 298K to 308K, effect on k?", "hint": "Thermal kinetic energy.", "explanation": "✅ k increases exponentially.", "swipe_up_label": "k Increases", "swipe_right_label": "k is Constant", "swipe_down_label": "HINT", "swipe_left_label": "k Decreases", "correct": "UP", "weight": 2 },
@@ -162,12 +184,14 @@ const formatChem = t => { if(!t) return ""; return t.toString().replace(/([A-Z][
 
 async function init(){
     const l = document.getElementById('loader');
+    // Try cloud sync, default to backup
     try {
         const r = await fetch(ENDPOINT);
         const json = await r.json();
         if(Array.isArray(json) && json.length > 0) RAW_DATA = json; 
     } catch(e) { console.log("Offline mode active"); }
 
+    // Start with Menu
     setTimeout(() => { 
         l.remove(); 
         renderDatasetSelect(); 
@@ -219,8 +243,7 @@ function renderNext(){
     const c=document.createElement('div'); c.className="card";
     c.innerHTML=`<div class="card-q">${formatChem(q.question_text)}</div>
         <div class="swipe-label sl-up">${q.swipe_up_label}</div><div class="swipe-label sl-left">${q.swipe_left_label}</div>
-        <div class="swipe-label sl-right">${q.swipe_right_label}</div><div class="swipe-label sl-down sl-down-hint">💡 ${formatChem(q.hint)}</div>
-        <div class="overlay"><div class="overlay-label">ANALYSIS</div><div class="overlay-body">${formatChem(q.explanation)}</div><button class="btn" onclick="this.parentElement.classList.remove('active')">CONTINUE</button></div>`;
+        <div class="swipe-label sl-right">${q.swipe_right_label}</div><div class="swipe-label sl-down sl-down-hint">💡 ${formatChem(q.hint)}</div>`;
     s.appendChild(c); bindPhysics(c, q);
 }
 
@@ -230,12 +253,32 @@ function renderEnd(){
     c.innerHTML=`
         <div class="card-q" style="font-size:1.5rem">SESSION COMPLETE<br><span style="color:var(--accent-gold); font-size:3rem">${SCORE} XP</span></div>
         <div style="width:100%; margin-top:20px;">
-            <input type="text" id="student-name" class="input-name" placeholder="ENTER YOUR NAME">
+            <button class="btn btn-review" onclick="renderAnalysis()">REVIEW MISTAKES</button>
+            <input type="text" id="student-name" class="input-name" placeholder="ENTER YOUR NAME" style="margin-top:15px;">
             <button class="btn btn-save" onclick="submitData()">UPLOAD RESULTS</button>
             <div id="status-msg"></div>
-            <button class="btn" style="background:#333; color:#fff; margin-top:20px;" onclick="location.reload()">RESTART APP</button>
+            <button class="btn" style="background:transparent; border:1px solid #333; color:#666; margin-top:15px; padding:15px; font-size:0.8rem;" onclick="location.reload()">RESTART APP</button>
         </div>`;
     s.appendChild(c);
+}
+
+function renderAnalysis() {
+  const container = document.getElementById('analysis-content');
+  container.innerHTML = "";
+  if(MISTAKES.length === 0) {
+     container.innerHTML = "<div style='padding:20px; text-align:center; color:#666;'>PERFECT SCORE!<br>No analysis needed.</div>";
+  } else {
+     MISTAKES.forEach((q, i) => {
+        let html = `
+        <div class="mistake-card">
+           <div class="mistake-q">Q: ${formatChem(q.question_text)}</div>
+           <div class="mistake-ans">Correct Answer: ${q.correct}</div>
+           <div class="mistake-exp">📝 ${formatChem(q.explanation)}</div>
+        </div>`;
+        container.innerHTML += html;
+     });
+  }
+  document.getElementById('analysis-modal').classList.add('active');
 }
 
 async function submitData(){
@@ -278,7 +321,7 @@ async function submitData(){
 function bindPhysics(el, data){
     let x=0, y=0, sx=0, sy=0, active=false, triggerDir=null;
     const labels={up:el.querySelector('.sl-up'), dn:el.querySelector('.sl-down'), lt:el.querySelector('.sl-left'), rt:el.querySelector('.sl-right')};
-    const start=e=>{ if(isTransitioning||(el.querySelector('.overlay')&&el.querySelector('.overlay').classList.contains('active')))return; active=true; const p=e.touches?e.touches[0]:e; sx=p.clientX; sy=p.clientY; el.style.transition="none"; };
+    const start=e=>{ if(isTransitioning) return; active=true; const p=e.touches?e.touches[0]:e; sx=p.clientX; sy=p.clientY; el.style.transition="none"; };
     const move=e=>{
         if(!active)return; const p=e.touches?e.touches[0]:e;
         const rawDx = p.clientX - sx; const rawDy = p.clientY - sy; const rawDist = Math.sqrt(rawDx*rawDx + rawDy*rawDy);
@@ -317,16 +360,12 @@ function handleAction(el, data, x, y, dir){
         const w=parseInt(data.weight)||1; 
         if(dir===data.correct.toUpperCase()){ 
             SCORE+=(10*w); 
-            renderNext();
         } 
         else { 
             SCORE=Math.max(0, SCORE-5); MISTAKES.push(data); 
-            el.querySelector('.overlay').classList.add('active');
-            el.style.transition="transform .3s";
-            el.style.transform="translate3d(0,0,0) rotate(0deg)";
-            isTransitioning=false; 
-            return; 
         }
+        // Always move to next card instantly (No popup)
+        renderNext();
     }
     else if(MODE==="DATASET_SELECT"){ const map={UP:"SET_A", LEFT:"SET_B", RIGHT:"SET_C", DOWN:"SET_D"}; renderTopicSelect(map[dir]); }
     else if(MODE==="TOPIC_SELECT"){ const map={UP:"Physical", LEFT:"Organic", RIGHT:"Inorganic", DOWN:"Analytical"}; renderGenreSelect(map[dir]); }
