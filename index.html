@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist Mastery V76.2</title>
+<title>Alchemist V72.8 UI Implementation</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,77 +11,132 @@
 
 <style>
 :root {
-    --bg-color: #000; --card-bg: #111; --overlay-bg: #0d0d0d;
-    --accent-gold: #ffd600; --hint-blue: #3498db;
-    --font-chem: 'Crimson Text', serif; --font-ui: 'Inter', sans-serif;
+    --bg-color: #050505;
+    --card-bg: #0a0a0a;
+    --overlay-bg: #000;
+    --accent-gold: #ffd600;
+    --hint-blue: #007aff;
+    --border-color: #1a1a1a;
+    --font-chem: 'Crimson Text', serif;
+    --font-ui: 'Inter', sans-serif;
     --font-code: 'JetBrains Mono', monospace;
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+
 body {
     margin: 0; height: 100vh; background: var(--bg-color); color: #fff;
     font-family: var(--font-ui); overflow: hidden;
     user-select: none; -webkit-user-select: none; touch-action: none;
 }
 
-sub { font-size: 0.7em; vertical-align: sub; line-height: 0; }
-sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
+/* 72.8 Header: Sharper, Border-Bottom focus */
+#header { 
+    width: 100%; 
+    padding: calc(20px + env(safe-area-inset-top)) 25px 15px; 
+    border-bottom: 1px solid var(--border-color);
+    z-index: 100;
+}
 
-#header { width: 90%; margin: calc(20px + env(safe-area-inset-top)) auto 0; z-index: 100; pointer-events: none; }
-.header-meta { display: flex; justify-content: space-between; font-family: var(--font-code); font-size: 0.75rem; color: #555; margin-bottom: 8px; }
-.progress-track { width: 100%; height: 3px; background: #222; border-radius: 2px; }
-#progress-bar { height: 100%; background: var(--accent-gold); width: 0%; transition: width 0.4s ease; }
+.header-meta { 
+    display: flex; 
+    justify-content: space-between; 
+    font-family: var(--font-code); 
+    font-size: 0.7rem; 
+    letter-spacing: 1px;
+    color: #444; 
+    margin-bottom: 12px;
+}
 
+.progress-track { width: 100%; height: 2px; background: #111; position: relative; }
+#progress-bar { height: 100%; background: var(--accent-gold); width: 0%; transition: width 0.3s linear; }
+
+/* 72.8 Stack: Standard spacing, no extreme rounding */
 #stack {
-    position: relative; width: 92%; max-width: 400px;
-    height: calc(100vh - 160px - env(safe-area-inset-top));
-    margin: 25px auto 0; perspective: 1200px;
+    position: relative; width: 90%; max-width: 380px;
+    height: calc(100vh - 180px - env(safe-area-inset-top));
+    margin: 40px auto 0; perspective: 1000px;
 }
 
 .card {
     position: absolute; width: 100%; height: 100%;
-    background: var(--card-bg); border-radius: 40px; border: 1px solid #282828;
-    padding: 40px; display: flex; flex-direction: column; justify-content: center;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.9); transform-origin: center center;
+    background: var(--card-bg); 
+    border: 1px solid var(--border-color);
+    border-radius: 12px; /* V72.8 signature sharper corners */
+    padding: 35px; display: flex; flex-direction: column; justify-content: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    transform-origin: center center;
 }
 
-.card-q { font-family: var(--font-chem); font-size: 2rem; line-height: 1.35; font-style: italic; font-weight: 600; text-align: center; color: #f0f0f0; }
+.card-q { 
+    font-family: var(--font-chem); 
+    font-size: 1.75rem; 
+    line-height: 1.4; 
+    font-style: italic; 
+    text-align: center; 
+    color: #eee; 
+}
 
+/* Quadrant Labels: Blue Hint implementation */
 .swipe-label {
-    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-    background: #000; color: #fff; font-weight: 900; font-size: 2rem;
-    text-transform: uppercase; border-radius: 40px; z-index: 999; opacity: 0; pointer-events: none;
-    text-align: center; padding: 20px; transform: scale(0.9);
+    position: absolute; inset: 0; display: flex; arrow-items: center; justify-content: center;
+    background: rgba(0,0,0,0.85); color: #fff; font-weight: 800; font-size: 1.8rem;
+    text-transform: uppercase; border-radius: 12px; z-index: 999; opacity: 0; pointer-events: none;
+    text-align: center; padding: 20px;
 }
 
 .sl-down-hint { 
     color: var(--hint-blue) !important; 
-    font-size: 1.4rem !important; 
-    text-transform: none !important; 
-    font-family: var(--font-chem) !important;
+    font-size: 1.3rem !important; 
+    text-transform: none !important;
+    font-family: var(--font-chem);
 }
 
+/* 72.8 Overlay: Full Screen, no rounding */
 .overlay {
     position: absolute; inset: 0; background: var(--overlay-bg);
-    z-index: 1100; padding: 45px 35px; opacity: 0; pointer-events: none;
-    border-radius: 40px; transition: opacity 0.25s ease;
+    z-index: 1100; padding: 40px; opacity: 0; pointer-events: none;
+    transition: opacity 0.2s ease;
     display: flex; flex-direction: column; justify-content: center;
 }
 .overlay.active { opacity: 1; pointer-events: auto; }
-.overlay-label { font-size: 0.8rem; color: var(--accent-gold); font-family: var(--font-code); margin-bottom: 15px; }
-.overlay-body { font-size: 1.2rem; line-height: 1.7; color: #ccc; margin-bottom: 30px; font-family: var(--font-chem); }
+.overlay-label { font-size: 0.7rem; color: var(--accent-gold); font-family: var(--font-code); margin-bottom: 20px; }
+.overlay-body { font-size: 1.1rem; line-height: 1.8; color: #999; margin-bottom: 40px; font-family: var(--font-chem); }
 
-.btn { width: 100%; padding: 18px; border-radius: 60px; border: none; background: #fff; font-weight: 900; cursor: pointer; text-transform: uppercase; }
-#loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: var(--font-code); font-size: 1rem; letter-spacing: 4px; color: var(--accent-gold); }
+.btn { 
+    width: 100%; padding: 15px; border: 1px solid #333; 
+    background: transparent; color: #fff; font-weight: 700; 
+    cursor: pointer; text-transform: uppercase; font-family: var(--font-code);
+}
+
+#loader { 
+    position: fixed; inset: 0; background: #000; z-index: 5000; 
+    display: flex; align-items: center; justify-content: center; 
+    font-family: var(--font-code); font-size: 1.2rem; letter-spacing: 5px; color: var(--accent-gold); 
+}
+
+sub { font-size: 0.7em; vertical-align: sub; line-height: 0; }
+sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 </style>
 </head>
 
 <body>
 <div id="loader">ALCHEMIST</div>
-<div id="header"><div class="header-meta"><span id="rank-ui">RANK: NOVICE</span><span id="xp-ui">0 XP</span></div><div class="progress-track"><div id="progress-bar"></div></div></div>
+
+<div id="header">
+    <div class="header-meta">
+        <span id="rank-ui">LVL: NOVICE</span>
+        <span id="xp-ui">0 XP</span>
+    </div>
+    <div class="progress-track"><div id="progress-bar"></div></div>
+</div>
+
 <div id="stack"></div>
 
 <script>
+/**
+ * V76.2 LOGIC BACKPORTED TO V72.8 UI
+ */
 const ENDPOINT="https://script.google.com/macros/s/AKfycbwnbpsFpWRjONnt1G9G74BW2QeTrATkiyMTlW3IdIcBYZq51XlJuf3Y-Sm1Ei94Nckd/exec";
 let RAW_DATA=[], POOL=[], MISTAKES=[], SCORE=0, isTransitioning=false;
 let MODE="DATASET_SELECT", CURRENT_DATASET="", CURRENT_TOPIC="", CURRENT_GENRE="";
@@ -97,7 +152,7 @@ async function init(){
         RAW_DATA = await r.json();
         document.getElementById('loader').remove();
         renderDatasetSelect();
-    } catch(e) { document.getElementById('loader').innerHTML="SYNC ERROR"; }
+    } catch(e) { document.getElementById('loader').innerHTML="SYNC ERR"; }
 }
 
 function renderDatasetSelect(){
@@ -141,46 +196,46 @@ function renderNext(){
     c.innerHTML=`<div class="card-q">${formatChem(q.question_text)}</div>
         <div class="swipe-label sl-up">${q.swipe_up_label}</div><div class="swipe-label sl-left">${q.swipe_left_label}</div>
         <div class="swipe-label sl-right">${q.swipe_right_label}</div><div class="swipe-label sl-down sl-down-hint">${formatChem(q.hint)}</div>
-        <div class="overlay"><div class="overlay-label">ANALYSIS</div><div class="overlay-body">${formatChem(q.explanation)}</div><button class="btn" onclick="this.parentElement.classList.remove('active')">CONTINUE</button></div>`;
+        <div class="overlay"><div class="overlay-label">LOGIC REPORT</div><div class="overlay-body">${formatChem(q.explanation)}</div><button class="btn" onclick="this.parentElement.classList.remove('active')">DISMISS</button></div>`;
     s.appendChild(c); bindPhysics(c, q);
 }
 
 function renderEnd(){
     MODE="SESSION_END"; const s=document.getElementById('stack'); s.innerHTML="";
     const c=document.createElement('div'); c.className="card";
-    c.innerHTML=`<div class="card-q">SESSION COMPLETE<br><small>${SCORE} XP EARNED</small></div>
+    c.innerHTML=`<div class="card-q">SESSION COMPLETE<br><small>${SCORE} XP</small></div>
         <div class="swipe-label sl-up">RESTART</div><div class="swipe-label sl-down">MAIN MENU</div>`;
     s.appendChild(c); bindPhysics(c);
 }
 
 function bindPhysics(el, data){
     let x=0, y=0, sx=0, sy=0, active=false;
-    const labels={up:el.querySelector('.sl-up'), dn:el.querySelector('.sl-down'), lt:el.querySelector('.sl-left'), rt:el.querySelector('.sl-right')};
+    const lbls={up:el.querySelector('.sl-up'), dn:el.querySelector('.sl-down'), lt:el.querySelector('.sl-left'), rt:el.querySelector('.sl-right')};
 
     const start=e=>{ if(isTransitioning||(el.querySelector('.overlay')&&el.querySelector('.overlay').classList.contains('active')))return; active=true; const p=e.touches?e.touches[0]:e; sx=p.clientX; sy=p.clientY; el.style.transition="none"; };
     const move=e=>{
         if(!active)return; const p=e.touches?e.touches[0]:e;
-        let dx=p.clientX-sx; let dy=p.clientY-sy; const dist=Math.sqrt(dx*dx+dy*dy);
+        let dx=p.clientX-sx; let dy=p.clientY-sy; const d=Math.sqrt(dx*dx+dy*dy);
         let ang=Math.atan2(-dy, dx)*(180/Math.PI); if(ang<0)ang+=360; x=dx; y=dy;
         requestAnimationFrame(()=>{
-            el.style.transform=`translate3d(${x}px,${y}px,0) rotate(${x/18}deg)`;
-            Object.values(labels).forEach(l=>{if(l)l.style.opacity=0;});
-            if(dist>10){
-                let activeLabel;
-                if(ang>=45&&ang<135)activeLabel=labels.up; else if(ang>=135&&ang<225)activeLabel=labels.lt;
-                else if(ang>=225&&ang<315)activeLabel=labels.dn; else activeLabel=labels.rt;
-                if(activeLabel)activeLabel.style.opacity=Math.min(dist/40, 1);
+            el.style.transform=`translate3d(${x}px,${y}px,0) rotate(${x/25}deg)`;
+            Object.values(lbls).forEach(l=>{if(l)l.style.opacity=0;});
+            if(d>15){
+                let al;
+                if(ang>=45&&ang<135)al=lbls.up; else if(ang>=135&&ang<225)al=lbls.lt;
+                else if(ang>=225&&ang<315)al=lbls.dn; else al=lbls.rt;
+                if(al)al.style.opacity=Math.min(d/50, 1);
             }
         });
     };
     const end=()=>{
-        if(!active)return; active=false; const dist=Math.sqrt(x*x+y*y);
+        if(!active)return; active=false; const d=Math.sqrt(x*x+y*y);
         let ang=Math.atan2(-y, x)*(180/Math.PI); if(ang<0)ang+=360;
-        if(dist>=70){
+        if(d>=80){
             let dir=(ang>=45&&ang<135)?"UP":(ang>=135&&ang<225)?"LEFT":(ang>=225&&ang<315)?"DOWN":"RIGHT";
             if(MODE==="QUIZ"&&dir==="DOWN"){ el.querySelector('.overlay').classList.add('active'); el.style.transition="transform .3s"; el.style.transform="translate3d(0,0,0) rotate(0deg)"; }
             else handleAction(el, data, x, y, dir);
-        } else { el.style.transition="transform .4s ease"; el.style.transform="translate3d(0,0,0) rotate(0deg)"; }
+        } else { el.style.transition="transform .4s ease-out"; el.style.transform="translate3d(0,0,0) rotate(0deg)"; }
     };
     el.onmousedown=start; window.onmousemove=move; window.onmouseup=end; el.ontouchstart=start; el.ontouchmove=move; el.ontouchend=end;
 }
@@ -190,7 +245,6 @@ function handleAction(el, data, x, y, dir){
     if(MODE==="DATASET_SELECT"){ const map={UP:"SET_A", LEFT:"SET_B", RIGHT:"SET_C", DOWN:"SET_D"}; renderTopicSelect(map[dir]); }
     else if(MODE==="TOPIC_SELECT"){ const map={UP:"Physical", LEFT:"Organic", RIGHT:"Inorganic", DOWN:"Analytical"}; renderGenreSelect(map[dir]); }
     else if(MODE==="GENRE_SELECT"){ 
-        // FIXED & LOCKED: Depth only accepts UP/DOWN
         if(dir==="UP") startQuiz(CURRENT_TOPIC, "CONCEPT");
         else if(dir==="DOWN") startQuiz(CURRENT_TOPIC, "APPLICATION");
         else { isTransitioning=false; return; } 
@@ -205,7 +259,7 @@ function handleAction(el, data, x, y, dir){
         else { isTransitioning=false; return; }
     }
     el.style.transition="transform .5s ease-in"; el.style.transform=`translate3d(${x*5}px,${y*5}px,0)`;
-    updateUI(); setTimeout(()=>{el.remove(); isTransitioning=false;}, 400);
+    updateUI(); setTimeout(()=>{el.remove(); isTransitioning=false;}, 450);
 }
 
 function updateUI(){
