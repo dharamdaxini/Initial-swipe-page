@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chemistry Master V43.1 (Live)</title>
+    <title>Chemistry Master V44.1 (Live Production)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -163,7 +163,7 @@
             border-radius: 32px;
             pointer-events: none;
             opacity: 0;
-            transition: opacity 0.1s; /* Faster fade for snappy feel */
+            transition: opacity 0.1s; /* Faster fade */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -172,7 +172,7 @@
             text-transform: uppercase;
             z-index: 10;
             text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            background: rgba(0,0,0,0.6); /* Darker backdrop */
+            background: rgba(0,0,0,0.6); 
             backdrop-filter: blur(4px);
         }
         
@@ -207,17 +207,17 @@
         // CONFIGURATION & STATE
         // ==========================================
         
-        // YOUR NEW DEPLOYMENT URL
-        const DATA_ENDPOINT = "https://script.google.com/macros/s/AKfycbw3gL21LlQdeN7xK0qOCXi6_yHb-Tg8TPVeJQe6nZ3_vpPTYXJP7lUfQH7gWGAuA0BS/exec"; 
+        // YOUR DEPLOYMENT URL
+        const DATA_ENDPOINT = "https://script.google.com/macros/s/AKfycby8IPlroDb8iVHVTbG3HFpmURzGQnHhsV6a2SNQkdvrHpuSxzesbcBPO7T7EzmUf012/exec"; 
         
-        const SESSION_ID = "SESS_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+        // Session Variables
         let CURRENT_DECK = "Chemistry_Master_1"; 
         let SCORE = 0;
         let QUESTION_POOL = [];
         let USED_IDS = new Set();
         let CARD_START_TIME = 0;
 
-        // TRACKING STATS (For 'Sessions' tab)
+        // NEW: Statistics Tracking for Session End
         let STATS = {
             total_cards: 0,
             correct_count: 0,
@@ -226,7 +226,7 @@
         };
 
         // ==========================================
-        // 1. DATA ENGINE (Live Loader)
+        // 1. DATA ENGINE (Live Loader - GET)
         // ==========================================
         async function loadQuestions(deck) {
             const status = document.getElementById('status-msg');
@@ -237,6 +237,7 @@
                 status.innerText = "Parsing Vectors...";
                 const all = await res.json();
 
+                // Filter by Deck and Remove duplicates
                 QUESTION_POOL = all
                     .filter(q => q.deck === deck && !USED_IDS.has(q.question_id))
                     .sort(() => Math.random() - 0.5);
@@ -244,7 +245,7 @@
                 console.log(`[SYS] Loaded ${QUESTION_POOL.length} items for ${deck}`);
                 
                 if(QUESTION_POOL.length === 0) {
-                     status.innerText = "NO DATA FOUND (Check Sheet)";
+                     status.innerText = "NO DATA FOUND (Check Sheet Header 'deck')";
                      status.style.color = "red";
                      throw new Error("Empty Deck");
                 }
@@ -258,22 +259,19 @@
         }
 
         // ==========================================
-        // 2. LOGGING ENGINE (Dual Mode)
+        // 2. LOGGING ENGINE (Dual Mode - POST)
         // ==========================================
-        
-        // Mode A: Raw Swipe (During Game)
         function logSwipe(q, swipe, isCorrect, ms) {
+            // Mode A: Send Swipe to Telemetry Tab
             fetch(DATA_ENDPOINT, {
                 method: "POST",
                 mode: "no-cors",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    type: "SWIPE", 
+                    type: "SWIPE", // Flag
                     timestamp: new Date().toISOString(),
                     question_id: q.id,
                     deck: CURRENT_DECK,
-                    topic: q.topic,
-                    q_type: q.type,
                     swipe: swipe,
                     correct: isCorrect ? "TRUE" : "FALSE",
                     score: SCORE,
@@ -282,26 +280,18 @@
             }).catch(e => console.warn("[LOG] Fail", e));
         }
 
-        // Mode B: Session End (Summary)
         function logSessionEnd() {
-            // Calculate Averages
-            let accuracy = 0;
-            if(STATS.total_cards > 0) {
-                accuracy = ((STATS.correct_count / STATS.total_cards) * 100).toFixed(1);
-            }
-            
-            let avg_lat = 0;
-            if(STATS.total_cards > 0) {
-                avg_lat = Math.round(STATS.total_latency / STATS.total_cards);
-            }
+            // Calc Averages
+            const accuracy = STATS.total_cards > 0 ? ((STATS.correct_count / STATS.total_cards) * 100).toFixed(1) : 0;
+            const avg_lat = STATS.total_cards > 0 ? Math.round(STATS.total_latency / STATS.total_cards) : 0;
 
-            // Send to 'Sessions' Tab
+            // Mode B: Send Summary to Sessions Tab
             fetch(DATA_ENDPOINT, {
                 method: "POST",
                 mode: "no-cors",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    type: "SESSION_END",
+                    type: "SESSION_END", // Flag
                     timestamp: new Date().toISOString(),
                     total_score: SCORE,
                     accuracy: accuracy,
@@ -315,12 +305,11 @@
         }
 
         // ==========================================
-        // 3. RENDER ENGINE (DOM)
+        // 3. RENDER ENGINE (DOM Construction)
         // ==========================================
         function nextQuestion() {
             if (QUESTION_POOL.length === 0) {
-                // TRIGGER END GAME SAVE
-                logSessionEnd(); 
+                logSessionEnd(); // Trigger End Game Save
                 return null;
             }
 
@@ -361,7 +350,7 @@
                 <div class="hint-overlay hint-up">${data.up}</div>
                 <div class="hint-overlay hint-left">${data.left}</div>
                 <div class="hint-overlay hint-right">${data.right}</div>
-                <div class="hint-overlay hint-down">ELIMINATE</div>
+                <div class="hint-overlay hint-down">${data.down}</div> 
             `;
             return el;
         }
@@ -378,7 +367,7 @@
         }
 
         // ==========================================
-        // 4. PHYSICS ENGINE (Axis Locked)
+        // 4. PHYSICS ENGINE (Straight Axis Locked)
         // ==========================================
         class Draggable {
             constructor(element, data) {
@@ -424,14 +413,12 @@
                 this.processMove(dx, dy);
             }
 
-            // AXIS LOCKING LOGIC
+            // --- AXIS LOCKING LOGIC ---
             processMove(dx, dy) {
-                // If horizontal movement is stronger, force vertical to 0
+                // Force movement onto the dominant axis only
                 if (Math.abs(dx) > Math.abs(dy)) {
                     dy = 0; 
-                } 
-                // If vertical movement is stronger, force horizontal to 0
-                else {
+                } else {
                     dx = 0; 
                 }
                 this.update(dx, dy);
@@ -440,11 +427,8 @@
             update(dx, dy) {
                 this.x = dx; this.y = dy;
                 
-                // Slight tilt only on X axis
-                let rot = 0;
-                if(dx !== 0) rot = dx * 0.03; 
-
-                this.el.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg)`;
+                // FIXED: STRAIGHT MOVEMENT - NO ROTATION
+                this.el.style.transform = `translate(${dx}px, ${dy}px)`;
                 
                 // Show HINTS
                 const t = 50;
@@ -456,11 +440,11 @@
 
             end() {
                 this.isDragging = false;
-                this.el.style.transition = 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)'; // Snap back
+                this.el.style.transition = 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)'; // Bouncy snap back
                 document.onmousemove = null; 
                 document.onmouseup = null;
 
-                const t = 80; // Trigger threshold
+                const t = 80; // Threshold
                 if (this.y < -t) this.trigger('UP');
                 else if (this.y > t) this.trigger('DOWN');
                 else if (this.x < -t) this.trigger('LEFT');
@@ -475,7 +459,7 @@
                 if (dir === 'LEFT') tx = -1000;
                 if (dir === 'RIGHT') tx = 1000;
 
-                this.el.style.transform = `translate(${tx}px, ${ty}px)`; 
+                this.el.style.transform = `translate(${tx}px, ${ty}px)`; // Straight exit
                 
                 processAnswer(this.data, dir);
 
@@ -486,24 +470,23 @@
             }
 
             reset() {
-                this.el.style.transform = 'translate(0, 0) rotate(0deg)';
+                this.el.style.transform = 'translate(0, 0)';
                 this.el.querySelectorAll('.hint-overlay').forEach(h => h.style.opacity = 0);
             }
         }
 
         // ==========================================
-        // 5. GAME LOGIC
+        // 5. GAME LOGIC & ROUTING
         // ==========================================
         function processAnswer(data, direction) {
             const ms = Date.now() - CARD_START_TIME;
             
-            // 1. Scoring Logic
+            // 1. Scoring
             let isCorrect = (direction === data.correct);
-            
             if (isCorrect) {
                 SCORE += parseInt(data.w || 10);
             } else if (direction === 'DOWN') {
-                // Neutral
+                 // Skip logic (neutral score)
             } else {
                 SCORE -= 5;
             }
@@ -515,19 +498,24 @@
             if(isCorrect) STATS.correct_count++;
             STATS.history.push({id: data.id, res: isCorrect});
 
-            // 3. Log Raw Swipe
+            // 3. Send Raw Telemetry
             logSwipe(data, direction, isCorrect, ms);
         }
 
         // ==========================================
-        // 6. STARTUP
+        // 6. INITIALIZATION SEQUENCE
         // ==========================================
         window.onload = async () => {
             const loader = document.getElementById('loader');
+            
+            // Step 1: Fetch Data
             await loadQuestions(CURRENT_DECK);
+            
+            // Step 2: Hide Loader
             loader.style.opacity = 0;
             setTimeout(() => {
                 loader.style.display = 'none';
+                // Step 3: Begin Game
                 spawnCard();
             }, 500);
         };
