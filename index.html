@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chemistry Master V47 (Clean UI)</title>
+    <title>Chemistry Master V50 (Electrochemistry)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,7 +14,7 @@
         :root {
             --bg-color: #000000;
             --card-bg: #1a1a1a;
-            --context-bg: #1a2333; /* Dark Blue for Context Cards */
+            --context-bg: #0d1b2a; 
             --report-bg: #111111;
             --text-main: #ffffff;
             --text-muted: #888888;
@@ -81,23 +81,23 @@
             background: var(--card-bg);
             border-radius: 32px; border: 1px solid #333;
             padding: 30px;
-            display: flex; flex-direction: column; justify-content: space-between; /* Vertically centered content */
+            display: flex; flex-direction: column; justify-content: space-between;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             will-change: transform; touch-action: none; user-select: none;
         }
 
-        /* Special Style for Context Cards */
+        /* Context Card Style */
         .card.card-context {
             background: var(--context-bg);
-            border-color: var(--accent-blue);
+            border: 1px solid var(--accent-blue);
         }
-
-        /* REMOVED: .card-meta class is deleted */
 
         .card-q { 
             font-size: 1.8rem; font-weight: 800; line-height: 1.2; 
-            margin-bottom: 10px; margin-top: 20px; /* Added top margin since ID is gone */
+            margin-bottom: 10px; margin-top: 20px; 
         }
+
+        .card-context .card-q { color: #e3f2fd; }
 
         .card-sub {
             background: #222; border-radius: 8px; padding: 10px;
@@ -117,10 +117,12 @@
         }
         .hint-up { color: var(--accent-blue); }
         .hint-left { color: var(--accent-red); } 
+        /* Context Override: Left becomes "Next" style */
+        .card-context .hint-left { color: var(--accent-blue) !important; } 
         .hint-right { color: var(--accent-green); }
         .hint-down { color: #ffffff; }
 
-        /* --- REPORT CARD STYLES --- */
+        /* --- REPORT CARD --- */
         .report-card {
             background: var(--report-bg); border: 2px solid var(--accent-blue);
             align-items: center; justify-content: center; text-align: center;
@@ -150,7 +152,7 @@
     </div>
 
     <div id="header">
-        <span id="deck-label">CHEM_MASTERY</span>
+        <span id="deck-label">ELECTRO_CHEM</span>
         <span id="score-label">SCORE: 0</span>
     </div>
 
@@ -165,7 +167,9 @@
         // CONFIGURATION
         // ==========================================
         const DATA_ENDPOINT = "https://script.google.com/macros/s/AKfycbxGZyuQOGf6eXwNZzcJwQYKk6pNw91nYcA403nOR4Ldma5zzLUb1Fz5P_U8-DLyEGOk/exec"; 
-        let CURRENT_DECK = "Chemistry_Master_1"; 
+        
+        // --- UPDATED DECK NAME ---
+        let CURRENT_DECK = "Electrochemistry"; 
         
         let SCORE = 0;
         let QUESTION_POOL = [];
@@ -215,7 +219,6 @@
             const accuracy = STATS.total_cards > 0 ? ((STATS.correct_count / STATS.total_cards) * 100).toFixed(0) : 0;
             const avg_lat = STATS.total_cards > 0 ? Math.round(STATS.total_latency / STATS.total_cards) : 0;
 
-            // Send Session Data
             fetch(DATA_ENDPOINT, {
                 method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -251,13 +254,32 @@
             const q = QUESTION_POOL.shift();
             USED_IDS.add(q.question_id);
             
+            // Context Check
+            let isContext = (q.q_type && q.q_type.toLowerCase() === 'context');
+            
+            // Label Logic (Dynamic + Override)
+            let upLabel = q.swipe_up_label;
+            let leftLabel = q.swipe_left_label;
+            let rightLabel = q.swipe_right_label;
+            let downLabel = q.swipe_down_label;
+
+            if(isContext) {
+                leftLabel = leftLabel || "CONTEXT";
+                upLabel = upLabel || "IGNORE";
+            } else {
+                upLabel = upLabel || "YES";
+                leftLabel = leftLabel || "NO";
+                rightLabel = rightLabel || "MAYBE";
+                downLabel = downLabel || "SKIP";
+            }
+
             return {
                 id: q.question_id, topic: q.topic, type: q.q_type,
                 text: q.question_text, subs: q.subs ? q.subs.toString().split('|') : [],
-                up: q.swipe_up_label || "YES", 
-                right: q.swipe_right_label || "MAYBE",
-                down: q.swipe_down_label || "SKIP", 
-                left: q.swipe_left_label || "NO", 
+                up: upLabel, 
+                right: rightLabel,
+                down: downLabel,
+                left: leftLabel, 
                 correct: q.correct, w: q.weight
             };
         }
@@ -266,7 +288,11 @@
             const ms = Date.now() - CARD_START_TIME;
             let isCorrect = (direction === data.correct);
             
-            if (direction !== 'DOWN') {
+            let isContext = (data.type && data.type.toLowerCase() === 'context');
+            
+            if (isContext && direction === 'LEFT') {
+                // Neutral
+            } else if (direction !== 'DOWN') {
                 if (isCorrect) SCORE += parseInt(data.w || 10);
                 else SCORE -= 5;
             }
@@ -282,14 +308,12 @@
             const el = document.createElement('div');
             el.className = 'card';
             
-            // Context Logic
             if(data.type && data.type.toLowerCase().includes('context')) {
                 el.classList.add('card-context');
             }
 
             const subHTML = data.subs.length > 0 ? `<div class="card-sub">${data.subs.join(' ')}</div>` : '';
             
-            // REMOVED ID DIV. Only Question and Subscripts remain.
             el.innerHTML = `
                 <div class="card-content">
                     <div class="card-q">${data.text}</div>
@@ -332,12 +356,13 @@
             moveMouse(e) { if (!this.isDragging) return; this.processMove(e.clientX - this.startX, e.clientY - this.startY); }
 
             processMove(dx, dy) {
-                if (Math.abs(dx) > Math.abs(dy)) dy = 0; else dx = 0; // Axis Lock
+                // Axis Lock
+                if (Math.abs(dx) > Math.abs(dy)) dy = 0; else dx = 0; 
                 
-                const MAX_DRAG = 150; // Sticky Clamp
+                // Sticky Clamp
+                const MAX_DRAG = 150; 
                 dx = Math.max(-MAX_DRAG, Math.min(MAX_DRAG, dx));
                 dy = Math.max(-MAX_DRAG, Math.min(MAX_DRAG, dy));
-
                 this.update(dx, dy);
             }
 
@@ -355,7 +380,6 @@
             end() {
                 this.isDragging = false;
                 document.onmousemove = null; document.onmouseup = null;
-
                 const triggerDist = 80;
                 if (this.y < -triggerDist) this.trigger('UP');
                 else if (this.y > triggerDist) this.trigger('DOWN');
