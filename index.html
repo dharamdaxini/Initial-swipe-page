@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Chemistry Master V72.6 (Tactile Latch)</title>
+<title>Chemistry Master V72.7 (LERP Engine)</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -76,7 +76,7 @@ body {
 </head>
 
 <body>
-<div id="loader">V72.6 TACTILE_LATCH_ACTIVE…</div>
+<div id="loader">V72.7 LERP_ANIMATION_ACTIVE…</div>
 
 <div id="header">
     <div class="header-meta">
@@ -153,48 +153,40 @@ function bindPhysics(el,data){
         if(!active) return; const p = e.touches ? e.touches[0] : e;
         let dx = p.clientX - sx; let dy = p.clientY - sy;
         
-        const govLimit = 20; // 0.5cm
-        const selectLimit = 40; // 1cm
+        const transitionLimit = 30; // 0.75cm
+        const selectLimit = 40;     // 1.0cm
         const dist = Math.sqrt(dx*dx + dy*dy);
         let angle = Math.atan2(-dy, dx) * (180 / Math.PI);
         if (angle < 0) angle += 360;
 
-        // V72.6 TACTILE LATCH LOGIC
-        if (dist >= selectLimit) {
-            isFrozen = true;
-        } else if (dist < govLimit) {
-            isFrozen = false;
-        }
+        // V72.7: Tactile Latch Logic
+        if (dist >= selectLimit) isFrozen = true;
+        else if (dist < 20) isFrozen = false;
 
         if (isFrozen) {
-            // Keep card clamped at the 1cm selection radius
             const rad = angle * (Math.PI / 180);
             dx = Math.cos(rad) * selectLimit;
             dy = -Math.sin(rad) * selectLimit;
-        } else if (dist > govLimit) {
-            // Damping zone between 0.5cm and 1cm
-            const rad = angle * (Math.PI / 180);
-            const dampenedDist = govLimit + ((dist - govLimit) * 0.3);
-            dx = Math.cos(rad) * dampenedDist;
-            dy = -Math.sin(rad) * dampenedDist;
         }
 
         x = dx; y = dy;
         el.style.transform = `translate3d(${x}px,${y}px,0) rotate(${x/18}deg)`;
 
-        // Label visibility tied to card position for smooth interpolation
+        // V72.7: Linear Interpolation (LERP) from 0 to 0.75cm
         const currentDist = Math.sqrt(x*x + y*y);
         Object.values(labels).forEach(l => { l.style.opacity = 0; });
-        if (currentDist >= govLimit) {
+        
+        if (currentDist > 0) {
             let activeLabel;
             if (angle >= 45 && angle < 135) activeLabel = labels.up;
             else if (angle >= 135 && angle < 225) activeLabel = labels.lt;
             else if (angle >= 225 && angle < 315) activeLabel = labels.dn;
             else activeLabel = labels.rt;
 
-            const alpha = Math.min((currentDist - govLimit) / 15, 1);
+            // SMOOTH TRANSITION: 0 to 1 over 0.75cm (30px)
+            const alpha = Math.min(currentDist / transitionLimit, 1);
             activeLabel.style.opacity = alpha;
-            activeLabel.style.transform = `scale(${0.9 + (alpha * 0.2)})`;
+            activeLabel.style.transform = `scale(${0.85 + (alpha * 0.25)})`;
         }
     };
 
