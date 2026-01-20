@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Chemistry Master V75.2</title>
+<title>Chemistry Master V75.3 [SYNC_LOCKED]</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -77,13 +77,13 @@ sup { font-size: 0.65em; vertical-align: super; line-height: 0; font-family: var
 .overlay-label { font-size:.8rem; color:var(--accent-gold); font-family:var(--font-code); margin-bottom:15px; text-transform:uppercase; }
 .overlay-body { font-size:1.15rem; line-height:1.7; color:#ccc; margin-bottom:30px; font-family: var(--font-chem); }
 
-.btn { width:100%; padding:18px; border-radius:60px; border:none; background:#fff; font-weight:900; cursor:pointer; text-transform:uppercase; font-family: var(--font-ui); }
-#loader { position:fixed; inset:0; background:#000; z-index:5000; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:var(--font-code); font-size:.8rem; text-align:center; padding: 20px; }
+.btn { width:100%; padding:18px; border-radius:60px; border:none; background:#fff; font-weight:900; cursor:pointer; text-transform:uppercase; font-family: var(--font-ui); margin-top: 10px; }
+#loader { position:fixed; inset:0; background:#000; z-index:5000; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:var(--font-code); font-size:.8rem; text-align:center; padding: 30px; }
 </style>
 </head>
 
 <body>
-<div id="loader">INITIALIZING SATELLITE ENGINE…</div>
+<div id="loader">HANDSHAKE IN PROGRESS…</div>
 
 <div id="header">
     <div class="header-meta">
@@ -96,7 +96,7 @@ sup { font-size: 0.65em; vertical-align: super; line-height: 0; font-family: var
 <div id="stack"></div>
 
 <script>
-// REPLACE WITH YOUR LATEST DEPLOYMENT URL
+// V75.3 PRODUCTION ENDPOINT
 const ENDPOINT="https://script.google.com/macros/s/AKfycbPvkuXpkFPZfwoj4H9Kevn2VXDcjjpOPxHtDqGDFxdclDdlwH0_0sHV-g4K1AGgfUJ/exec";
 
 let RAW_DATA=[], POOL=[], MISTAKES=[], SCORE=0, isTransitioning=false;
@@ -112,29 +112,43 @@ const formatChem = t => {
 
 async function init(){
     const loader = document.getElementById('loader');
+    loader.innerHTML = "ESTABLISHING SECURE FETCH...";
+    
     try {
-        console.log("Starting fetch handshake...");
-        const response = await fetch(ENDPOINT, { method: 'GET', redirect: 'follow' });
+        // V75.3: Use standard fetch with no-cache to bypass browser memory blocks
+        const response = await fetch(ENDPOINT, { 
+            method: 'GET',
+            cache: 'no-store'
+        });
         
-        if (!response.ok) throw new Error(`Server Response: ${response.status}`);
+        if (!response.ok) throw new Error(`Status: ${response.status}`);
         
         const dataText = await response.text();
-        if (dataText.startsWith("<!DOCTYPE")) throw new Error("Login Required: Check Deployment access.");
+        
+        // Detection for Google Login Redirect (Common failure point)
+        if (dataText.includes('google-signin') || dataText.startsWith('<!DOCTYPE')) {
+            throw new Error("AUTH_GATE_DETECTED");
+        }
 
         RAW_DATA = JSON.parse(dataText);
-        console.log("Sync successful. Rows loaded:", RAW_DATA.length);
+        console.log("Records Loaded:", RAW_DATA.length);
         loader.remove();
         renderDatasetSelect();
         
     } catch(e) {
-        console.error("Connectivity Fault:", e);
-        loader.innerHTML = `<span style="color:#ff4444; font-weight:900;">CONNECTION BLOCKED</span><br><br>
-        <div style="font-size:0.7rem; color:#aaa; max-width:300px; line-height:1.4;">
-        Reason: ${e.message}<br><br>
-        1. Set Deployment to 'Anyone'.<br>
-        2. Verify 'dataset' column exists.<br>
-        3. Test in Incognito Mode.
-        </div>`;
+        console.error("Master Sync Failure:", e);
+        let msg = "CONNECTION ERROR";
+        if(e.message === "AUTH_GATE_DETECTED") msg = "LOGIN REQUIRED";
+        
+        loader.innerHTML = `
+            <span style="color:#ff4444; font-weight:900;">${msg}</span><br><br>
+            <div style="font-size:0.7rem; color:#aaa; max-width:300px; line-height:1.6; text-align:left;">
+            1. <b>INCRAMENTAL FIX:</b> Open this file in <b>Incognito Mode</b>.<br>
+            2. <b>PERMISSIONS:</b> Set Apps Script Deployment to <b>'Anyone'</b>.<br>
+            3. <b>VERIFY:</b> Paste the ENDPOINT URL in a new tab. Does it show JSON text?
+            </div>
+            <button class="btn" onclick="location.reload()" style="font-size:0.7rem; padding:10px; width:150px; margin-top:20px;">RETRY SYNC</button>
+        `;
     }
 }
 
