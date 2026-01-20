@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist Mastery V79.2</title>
+<title>Alchemist Mastery V79.3</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -52,7 +52,7 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 
 <script>
 // UPDATED ENDPOINT
-const ENDPOINT="https://script.google.com/macros/s/AKfycby74PMTY2eG7ADA5v84E4lNedZpfpXoBor7WcDiEg9LPTVihYV6Cl2zVzYkC-qZ0ZYe/exec";
+const ENDPOINT="https://script.google.com/macros/s/AKfycbyWhjL3sUwj5X-PUN6_lmolDrnowD1xycUmzDkBvXqJmxp0ARefDw-cBlUaL97kzFcs/exec";
 
 let RAW_DATA=[], POOL=[], SCORE=0, isBusy=false, MODE="QUIZ";
 
@@ -69,11 +69,13 @@ async function init(){
         }
         
         RAW_DATA = JSON.parse(text);
+        if (RAW_DATA.error) throw new Error(RAW_DATA.details || RAW_DATA.error);
+        
         POOL = [...RAW_DATA].sort(() => Math.random() - 0.5);
         l.remove();
         renderNext();
     } catch(e) { 
-        l.innerHTML = `SYNC ERROR<br><small style="font-size:0.6rem;letter-spacing:1px">${e.message}</small>`;
+        l.innerHTML = `SYNC ERROR<br><small style="font-size:0.6rem;letter-spacing:1px;text-align:center;max-width:80%">${e.message}</small>`;
     }
 }
 
