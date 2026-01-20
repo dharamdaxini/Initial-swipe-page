@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Chemistry Master V73.0 [ORIGIN PIVOT]</title>
+<title>Chemistry Master V73.2</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -46,7 +46,6 @@ sup { font-size:.75em; vertical-align:super; line-height:0; }
     background:var(--card-bg); border-radius:40px; border:1px solid #282828;
     padding:40px; display:flex; flex-direction:column; justify-content:center;
     box-shadow:0 20px 60px rgba(0,0,0,.9);
-    /* V73.0: PIVOT LOCKED TO CENTER OF UNIT CIRCLE (CARD ORIGIN) */
     transform-origin: center center; 
     will-change:transform; cursor:grab;
     backface-visibility: hidden;
@@ -81,7 +80,7 @@ sup { font-size:.75em; vertical-align:super; line-height:0; }
 </head>
 
 <body>
-<div id="loader">V73.0 ORIGIN_PIVOT_ACTIVE…</div>
+<div id="loader">50 QUE FROM CORE CHEMISTRY…</div>
 
 <div id="header">
     <div class="header-meta">
@@ -94,11 +93,18 @@ sup { font-size:.75em; vertical-align:super; line-height:0; }
 <div id="stack"></div>
 
 <script>
-const ENDPOINT="PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE";
+// LIVE DEPLOYMENT URL
+const ENDPOINT="https://script.google.com/macros/s/AKfycbxX7BYWwtuCXAItt6mpUrMUcNnmhDBb5OdYNckmSo9tzuAeR6V9v2eEttBtFNV4Fw2j/exec";
+
 let RAW_DATA=[], POOL=[], MISTAKES=[], SCORE=0, isTransitioning=false;
 let MODE="TOPIC_SELECT";
 
-const formatChem = t => t?.replace(/([A-Z][a-z]?)(\d+)/g,'$1<sub>$2</sub>').replace(/(\d+)([+\-])/g, '<sup>$1$2</sup>') || "";
+const formatChem = t => {
+    if(!t) return "";
+    return t.toString().replace(/([A-Z][a-z]?)(\d+)/g,'$1<sub>$2</sub>')
+            .replace(/(\d+)([+\-])/g, '<sup>$1$2</sup>')
+            .replace(/\|\|/g, '<br><br>');
+};
 
 async function init(){
     try {
@@ -122,23 +128,20 @@ function renderTopicSelect(){
 function renderNext(){
     const s=document.getElementById('stack'); s.innerHTML="";
     if(!POOL.length){ renderEnd(); return; }
-    MODE="QUIZ"; const q=POOL.shift();
-    const splitExplanation = q.explanation.split('<br>');
-    const hint = splitExplanation[0];
-    const deepDive = splitExplanation.length > 1 ? splitExplanation[1] : q.explanation;
+    MODE="QUIZ"; const q = POOL.shift();
 
     const c=document.createElement('div'); c.className="card";
-    c.innerHTML=`<div class="card-q">${formatChem(q.text)}</div>
+    c.innerHTML=`<div class="card-q">${formatChem(q.question_text)}</div>
         <div class="swipe-label sl-up">${q.swipe_up_label}</div>
         <div class="swipe-label sl-left">${q.swipe_left_label}</div>
         <div class="swipe-label sl-right">${q.swipe_right_label}</div>
-        <div class="swipe-label sl-down">ANALYSIS</div>
+        <div class="swipe-label sl-down">${q.swipe_down_label}</div>
         <div class="overlay">
             <div class="overlay-label">DEEP DIVE REPORT</div>
-            <div class="overlay-body">${formatChem(deepDive)}</div>
+            <div class="overlay-body">${formatChem(q.explanation)}</div>
             <button class="btn" onclick="this.parentElement.classList.remove('active')">BACK</button>
         </div>`;
-    s.appendChild(c); bindPhysics(c,q,hint);
+    s.appendChild(c); bindPhysics(c, q, q.hint);
 }
 
 function renderEnd(){
@@ -184,7 +187,6 @@ function bindPhysics(el, data, hintText){
         x = dx; y = dy;
 
         requestAnimationFrame(() => {
-            // V73.0: ROTATION PIVOT IS FIXED AT ORIGIN (0,0) OF THE DISPLACEMENT VECTOR
             el.style.transform = `translate3d(${x}px,${y}px,0) rotate(${x/18}deg)`;
             Object.values(labels).forEach(l => { l.style.opacity = 0; l.style.transform = "scale(0.85) translateZ(0)"; });
             
@@ -194,7 +196,7 @@ function bindPhysics(el, data, hintText){
                 else if (angle >= 135 && angle < 225) activeLabel = labels.lt;
                 else if (angle >= 225 && angle < 315) {
                     activeLabel = labels.dn;
-                    if (MODE === "QUIZ") qTextEl.innerHTML = `<span style="font-size:1.2rem; color:var(--accent-gold); font-style:normal;">HINT: ${formatChem(hintText)}</span>`;
+                    if (MODE === "QUIZ" && hintText) qTextEl.innerHTML = `<span style="font-size:1.2rem; color:var(--accent-gold); font-style:normal;">HINT: ${formatChem(hintText)}</span>`;
                 }
                 else activeLabel = labels.rt;
 
@@ -240,7 +242,8 @@ function handleAction(el, data, x, y, dir){
         POOL = RAW_DATA.filter(q => q.topic === map[dir]).sort(() => Math.random() - .5);
         SCORE = 0; MISTAKES = [];
     } else if(MODE === "QUIZ"){
-        if(dir === (data.correct || "UP").toUpperCase()) SCORE += 10;
+        // SYNC: Matches Spreadsheet Uppercase 'correct' values
+        if(dir === (data.correct || "UP").toString().toUpperCase()) SCORE += 10;
         else { SCORE = Math.max(0, SCORE - 5); MISTAKES.push(data); }
     } else if(MODE === "SESSION_END"){
         if(dir === "LEFT" && MISTAKES.length){ POOL = [...MISTAKES]; MISTAKES = []; isTransitioning = false; renderNext(); return; }
