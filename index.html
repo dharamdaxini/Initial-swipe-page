@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chemistry Master V50 (Electrochemistry)</title>
+    <title>Chemistry Master V50.1 (Info Swipe)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,7 +14,8 @@
         :root {
             --bg-color: #000000;
             --card-bg: #1a1a1a;
-            --context-bg: #0d1b2a; 
+            --context-bg: #1a2333; 
+            --info-bg: rgba(0, 0, 0, 0.98); /* Deep Dive Overlay */
             --report-bg: #111111;
             --text-main: #ffffff;
             --text-muted: #888888;
@@ -84,20 +85,15 @@
             display: flex; flex-direction: column; justify-content: space-between;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             will-change: transform; touch-action: none; user-select: none;
+            overflow: hidden; 
         }
 
-        /* Context Card Style */
-        .card.card-context {
-            background: var(--context-bg);
-            border: 1px solid var(--accent-blue);
-        }
+        .card.card-context { background: var(--context-bg); border-color: var(--accent-blue); }
 
         .card-q { 
             font-size: 1.8rem; font-weight: 800; line-height: 1.2; 
             margin-bottom: 10px; margin-top: 20px; 
         }
-
-        .card-context .card-q { color: #e3f2fd; }
 
         .card-sub {
             background: #222; border-radius: 8px; padding: 10px;
@@ -117,10 +113,30 @@
         }
         .hint-up { color: var(--accent-blue); }
         .hint-left { color: var(--accent-red); } 
-        /* Context Override: Left becomes "Next" style */
-        .card-context .hint-left { color: var(--accent-blue) !important; } 
         .hint-right { color: var(--accent-green); }
         .hint-down { color: #ffffff; }
+
+        /* --- INFO / DEEP DIVE OVERLAY --- */
+        .info-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--info-bg);
+            padding: 30px;
+            display: flex; flex-direction: column; justify-content: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 20;
+        }
+        .info-overlay.active { opacity: 1; pointer-events: auto; }
+        
+        .info-label { font-family: var(--font-code); color: var(--accent-blue); font-size: 0.8rem; margin-bottom: 15px; letter-spacing: 1px; }
+        .info-text { font-size: 1.2rem; line-height: 1.5; color: #fff; margin-bottom: 40px; font-weight: 600; }
+        
+        .btn-next {
+            background: #fff; color: #000; border: none;
+            padding: 20px; border-radius: 50px; font-weight: 800; font-size: 1rem;
+            width: 100%; cursor: pointer; text-transform: uppercase;
+            box-shadow: 0 10px 20px rgba(255,255,255,0.2);
+        }
 
         /* --- REPORT CARD --- */
         .report-card {
@@ -133,14 +149,11 @@
         .report-stat { background: #222; padding: 15px; border-radius: 16px; }
         .stat-label { font-size: 0.7rem; color: #888; font-family: var(--font-code); }
         .stat-val { font-size: 1.2rem; font-weight: 700; color: #fff; margin-top: 5px; }
-        
         .btn-restart {
             background: var(--accent-blue); color: white; border: none;
             padding: 15px 40px; border-radius: 50px; font-size: 1rem; font-weight: 700;
-            cursor: pointer; box-shadow: 0 10px 30px rgba(41, 98, 255, 0.4);
-            transition: transform 0.2s;
+            cursor: pointer;
         }
-        .btn-restart:active { transform: scale(0.95); }
 
     </style>
 </head>
@@ -152,7 +165,7 @@
     </div>
 
     <div id="header">
-        <span id="deck-label">ELECTRO_CHEM</span>
+        <span id="deck-label">CHEM_MASTERY</span>
         <span id="score-label">SCORE: 0</span>
     </div>
 
@@ -167,9 +180,7 @@
         // CONFIGURATION
         // ==========================================
         const DATA_ENDPOINT = "https://script.google.com/macros/s/AKfycbxGZyuQOGf6eXwNZzcJwQYKk6pNw91nYcA403nOR4Ldma5zzLUb1Fz5P_U8-DLyEGOk/exec"; 
-        
-        // --- UPDATED DECK NAME ---
-        let CURRENT_DECK = "Electrochemistry"; 
+        let CURRENT_DECK = "Chemistry_Master_1"; 
         
         let SCORE = 0;
         let QUESTION_POOL = [];
@@ -254,45 +265,23 @@
             const q = QUESTION_POOL.shift();
             USED_IDS.add(q.question_id);
             
-            // Context Check
-            let isContext = (q.q_type && q.q_type.toLowerCase() === 'context');
-            
-            // Label Logic (Dynamic + Override)
-            let upLabel = q.swipe_up_label;
-            let leftLabel = q.swipe_left_label;
-            let rightLabel = q.swipe_right_label;
-            let downLabel = q.swipe_down_label;
-
-            if(isContext) {
-                leftLabel = leftLabel || "CONTEXT";
-                upLabel = upLabel || "IGNORE";
-            } else {
-                upLabel = upLabel || "YES";
-                leftLabel = leftLabel || "NO";
-                rightLabel = rightLabel || "MAYBE";
-                downLabel = downLabel || "SKIP";
-            }
-
             return {
                 id: q.question_id, topic: q.topic, type: q.q_type,
                 text: q.question_text, subs: q.subs ? q.subs.toString().split('|') : [],
-                up: upLabel, 
-                right: rightLabel,
-                down: downLabel,
-                left: leftLabel, 
+                explanation: q.explanation || "No details available.", // Fetch Explanation
+                up: q.swipe_up_label || "YES", 
+                right: q.swipe_right_label || "MAYBE",
+                down: q.swipe_down_label || "SKIP", 
+                left: q.swipe_left_label || "NO", 
                 correct: q.correct, w: q.weight
             };
         }
 
         function processAnswer(data, direction) {
             const ms = Date.now() - CARD_START_TIME;
+            
             let isCorrect = (direction === data.correct);
-            
-            let isContext = (data.type && data.type.toLowerCase() === 'context');
-            
-            if (isContext && direction === 'LEFT') {
-                // Neutral
-            } else if (direction !== 'DOWN') {
+            if (direction !== 'DOWN') {
                 if (isCorrect) SCORE += parseInt(data.w || 10);
                 else SCORE -= 5;
             }
@@ -307,11 +296,8 @@
         function createCardDOM(data) {
             const el = document.createElement('div');
             el.className = 'card';
+            if(data.type && data.type.toLowerCase().includes('context')) el.classList.add('card-context');
             
-            if(data.type && data.type.toLowerCase().includes('context')) {
-                el.classList.add('card-context');
-            }
-
             const subHTML = data.subs.length > 0 ? `<div class="card-sub">${data.subs.join(' ')}</div>` : '';
             
             el.innerHTML = `
@@ -319,12 +305,29 @@
                     <div class="card-q">${data.text}</div>
                     ${subHTML}
                 </div>
+                
                 <div class="hint-overlay hint-up">${data.up}</div>
                 <div class="hint-overlay hint-left">${data.left}</div>
                 <div class="hint-overlay hint-right">${data.right}</div>
                 <div class="hint-overlay hint-down">${data.down}</div>
+
+                <div class="info-overlay" id="info-${data.id}">
+                    <div class="info-label">DEEP DIVE</div>
+                    <div class="info-text">${data.explanation}</div>
+                    <button class="btn-next" onclick="forceNext()">GOT IT</button>
+                </div>
             `;
             return el;
+        }
+
+        // Global Helper for the "GOT IT" Button
+        window.forceNext = function() {
+            const card = document.querySelector('.card:not(.report-card)');
+            if(card) {
+                card.style.transition = 'transform 0.3s ease-in';
+                card.style.transform = 'translate(0, 1000px)'; // Fly down
+                setTimeout(() => { card.remove(); spawnCard(); }, 200);
+            }
         }
 
         function spawnCard() {
@@ -337,7 +340,7 @@
         }
 
         // ==========================================
-        // 4. PHYSICS ENGINE (Sticky & Locked)
+        // 4. PHYSICS ENGINE
         // ==========================================
         class Draggable {
             constructor(element, data) {
@@ -349,18 +352,24 @@
                 this.el.addEventListener('mousedown', this.startMouse.bind(this));
             }
 
-            start(e) { this.startX = e.touches[0].clientX; this.startY = e.touches[0].clientY; this.isDragging = true; this.el.style.transition = 'none'; }
-            startMouse(e) { this.startX = e.clientX; this.startY = e.clientY; this.isDragging = true; this.el.style.transition = 'none'; document.onmousemove = this.moveMouse.bind(this); document.onmouseup = this.end.bind(this); }
+            start(e) { 
+                if(this.el.querySelector('.info-overlay.active')) return; // Block drag if info open
+                this.startX = e.touches[0].clientX; this.startY = e.touches[0].clientY; 
+                this.isDragging = true; this.el.style.transition = 'none'; 
+            }
+            startMouse(e) { 
+                if(this.el.querySelector('.info-overlay.active')) return; // Block drag if info open
+                this.startX = e.clientX; this.startY = e.clientY; 
+                this.isDragging = true; this.el.style.transition = 'none'; 
+                document.onmousemove = this.moveMouse.bind(this); document.onmouseup = this.end.bind(this); 
+            }
             
             move(e) { if (!this.isDragging) return; this.processMove(e.touches[0].clientX - this.startX, e.touches[0].clientY - this.startY); }
             moveMouse(e) { if (!this.isDragging) return; this.processMove(e.clientX - this.startX, e.clientY - this.startY); }
 
             processMove(dx, dy) {
-                // Axis Lock
                 if (Math.abs(dx) > Math.abs(dy)) dy = 0; else dx = 0; 
-                
-                // Sticky Clamp
-                const MAX_DRAG = 150; 
+                const MAX_DRAG = 150;
                 dx = Math.max(-MAX_DRAG, Math.min(MAX_DRAG, dx));
                 dy = Math.max(-MAX_DRAG, Math.min(MAX_DRAG, dy));
                 this.update(dx, dy);
@@ -369,7 +378,6 @@
             update(dx, dy) {
                 this.x = dx; this.y = dy;
                 this.el.style.transform = `translate(${dx}px, ${dy}px)`;
-                
                 const t = 40; 
                 this.el.querySelector('.hint-up').style.opacity = dy < -t ? 1 : 0;
                 this.el.querySelector('.hint-down').style.opacity = dy > t ? 1 : 0;
@@ -380,18 +388,37 @@
             end() {
                 this.isDragging = false;
                 document.onmousemove = null; document.onmouseup = null;
+
                 const triggerDist = 80;
+                
+                // CHECK: If DOWN Swipe, Trigger Info Mode
+                if (this.y > triggerDist) {
+                    this.triggerInfo();
+                    return;
+                }
+
                 if (this.y < -triggerDist) this.trigger('UP');
-                else if (this.y > triggerDist) this.trigger('DOWN');
                 else if (this.x < -triggerDist) this.trigger('LEFT');
                 else if (this.x > triggerDist) this.trigger('RIGHT');
                 else this.reset();
             }
 
+            triggerInfo() {
+                // Snap back and show info
+                this.el.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
+                this.el.style.transform = 'translate(0, 0)';
+                this.el.querySelectorAll('.hint-overlay').forEach(h => h.style.opacity = 0);
+                
+                const overlay = this.el.querySelector('.info-overlay');
+                if(overlay) overlay.classList.add('active');
+                
+                processAnswer(this.data, 'DOWN');
+            }
+
             trigger(dir) {
                 this.el.style.transition = 'transform 0.3s ease-in';
                 let tx = 0, ty = 0;
-                if (dir === 'UP') ty = -1000; if (dir === 'DOWN') ty = 1000;
+                if (dir === 'UP') ty = -1000;
                 if (dir === 'LEFT') tx = -1000; if (dir === 'RIGHT') tx = 1000;
 
                 this.el.style.transform = `translate(${tx}px, ${ty}px)`;
