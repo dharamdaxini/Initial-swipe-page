@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist Mastery V76.9</title>
+<title>Alchemist Mastery V77.0</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -77,7 +77,7 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 .overlay-body { font-size: 1.2rem; line-height: 1.7; color: #ccc; margin-bottom: 30px; font-family: var(--font-chem); }
 
 .btn { width: 100%; padding: 18px; border-radius: 60px; border: none; background: #fff; font-weight: 900; cursor: pointer; text-transform: uppercase; font-family: var(--font-ui); margin-top: 10px; }
-#loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: var(--font-code); font-size: 1.2rem; letter-spacing: 5px; color: var(--accent-gold); flex-direction: column; text-align: center;}
+#loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: var(--font-code); font-size: 1.2rem; letter-spacing: 5px; color: var(--accent-gold); flex-direction: column; text-align: center; }
 </style>
 </head>
 
@@ -95,6 +95,7 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 <div id="stack"></div>
 
 <script>
+// YOUR SPECIFIC DEPLOYMENT ID
 const ENDPOINT="https://script.google.com/macros/s/AKfycbxaMo1Gi8KjfYOr1_pHJI5XYJ1t9FK4PWkFCm8lU4MsCmUXvY0nSUIqYTAqhpumFRFL/exec";
 
 let RAW_DATA=[], POOL=[], MISTAKES=[], SCORE=0, isTransitioning=false;
@@ -114,43 +115,55 @@ async function init(){
         const r = await fetch(ENDPOINT);
         const json = await r.json();
         
-        // --- V76.9 SAFETY CHECK ---
-        if(!Array.isArray(json)) { throw new Error("INVALID DATA FORMAT"); }
+        if(!Array.isArray(json) || json.length === 0) { throw new Error("EMPTY_DATASET"); }
         RAW_DATA = json;
         
-        // --- SAFE AUTO-START ---
-        // Try to start Set A. If empty, fall back to menu.
-        CURRENT_DATASET = "SET_A";
-        CURRENT_TOPIC = "Physical";
-        
-        // Only remove loader if we successfully render something
-        const autoStartSuccess = attemptAutoStart("Physical", "CONCEPT");
-        
-        if(!autoStartSuccess) {
-            console.warn("Auto-start failed (empty pool). Loading Menu.");
-            renderDatasetSelect();
+        // --- SMART AUTO-START ENGINE ---
+        // 1. Try Default: Physical / CONCEPT
+        if(attemptAutoStart("SET_A", "Physical", "CONCEPT")) {
+             l.remove(); return; 
         }
-        
+
+        // 2. Fallback: Try ANY available topic from the first row of data
+        const first = RAW_DATA[0];
+        console.warn("Default topic empty. Auto-switching to:", first.dataset, first.topic);
+        if(attemptAutoStart(first.dataset, first.topic, first.q_type)) {
+             l.remove(); return;
+        }
+
+        // 3. Last Resort: Main Menu
         l.remove();
-        
+        renderDatasetSelect();
+
     } catch(e) { 
         console.error(e);
-        l.innerHTML = `SYNC ERROR<br><small style="font-size:0.6rem; opacity:0.7; letter-spacing:0;">${e.message}</small><br><button class="btn" style="width:auto; margin-top:20px; font-size:0.7rem;" onclick="location.reload()">RETRY</button>`; 
+        l.innerHTML = `SYNC ERROR<br><small style="font-size:0.6rem; opacity:0.7;">${e.message}</small>`; 
     }
 }
 
-// Helper to safely try starting quiz without crashing
-function attemptAutoStart(topic, genre){
-    CURRENT_GENRE=genre;
-    POOL=RAW_DATA.filter(q => 
-        (q.dataset||"").toUpperCase() === CURRENT_DATASET.toUpperCase() && 
-        (q.topic||"").toLowerCase() === topic.toLowerCase() && 
-        (q.q_type||"").toUpperCase() === genre.toUpperCase()
+function attemptAutoStart(dataset, topic, genre){
+    // Normalize inputs to match data robustly
+    const cleanD = (dataset||"").trim().toUpperCase();
+    const cleanT = (topic||"").trim().toLowerCase();
+    const cleanG = (genre||"").trim().toUpperCase();
+
+    // Set Global State
+    CURRENT_DATASET = dataset;
+    CURRENT_TOPIC = topic;
+    CURRENT_GENRE = genre;
+
+    // Filter Pool
+    POOL = RAW_DATA.filter(q => 
+        (q.dataset||"").trim().toUpperCase() === cleanD && 
+        (q.topic||"").trim().toLowerCase() === cleanT && 
+        (q.q_type||"").trim().toUpperCase() === cleanG
     ).sort(() => Math.random() - .5);
     
-    if(!POOL.length) return false;
-    renderNext();
-    return true;
+    if(POOL.length > 0) {
+        renderNext();
+        return true;
+    }
+    return false;
 }
 
 function renderDatasetSelect(){
@@ -181,10 +194,15 @@ function renderGenreSelect(topic){
 }
 
 function startQuiz(topic, genre){
-    const success = attemptAutoStart(topic, genre);
-    if(!success) {
-        alert("No questions found for this section.");
-        renderDatasetSelect();
+    // Reuse Smart-Start logic for manual navigation
+    if(!attemptAutoStart(CURRENT_DATASET, topic, genre)) {
+        // Safe Error Handling: Show visual card instead of alert loop
+        const s=document.getElementById('stack'); s.innerHTML="";
+        const c=document.createElement('div'); c.className="card";
+        c.innerHTML=`<div class="card-q" style="font-size:1.5rem; color:#ff4444;">NO DATA FOUND<br><small style="color:#777; font-size:1rem;">${CURRENT_DATASET} / ${topic}</small></div>
+            <div class="swipe-label sl-down">BACK</div>`;
+        s.appendChild(c); bindPhysics(c);
+        MODE="SESSION_END"; // Treat as end state to allow exit
     }
 }
 
