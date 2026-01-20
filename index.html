@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist V77.2</title>
+<title>Alchemist V77.3</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,600;1,600&family=Inter:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 
 <style>
-/* V77.2 CSS - IRONCLAD BUILD */
+/* V77.3 CSS - IRONCLAD BUILD */
 :root {
     --bg-color: #000000;
     --card-bg: #111111;
@@ -81,13 +81,13 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 .btn:active { transform: scale(0.98); }
 
 #loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: var(--font-code); font-size: 1.2rem; letter-spacing: 5px; color: var(--accent-gold); flex-direction: column; text-align: center; }
-#version-badge { position: fixed; top: 10px; left: 10px; z-index: 9999; background: #ff0000; color: white; font-family: var(--font-code); font-size: 0.7rem; padding: 4px 8px; border-radius: 4px; pointer-events: none; opacity: 0.7; }
+#version-badge { position: fixed; top: 10px; left: 10px; z-index: 9999; background: #00ff00; color: black; font-family: var(--font-code); font-size: 0.7rem; padding: 4px 8px; border-radius: 4px; pointer-events: none; opacity: 0.8; font-weight:bold;}
 </style>
 </head>
 
 <body>
-<div id="loader">ALCHEMIST<br><small style="font-size:0.6em; opacity:0.5; margin-top:10px;">V77.2 LOADING</small></div>
-<div id="version-badge">V77.2 LIVE</div>
+<div id="loader">ALCHEMIST<br><small style="font-size:0.6em; opacity:0.5; margin-top:10px;">V77.3 OFFLINE</small></div>
+<div id="version-badge">V77.3 OFFLINE</div>
 
 <div id="header">
     <div class="header-meta">
@@ -100,10 +100,11 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 <div id="stack"></div>
 
 <script>
-// LIVE ENDPOINT
+// LIVE ENDPOINT (DISABLED FOR V77.3 to prevent data corruption)
 const ENDPOINT = "https://script.google.com/macros/s/AKfycbxaMo1Gi8KjfYOr1_pHJI5XYJ1t9FK4PWkFCm8lU4MsCmUXvY0nSUIqYTAqhpumFRFL/exec";
 
-// FALLBACK DATABASE (V77.2 Ironclad)
+// FALLBACK DATABASE (V77.3 Ironclad)
+// FULL 90 QUESTION DATABASE
 const BACKUP_DATA = [
   { "dataset": "SET_A", "topic": "Physical", "q_type": "CONCEPT", "question_text": "What does a negative ΔG value signify for a chemical reaction?", "hint": "Spontaneity depends on Gibbs free energy.", "explanation": "✅ A negative ΔG indicates the reaction is spontaneous at the given temperature.", "swipe_up_label": "Spontaneous", "swipe_right_label": "Equilibrium", "swipe_down_label": "HINT", "swipe_left_label": "Non-spontaneous", "correct": "UP", "weight": 1 },
   { "dataset": "SET_A", "topic": "Physical", "q_type": "APPLICATION", "question_text": "If reaction rate doubles when T increases from 298K to 308K, effect on k?", "hint": "Arrhenius equation.", "explanation": "✅ k increases exponentially with temperature because more molecules exceed Ea.", "swipe_up_label": "k Increases", "swipe_right_label": "k is Constant", "swipe_down_label": "HINT", "swipe_left_label": "k Decreases", "correct": "UP", "weight": 2 },
@@ -192,6 +193,8 @@ async function init(){
     const l = document.getElementById('loader');
     
     // ATTEMPT CLOUD SYNC - IF FAILS, IT JUST LOGS ERROR AND PROCEEDS WITH BACKUP
+    // DISABLED FOR V77.3 to prevent data corruption from empty sheets
+    /*
     try {
         const r = await fetch(ENDPOINT);
         const json = await r.json();
@@ -200,6 +203,7 @@ async function init(){
             RAW_DATA = json; 
         } else { console.warn("Cloud empty. Using backup."); }
     } catch(e) { console.warn("Offline/Sync Fail. Using backup."); }
+    */
 
     CURRENT_DATASET = "SET_A";
     let startSuccess = attemptAutoStart("Physical", "CONCEPT");
