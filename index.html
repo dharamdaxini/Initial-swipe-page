@@ -3,55 +3,69 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Geo-Politics 2026</title>
+<title>Alchemist V90.0 Apex</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 
 <style>
-/* V89.6 UNIVERSAL STYLE */
-:root { 
-    --bg-color: #000000; --card-bg: #121212; 
-    --accent-gold: #ffcc00; --hint-blue: #4dabf7; --err-red: #ff4d4d;
-    --font-ui: 'Outfit', sans-serif; 
+/* -----------------------------------------------------------
+   V90.0 "APEX" CSS STYLING
+   ----------------------------------------------------------- */
+:root {
+    --bg-color: #000000;
+    --card-bg: #121212;
+    --overlay-bg: rgba(15, 15, 15, 0.98);
+    --border-color: #333;
+    
+    --accent-gold: #ffcc00;
+    --hint-blue: #4dabf7;
+    --err-red: #ff4d4d;
+    --text-main: #ffffff;
+
     --font-serif: 'Libre Baskerville', serif; 
+    --font-ui: 'Outfit', sans-serif;
     --font-code: 'JetBrains Mono', monospace; 
 }
 
 * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
 body { 
-    margin: 0; height: 100vh; background: var(--bg-color); color: #fff; 
+    margin: 0; height: 100vh; background: var(--bg-color); color: var(--text-main);
     font-family: var(--font-ui); overflow: hidden; 
     touch-action: none; user-select: none; -webkit-user-select: none;
 }
 
+/* HEADER */
 #header { width: 90%; margin: calc(20px + env(safe-area-inset-top)) auto 0; pointer-events: none; z-index: 10; position: relative; }
 .header-meta { display: flex; justify-content: space-between; font-family: var(--font-code); font-size: 0.75rem; color: #666; margin-bottom: 8px; letter-spacing: 0.5px; }
 .progress-track { width: 100%; height: 4px; background: #222; border-radius: 4px; }
 #progress-bar { height: 100%; background: var(--accent-gold); width: 0%; transition: width 0.4s ease; box-shadow: 0 0 12px rgba(255, 204, 0, 0.4); }
 
-#stack { position: relative; width: 90%; max-width: 400px; height: calc(100vh - 160px - env(safe-area-inset-top)); margin: 20px auto 0; perspective: 1200px; }
+/* CARD STACK */
+#stack { position: relative; width: 92%; max-width: 400px; height: calc(100vh - 160px - env(safe-area-inset-top)); margin: 25px auto 0; perspective: 1200px; }
 
 .card { 
     position: absolute; width: 100%; height: 100%; 
-    background: var(--card-bg); border-radius: 24px; border: 1px solid #333; 
+    background: var(--card-bg); border-radius: 32px; border: 1px solid var(--border-color); 
     display: flex; flex-direction: column; justify-content: center; align-items: center;
-    transform-origin: center center; box-shadow: 0 25px 50px rgba(0,0,0,0.95); will-change: transform; 
-    padding: 25px; touch-action: none;
+    transform-origin: center center; box-shadow: 0 25px 60px rgba(0,0,0,0.9); will-change: transform; 
+    padding: 30px; touch-action: none;
 }
 
 .card-q { 
     font-family: var(--font-serif); 
-    font-size: clamp(1.2rem, 4.5vw, 1.6rem); 
-    line-height: 1.5; font-weight: 700; text-align: center; color: #e0e0e0;
-    width: 100%; word-wrap: break-word; 
+    font-size: clamp(1.3rem, 5vw, 1.8rem); 
+    line-height: 1.4; font-weight: 700; text-align: center; color: #e0e0e0;
+    width: 100%; word-wrap: break-word; pointer-events: none;
 }
 
+/* SWIPE LABELS */
 .swipe-label { 
     position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; 
-    background: rgba(0,0,0,0.96); font-family: var(--font-ui); font-weight: 900; font-size: 2rem; 
-    text-transform: uppercase; border-radius: 24px; opacity: 0; pointer-events: none; z-index:100; letter-spacing: 2px; text-align:center; padding: 20px;
+    background: rgba(0,0,0,0.96); font-family: var(--font-ui); font-weight: 900; font-size: 2.2rem; 
+    text-transform: uppercase; border-radius: 32px; opacity: 0; pointer-events: none; z-index:100; 
+    letter-spacing: 2px; text-align:center; padding: 20px;
 }
 .sl-down-hint { 
     color: var(--hint-blue) !important; font-size: 1.4rem !important; text-transform: none !important; 
@@ -59,6 +73,7 @@ body {
 }
 .hint-icon { font-size: 3rem; margin-bottom: 15px; display: block; }
 
+/* MENU SYSTEM */
 .menu-container { position: absolute; inset: 0; padding: 20px; pointer-events: none; }
 .menu-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 100%; }
 .menu-opt { position: absolute; font-family: var(--font-ui); font-weight: 800; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; color: #666; transition: color 0.2s; }
@@ -67,6 +82,16 @@ body {
 .opt-bottom { bottom: 25px; left: 0; right: 0; text-align: center; color: var(--hint-blue); }
 .opt-left { top: 50%; left: 25px; transform: translateY(-50%); text-align: left; }
 .opt-right { top: 50%; right: 25px; transform: translateY(-50%); text-align: right; }
+
+/* OVERLAY & MODALS */
+.overlay {
+    position: absolute; inset: 0; background: var(--overlay-bg); z-index: 1100; padding: 40px 30px; 
+    opacity: 0; pointer-events: none; border-radius: 32px; transition: opacity 0.2s ease;
+    display: flex; flex-direction: column; justify-content: center;
+}
+.overlay.active { opacity: 1; pointer-events: auto; }
+.overlay-label { font-size: 0.8rem; color: var(--accent-gold); font-family: var(--font-code); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 2px; }
+.overlay-body { font-size: 1.1rem; line-height: 1.6; color: #ccc; margin-bottom: 30px; font-family: var(--font-serif); }
 
 #analysis-modal { position: absolute; inset: 0; background: #000; z-index: 2000; display: flex; flex-direction: column; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; padding-top: env(safe-area-inset-top); }
 #analysis-modal.active { opacity: 1; pointer-events: auto; }
@@ -77,8 +102,8 @@ body {
 .mistake-ans { font-family: var(--font-code); font-size: 0.8rem; color: var(--err-red); margin-bottom: 10px; text-transform: uppercase; }
 .mistake-exp { font-family: var(--font-serif); font-size: 0.95rem; color: #aaa; line-height: 1.5; border-top: 1px solid #222; padding-top: 10px; }
 
+/* CONTROLS */
 .input-name { width: 100%; padding: 18px; border-radius: 16px; border: 1px solid #444; background: #1a1a1a; color: #fff; font-family: var(--font-ui); font-size: 1.1rem; margin-bottom: 15px; text-align: center; outline: none; }
-.input-name:focus { border-color: var(--accent-gold); }
 .btn { width: 100%; padding: 20px; border-radius: 100px; border: none; background: #fff; color: #000; font-weight: 800; cursor: pointer; text-transform: uppercase; font-family: var(--font-ui); letter-spacing: 1px; margin-top: 10px; font-size: 0.9rem; }
 .btn-save { background: var(--accent-gold); color: #000; box-shadow: 0 5px 20px rgba(255, 204, 0, 0.2); }
 .btn-review { background: #333; color: #fff; border: 1px solid #555; }
@@ -107,14 +132,12 @@ body {
 
 <script>
 // =========================================================
-// ✅ UPDATED WEB APP URL (V89.6)
+// ✅ V90.0 ENGINE CONFIGURATION
 // =========================================================
 const ENDPOINT = "https://script.google.com/macros/s/AKfycbyWNjpYR-DrK2Bfd0TJFgB5Jbg-qm6WgrKv_9V2IEaRHQVINCIVOq9zPPT-4OVaq-uA/exec";
 
-// =========================================================
-// OFFLINE BACKUP (Geopolitics 2026)
-// =========================================================
-const UNIVERSAL_DATA = [
+// OFFLINE BACKUP (Geopolitics 2026) - Instantly loads if internet fails
+const BACKUP_DATA = [
   { "dataset": "SET_A", "topic": "Global Power Shifts", "q_type": "CONCEPT", "weight": 1, "question_text": "Primary driver of 2026 geopolitics?", "hint": "💡 Think competition, not cooperation.", "explanation": "✅ Multipolar rivalry is correct because power is distributed among US, China, and regional blocs. ❌ Unipolar dominance is incorrect because no single hegemon dominates. ❌ Global unity is incorrect because conflicts persist.", "swipe_up_label": "Unipolar", "swipe_right_label": "Multipolar", "swipe_down_label": "HINT", "swipe_left_label": "Global unity", "correct": "RIGHT" }, 
   { "dataset": "SET_A", "topic": "US-China Relations", "q_type": "CONCEPT", "weight": 1, "question_text": "Core US-China tension area?", "hint": "💡 Technology + security.", "explanation": "✅ Technology dominance is correct because chips, AI, and supply chains drive rivalry. ❌ Cultural conflict is incorrect because values differ but are secondary. ❌ Tourism is incorrect because it has minimal strategic impact.", "swipe_up_label": "Culture", "swipe_right_label": "Tourism", "swipe_down_label": "HINT", "swipe_left_label": "Technology", "correct": "LEFT" }, 
   { "dataset": "SET_B", "topic": "Ukraine War", "q_type": "APPLICATION", "weight": 2, "question_text": "Ukraine war impacts Europe how?", "hint": "💡 Energy and security.", "explanation": "✅ Energy insecurity is correct because gas supply disruptions reshaped policy. ❌ Economic isolation is incorrect because EU trades globally. ❌ Military neutrality is incorrect because NATO expanded.", "swipe_up_label": "Isolation", "swipe_right_label": "Energy shock", "swipe_down_label": "HINT", "swipe_left_label": "Neutrality", "correct": "RIGHT" }, 
@@ -134,11 +157,8 @@ const UNIVERSAL_DATA = [
   { "dataset": "SET_B", "topic": "Latin America", "q_type": "CONCEPT", "weight": 2, "question_text": "Latin America's key challenge?", "hint": "💡 Economy + stability.", "explanation": "✅ Economic inequality is correct because it fuels unrest. ❌ External invasion is incorrect. ❌ Climate neutrality is incorrect.", "swipe_up_label": "Invasion", "swipe_right_label": "Inequality", "swipe_down_label": "HINT", "swipe_left_label": "Neutrality", "correct": "RIGHT" }, 
   { "dataset": "SET_D", "topic": "Future Outlook", "q_type": "APPLICATION", "weight": 3, "question_text": "2026 geopolitics most defined by?", "hint": "💡 Competition without war.", "explanation": "✅ Strategic rivalry is correct because states compete below war threshold. ❌ Global peace is incorrect. ❌ Total war is incorrect.", "swipe_up_label": "Global peace", "swipe_right_label": "Total war", "swipe_down_label": "HINT", "swipe_left_label": "Rivalry", "correct": "LEFT" }
 ];
-/* --------------------------------------------------- */
 
-// ENGINE CONFIGURATION
-let RAW_DATA = [...UNIVERSAL_DATA];
-let POOL=[], MISTAKES=[], SCORE=0, isTransitioning=false;
+let RAW_DATA = [...BACKUP_DATA], POOL=[], MISTAKES=[], SCORE=0, isTransitioning=false;
 let MODE="DATASET_SELECT", CURRENT_DATASET="", CURRENT_TOPIC="", CURRENT_GENRE="";
 const CLAMP_DIST = 32; const OPACITY_DIST = 24; 
 
@@ -157,21 +177,22 @@ async function init(){
     const l = document.getElementById('loader');
     const status = document.getElementById('data-source');
     
-    // Try Cloud Sync
+    // ATTEMPT CLOUD SYNC
     try {
         const r = await fetch(ENDPOINT);
         const json = await r.json();
-        if(Array.isArray(json) && json.length > 0) {
+        
+        if(Array.isArray(json) && json.length > 0) { 
             RAW_DATA = json; 
-            status.innerText = `SHEET CONNECTED: ${json.length} CARDS`; status.style.color = "#00ff00";
+            status.innerText = `SYNCED: ${json.length} CARDS`; status.style.color = "#00ff00";
         } else {
-            status.innerText = "SHEET EMPTY - USING OFFLINE DATA"; status.style.color = "orange";
+            status.innerText = "USING OFFLINE DATA"; status.style.color = "orange";
         }
     } catch(e) { 
         status.innerText = `OFFLINE MODE: ${RAW_DATA.length} CARDS`; status.style.color = "orange"; 
     }
 
-    setTimeout(() => { l.remove(); renderDatasetSelect(); }, 1200);
+    setTimeout(() => { l.remove(); renderDatasetSelect(); }, 1000);
 }
 
 // --- UNIVERSAL FILTERING LOGIC ---
@@ -224,7 +245,8 @@ function renderTopicSelect(dataset){
     MODE="TOPIC_SELECT"; CURRENT_DATASET=dataset; const s=document.getElementById('stack'); s.innerHTML="";
     const c=document.createElement('div'); c.className="card";
     
-    // Generic topic selection (Works with fallbacks)
+    // Note: To make this fully dynamic for any subject, we use generic topic labels here.
+    // In a production app, you would generate these buttons based on the JSON content.
     c.innerHTML=`
         <div class="menu-container">
             <div class="opt-top menu-opt">⬆️ TOPIC 1</div>
@@ -240,8 +262,7 @@ function renderTopicSelect(dataset){
 }
 
 function renderGenreSelect(topic){
-    // Bypassing Genre Select to start faster (Universal Mode)
-    startQuiz(topic, "MIXED");
+    startQuiz(topic, "MIXED"); // Bypass Genre for speed
 }
 
 function startQuiz(topic, genre){ attemptAutoStart(topic, genre); }
@@ -257,6 +278,7 @@ function renderNext(){
         <div class="swipe-label sl-left">${smartFormat(q.swipe_left_label)}</div>
         <div class="swipe-label sl-right">${smartFormat(q.swipe_right_label)}</div>
         <div class="swipe-label sl-down sl-down-hint"><div class="hint-icon">💡</div>${smartFormat(q.hint)}</div>
+        <div class="overlay"><div class="overlay-label">ANALYSIS</div><div class="overlay-body">${smartFormat(q.explanation)}</div><button class="btn" onclick="this.parentElement.classList.remove('active')">CONTINUE</button></div>
     `;
     s.appendChild(c); bindPhysics(c, q);
 }
@@ -297,7 +319,10 @@ function bindPhysics(el, data){
     let x=0, y=0, sx=0, sy=0, active=false, triggerDir=null;
     const labels={up:el.querySelector('.sl-up'), dn:el.querySelector('.sl-down'), lt:el.querySelector('.sl-left'), rt:el.querySelector('.sl-right')};
     
-    const start=e=>{ if(isTransitioning) return; active=true; const p=e.touches?e.touches[0]:e; sx=p.clientX; sy=p.clientY; el.style.transition="none"; };
+    const start=e=>{ 
+        if(isTransitioning || (el.querySelector('.overlay') && el.querySelector('.overlay').classList.contains('active'))) return;
+        active=true; const p=e.touches?e.touches[0]:e; sx=p.clientX; sy=p.clientY; el.style.transition="none"; 
+    };
     
     const move=e=>{
         if(!active)return; 
@@ -325,6 +350,7 @@ function bindPhysics(el, data){
         if(!active)return; active=false;
         if(triggerDir){
             if(MODE==="QUIZ" && triggerDir==="DOWN"){ 
+                el.querySelector('.overlay').classList.add('active');
                 el.style.transition="transform .3s"; 
                 el.style.transform="translate3d(0,0,0) rotate(0deg)"; 
             } else {
@@ -348,7 +374,7 @@ function handleAction(el, data, x, y, dir){
     }
     else if(MODE==="DATASET_SELECT"){ const map={UP:"SET_A", LEFT:"SET_B", RIGHT:"SET_C", DOWN:"SET_D"}; renderTopicSelect(map[dir]); }
     else if(MODE==="TOPIC_SELECT"){ 
-        // Maps Directions to Generic Topic Groups
+        // Maps Directions to Generic Topic Groups (can be customized)
         const map={UP:"Topic 1", LEFT:"Topic 2", RIGHT:"Topic 3", DOWN:"Topic 4"}; 
         renderGenreSelect(map[dir]); 
     }
