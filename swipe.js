@@ -1,221 +1,184 @@
 /**
- * ALCHEMIST MASTER V75 - LOGIC HUB
- * Optimized for 85-Question State Isolation
+ * ALCHEMIST PIVOT ENGINE V80.2
+ * Direct Entry + Unit Circle Intent + Spatial Physics
  */
 
-// --- CONFIGURATION ---
-const ENDPOINT = "https://script.google.com/macros/s/AKfycbxaMo1Gi8KjfYOr1_pHJI5XYJ1t9FK4PWkFCm8lU4MsCmUXvY0nSUIqYTAqhpumFRFL/exec";
+const CONFIG = {
+    THRESHOLD: 80,    // Min distance to trigger swipe
+    DAMPING: 18,      // 1° tilt per 18px (Spatial Physics)
+    SMOOTHING: 0.8,   // 120Hz Velocity Clamp (Smoothing Factor)
+    OPACITY_DIV: 50,  // Label full opacity at 50px
+};
 
-// --- GLOBAL STATE MACHINE ---
-let RAW_DATA = [], POOL = [], MISTAKES = [], SCORE = 0, isBusy = false;
-let MODE = "INIT", CURR_DATASET = "", CURR_TOPIC = "", CURR_GENRE = "";
+let STATE = { 
+    pool: [], 
+    score: 0, 
+    isBusy: false, 
+    mode: "QUIZ", 
+    active: false, 
+    tx: 0, ty: 0, cx: 0, cy: 0, sx: 0, sy: 0 
+};
 
-/**
- * 1. CHEMISTRY RENDERING ENGINE
- * Automatically converts H2O to H₂O and handles line breaks
+/** * 1. UNIT CIRCLE INTENT DETECTION 
+ * Maps 360° space into four 90° quadrants
  */
-const formatChem = t => !t ? "" : t.toString()
-    .replace(/([A-Z][a-z]?)(\d+)/g, '$1<sub>$2</sub>')
-    .replace(/(\d*)([+\-])/g, '<sup>$1$2</sup>')
-    .replace(/\|\|/g, '<br><br>');
-
-/**
- * 2. DATA SYNCHRONIZATION
- */
-async function init() {
-    try {
-        const r = await fetch(ENDPOINT);
-        RAW_DATA = await r.json();
-        document.getElementById('loader').remove();
-        renderDatasetSelect();
-    } catch (e) {
-        document.getElementById('loader').innerText = "SYNC ERROR: CHECK PERMISSIONS";
-        console.error("Sync Failure:", e);
-    }
-}
-
-/**
- * 3. UNIT FACTORY: Centralized Card Generation
- */
-function createCard(title, labels, dataObj = null) {
-    const s = document.getElementById('stack'); s.innerHTML = "";
-    const c = document.createElement('div'); c.className = "card";
+const getDirection = (x, y) => {
+    let ang = Math.atan2(-y, x) * (180 / Math.PI);
+    if (ang < 0) ang += 360; // Normalize to 0-360
     
-    // Isolate Blue Hint color for Quiz Mode only
-    const hintClass = (MODE === 'QUIZ') ? 'sl-blue' : '';
+    if (ang >= 45 && ang < 135) return "UP";
+    if (ang >= 135 && ang < 225) return "LEFT";
+    if (ang >= 225 && ang < 315) return "DOWN";
+    return "RIGHT";
+};
 
-    c.innerHTML = `
-        <div class="card-q">${formatChem(title)}</div>
-        ${labels.up ? `<div class="swipe-label sl-up">${labels.up}</div>` : ''}
-        ${labels.lt ? `<div class="swipe-label sl-lt">${labels.lt}</div>` : ''}
-        ${labels.rt ? `<div class="swipe-label sl-rt">${labels.rt}</div>` : ''}
-        ${labels.dn ? `<div class="swipe-label sl-dn ${hintClass}">${labels.dn}</div>` : ''}
-    `;
-    
-    if (MODE === "QUIZ") {
-        c.innerHTML += `
-            <div class="overlay">
-                <div class="overlay-label">LOGIC PATH</div>
-                <div class="overlay-body">${formatChem(dataObj.explanation)}</div>
-                <button class="btn" onclick="this.parentElement.classList.remove('active')">DISMISS</button>
-            </div>`;
-    }
-    s.appendChild(c);
-    bindPhysics(c, dataObj);
-}
 
-/**
- * 4. NAVIGATION TIERS (State Gating)
+
+/** * 2. PHYSICS LOOP (120Hz Optimized) 
+ * Handles the "Pivot Point" and Velocity Clamping
  */
-function renderDatasetSelect() {
-    MODE = "DATASET_SELECT";
-    createCard("SELECT CURRICULUM", { up: "CORE CHEMISTRY", lt: "INDUSTRIAL APPS", rt: "REVISION SET", dn: "EXPERT CHALLENGE" });
-}
+function physicsLoop() {
+    if (!STATE.active && !STATE.isBusy) return;
 
-function renderTopicSelect(ds) {
-    MODE = "TOPIC_SELECT"; CURR_DATASET = ds;
-    createCard("DOMAIN SELECTION", { up: "PHYSICAL", lt: "ORGANIC", rt: "INORGANIC", dn: "ANALYTICAL" });
-}
+    // Velocity Clamping for 120Hz Fluidity
+    STATE.cx += (STATE.tx - STATE.cx) * CONFIG.SMOOTHING;
+    STATE.cy += (STATE.ty - STATE.cy) * CONFIG.SMOOTHING;
 
-function renderGenreSelect(top) {
-    MODE = "GENRE_SELECT"; CURR_TOPIC = top;
-    createCard("CHOOSE DEPTH", { up: "CONCEPT MASTERY", dn: "APPLIED PROBLEMS" });
-}
+    const el = document.querySelector('.card');
+    if (el && !STATE.isBusy) {
+        const dist = Math.sqrt(STATE.cx**2 + STATE.cy**2);
+        const rot = STATE.cx / CONFIG.DAMPING; // Rotational Damping
 
-function startQuiz(top, gen) {
-    CURR_GENRE = gen;
-    // Filter logic for specific tracks
-    POOL = RAW_DATA.filter(q => 
-        q.dataset.toUpperCase() === CURR_DATASET.toUpperCase() && 
-        q.topic.toLowerCase() === top.toLowerCase() && 
-        q.q_type.toUpperCase() === gen.toUpperCase()
-    ).sort(() => Math.random() - 0.5);
+        // Applying Spatial Physics (Perspective + Pivot)
+        el.style.transform = `translate3d(${STATE.cx}px, ${STATE.cy}px, 0) rotate(${rot}deg)`;
 
-    if (!POOL.length) { 
-        alert("Section empty."); 
-        renderDatasetSelect(); 
-        return; 
+        // Proportional Opacity for Labels
+        const labels = el.querySelectorAll('.swipe-label');
+        labels.forEach(l => l.style.opacity = 0);
+        
+        if (dist > 10) {
+            const dir = getDirection(STATE.cx, STATE.cy).toLowerCase().slice(0,2);
+            const activeL = el.querySelector(`.sl-${dir}`);
+            if (activeL) activeL.style.opacity = Math.min(dist / CONFIG.OPACITY_DIV, 1);
+        }
     }
-    renderNext();
+    requestAnimationFrame(physicsLoop);
 }
 
-function renderNext() {
-    if (!POOL.length) { 
-        MODE = "SESSION_END"; 
-        createCard("SESSION COMPLETE", { up: "RESTART", dn: "MAIN MENU" }); 
-        return; 
-    }
-    MODE = "QUIZ";
-    const q = POOL.shift();
-    createCard(q.question_text, { up: q.swipe_up_label, lt: q.swipe_left_label, rt: q.swipe_right_label, dn: q.hint }, q);
-}
-
-/**
- * 5. PIVOT PHYSICS ENGINE (V70 Standard)
+/** * 3. INPUT HANDLING & STATE GUARDRAILS 
  */
-function bindPhysics(el, data) {
-    let x = 0, y = 0, sx = 0, sy = 0, active = false;
-    const labels = { up: el.querySelector('.sl-up'), dn: el.querySelector('.sl-dn'), lt: el.querySelector('.sl-lt'), rt: el.querySelector('.sl-rt') };
-
+const bindEvents = (el, data) => {
     const start = e => {
-        if (isBusy || el.querySelector('.overlay.active')) return;
-        active = true; const p = e.touches ? e.touches[0] : e;
-        sx = p.clientX; sy = p.clientY; el.style.transition = "none";
+        if (STATE.isBusy || document.querySelector('.overlay.active')) return;
+        STATE.active = true;
+        const p = e.touches ? e.touches[0] : e;
+        STATE.sx = p.clientX; STATE.sy = p.clientY;
+        STATE.tx = 0; STATE.ty = 0;
+        physicsLoop();
     };
 
     const move = e => {
-        if (!active) return;
+        if (!STATE.active) return;
         const p = e.touches ? e.touches[0] : e;
-        x = p.clientX - sx; y = p.clientY - sy;
-        const dist = Math.sqrt(x * x + y * y);
-        let ang = Math.atan2(-y, x) * (180 / Math.PI); if (ang < 0) ang += 360;
-
-        requestAnimationFrame(() => {
-            el.style.transform = `translate3d(${x}px,${y}px,0) rotate(${x / 18}deg)`;
-            Object.values(labels).forEach(l => { if (l) l.style.opacity = 0; });
-            if (dist > 15) {
-                let activeL;
-                if (ang >= 45 && ang < 135) activeL = labels.up;
-                else if (ang >= 135 && ang < 225) activeL = labels.lt;
-                else if (ang >= 225 && ang < 315) activeL = labels.dn;
-                else activeL = labels.rt;
-                if (activeL) activeL.style.opacity = Math.min(dist / 50, 1);
-            }
-        });
+        STATE.tx = p.clientX - STATE.sx;
+        STATE.ty = p.clientY - STATE.sy;
     };
 
     const end = () => {
-        if (!active) return; active = false;
-        const dist = Math.sqrt(x * x + y * y);
-        let ang = Math.atan2(-y, x) * (180 / Math.PI); if (ang < 0) ang += 360;
-        
-        if (dist >= 80) {
-            let dir = (ang >= 45 && ang < 135) ? "UP" : (ang >= 135 && ang < 225) ? "LEFT" : (ang >= 225 && ang < 315) ? "DOWN" : "RIGHT";
-            if (MODE === "QUIZ" && dir === "DOWN") {
-                el.querySelector('.overlay').classList.add('active');
-                el.style.transition = "transform 0.4s var(--spring-ease)";
-                el.style.transform = "translate3d(0,0,0) rotate(0deg)";
-            } else handleAction(el, data, x, y, dir);
-        } else {
-            el.style.transition = "transform 0.4s var(--spring-ease)";
-            el.style.transform = "translate3d(0,0,0) rotate(0deg)";
-        }
+        if (!STATE.active) return;
+        STATE.active = false;
+        const dist = Math.sqrt(STATE.tx**2 + STATE.ty**2);
+        const dir = getDirection(STATE.tx, STATE.ty);
+
+        if (dist > CONFIG.THRESHOLD) {
+            // Mode-Based Gating for DOWN swipe
+            if (dir === "DOWN") {
+                if (STATE.mode === "QUIZ") {
+                    document.getElementById('overlay-content').innerHTML = data.explanation;
+                    document.getElementById('analysis-overlay').classList.add('active');
+                    resetPosition(el);
+                } else { location.reload(); }
+            } else { handleSwipe(el, data, dir); }
+        } else { resetPosition(el); }
     };
+
     el.onmousedown = start; window.onmousemove = move; window.onmouseup = end;
     el.ontouchstart = start; el.ontouchmove = move; el.ontouchend = end;
-}
+};
 
-/**
- * 6. ACTION CONTROLLER: State Protection Logic
- */
-function handleAction(el, data, x, y, dir) {
-    isBusy = true;
-    let valid = true;
-
-    switch (MODE) {
-        case "DATASET_SELECT": 
-            renderTopicSelect({ UP: "SET_A", LEFT: "SET_B", RIGHT: "SET_C", DOWN: "SET_D" }[dir]); 
-            break;
-        case "TOPIC_SELECT": 
-            renderTopicSelect({ UP: "Physical", LEFT: "Organic", RIGHT: "Inorganic", DOWN: "Analytical" }[dir]); 
-            break;
-        case "GENRE_SELECT": 
-            if (dir === "UP") startQuiz(CURR_TOPIC, "CONCEPT"); 
-            else if (dir === "DOWN") startQuiz(CURR_TOPIC, "APPLICATION"); 
-            else valid = false; // Ignore side-swipes in Depth selection
-            break;
-        case "QUIZ": 
-            const w = parseInt(data.weight) || 1; 
-            if (dir === data.correct.toUpperCase()) SCORE += (10 * w); 
-            else SCORE = Math.max(0, SCORE - 5); 
-            renderNext(); 
-            break;
-        case "SESSION_END": 
-            if (dir === "UP") startQuiz(CURR_TOPIC, CURR_GENRE); 
-            else if (dir === "DOWN") renderDatasetSelect(); 
-            else valid = false; // Ignore side-swipes in Restart menu
-            break;
+const handleSwipe = (el, data, dir) => {
+    STATE.isBusy = true;
+    if (STATE.mode === "QUIZ") {
+        const weight = data.weight || 1;
+        if (dir === data.correct) STATE.score += (10 * weight);
+        else STATE.score = Math.max(0, STATE.score - 5);
+        updateHUD();
     }
+    
+    // Exit Animation (Spatial Acceleration)
+    el.style.transition = "transform 0.5s ease-in";
+    el.style.transform = `translate3d(${STATE.tx * 5}px, ${STATE.ty * 5}px, 0) rotate(${STATE.tx / 5}deg)`;
+    
+    setTimeout(() => {
+        el.remove();
+        STATE.isBusy = false;
+        renderNext();
+    }, 500);
+};
 
-    if (valid) {
-        el.style.transition = "transform .4s ease-in";
-        el.style.transform = `translate3d(${x * 5}px,${y * 5}px,0)`;
-        updateUI();
-        setTimeout(() => { el.remove(); isBusy = false; }, 400);
-    } else {
-        el.style.transition = "transform 0.4s var(--spring-ease)";
-        el.style.transform = "translate3d(0,0,0) rotate(0deg)";
-        isBusy = false;
-    }
-}
+const resetPosition = (el) => {
+    STATE.tx = 0; STATE.ty = 0;
+    el.style.transition = "transform 0.4s var(--spring)";
+    el.style.transform = `translate3d(0,0,0) rotate(0deg)`;
+};
 
-/**
- * 7. UI METRICS CONTROLLER
+/** * 4. RENDER ENGINE 
  */
-function updateUI() {
-    document.getElementById('xp-ui').innerText = `${SCORE} XP`;
-    document.getElementById('progress-bar').style.width = `${(SCORE % 100)}%`;
-    document.getElementById('rank-ui').innerText = `RANK: ${SCORE > 1000 ? 'GRANDMASTER' : 'NOVICE'}`;
-}
+const renderNext = () => {
+    const stack = document.getElementById('stack');
+    if (!STATE.pool.length) {
+        STATE.mode = "END";
+        const endCard = document.createElement('div');
+        endCard.className = 'card';
+        endCard.innerHTML = `
+            <div class="card-q">MISSION COMPLETE</div>
+            <div class="swipe-label sl-up">RESTART</div>
+            <div class="swipe-label sl-do">RELOAD</div>
+        `;
+        stack.appendChild(endCard);
+        bindEvents(endCard, {});
+        return;
+    }
+    
+    const data = STATE.pool.shift();
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+        <div class="card-q">${data.question_text}</div>
+        <div class="swipe-label sl-up">${data.swipe_up_label}</div>
+        <div class="swipe-label sl-le">${data.swipe_left_label}</div>
+        <div class="swipe-label sl-ri">${data.swipe_right_label}</div>
+        <div class="swipe-label sl-do">${data.swipe_down_label}</div>
+        <div id="analysis-overlay" class="overlay">
+            <div class="overlay-label">ANALYSIS</div>
+            <div id="overlay-content" class="overlay-body"></div>
+            <button class="btn" onclick="this.parentNode.classList.remove('active')">CONTINUE</button>
+        </div>
+    `;
+    stack.appendChild(card);
+    bindEvents(card, data);
+};
 
-window.onload = init;
+const updateHUD = () => {
+    document.getElementById('xp-ui').innerText = `${STATE.score} XP`;
+    document.getElementById('progress-bar').style.width = `${(STATE.score % 100)}%`;
+    document.getElementById('rank-ui').innerText = `RANK: ${STATE.score > 500 ? 'SCHOLAR' : 'NOVICE'}`;
+};
+
+/** 5. DIRECT ENTRY INITIALIZATION **/
+window.onload = () => {
+    // Shuffling the provided 85-question dataset
+    STATE.pool = [...RAW_DATA].sort(() => Math.random() - 0.5);
+    document.getElementById('loader').remove();
+    renderNext();
+};
