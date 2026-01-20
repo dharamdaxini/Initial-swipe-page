@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Chemistry Master V75.0</title>
+<title>Chemistry Master V75.1 [DIAGNOSTIC]</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -78,12 +78,12 @@ sup { font-size: 0.65em; vertical-align: super; line-height: 0; font-family: var
 .overlay-body { font-size:1.15rem; line-height:1.7; color:#ccc; margin-bottom:30px; font-family: var(--font-chem); }
 
 .btn { width:100%; padding:18px; border-radius:60px; border:none; background:#fff; font-weight:900; cursor:pointer; text-transform:uppercase; font-family: var(--font-ui); }
-#loader { position:fixed; inset:0; background:#000; z-index:5000; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:var(--font-code); font-size:.8rem; text-align:center; }
+#loader { position:fixed; inset:0; background:#000; z-index:5000; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:var(--font-code); font-size:.8rem; text-align:center; padding: 20px; }
 </style>
 </head>
 
 <body>
-<div id="loader">LOCKED PRODUCTION V75.0…</div>
+<div id="loader">INITIALIZING SATELLITE ENGINE…</div>
 
 <div id="header">
     <div class="header-meta">
@@ -96,6 +96,7 @@ sup { font-size: 0.65em; vertical-align: super; line-height: 0; font-family: var
 <div id="stack"></div>
 
 <script>
+// ENSURE THIS URL ENDS IN /exec
 const ENDPOINT="https://script.google.com/macros/s/AKfycbPvkuXpkFPZfwoj4H9Kevn2VXDcjjpOPxHtDqGDFxdclDdlwH0_0sHV-g4K1AGgfUJ/exec";
 
 let RAW_DATA=[], POOL=[], MISTAKES=[], SCORE=0, isTransitioning=false;
@@ -110,26 +111,46 @@ const formatChem = t => {
 };
 
 async function init(){
+    const loader = document.getElementById('loader');
     try {
-        const r = await fetch(ENDPOINT);
-        RAW_DATA = await r.json();
-        document.getElementById('loader').remove();
-        renderDatasetSelect();
-    } catch(e) { document.getElementById('loader').innerHTML = `SYNC FAILED`; }
+        console.log("Fetching data from:", ENDPOINT);
+        const response = await fetch(ENDPOINT);
+        
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        
+        const dataText = await response.text();
+        
+        try {
+            RAW_DATA = JSON.parse(dataText);
+            console.log("Successfully synced", RAW_DATA.length, "rows.");
+            loader.remove();
+            renderDatasetSelect();
+        } catch(parseErr) {
+            console.error("JSON Parse Error. Server returned:", dataText);
+            throw new Error("API returned HTML instead of JSON. Ensure deployment is set to 'Anyone'.");
+        }
+    } catch(e) {
+        console.error("Sync Failure:", e);
+        loader.innerHTML = `<span style="color:red; font-weight:900;">SYNC FAILED</span><br><br>
+        <div style="font-size:0.65rem; color:#666; max-width:280px;">
+        ERROR: ${e.message}<br><br>
+        1. Set Deployment to 'Anyone'<br>
+        2. Use Incognito Mode<br>
+        3. Verify 'dataset' column exists
+        </div>`;
+    }
 }
 
-// TIER 1: CHOOSE DATASET
 function renderDatasetSelect(){
     MODE="DATASET_SELECT";
     const s=document.getElementById('stack'); s.innerHTML="";
     const c=document.createElement('div'); c.className="card";
     c.innerHTML=`<div class="card-q">CHOOSE DATASET</div>
-        <div class="swipe-label sl-up">DATASET A</div><div class="swipe-label sl-left">DATASET B</div>
-        <div class="swipe-label sl-right">DATASET C</div><div class="swipe-label sl-down">DATASET D</div>`;
+        <div class="swipe-label sl-up">SET A</div><div class="swipe-label sl-left">SET B</div>
+        <div class="swipe-label sl-right">SET C</div><div class="swipe-label sl-down">SET D</div>`;
     s.appendChild(c); bindPhysics(c);
 }
 
-// TIER 2: CHOOSE TOPIC
 function renderTopicSelect(dataset){
     MODE="TOPIC_SELECT";
     CURRENT_DATASET = dataset;
@@ -141,7 +162,6 @@ function renderTopicSelect(dataset){
     s.appendChild(c); bindPhysics(c);
 }
 
-// TIER 3: CHOOSE GENRE
 function renderGenreSelect(topic){
     MODE="GENRE_SELECT";
     CURRENT_TOPIC = topic;
@@ -155,11 +175,18 @@ function renderGenreSelect(topic){
 
 function startQuiz(topic, genre){
     CURRENT_GENRE = genre;
-    POOL = RAW_DATA.filter(q => 
-        q.dataset.trim().toUpperCase() === CURRENT_DATASET.toUpperCase() &&
-        q.topic.trim().toLowerCase() === topic.toLowerCase() && 
-        q.q_type.trim().toUpperCase() === genre.toUpperCase()
-    ).sort(() => Math.random() - .5);
+    POOL = RAW_DATA.filter(q => {
+        const dMatch = q.dataset?.toString().trim().toUpperCase() === CURRENT_DATASET.toUpperCase();
+        const tMatch = q.topic?.toString().trim().toLowerCase() === topic.toLowerCase();
+        const gMatch = q.q_type?.toString().trim().toUpperCase() === genre.toUpperCase();
+        return dMatch && tMatch && gMatch;
+    }).sort(() => Math.random() - .5);
+
+    if(POOL.length === 0) {
+        alert("No questions found for this selection. Resetting...");
+        renderDatasetSelect();
+        return;
+    }
     renderNext();
 }
 
@@ -190,7 +217,7 @@ function renderEnd(){
         <div class="swipe-label sl-up">RESTART</div>
         <div class="swipe-label sl-left">REVIEW ERRORS (${MISTAKES.length})</div>
         <div class="swipe-label sl-right">TOGGLE MODE</div>
-        <div class="swipe-label sl-down">CHANGE DATASET</div>`;
+        <div class="swipe-label sl-down">NEW DATASET</div>`;
     s.appendChild(c); bindPhysics(c);
 }
 
