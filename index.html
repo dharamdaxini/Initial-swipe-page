@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Chemistry Master V72.7 (LERP Engine)</title>
+<title>Chemistry Master V72.8 (Symmetric 60FPS)</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -58,8 +58,8 @@ body {
     background:#000; color:#fff; font-weight:900; font-size:2.1rem;
     text-transform:uppercase; border-radius:40px;
     z-index:999; opacity:0; pointer-events:none;
-    transform:scale(0.85);
-    will-change:opacity, transform;
+    transform: scale(0.85) translateZ(0); /* Forced GPU Layer */
+    will-change: opacity, transform;
 }
 
 .overlay {
@@ -69,15 +69,13 @@ body {
     display:flex; flex-direction:column; justify-content:center;
 }
 .overlay.active { opacity:1; pointer-events:auto; }
-
 .btn { width:100%; padding:18px; border-radius:60px; border:none; background:#fff; font-weight:900; cursor:pointer; text-transform:uppercase; }
 #loader { position:fixed; inset:0; background:#000; z-index:500; display:flex; align-items:center; justify-content:center; font-family:var(--font-code); font-size:.7rem; }
 </style>
 </head>
 
 <body>
-<div id="loader">V72.7 LERP_ANIMATION_ACTIVE…</div>
-
+<div id="loader">V72.8 SYMMETRIC_SYNC_ACTIVE…</div>
 <div id="header">
     <div class="header-meta">
         <span id="rank-ui">KNOWLEDGE: NOVICE</span>
@@ -85,7 +83,6 @@ body {
     </div>
     <div class="progress-track"><div id="progress-bar"></div></div>
 </div>
-
 <div id="stack"></div>
 
 <script>
@@ -159,7 +156,7 @@ function bindPhysics(el,data){
         let angle = Math.atan2(-dy, dx) * (180 / Math.PI);
         if (angle < 0) angle += 360;
 
-        // V72.7: Tactile Latch Logic
+        // V72.8 TACTILE SYMMETRY
         if (dist >= selectLimit) isFrozen = true;
         else if (dist < 20) isFrozen = false;
 
@@ -170,24 +167,26 @@ function bindPhysics(el,data){
         }
 
         x = dx; y = dy;
-        el.style.transform = `translate3d(${x}px,${y}px,0) rotate(${x/18}deg)`;
+        // Symmetric Hardware Translation
+        requestAnimationFrame(() => {
+            el.style.transform = `translate3d(${x}px,${y}px,0) rotate(${x/18}deg)`;
+            
+            const currentDist = Math.sqrt(x*x + y*y);
+            Object.values(labels).forEach(l => { l.style.opacity = 0; l.style.transform = "scale(0.85)"; });
+            
+            if (currentDist > 2) { // 2px deadzone for stability
+                let activeLabel;
+                if (angle >= 45 && angle < 135) activeLabel = labels.up;
+                else if (angle >= 135 && angle < 225) activeLabel = labels.lt;
+                else if (angle >= 225 && angle < 315) activeLabel = labels.dn;
+                else activeLabel = labels.rt;
 
-        // V72.7: Linear Interpolation (LERP) from 0 to 0.75cm
-        const currentDist = Math.sqrt(x*x + y*y);
-        Object.values(labels).forEach(l => { l.style.opacity = 0; });
-        
-        if (currentDist > 0) {
-            let activeLabel;
-            if (angle >= 45 && angle < 135) activeLabel = labels.up;
-            else if (angle >= 135 && angle < 225) activeLabel = labels.lt;
-            else if (angle >= 225 && angle < 315) activeLabel = labels.dn;
-            else activeLabel = labels.rt;
-
-            // SMOOTH TRANSITION: 0 to 1 over 0.75cm (30px)
-            const alpha = Math.min(currentDist / transitionLimit, 1);
-            activeLabel.style.opacity = alpha;
-            activeLabel.style.transform = `scale(${0.85 + (alpha * 0.25)})`;
-        }
+                // Symmetric LERP Engine
+                const alpha = Math.min(currentDist / transitionLimit, 1);
+                activeLabel.style.opacity = alpha;
+                activeLabel.style.transform = `scale(${0.85 + (alpha * 0.25)}) translateZ(0)`;
+            }
+        });
     };
 
     const end = () => {
@@ -215,7 +214,10 @@ function bindPhysics(el,data){
             el.style.transition = "transform .4s cubic-bezier(.175,.885,.32,1.275)";
             el.style.transform = "translate3d(0,0,0) rotate(0deg)";
         }
-        Object.values(labels).forEach(l => { l.style.opacity = 0; });
+        Object.values(labels).forEach(l => { 
+            l.style.transition = "opacity .2s ease-out"; 
+            l.style.opacity = 0; 
+        });
         isFrozen = false;
     };
 
