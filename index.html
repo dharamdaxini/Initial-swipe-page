@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist Mastery V79.4</title>
+<title>Alchemist Mastery V79.5</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,7 +28,7 @@ body {
 sub { font-size: 0.7em; vertical-align: sub; line-height: 0; }
 sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 
-/* V72.3 HUD Style */
+/* V72.3 HUD Aesthetic */
 #header { width: 90%; margin: calc(20px + env(safe-area-inset-top)) auto 0; z-index: 100; pointer-events: none; }
 .header-meta { display: flex; justify-content: space-between; font-family: var(--font-code); font-size: 0.75rem; color: #555; margin-bottom: 8px; }
 .progress-track { width: 100%; height: 3px; background: #222; border-radius: 2px; }
@@ -36,7 +36,7 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 
 #stack { position: relative; width: 92%; max-width: 400px; height: calc(100vh - 160px - env(safe-area-inset-top)); margin: 25px auto 0; perspective: 1200px; }
 
-/* V72.3 Pivot Engine Physics */
+/* V72.3 Card & Pivot Physics */
 .card { 
     position: absolute; width: 100%; height: 100%; background: var(--card-bg); 
     border-radius: 40px; border: 1px solid #282828; padding: 40px; 
@@ -55,7 +55,7 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
     transition: opacity 0.1s linear; 
 }
 
-/* Classic Blue Hint identifier */
+/* Blue Hint Mode Styling */
 .sl-blue { color: var(--hint-blue) !important; font-size: 1.4rem !important; text-transform: none !important; font-family: var(--font-chem) !important; }
 
 .overlay { 
@@ -79,7 +79,7 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 <div id="stack"></div>
 
 <script>
-// V79.2 ENDPOINT 
+// V79.3 SECURE ENDPOINT
 const ENDPOINT="https://script.google.com/macros/s/AKfycbyWhjL3sUwj5X-PUN6_lmolDrnowD1xycUmzDkBvXqJmxp0ARefDw-cBlUaL97kzFcs/exec";
 
 let RAW_DATA=[], POOL=[], SCORE=0, isBusy=false, MODE="QUIZ";
@@ -92,15 +92,21 @@ async function init(){
         const response = await fetch(ENDPOINT, { redirect: "follow" });
         const text = await response.text();
         
-        // Security Gate: Identify HTML redirects
+        // Anti-HTML Gatekeeper
         if (text.trim().startsWith("<!DOCTYPE")) {
             throw new Error("ACCESS_DENIED: Check Script Permissions.");
         }
         
-        RAW_DATA = JSON.parse(text);
-        if (RAW_DATA.error) throw new Error(RAW_DATA.details || RAW_DATA.error);
+        const raw = JSON.parse(text);
         
-        // V79.3 Direct Entry: Immediate Pool Shuffle
+        // Key Sanitizer for Spreadsheet Consistency
+        RAW_DATA = raw.map(row => {
+            const cleanRow = {};
+            Object.keys(row).forEach(key => cleanRow[key.trim().toLowerCase()] = row[key]);
+            return cleanRow;
+        });
+        
+        // Direct Entry Shuffle
         POOL = [...RAW_DATA].sort(() => Math.random() - 0.5);
         l.remove();
         renderNext();
@@ -146,8 +152,15 @@ function bindPhysics(el, data){
     
     const move = e => {
         if(!active) return; const p=e.touches?e.touches[0]:e;
-        x=p.clientX-sx; y=p.clientY-sy; const dist=Math.sqrt(x*x+y*y);
-        let ang=Math.atan2(-y, x)*(180/Math.PI); if(ang<0)ang+=360;
+        let targetX = p.clientX - sx;
+        let targetY = p.clientY - sy;
+        
+        // Velocity Clamping for 120Hz
+        x += (targetX - x) * 0.8;
+        y += (targetY - y) * 0.8;
+        
+        const dist = Math.sqrt(x*x + y*y);
+        let ang = Math.atan2(-y, x) * (180 / Math.PI); if(ang<0)ang+=360;
         
         requestAnimationFrame(() => {
             el.style.transform=`translate3d(${x}px,${y}px,0) rotate(${x/18}deg)`;
