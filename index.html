@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chemistry Master V60 (White UI & Smart Hints)</title>
+    <title>Chemistry Master V61 (Text Engine)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -132,7 +132,6 @@
         .hint-long { font-size: 1.8rem !important; }
         .hint-xl { font-size: 1.4rem !important; }
 
-        /* FIXED: ALL SWIPE TEXT IS WHITE */
         .hint-up { color: #ffffff; }
         .hint-left { color: #ffffff; }   
         .hint-right { color: #ffffff; } 
@@ -148,7 +147,6 @@
         .info-overlay.active { opacity: 1; pointer-events: auto; }
         .info-label { font-family: var(--font-code); color: var(--accent-blue); font-size: 0.8rem; margin-bottom: 15px; letter-spacing: 1px; }
         
-        /* Structured Text Styles */
         .info-text { font-size: 1.1rem; line-height: 1.6; color: #fff; margin-bottom: 30px; }
         .info-text ul { padding-left: 20px; text-align: left; }
         .info-text li { margin-bottom: 15px; }
@@ -214,6 +212,25 @@
         let STATS = { total_cards: 0, correct_count: 0, total_latency: 0, history: [] };
         let APP_MODE = 'QUIZ'; 
         let CURRENT_QUESTION_DATA = null;
+
+        // --- NEW: CHEMICAL TEXT FORMATTER ---
+        function formatChem(text) {
+            if (!text) return "";
+            // 1. Replace numbers after letters with subscripts (e.g. H2O -> H₂O)
+            text = text.replace(/([a-zA-Z])(\d+)/g, (match, char, num) => {
+                const subs = "₀₁₂₃₄₅₆₇₈₉";
+                const subNum = num.split('').map(d => subs[d]).join('');
+                return char + subNum;
+            });
+            // 2. Replace charges (e.g. 2+, 3-, +) with superscripts
+            text = text.replace(/(\d?)([+\-])/g, (match, num, sign) => {
+                const supers = "⁰¹²³⁴⁵⁶⁷⁸⁹";
+                const superSign = (sign === '+') ? '⁺' : '⁻';
+                const superNum = num ? num.split('').map(d => supers[d]).join('') : '';
+                return superNum + superSign;
+            });
+            return text;
+        }
 
         async function loadQuestions(deck) {
             const status = document.getElementById('status-msg');
@@ -412,7 +429,7 @@
 
             let answerRevealHTML = '';
             if(APP_MODE === 'REVIEW' && data.correctText) {
-                answerRevealHTML = `<div class="correct-reveal">✅ ${data.correctText}</div>`;
+                answerRevealHTML = `<div class="correct-reveal">✅ ${formatChem(data.correctText)}</div>`;
             }
 
             // --- SMART HINT / DEEP DIVE LOGIC ---
@@ -421,29 +438,34 @@
 
             if (APP_MODE === 'QUIZ') {
                 infoLabel = "HINT";
-                // Take only the first sentence (before || or first period if no pipes)
                 if(data.explanation.includes('||')) {
                     infoContent = data.explanation.split('||')[0].replace(/✅|❌/g, '').trim();
                 }
             } else {
-                // REVIEW MODE: Full 3-Point List
                 if(data.explanation.includes('||')) {
                     const parts = data.explanation.split('||');
-                    infoContent = '<ul>' + parts.map(p => `<li>${p.trim()}</li>`).join('') + '</ul>';
+                    infoContent = '<ul>' + parts.map(p => `<li>${formatChem(p.trim())}</li>`).join('') + '</ul>';
                 }
             }
 
+            // APPLY CHEMISTRY FORMATTING
+            const safeText = formatChem(data.text);
+            const safeUp = formatChem(data.up);
+            const safeLeft = formatChem(data.left);
+            const safeRight = formatChem(data.right);
+            const safeDown = formatChem(data.down);
+
             el.innerHTML = `
                 <div class="card-content">
-                    <div class="card-q">${data.text}</div>
+                    <div class="card-q">${safeText}</div>
                     ${subHTML}
                     ${answerRevealHTML}
                 </div>
                 
-                <div class="hint-overlay hint-up ${getSizeClass(data.up)}">${data.up}</div>
-                <div class="hint-overlay hint-left ${getSizeClass(data.left)}">${data.left}</div>
-                <div class="hint-overlay hint-right ${getSizeClass(data.right)}">${data.right}</div>
-                <div class="hint-overlay hint-down ${getSizeClass(data.down)}">${data.down}</div>
+                <div class="hint-overlay hint-up ${getSizeClass(data.up)}">${safeUp}</div>
+                <div class="hint-overlay hint-left ${getSizeClass(data.left)}">${safeLeft}</div>
+                <div class="hint-overlay hint-right ${getSizeClass(data.right)}">${safeRight}</div>
+                <div class="hint-overlay hint-down ${getSizeClass(data.down)}">${safeDown}</div>
 
                 <div class="info-overlay" id="info-${data.id}">
                     <div class="info-label">${infoLabel}</div>
