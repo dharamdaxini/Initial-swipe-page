@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chemistry Master V42 (Axis Locked)</title>
+    <title>Chemistry Master V43.1 (Live)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -172,7 +172,7 @@
             text-transform: uppercase;
             z-index: 10;
             text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            background: rgba(0,0,0,0.6); /* Darker backdrop for focus */
+            background: rgba(0,0,0,0.6); /* Darker backdrop */
             backdrop-filter: blur(4px);
         }
         
@@ -207,7 +207,8 @@
         // CONFIGURATION & STATE
         // ==========================================
         
-        const DATA_ENDPOINT = "https://script.google.com/macros/s/AKfycbxGZyuQOGf6eXwNZzcJwQYKk6pNw91nYcA403nOR4Ldma5zzLUb1Fz5P_U8-DLyEGOk/exec"; 
+        // YOUR NEW DEPLOYMENT URL
+        const DATA_ENDPOINT = "https://script.google.com/macros/s/AKfycbw3gL21LlQdeN7xK0qOCXi6_yHb-Tg8TPVeJQe6nZ3_vpPTYXJP7lUfQH7gWGAuA0BS/exec"; 
         
         const SESSION_ID = "SESS_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
         let CURRENT_DECK = "Chemistry_Master_1"; 
@@ -215,6 +216,14 @@
         let QUESTION_POOL = [];
         let USED_IDS = new Set();
         let CARD_START_TIME = 0;
+
+        // TRACKING STATS (For 'Sessions' tab)
+        let STATS = {
+            total_cards: 0,
+            correct_count: 0,
+            total_latency: 0,
+            history: [] 
+        };
 
         // ==========================================
         // 1. DATA ENGINE (Live Loader)
@@ -249,27 +258,60 @@
         }
 
         // ==========================================
-        // 2. LOGGING ENGINE (Analytics)
+        // 2. LOGGING ENGINE (Dual Mode)
         // ==========================================
-        function logAnswer(q, swipe, score, ms) {
+        
+        // Mode A: Raw Swipe (During Game)
+        function logSwipe(q, swipe, isCorrect, ms) {
             fetch(DATA_ENDPOINT, {
                 method: "POST",
                 mode: "no-cors",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    session_id: SESSION_ID,
+                    type: "SWIPE", 
                     timestamp: new Date().toISOString(),
                     question_id: q.id,
                     deck: CURRENT_DECK,
                     topic: q.topic,
                     q_type: q.type,
                     swipe: swipe,
-                    correct: swipe === q.correct ? "TRUE" : "FALSE",
-                    score: score,
+                    correct: isCorrect ? "TRUE" : "FALSE",
+                    score: SCORE,
                     response_ms: ms
                 })
-            }).then(() => console.log(`[LOG] Sent: ${q.id}`))
-              .catch(e => console.warn("[LOG] Fail", e));
+            }).catch(e => console.warn("[LOG] Fail", e));
+        }
+
+        // Mode B: Session End (Summary)
+        function logSessionEnd() {
+            // Calculate Averages
+            let accuracy = 0;
+            if(STATS.total_cards > 0) {
+                accuracy = ((STATS.correct_count / STATS.total_cards) * 100).toFixed(1);
+            }
+            
+            let avg_lat = 0;
+            if(STATS.total_cards > 0) {
+                avg_lat = Math.round(STATS.total_latency / STATS.total_cards);
+            }
+
+            // Send to 'Sessions' Tab
+            fetch(DATA_ENDPOINT, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    type: "SESSION_END",
+                    timestamp: new Date().toISOString(),
+                    total_score: SCORE,
+                    accuracy: accuracy,
+                    avg_latency: avg_lat,
+                    raw_stats: STATS.history
+                })
+            }).then(() => {
+                alert(`SESSION COMPLETE\nScore: ${SCORE}\nAccuracy: ${accuracy}%`);
+                location.reload();
+            });
         }
 
         // ==========================================
@@ -277,8 +319,8 @@
         // ==========================================
         function nextQuestion() {
             if (QUESTION_POOL.length === 0) {
-                alert("DECK COMPLETE. Reloading...");
-                location.reload();
+                // TRIGGER END GAME SAVE
+                logSessionEnd(); 
                 return null;
             }
 
@@ -382,7 +424,7 @@
                 this.processMove(dx, dy);
             }
 
-            // --- THE NEW LOGIC: AXIS LOCKING ---
+            // AXIS LOCKING LOGIC
             processMove(dx, dy) {
                 // If horizontal movement is stronger, force vertical to 0
                 if (Math.abs(dx) > Math.abs(dy)) {
@@ -392,17 +434,15 @@
                 else {
                     dx = 0; 
                 }
-
                 this.update(dx, dy);
             }
 
             update(dx, dy) {
                 this.x = dx; this.y = dy;
                 
-                // No rotation if we want strictly straight lines
-                // or very subtle rotation only for horizontal
+                // Slight tilt only on X axis
                 let rot = 0;
-                if(dx !== 0) rot = dx * 0.03; // Slight tilt only on X axis
+                if(dx !== 0) rot = dx * 0.03; 
 
                 this.el.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg)`;
                 
@@ -416,11 +456,11 @@
 
             end() {
                 this.isDragging = false;
-                this.el.style.transition = 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)'; // Bouncy snap back
+                this.el.style.transition = 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)'; // Snap back
                 document.onmousemove = null; 
                 document.onmouseup = null;
 
-                const t = 80; // Lower threshold for sensitivity
+                const t = 80; // Trigger threshold
                 if (this.y < -t) this.trigger('UP');
                 else if (this.y > t) this.trigger('DOWN');
                 else if (this.x < -t) this.trigger('LEFT');
@@ -435,7 +475,7 @@
                 if (dir === 'LEFT') tx = -1000;
                 if (dir === 'RIGHT') tx = 1000;
 
-                this.el.style.transform = `translate(${tx}px, ${ty}px)`; // Straight exit
+                this.el.style.transform = `translate(${tx}px, ${ty}px)`; 
                 
                 processAnswer(this.data, dir);
 
@@ -457,15 +497,26 @@
         function processAnswer(data, direction) {
             const ms = Date.now() - CARD_START_TIME;
             
-            if (direction === data.correct) {
+            // 1. Scoring Logic
+            let isCorrect = (direction === data.correct);
+            
+            if (isCorrect) {
                 SCORE += parseInt(data.w || 10);
             } else if (direction === 'DOWN') {
-                console.log("Eliminated");
+                // Neutral
             } else {
                 SCORE -= 5;
             }
             document.getElementById('score-label').innerText = `SCORE: ${SCORE}`;
-            logAnswer(data, direction, SCORE, ms);
+
+            // 2. Update Stats
+            STATS.total_cards++;
+            STATS.total_latency += ms;
+            if(isCorrect) STATS.correct_count++;
+            STATS.history.push({id: data.id, res: isCorrect});
+
+            // 3. Log Raw Swipe
+            logSwipe(data, direction, isCorrect, ms);
         }
 
         // ==========================================
