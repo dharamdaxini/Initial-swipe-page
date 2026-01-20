@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist V84.0 Clean</title>
+<title>Alchemist V84.1 Polish</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 
 <style>
-/* V84.0 CSS - CLEAN UI & LAG KILLER */
+/* V84.1 CSS - CENTERED LAYOUT & NO POPUPS */
 :root { 
     --bg-color: #050505; --card-bg: #141414; 
     --accent-gold: #ffcc00; --hint-blue: #4dabf7; --err-red: #ff4d4d;
@@ -19,13 +19,11 @@
     --font-code: 'JetBrains Mono', monospace; 
 }
 
-* { box-sizing: border-box; outline: none; }
-
-/* CRITICAL LAG FIX: Disables browser gestures globally */
+* { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
 body { 
     margin: 0; height: 100vh; background: var(--bg-color); color: #fff; 
     font-family: var(--font-ui); overflow: hidden; 
-    touch-action: none; /* Kills 'Back' swipe lag */
+    touch-action: none; 
     user-select: none; -webkit-user-select: none;
 }
 
@@ -34,39 +32,51 @@ body {
 .progress-track { width: 100%; height: 4px; background: #222; border-radius: 4px; }
 #progress-bar { height: 100%; background: var(--accent-gold); width: 0%; transition: width 0.4s ease; box-shadow: 0 0 12px rgba(255, 204, 0, 0.4); }
 
-#stack { position: relative; width: 92%; max-width: 400px; height: calc(100vh - 160px - env(safe-area-inset-top)); margin: 25px auto 0; perspective: 1200px; }
+#stack { position: relative; width: 90%; max-width: 400px; height: calc(100vh - 160px - env(safe-area-inset-top)); margin: 20px auto 0; perspective: 1200px; }
 
 .card { 
     position: absolute; width: 100%; height: 100%; 
-    background: var(--card-bg); border-radius: 32px; border: 1px solid #333; 
+    background: var(--card-bg); border-radius: 24px; border: 1px solid #333; 
     display: flex; flex-direction: column; justify-content: center; align-items: center;
     transform-origin: center center; box-shadow: 0 25px 50px rgba(0,0,0,0.95); will-change: transform; 
-    padding: 30px;
-    /* Extra lag prevention on the card itself */
+    padding: 30px; 
     touch-action: none;
 }
 
-/* CLEAN QUESTION TEXT */
+/* SMART TEXT SIZING */
 .card-q { 
     font-family: var(--font-chem); 
-    font-size: clamp(1.3rem, 5vw, 1.8rem); 
+    font-size: clamp(1.2rem, 4.5vw, 1.6rem); 
     line-height: 1.5; 
     font-weight: 700; 
     text-align: center; 
     color: #e0e0e0;
     width: 100%;
+    word-wrap: break-word;
 }
 
-/* SWIPE LABELS (The text that appears WHILE dragging) */
+/* --- FIXED SWIPE LABELS (Perfectly Centered) --- */
 .swipe-label { 
-    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; 
-    background: rgba(0,0,0,0.95); font-family: var(--font-ui); font-weight: 900; font-size: 2.2rem; 
-    text-transform: uppercase; border-radius: 32px; opacity: 0; pointer-events: none; z-index:100; letter-spacing: 2px;
+    position: absolute; inset: 0; 
+    display: flex; flex-direction: column; /* Stacks emoji above text */
+    align-items: center; justify-content: center; 
+    background: rgba(0,0,0,0.96); 
+    font-family: var(--font-ui); font-weight: 900; font-size: 2.2rem; 
+    text-transform: uppercase; border-radius: 24px; 
+    opacity: 0; pointer-events: none; z-index:100; 
+    letter-spacing: 2px; text-align: center;
+    padding: 20px;
 }
+
+/* Hint Specific Styling */
 .sl-down-hint { 
-    color: var(--hint-blue) !important; font-size: 1.5rem !important; text-transform: none !important; 
-    font-family: var(--font-chem) !important; background: rgba(10, 10, 10, 0.98) !important; padding: 40px !important; line-height: 1.6 !important;
+    color: var(--hint-blue) !important; 
+    font-size: 1.4rem !important; 
+    text-transform: none !important; 
+    font-family: var(--font-chem) !important; 
+    line-height: 1.6 !important;
 }
+.hint-icon { font-size: 3rem; margin-bottom: 15px; display: block; }
 
 /* ANALYSIS MODAL */
 #analysis-modal { position: absolute; inset: 0; background: #000; z-index: 2000; display: flex; flex-direction: column; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; padding-top: env(safe-area-inset-top); }
@@ -97,7 +107,7 @@ body {
 <div id="analysis-modal">
     <div class="analysis-header">SESSION ANALYSIS</div>
     <div class="analysis-scroll" id="analysis-content"></div>
-    <button class="btn btn-close" onclick="document.getElementById('analysis-modal').classList.remove('active')">CLOSE ANALYSIS</button>
+    <button class="btn btn-close" onclick="document.getElementById('analysis-modal').classList.remove('active')">CLOSE</button>
 </div>
 
 <div id="header">
@@ -108,15 +118,11 @@ body {
 <div id="stack"></div>
 
 <script>
-// =========================================================
-// YOUR SCRIPT URL
-// =========================================================
+// *** YOUR SCRIPT URL ***
 const ENDPOINT = "https://script.google.com/macros/s/AKfycbx0MOn2CEOHtwcraedSgmR_622esgwSAiWks3tNV51yc9XeKGrIip7lIxAu5iT460YT/exec";
 
-// OFFLINE BACKUP
-const BACKUP_DATA = [
-  { "dataset": "SET_A", "topic": "Physical", "q_type": "CONCEPT", "question_text": "What does a negative ΔG value signify?", "hint": "Thermodynamic direction.", "explanation": "✅ Spontaneous reaction.", "swipe_up_label": "Spontaneous", "swipe_right_label": "Equilibrium", "swipe_down_label": "HINT", "swipe_left_label": "Non-spontaneous", "correct": "UP", "weight": 1 }
-];
+// FALLBACK DATA (Minified)
+const BACKUP_DATA = [{ "dataset": "SET_A", "topic": "Physical", "q_type": "CONCEPT", "question_text": "What does a negative ΔG value signify?", "hint": "Thermodynamic direction.", "explanation": "✅ Spontaneous reaction.", "swipe_up_label": "Spontaneous", "swipe_right_label": "Equilibrium", "swipe_down_label": "HINT", "swipe_left_label": "Non-spontaneous", "correct": "UP", "weight": 1 }];
 
 let RAW_DATA = [...BACKUP_DATA], POOL=[], MISTAKES=[], SCORE=0, isTransitioning=false;
 let MODE="DATASET_SELECT", CURRENT_DATASET="", CURRENT_TOPIC="", CURRENT_GENRE="";
@@ -130,7 +136,6 @@ async function init(){
         const r = await fetch(ENDPOINT);
         const json = await r.json();
         if(Array.isArray(json) && json.length > 0) {
-            console.log("Loaded from Sheet");
             RAW_DATA = json; 
             status.innerText = "LIVE DATA LOADED"; status.style.color = "#00ff00";
         }
@@ -142,11 +147,17 @@ async function init(){
 function attemptAutoStart(topic, genre){
     const cleanD = (CURRENT_DATASET||"").trim().toUpperCase();
     POOL = RAW_DATA.filter(q => (q.dataset||"").toUpperCase() === cleanD || (q.dataset||"") === "").sort(() => Math.random() - .5);
-    if(POOL.length > 0) { CURRENT_TOPIC = topic; CURRENT_GENRE = genre; renderNext(); return true; }
-    return false;
+    
+    // POPUP FIX: If no questions, silently return to menu (NO ALERT)
+    if(POOL.length > 0) { 
+        CURRENT_TOPIC = topic; CURRENT_GENRE = genre; renderNext(); return true; 
+    } else {
+        renderDatasetSelect(); // Just go back to menu silently
+        return false;
+    }
 }
 
-// --- CLEAN MENU SYSTEM (No Static Text) ---
+// --- CLEAN MENU SYSTEM ---
 
 function renderDatasetSelect(){
     MODE="DATASET_SELECT"; const s=document.getElementById('stack'); s.innerHTML="";
@@ -175,14 +186,13 @@ function renderGenreSelect(topic){
     const c=document.createElement('div'); c.className="card";
     c.innerHTML=`
         <div class="card-q">SELECT<br>DEPTH</div>
-        <div class="swipe-label sl-up">CONCEPTS</div>
-        <div class="swipe-label sl-down">APPLIED</div>
+        <div class="swipe-label sl-up">CONCEPTS</div><div class="swipe-label sl-down">APPLIED</div>
     `;
     s.appendChild(c); bindPhysics(c);
 }
 
 function startQuiz(topic, genre){
-    if(!attemptAutoStart(topic, genre)) { alert("No questions found."); renderDatasetSelect(); }
+    attemptAutoStart(topic, genre); // Calls the silent version
 }
 
 function renderNext(){
@@ -191,13 +201,16 @@ function renderNext(){
     MODE="QUIZ"; const q = POOL.shift();
     const c=document.createElement('div'); c.className="card";
     
-    // Uses Sheet Data for Display
+    // HINT FIX: Emoji is now separate DIV for centering
     c.innerHTML=`
         <div class="card-q">${formatChem(q.question_text)}</div>
         <div class="swipe-label sl-up">${q.swipe_up_label}</div>
         <div class="swipe-label sl-left">${q.swipe_left_label}</div>
         <div class="swipe-label sl-right">${q.swipe_right_label}</div>
-        <div class="swipe-label sl-down sl-down-hint">💡 ${formatChem(q.hint)}</div>
+        <div class="swipe-label sl-down sl-down-hint">
+            <div class="hint-icon">💡</div>
+            ${formatChem(q.hint)}
+        </div>
     `;
     s.appendChild(c); bindPhysics(c, q);
 }
@@ -221,15 +234,15 @@ function renderAnalysis() {
   const container = document.getElementById('analysis-content');
   container.innerHTML = "";
   if(MISTAKES.length === 0) {
-     container.innerHTML = "<div style='padding:20px; text-align:center; color:#666;'>PERFECT SCORE!<br>No analysis needed.</div>";
+     container.innerHTML = "<div style='padding:20px; text-align:center; color:#666;'>PERFECT SCORE!</div>";
   } else {
-     MISTAKES.forEach((q, i) => {
-        // PULLS EXPLANATION FROM SHEET DATA
+     MISTAKES.forEach((q) => {
+        let expText = q.explanation ? formatChem(q.explanation) : "No explanation provided.";
         let html = `
         <div class="mistake-card">
            <div class="mistake-q">Q: ${formatChem(q.question_text)}</div>
            <div class="mistake-ans">Correct Answer: ${q.correct}</div>
-           <div class="mistake-exp">📝 ${formatChem(q.explanation)}</div>
+           <div class="mistake-exp">📝 ${expText}</div>
         </div>`;
         container.innerHTML += html;
      });
@@ -280,10 +293,8 @@ function bindPhysics(el, data){
     
     const start=e=>{ if(isTransitioning) return; active=true; const p=e.touches?e.touches[0]:e; sx=p.clientX; sy=p.clientY; el.style.transition="none"; };
     
-    // LAG FIX IMPLEMENTATION
     const move=e=>{
         if(!active)return; 
-        
         const p=e.touches?e.touches[0]:e;
         const rawDx = p.clientX - sx; const rawDy = p.clientY - sy; const rawDist = Math.sqrt(rawDx*rawDx + rawDy*rawDy);
         const opacity = Math.min(rawDist / OPACITY_DIST, 1);
@@ -315,8 +326,6 @@ function bindPhysics(el, data){
     };
     
     el.onmousedown=start; window.onmousemove=move; window.onmouseup=end; el.ontouchstart=start; 
-    
-    // ACTIVE EVENT LISTENER FOR LAG PREVENTION
     el.addEventListener('touchmove', (e) => { e.preventDefault(); move(e); }, { passive: false });
     el.ontouchend=end;
 }
