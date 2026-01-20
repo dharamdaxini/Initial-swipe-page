@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chemistry Master V57 (Review Fix)</title>
+    <title>Chemistry Master V58 (Review Fix)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -300,34 +300,38 @@
                 else showReviewReport();
                 return null;
             }
-            const q = QUESTION_POOL.shift();
-            USED_IDS.add(q.question_id);
             
-            let labels = {};
+            const q = QUESTION_POOL.shift();
+            USED_IDS.add(q.question_id || q.id);
+            
+            // --- REVIEW MODE FIX: PASS THROUGH DATA ---
             if(APP_MODE === 'REVIEW') {
-                labels = { up: "MORE INFO", right: "GOT IT", down: "NEXT", left: "CONFUSED" };
-            } else {
-                labels = {
-                    up: q.swipe_up_label || "YES", 
-                    right: q.swipe_right_label || "MAYBE",
-                    down: q.swipe_down_label || "SKIP", 
-                    left: q.swipe_left_label || "NO"
+                return {
+                    ...q, // Keep original text, id, subs
+                    up: "MORE INFO", 
+                    right: "GOT IT", 
+                    down: "NEXT", 
+                    left: "CONFUSED"
                 };
             }
 
-            // CRITICAL FIX: Handle 'question_text' (Raw) vs 'text' (Processed)
+            // --- QUIZ MODE: PROCESS RAW DATA ---
             const finalText = q.question_text || q.text;
             const finalSubs = q.subs ? (Array.isArray(q.subs) ? q.subs : q.subs.toString().split('|')) : [];
 
             return {
-                id: q.question_id || q.id, // Handle ID mapping
+                id: q.question_id || q.id, 
                 topic: q.topic, 
                 type: q.q_type || q.type,
                 text: finalText, 
                 subs: finalSubs,
                 explanation: q.explanation || "No details available.",
-                ...labels,
-                correct: q.correct, w: q.weight
+                up: q.swipe_up_label || "YES", 
+                right: q.swipe_right_label || "MAYBE",
+                down: q.swipe_down_label || "SKIP", 
+                left: q.swipe_left_label || "NO",
+                correct: q.correct, 
+                w: q.weight
             };
         }
 
@@ -345,7 +349,6 @@
                             SCORE += w;
                         } else {
                             SCORE -= 5;
-                            // Push a CLONE of the data to avoid reference issues
                             MISTAKE_POOL.push(JSON.parse(JSON.stringify(data))); 
                         }
                     }
@@ -412,7 +415,7 @@
                 card.style.transition = 'transform 0.3s ease-in';
                 card.style.transform = 'translate(0, 1000px)'; 
                 setTimeout(() => { card.remove(); 
-                    if(CURRENT_QUESTION_DATA) spawnCard(CURRENT_QUESTION_DATA); // RELOOP
+                    if(CURRENT_QUESTION_DATA) spawnCard(CURRENT_QUESTION_DATA); 
                     else spawnCard(); 
                 }, 200);
             }
@@ -474,15 +477,8 @@
                 document.onmousemove = null; document.onmouseup = null;
                 const triggerDist = 80;
                 
-                // --- CRITICAL FIX: STOP PROPAGATION ON DEEP DIVE ---
-                if (this.y > triggerDist && APP_MODE === 'QUIZ') { 
-                    this.triggerInfo(); 
-                    return; 
-                } 
-                if (this.y < -triggerDist && APP_MODE === 'REVIEW') { 
-                    this.triggerInfo(); 
-                    return; 
-                }
+                if (this.y > triggerDist && APP_MODE === 'QUIZ') { this.triggerInfo(); return; } 
+                if (this.y < -triggerDist && APP_MODE === 'REVIEW') { this.triggerInfo(); return; }
 
                 if (this.y < -triggerDist) this.trigger('UP');
                 else if (this.x < -triggerDist) this.trigger('LEFT');
