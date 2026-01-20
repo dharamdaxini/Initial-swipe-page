@@ -1,268 +1,309 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Chemistry Master V71.2</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,600;1,600&family=Inter:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Chemistry Master V71.4 (Execution Build)</title>
 
-    <style>
-        :root {
-            --bg-color: #000000;
-            --card-bg: #111111;
-            --overlay-bg: #0d0d0d;
-            --accent-gold: #ffd600;
-            --accent-blue: #2962ff;
-            --text-main: #ffffff;
-            --font-chem: 'Crimson Text', serif;
-            --font-ui: 'Inter', sans-serif;
-            --font-code: 'JetBrains Mono', monospace;
-        }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,600;1,600&family=Inter:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { 
-            background: var(--bg-color); color: var(--text-main); font-family: var(--font-ui); 
-            margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center;
-            user-select: none; -webkit-user-select: none; touch-action: none;
-        }
+<style>
+:root {
+    --bg-color:#000;
+    --card-bg:#111;
+    --overlay-bg:#0d0d0d;
+    --accent-gold:#ffd600;
+    --accent-blue:#2962ff;
+    --text-main:#fff;
+    --font-chem:'Crimson Text',serif;
+    --font-ui:'Inter',sans-serif;
+    --font-code:'JetBrains Mono',monospace;
+}
 
-        sub { vertical-align: sub; font-size: 0.75em; line-height: 0; }
-        sup { vertical-align: super; font-size: 0.75em; line-height: 0; }
+* { box-sizing:border-box; -webkit-tap-highlight-color:transparent; outline:none; }
+body {
+    margin:0; height:100vh; background:#000; color:#fff;
+    font-family:var(--font-ui); overflow:hidden;
+    user-select:none; -webkit-user-select:none; touch-action:none;
+}
 
-        #header { width: 90%; margin-top: calc(15px + env(safe-area-inset-top)); z-index: 100; pointer-events: none; }
-        .header-meta { display: flex; justify-content: space-between; font-family: var(--font-code); font-size: 0.7rem; margin-bottom: 10px; color: #666; }
-        .progress-track { width: 100%; height: 3px; background: #222; border-radius: 2px; }
-        #progress-bar { height: 100%; background: var(--accent-gold); width: 0%; transition: width 0.4s ease; }
+sub { font-size:.75em; vertical-align:sub; line-height:0; }
+sup { font-size:.75em; vertical-align:super; line-height:0; }
 
-        #stack { 
-            position: relative; 
-            width: 92%; 
-            max-width: 400px; 
-            height: calc(100vh - 135px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); 
-            margin-top: 25px; 
-            perspective: 1200px; 
-        }
+#header {
+    width:90%; margin-top:calc(15px + env(safe-area-inset-top));
+    z-index:100; pointer-events:none;
+}
+.header-meta {
+    display:flex; justify-content:space-between;
+    font-family:var(--font-code); font-size:.7rem; color:#666; margin-bottom:10px;
+}
+.progress-track { width:100%; height:3px; background:#222; border-radius:2px; }
+#progress-bar { height:100%; background:var(--accent-gold); width:0%; transition:width .4s ease; }
 
-        .card { 
-            position: absolute; width: 100%; height: 100%; 
-            background: var(--card-bg); border-radius: 40px; border: 1px solid #282828;
-            padding: 40px; display: flex; flex-direction: column; justify-content: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8); will-change: transform; cursor: grab;
-            transform-origin: center 160%; 
-            backface-visibility: hidden;
-            transform: translate3d(0,0,0);
-        }
-        .card-q { font-family: var(--font-chem); font-size: 1.95rem; line-height: 1.4; font-weight: 600; font-style: italic; pointer-events: none; color: #f2f2f2; text-align: center; }
+/* V70.5 Length Optimization */
+#stack {
+    position:relative; width:92%; max-width:400px;
+    height:calc(100vh - 135px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    margin:25px auto 0; perspective:1200px;
+}
 
-        .overlay {
-            position: absolute; inset: 0; background: var(--overlay-bg); 
-            z-index: 110; padding: 45px 35px; opacity: 0; pointer-events: none;
-            display: flex; flex-direction: column; justify-content: center; border-radius: 40px;
-            transition: opacity 0.2s ease-out;
-            will-change: opacity;
-        }
-        .overlay.active { opacity: 1; pointer-events: auto; }
-        .overlay-label { font-family: var(--font-code); color: var(--accent-blue); font-size: 0.75rem; margin-bottom: 15px; text-transform: uppercase; }
-        .overlay-body { font-family: var(--font-chem); font-size: 1.4rem; line-height: 1.6; color: #ddd; margin-bottom: 40px; }
+/* V70.2 Centric Motion Pivot */
+.card {
+    position:absolute; width:100%; height:100%;
+    background:var(--card-bg); border-radius:40px; border:1px solid #282828;
+    padding:40px; display:flex; flex-direction:column; justify-content:center;
+    box-shadow:0 20px 60px rgba(0,0,0,.9);
+    transform-origin:center 160%;
+    will-change:transform; cursor:grab;
+    backface-visibility: hidden;
+}
 
-        /* V71.2 Visibility Shield: Deep Backdrop for Max Stretch */
-        .swipe-label {
-            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-            font-size: 2rem; font-weight: 900; opacity: 0; pointer-events: none;
-            z-index: 100; background: rgba(0,0,0,0.98); border-radius: 40px; text-align: center; padding: 25px;
-            color: #fff; text-transform: uppercase; line-height: 1.1; 
-            will-change: opacity;
-        }
+.card-q {
+    font-family:var(--font-chem); font-size:2rem; line-height:1.35;
+    font-style:italic; font-weight:600; text-align:center; color:#f0f0f0;
+}
 
-        .btn { width: 100%; padding: 18px; border-radius: 60px; border: none; font-weight: 900; margin-bottom: 12px; font-size: 0.85rem; text-transform: uppercase; cursor: pointer; background: #fff; color: #000; }
-        #loader { position: fixed; inset: 0; background: #000; z-index: 500; display: flex; align-items: center; justify-content: center; }
-    </style>
+.overlay {
+    position:absolute; inset:0; background:var(--overlay-bg);
+    z-index:110; padding:45px 35px; opacity:0; pointer-events:none;
+    border-radius:40px; transition:opacity .25s ease-out;
+    display:flex; flex-direction:column; justify-content:center;
+}
+.overlay.active { opacity:1; pointer-events:auto; }
+.overlay-label { font-family:var(--font-code); font-size:.75rem; margin-bottom:15px; color:var(--accent-blue); }
+.overlay-body { font-family:var(--font-chem); font-size:1.45rem; line-height:1.6; color:#ddd; margin-bottom:40px; }
+
+.btn {
+    width:100%; padding:18px; border-radius:60px; border:none;
+    font-weight:900; font-size:.85rem; background:#fff; color:#000;
+    cursor:pointer; text-transform:uppercase;
+}
+
+/* V71.4 LOCK: MAXIMUM VISIBILITY SHIELD */
+.swipe-label {
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    background:#000; color:#fff; font-weight:900; font-size:2.1rem;
+    text-transform:uppercase; line-height:1.1; border-radius:40px;
+    z-index:999; opacity:0; pointer-events:none;
+    transform:scale(.8);
+    will-change:opacity,transform;
+}
+
+#loader {
+    position:fixed; inset:0; background:#000; z-index:500;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-code); font-size:.7rem; letter-spacing:1px;
+}
+</style>
 </head>
+
 <body>
-    <div id="loader"><span style="font-family:var(--font-code); font-size:0.7rem;">V71.2 ARC_RESTORATION...</span></div>
+<div id="loader">V71.4 SECURING_CORE…</div>
 
-    <div id="header">
-        <div class="header-meta">
-            <span id="rank-ui">KNOWLEDGE: NOVICE</span>
-            <span id="xp-ui">0 XP</span>
-        </div>
-        <div class="progress-track"><div id="progress-bar"></div></div>
+<div id="header">
+    <div class="header-meta">
+        <span id="rank-ui">KNOWLEDGE: NOVICE</span>
+        <span id="xp-ui">0 XP</span>
     </div>
+    <div class="progress-track"><div id="progress-bar"></div></div>
+</div>
 
-    <div id="stack"></div>
+<div id="stack"></div>
 
-    <script>
-        const ENDPOINT = "https://script.google.com/macros/s/AKfycbzjKbwDxrHKu55pOsjtyR__gJisnxjyTxOIiWeAQOKCT9BY--elHIQUfHO2bNX3Gd-8/exec";
-        let RAW_DATA = [], POOL = [], MISTAKES = [], SCORE = 0, isTransitioning = false;
-        let MODE = "TOPIC_SELECT";
+<script>
+const ENDPOINT="https://script.google.com/macros/s/AKfycbzjKbwDxrHKu55pOsjtyR__gJisnxjyTxOIiWeAQOKCT9BY--elHIQUfHO2bNX3Gd-8/exec";
 
-        function formatChem(t) {
-            if (!t) return "";
-            return t.replace(/([A-Z][a-z]?)(\d+)/g, '$1<sub>$2</sub>')
-                    .replace(/(\d+)([+\-])/g, '<sup>$1$2</sup>')
-                    .replace(/([A-Za-z\)\]])([+\-])(?=\s|$)/g, '$1<sup>$2</sup>');
+let RAW_DATA=[], POOL=[], MISTAKES=[], SCORE=0, isTransitioning=false;
+let MODE="TOPIC_SELECT";
+
+const formatChem = t => {
+    if(!t) return "";
+    return t.replace(/([A-Z][a-z]?)(\d+)/g,'$1<sub>$2</sub>')
+            .replace(/(\d+)([+\-])/g, '<sup>$1$2</sup>')
+            .replace(/([A-Za-z\)\]])([+\-])(?=\s|$)/g, '$1<sup>$2</sup>');
+};
+
+async function init(){
+    try{
+        const r = await fetch(ENDPOINT);
+        RAW_DATA = await r.json();
+        document.getElementById('loader').remove();
+        renderTopicSelect();
+    }catch(e){
+        document.getElementById('loader').innerText="SYNC FAILED - CHECK DEPLOYMENT";
+        console.error(e);
+    }
+}
+
+function renderTopicSelect(){
+    MODE="TOPIC_SELECT";
+    const s=document.getElementById('stack');
+    s.innerHTML="";
+    const c=document.createElement('div');
+    c.className="card";
+    c.innerHTML=`
+        <div class="card-q">SELECT CORE TOPIC</div>
+        <div class="swipe-label sl-up">PHYSICAL</div>
+        <div class="swipe-label sl-left">ORGANIC</div>
+        <div class="swipe-label sl-right">INORGANIC</div>
+        <div class="swipe-label sl-down">ANALYTICAL</div>`;
+    s.appendChild(c);
+    bindPhysics(c,{type:"nav"});
+}
+
+function renderNext(){
+    const s=document.getElementById('stack');
+    s.innerHTML="";
+    if(!POOL.length){ renderEnd(); return; }
+    MODE="QUIZ";
+    const q=POOL.shift();
+    const c=document.createElement('div');
+    c.className="card";
+    c.innerHTML=`
+        <div class="card-q">${formatChem(q.question_text||q.text)}</div>
+        <div class="swipe-label sl-up">${q.swipe_up_label||"YES"}</div>
+        <div class="swipe-label sl-left">${q.swipe_left_label||"NO"}</div>
+        <div class="swipe-label sl-right">${q.swipe_right_label||"MAYBE"}</div>
+        <div class="swipe-label sl-down">ANALYSIS / HINT</div>
+        <div class="overlay">
+            <div class="overlay-label">SCIENTIFIC ANALYSIS</div>
+            <div class="overlay-body">${formatChem(q.explanation||"No analysis available for this unit.")}</div>
+            <button class="btn" onclick="this.parentElement.classList.remove('active')">BACK TO STUDY</button>
+        </div>`;
+    s.appendChild(c);
+    bindPhysics(c,q);
+}
+
+function renderEnd(){
+    MODE="SESSION_END";
+    const s=document.getElementById('stack');
+    s.innerHTML="";
+    const c=document.createElement('div');
+    c.className="card";
+    c.innerHTML=`
+        <div class="card-q">SESSION COMPLETE<br><small style="font-size:1rem; opacity:0.5">${SCORE} XP Earned</small></div>
+        <div class="swipe-label sl-up">RESTART</div>
+        <div class="swipe-label sl-left">REVIEW ERRORS (${MISTAKES.length})</div>
+        <div class="swipe-label sl-right">CHANGE TOPIC</div>
+        <div class="swipe-label sl-down">EXIT MODULE</div>`;
+    s.appendChild(c);
+    bindPhysics(c,{type:"nav"});
+}
+
+function bindPhysics(el,data){
+    let x=0, y=0, sx=0, sy=0, active=false;
+    const labels = {
+        up: el.querySelector('.sl-up'),
+        dn: el.querySelector('.sl-down'),
+        lt: el.querySelector('.sl-left'),
+        rt: el.querySelector('.sl-right')
+    };
+
+    const updateLabels = (dx, dy) => {
+        const t = 60;
+        const upVal = -dy, dnVal = dy, ltVal = -dx, rtVal = dx;
+        
+        const apply = (lbl, val) => {
+            const n = Math.min(Math.max(0, (val - t) / 100), 1);
+            lbl.style.opacity = n;
+            lbl.style.transform = `scale(${0.8 + n * 0.35})`;
+            lbl.style.filter = `brightness(${1 + n * 0.5})`;
+        };
+
+        apply(labels.up, upVal);
+        apply(labels.dn, dnVal);
+        apply(labels.lt, ltVal);
+        apply(labels.rt, rtVal);
+    };
+
+    const start = e => {
+        if(isTransitioning || el.querySelector('.overlay.active')) return;
+        active = true;
+        const p = e.touches ? e.touches[0] : e;
+        sx = p.clientX; sy = p.clientY;
+        el.style.transition = "none";
+    };
+
+    const move = e => {
+        if(!active) return;
+        const p = e.touches ? e.touches[0] : e;
+        x = p.clientX - sx; y = p.clientY - sy;
+        
+        // Centric Arc Logic
+        const rotation = x / 14;
+        el.style.transform = `translate3d(${x}px,${y}px,0) rotate(${rotation}deg)`;
+        updateLabels(x, y);
+    };
+
+    const end = () => {
+        if(!active) return;
+        active = false;
+        const thresh = 100;
+        
+        // Down Swipe for Analysis (Quiz Mode)
+        if(MODE === "QUIZ" && y > thresh && Math.abs(y) > Math.abs(x)){
+            el.querySelector('.overlay').classList.add('active');
+            el.style.transition = "transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)";
+            el.style.transform = "translate3d(0,0,0) rotate(0deg)";
+        } 
+        else if(Math.abs(x) > thresh || Math.abs(y) > thresh){
+            handleAction(el, data, x, y);
+        } else {
+            el.style.transition = "transform .4s cubic-bezier(.175,.885,.32,1.275)";
+            el.style.transform = "translate3d(0,0,0) rotate(0deg)";
         }
+        Object.values(labels).forEach(l => l.style.opacity = 0);
+    };
 
-        async function init() {
-            try {
-                const r = await fetch(ENDPOINT);
-                RAW_DATA = await r.json();
-                document.getElementById('loader').style.display = 'none';
-                renderTopicSelect();
-            } catch (e) { 
-                document.getElementById('loader').innerHTML = "<span style='color:red;'>SYNC FAILED</span>";
-            }
+    el.onmousedown = start; window.onmousemove = move; window.onmouseup = end;
+    el.ontouchstart = start; el.ontouchmove = move; el.ontouchend = end;
+}
+
+function handleAction(el, data, x, y){
+    isTransitioning = true;
+    const dir = Math.abs(y) > Math.abs(x) ? (y < 0 ? "UP" : "DOWN") : (x < 0 ? "LEFT" : "RIGHT");
+
+    if(MODE === "TOPIC_SELECT"){
+        const map = { UP: "Physical", LEFT: "Organic", RIGHT: "Inorganic", DOWN: "Analytical" };
+        POOL = RAW_DATA.filter(q => q.topic === map[dir]).sort(() => Math.random() - .5);
+        SCORE = 0; MISTAKES = [];
+    }
+    else if(MODE === "QUIZ" && dir !== "DOWN"){
+        const correctDir = (data.correct || "UP").toUpperCase();
+        if(dir === correctDir) SCORE += 10;
+        else { 
+            SCORE = Math.max(0, SCORE - 5); 
+            MISTAKES.push(data); 
         }
-
-        function renderTopicSelect() {
-            MODE = "TOPIC_SELECT";
-            const stack = document.getElementById('stack');
-            stack.innerHTML = "";
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `
-                <div class="card-q">SELECT CORE TOPIC</div>
-                <div class="swipe-label sl-up">PHYSICAL</div>
-                <div class="swipe-label sl-left">ORGANIC</div>
-                <div class="swipe-label sl-right">INORGANIC</div>
-                <div class="swipe-label sl-down">ANALYTICAL</div>
-            `;
-            stack.appendChild(card);
-            bindPhysics(card, { type: "nav" });
+    }
+    else if(MODE === "SESSION_END"){
+        if(dir === "LEFT" && MISTAKES.length){
+            POOL = [...MISTAKES]; MISTAKES = [];
+            isTransitioning = false; renderNext(); return;
         }
+        SCORE = 0; MISTAKES = []; renderTopicSelect(); isTransitioning = false; return;
+    }
 
-        function renderNext() {
-            const stack = document.getElementById('stack');
-            stack.innerHTML = "";
-            if (POOL.length === 0) { renderEndSlide(); return; }
-            MODE = "QUIZ";
-            const q = POOL.shift();
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `
-                <div class="card-q">${formatChem(q.question_text || q.text)}</div>
-                <div class="swipe-label sl-up">${q.swipe_up_label || "YES"}</div>
-                <div class="swipe-label sl-left">${q.swipe_left_label || "NO"}</div>
-                <div class="swipe-label sl-right">${q.swipe_right_label || "MAYBE"}</div>
-                <div class="swipe-label sl-down">ANALYSIS / HINT</div>
-                <div class="overlay">
-                    <div class="overlay-label">ANALYSIS</div>
-                    <div class="overlay-body">${formatChem(q.explanation.split('||')[0])}</div>
-                    <button class="btn" onclick="this.parentElement.classList.remove('active')">BACK</button>
-                </div>
-            `;
-            stack.appendChild(card);
-            bindPhysics(card, q);
-        }
+    updateUI();
+    el.style.transition = "transform .4s ease-in";
+    el.style.transform = `translate3d(${x * 6}px,${y * 6}px,0) rotate(${x/5}deg)`;
+    setTimeout(() => {
+        el.remove();
+        isTransitioning = false;
+        renderNext();
+    }, 350);
+}
 
-        function renderEndSlide() {
-            MODE = "SESSION_END";
-            const stack = document.getElementById('stack');
-            stack.innerHTML = "";
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `
-                <div class="card-q">SESSION COMPLETE<br><small style="font-size:1rem; opacity:0.6">${SCORE} XP Earned</small></div>
-                <div class="swipe-label sl-up">RESTART</div>
-                <div class="swipe-label sl-left">REVIEW ERRORS (${MISTAKES.length})</div>
-                <div class="swipe-label sl-right">CHANGE TOPIC</div>
-                <div class="swipe-label sl-down">EXIT MODULE</div>
-            `;
-            stack.appendChild(card);
-            bindPhysics(card, { type: "nav" });
-        }
+function updateUI(){
+    document.getElementById('xp-ui').innerText = `${SCORE} XP`;
+    document.getElementById('rank-ui').innerText = `KNOWLEDGE: ${SCORE > 300 ? "ALCHEMIST" : "NOVICE"}`;
+    document.getElementById('progress-bar').style.width = `${SCORE % 100}%`;
+}
 
-        function bindPhysics(el, data) {
-            let x = 0, y = 0, sX = 0, sY = 0, active = false;
-            const up = el.querySelector('.sl-up'), lt = el.querySelector('.sl-left'), 
-                  rt = el.querySelector('.sl-right'), dn = el.querySelector('.sl-down');
-
-            const start = (e) => {
-                if (isTransitioning || el.querySelector('.overlay.active')) return;
-                active = true;
-                const p = e.touches ? e.touches[0] : e;
-                sX = p.clientX; sY = p.clientY;
-                el.style.transition = "none";
-            };
-
-            const move = (e) => {
-                if (!active || isTransitioning) return;
-                const p = e.touches ? e.touches[0] : e;
-                x = p.clientX - sX; y = p.clientY - sY;
-                
-                // Centric Motion Arc (V70.2 Architecture)
-                const rotation = x / 14; 
-                el.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${rotation}deg)`;
-                
-                // V71.2 Visibility: Linear high-contrast opacity for max stretch
-                const t = 40;
-                up.style.opacity = y < -t ? Math.min(1, Math.abs(y)/120) : 0;
-                dn.style.opacity = y > t ? Math.min(1, Math.abs(y)/120) : 0;
-                lt.style.opacity = x < -t ? Math.min(1, Math.abs(x)/120) : 0;
-                rt.style.opacity = x > t ? Math.min(1, Math.abs(x)/120) : 0;
-            };
-
-            const end = () => {
-                if (!active || isTransitioning) return;
-                active = false;
-                const t = 100;
-                
-                if (MODE === "QUIZ" && y > t && Math.abs(y) > Math.abs(x)) {
-                    el.style.transition = "transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1)";
-                    el.style.transform = "translate3d(0,0,0) rotate(0deg)";
-                    el.querySelector('.overlay').classList.add('active');
-                } else if (Math.abs(x) > t || Math.abs(y) > t) {
-                    handleAction(el, data, x, y);
-                } else {
-                    el.style.transition = "transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
-                    el.style.transform = "translate3d(0,0,0) rotate(0deg)";
-                }
-                [up, dn, lt, rt].forEach(l => l.style.opacity = 0);
-            };
-
-            el.addEventListener('mousedown', start); window.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
-            el.addEventListener('touchstart', start); el.addEventListener('touchmove', move); el.addEventListener('touchend', end);
-        }
-
-        function handleAction(el, data, x, y) {
-            isTransitioning = true;
-            const dir = Math.abs(y) > Math.abs(x) ? (y < 0 ? "UP" : "DOWN") : (x < 0 ? "LEFT" : "RIGHT");
-            
-            if (MODE === "TOPIC_SELECT") {
-                const map = { UP: "Physical", LEFT: "Organic", RIGHT: "Inorganic", DOWN: "Analytical" };
-                const sel = map[dir];
-                POOL = RAW_DATA.filter(q => q.topic === sel).sort(() => Math.random() - 0.5);
-                SCORE = 0; MISTAKES = [];
-            } else if (MODE === "QUIZ" && dir !== "DOWN") {
-                if (dir === (data.correct || "UP").toUpperCase()) SCORE += parseInt(data.weight || 10);
-                else { SCORE = Math.max(0, SCORE - 5); MISTAKES.push(data); }
-            } else if (MODE === "SESSION_END") {
-                // FIXED: Review Mistakes logic
-                if (dir === "LEFT" && MISTAKES.length > 0) {
-                    POOL = [...MISTAKES]; MISTAKES = [];
-                    isTransitioning = false; renderNext(); return;
-                } else {
-                    SCORE = 0; MISTAKES = [];
-                    renderTopicSelect(); isTransitioning = false; return;
-                }
-            }
-
-            updateUI();
-            el.style.transition = "transform 0.4s ease-in";
-            el.style.transform = `translate3d(${x * 6}px, ${y * 6}px, 0) rotate(${x/5}deg)`;
-            setTimeout(() => { el.remove(); isTransitioning = false; renderNext(); }, 350);
-        }
-
-        function updateUI() {
-            document.getElementById('xp-ui').innerText = `${SCORE} XP`;
-            document.getElementById('rank-ui').innerText = `KNOWLEDGE: ${SCORE > 300 ? "ALCHEMIST" : "NOVICE"}`;
-            document.getElementById('progress-bar').style.width = `${SCORE % 100}%`;
-        }
-
-        window.onload = init;
-    </script>
+window.onload = init;
+</script>
 </body>
 </html>
