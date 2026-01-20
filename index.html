@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist Mastery V79.5</title>
+<title>Alchemist Mastery V79.6</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -55,7 +55,6 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
     transition: opacity 0.1s linear; 
 }
 
-/* Blue Hint Mode Styling */
 .sl-blue { color: var(--hint-blue) !important; font-size: 1.4rem !important; text-transform: none !important; font-family: var(--font-chem) !important; }
 
 .overlay { 
@@ -79,8 +78,8 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 <div id="stack"></div>
 
 <script>
-// V79.3 SECURE ENDPOINT
-const ENDPOINT="https://script.google.com/macros/s/AKfycbyWhjL3sUwj5X-PUN6_lmolDrnowD1xycUmzDkBvXqJmxp0ARefDw-cBlUaL97kzFcs/exec";
+// UPDATED LIVE ENDPOINT
+const ENDPOINT="https://script.google.com/macros/s/AKfycbyuMf28j63OJd9V3aa3LWEPbaU7ttSdHtnXxOrEuha3IU4qf6d82H-JIYr-X5OQiR8D/exec";
 
 let RAW_DATA=[], POOL=[], SCORE=0, isBusy=false, MODE="QUIZ";
 
@@ -92,21 +91,20 @@ async function init(){
         const response = await fetch(ENDPOINT, { redirect: "follow" });
         const text = await response.text();
         
-        // Anti-HTML Gatekeeper
         if (text.trim().startsWith("<!DOCTYPE")) {
             throw new Error("ACCESS_DENIED: Check Script Permissions.");
         }
         
         const raw = JSON.parse(text);
-        
-        // Key Sanitizer for Spreadsheet Consistency
+        if (raw.error) throw new Error(raw.details || raw.error);
+
+        // Key Sanitizer
         RAW_DATA = raw.map(row => {
             const cleanRow = {};
             Object.keys(row).forEach(key => cleanRow[key.trim().toLowerCase()] = row[key]);
             return cleanRow;
         });
         
-        // Direct Entry Shuffle
         POOL = [...RAW_DATA].sort(() => Math.random() - 0.5);
         l.remove();
         renderNext();
@@ -155,7 +153,6 @@ function bindPhysics(el, data){
         let targetX = p.clientX - sx;
         let targetY = p.clientY - sy;
         
-        // Velocity Clamping for 120Hz
         x += (targetX - x) * 0.8;
         y += (targetY - y) * 0.8;
         
