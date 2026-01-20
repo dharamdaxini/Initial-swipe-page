@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chemistry Master V68.0</title>
+    <title>Chemistry Master V70.0 (Motion Blur)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,57 +15,54 @@
             --card-bg: #111111;
             --accent-gold: #ffd600;
             --accent-blue: #2962ff;
+            --text-main: #ffffff;
             --font-ui: 'Inter', sans-serif;
             --font-chem: 'Crimson Text', serif; 
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
-        body { background-color: var(--bg-color); color: #fff; font-family: var(--font-ui); margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; outline: none; }
+        body { background-color: var(--bg-color); color: var(--text-main); font-family: var(--font-ui); margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
-        /* --- HEADER & XP --- */
-        #header { position: absolute; top: 20px; width: 90%; z-index: 100; pointer-events: none; }
-        .header-top { display: flex; justify-content: space-between; font-size: 0.75rem; color: #888; font-family: 'JetBrains Mono'; margin-bottom: 8px; }
-        .progress-container { width: 100%; height: 3px; background: #222; border-radius: 2px; }
-        #progress-bar { width: 0%; height: 100%; background: var(--accent-gold); transition: width 0.3s ease; }
+        /* --- DYNAMIC BLUR FILTER --- */
+        .blur-target { transition: filter 0.1s linear; }
 
-        /* --- DECOUPLED SWIPE LABELS --- */
-        #ui-overlay {
-            position: fixed; inset: 0; pointer-events: none; z-index: 50;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .swipe-label {
-            position: absolute; opacity: 0; transform: scale(0.5);
-            font-weight: 900; font-size: 2.8rem; text-align: center;
+        /* --- HEADER --- */
+        #header { position: absolute; top: 30px; width: 85%; z-index: 1000; pointer-events: none; }
+        .header-meta { display: flex; justify-content: space-between; font-family: 'JetBrains Mono'; font-size: 0.75rem; color: #888; margin-bottom: 12px; }
+        .progress-track { width: 100%; height: 4px; background: #222; border-radius: 10px; overflow: hidden; }
+        #progress-bar { width: 0%; height: 100%; background: var(--accent-gold); transition: width 0.5s ease; }
+
+        /* --- CENTER LABELS (STRICT) --- */
+        #viewport-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 500; display: flex; align-items: center; justify-content: center; }
+        .center-label {
+            position: absolute; opacity: 0; transform: scale(0.7);
+            font-weight: 900; font-size: 2.4rem; text-align: center;
             text-transform: uppercase; color: #fff; filter: blur(10px);
-            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1.2);
-            text-shadow: 0 0 20px rgba(255,255,255,0.4);
-            max-width: 80%;
+            transition: opacity 0.2s, transform 0.2s, filter 0.2s;
+            text-shadow: 0 0 30px rgba(255,255,255,0.6);
+            padding: 20px;
         }
-        .swipe-label.visible { opacity: 1; transform: scale(1); filter: blur(0px); }
+        .center-label.active { opacity: 1; transform: scale(1); filter: blur(0px); }
 
-        /* --- CARD STACK --- */
-        #stack { position: relative; width: 90%; max-width: 360px; height: 60vh; perspective: 1000px; }
+        /* --- STACK --- */
+        #stack { position: relative; width: 90%; max-width: 360px; height: 60vh; perspective: 1200px; z-index: 100; }
         .card {
             position: absolute; width: 100%; height: 100%;
-            background: var(--card-bg); border: 1px solid #333; border-radius: 40px;
-            padding: 35px; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-            will-change: transform; cursor: grab;
+            background: var(--card-bg); border: 1px solid #2a2a2a; border-radius: 44px;
+            padding: 40px; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.9);
+            will-change: transform, filter; cursor: grab;
         }
-        .card-q { font-family: var(--font-chem); font-size: 1.9rem; line-height: 1.4; text-align: center; font-style: italic; }
-        
-        /* --- HINT OVERLAY --- */
-        .info-panel {
-            position: fixed; inset: 0; background: #000; z-index: 200;
-            display: none; flex-direction: column; justify-content: center; padding: 40px;
-        }
-        .info-panel.active { display: flex; }
-        .info-text { font-family: var(--font-chem); font-size: 1.3rem; line-height: 1.6; color: #ccc; margin-bottom: 30px; }
-        .btn-close { background: #fff; color: #000; border: none; padding: 20px; border-radius: 50px; font-weight: 800; text-transform: uppercase; cursor: pointer; }
+        .card-content { font-family: var(--font-chem); font-size: 1.9rem; line-height: 1.45; text-align: center; font-style: italic; color: #f0f0f0; pointer-events: none; }
 
-        /* --- LOADER --- */
-        #loader { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; align-items: center; justify-content: center; }
-        .spinner { width: 40px; height: 40px; border: 4px solid #222; border-top: 4px solid #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        /* --- MODAL --- */
+        #hint-modal { position: fixed; inset: 0; background: #000; z-index: 2000; display: none; flex-direction: column; justify-content: center; padding: 40px; }
+        #hint-modal.show { display: flex; }
+        .hint-body { font-family: var(--font-chem); font-size: 1.35rem; line-height: 1.7; color: #ccc; margin-bottom: 40px; }
+        .action-btn { background: #fff; color: #000; border: none; padding: 22px; border-radius: 100px; font-weight: 800; text-transform: uppercase; cursor: pointer; }
+
+        #loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; }
+        .spinner { width: 40px; height: 40px; border: 3px solid #222; border-top: 3px solid #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
         sub { vertical-align: sub; font-size: 0.6em; line-height: 0; }
@@ -77,31 +74,35 @@
     <div id="loader"><div class="spinner"></div></div>
 
     <div id="header">
-        <div class="header-top">
-            <span id="rank-label">SESSION: 1/20</span>
-            <span id="xp-text">0 XP</span>
+        <div class="header-meta">
+            <span id="rank-display">SESSION 1/20</span>
+            <span id="xp-display">0 XP</span>
         </div>
-        <div class="progress-container"><div id="progress-bar"></div></div>
+        <div class="progress-track"><div id="progress-bar"></div></div>
     </div>
 
-    <div id="ui-overlay">
-        <div id="label-up" class="swipe-label"></div>
-        <div id="label-down" class="swipe-label"></div>
-        <div id="label-left" class="swipe-label"></div>
-        <div id="label-right" class="swipe-label"></div>
+    <div id="viewport-overlay">
+        <div id="lbl-up" class="center-label"></div>
+        <div id="lbl-down" class="center-label"></div>
+        <div id="lbl-left" class="center-label"></div>
+        <div id="lbl-right" class="center-label"></div>
     </div>
 
     <div id="stack"></div>
 
-    <div id="info-panel" class="info-panel">
-        <div style="color:var(--accent-blue); font-family:'JetBrains Mono'; margin-bottom:10px; font-size:0.8rem">SYSTEM_HINT</div>
-        <div id="info-content" class="info-text"></div>
-        <button class="btn-close" onclick="closeInfo()">CONTINUE SESSION</button>
+    <div id="hint-modal">
+        <div id="modal-text" class="hint-body"></div>
+        <button class="action-btn" id="modal-close">Resume</button>
     </div>
 
     <script>
-        const DATA_ENDPOINT = "https://script.google.com/macros/s/AKfycbwrdBKhMeHPpkbZOd_zwFNY5A7FxWji2t11eNnMqXpcAptMAyPewImMG-7O6Ja-ad6Q/exec";
-        let POOL = [], SCORE = 0, CURRENT_IDX = 0, TOTAL_Q = 20;
+        const CONFIG = {
+            ENDPOINT: "https://script.google.com/macros/s/AKfycbwrdBKhMeHPpkbZOd_zwFNY5A7FxWji2t11eNnMqXpcAptMAyPewImMG-7O6Ja-ad6Q/exec",
+            LIMIT: 20,
+            THRESHOLD: 100
+        };
+
+        const STATE = { pool: [], idx: 0, score: 0, locked: false };
 
         function formatChem(t) {
             if(!t) return "";
@@ -110,118 +111,123 @@
                     .replace(/([A-Za-z\)\]])([+\-])(?=\s|$|[.,;\]\|])/g, '$1<sup>$2</sup>');
         }
 
-        async function init() {
+        async function start() {
             try {
-                const res = await fetch(DATA_ENDPOINT);
-                const data = await res.json();
-                POOL = data.filter(q => q.deck === "Chemistry_Master_1")
-                           .sort(() => 0.5 - Math.random())
-                           .slice(0, TOTAL_Q);
+                const r = await fetch(CONFIG.ENDPOINT);
+                const d = await r.json();
+                STATE.pool = d.filter(i => i.deck === "Chemistry_Master_1").sort(() => 0.5-Math.random()).slice(0, CONFIG.LIMIT);
                 document.getElementById('loader').style.display = 'none';
-                renderCard();
+                next();
             } catch(e) { console.error(e); }
         }
 
-        function renderCard() {
-            if(CURRENT_IDX >= POOL.length) {
-                document.getElementById('stack').innerHTML = "<div class='card-q'>Session Complete</div>";
-                return;
+        function next() {
+            STATE.locked = false;
+            if(STATE.idx >= STATE.pool.length) return;
+            
+            const q = STATE.pool[STATE.idx];
+            document.getElementById('rank-display').innerText = `SESSION ${STATE.idx + 1}/${CONFIG.LIMIT}`;
+            document.getElementById('xp-display').innerText = `${STATE.score} XP`;
+            document.getElementById('progress-bar').style.width = `${(STATE.idx / CONFIG.LIMIT) * 100}%`;
+
+            // Lock Labels Immediately
+            document.getElementById('lbl-up').innerHTML = formatChem(q.swipe_up_label || "YES");
+            document.getElementById('lbl-down').innerHTML = formatChem(q.swipe_down_label || "HINT");
+            document.getElementById('lbl-left').innerHTML = formatChem(q.swipe_left_label || "NO");
+            document.getElementById('lbl-right').innerHTML = formatChem(q.swipe_right_label || "MAYBE");
+
+            const card = document.createElement('div');
+            card.className = "card blur-target";
+            card.innerHTML = `<div class="card-content">${formatChem(q.question_text || q.text)}</div>`;
+            document.getElementById('stack').appendChild(card);
+            
+            new Interaction(card, q);
+        }
+
+        class Interaction {
+            constructor(el, q) {
+                this.el = el; this.q = q; this.x = 0; this.y = 0;
+                this.init();
             }
-            const q = POOL[CURRENT_IDX];
-            const el = document.createElement('div');
-            el.className = 'card';
-            el.innerHTML = `<div class="card-q">${formatChem(q.question_text || q.text)}</div>`;
-            document.getElementById('stack').appendChild(el);
-
-            // Set Labels
-            document.getElementById('label-up').innerHTML = formatChem(q.swipe_up_label || "YES");
-            document.getElementById('label-down').innerHTML = formatChem(q.swipe_down_label || "HINT");
-            document.getElementById('label-left').innerHTML = formatChem(q.swipe_left_label || "NO");
-            document.getElementById('label-right').innerHTML = formatChem(q.swipe_right_label || "MAYBE");
-
-            new Draggable(el, q);
-            updateUI();
-        }
-
-        function updateUI() {
-            document.getElementById('rank-label').innerText = `SESSION: ${CURRENT_IDX + 1}/${TOTAL_Q}`;
-            document.getElementById('xp-text').innerText = `${SCORE} XP`;
-            document.getElementById('progress-bar').style.width = `${(CURRENT_IDX / TOTAL_Q) * 100}%`;
-        }
-
-        function closeInfo() {
-            document.getElementById('info-panel').classList.remove('active');
-            renderCard(); 
-        }
-
-        class Draggable {
-            constructor(el, data) {
-                this.el = el; this.data = data; this.active = true;
-                this.x = 0; this.y = 0;
-                this.bindEvents();
-            }
-            bindEvents() {
+            init() {
                 const start = (e) => {
+                    if(STATE.locked) return;
+                    this.dragging = true;
                     const p = e.touches ? e.touches[0] : e;
                     this.sx = p.clientX; this.sy = p.clientY;
                 };
                 const move = (e) => {
-                    if(!this.sx) return;
+                    if(!this.dragging) return;
                     const p = e.touches ? e.touches[0] : e;
                     const dx = p.clientX - this.sx, dy = p.clientY - this.sy;
+
+                    // DIRECTIONAL LOCK & BLUR
                     if(Math.abs(dx) > Math.abs(dy)) { this.x = dx; this.y = 0; }
                     else { this.x = 0; this.y = dy; }
-                    this.updatePos();
+
+                    const dist = Math.max(Math.abs(this.x), Math.abs(this.y));
+                    const blurVal = Math.min(8, dist / 20);
+                    this.el.style.filter = `blur(${blurVal}px)`;
+                    this.el.style.transform = `translate3d(${this.x}px, ${this.y}px, 0) rotate(${this.x/25}deg)`;
+
+                    this.updateLabels();
                 };
-                const end = (e) => {
-                    if(!this.active) return;
-                    if(Math.abs(this.x) > 100 || Math.abs(this.y) > 100) this.exit();
+                const end = () => {
+                    if(!this.dragging) return;
+                    this.dragging = false;
+                    if(Math.abs(this.x) > CONFIG.THRESHOLD || Math.abs(this.y) > CONFIG.THRESHOLD) this.exit();
                     else this.reset();
-                    this.sx = null;
                 };
-                this.el.addEventListener('touchstart', start);
-                this.el.addEventListener('touchmove', move);
-                this.el.addEventListener('touchend', end);
                 this.el.addEventListener('mousedown', start);
                 window.addEventListener('mousemove', move);
                 window.addEventListener('mouseup', end);
+                this.el.addEventListener('touchstart', start);
+                window.addEventListener('touchmove', move);
+                window.addEventListener('touchend', end);
             }
-            updatePos() {
-                this.el.style.transform = `translate(${this.x}px, ${this.y}px) rotate(${this.x/20}deg)`;
+            updateLabels() {
                 const t = 50;
-                document.getElementById('label-up').className = (this.y < -t) ? 'swipe-label visible' : 'swipe-label';
-                document.getElementById('label-down').className = (this.y > t) ? 'swipe-label visible' : 'swipe-label';
-                document.getElementById('label-left').className = (this.x < -t) ? 'swipe-label visible' : 'swipe-label';
-                document.getElementById('label-right').className = (this.x > t) ? 'swipe-label visible' : 'swipe-label';
+                document.querySelectorAll('.center-label').forEach(l => l.classList.remove('active'));
+                if(this.y < -t) document.getElementById('lbl-up').classList.add('active');
+                if(this.y > t) document.getElementById('lbl-down').classList.add('active');
+                if(this.x < -t) document.getElementById('lbl-left').classList.add('active');
+                if(this.x > t) document.getElementById('lbl-right').classList.add('active');
             }
             exit() {
-                this.active = false;
-                const dir = this.y < -100 ? 'UP' : this.y > 100 ? 'DOWN' : this.x < -100 ? 'LEFT' : 'RIGHT';
-                this.el.style.transition = '0.4s cubic-bezier(0.2, 0.8, 0.2, 1)';
-                this.el.style.transform = `translate(${this.x*5}px, ${this.y*5}px)`;
+                STATE.locked = true;
+                const dir = this.y < -100 ? "UP" : this.y > 100 ? "DOWN" : this.x < -100 ? "LEFT" : "RIGHT";
+                this.el.style.transition = '0.3s ease-out';
+                this.el.style.transform = `translate3d(${this.x*4}px, ${this.y*4}px, 0)`;
+                this.el.style.filter = 'blur(15px)';
+                this.el.style.opacity = '0';
                 
                 setTimeout(() => {
                     this.el.remove();
-                    document.querySelectorAll('.swipe-label').forEach(l => l.className = 'swipe-label');
-                    if(dir === 'DOWN') {
-                        document.getElementById('info-content').innerHTML = formatChem(this.data.explanation.split('||')[0]);
-                        document.getElementById('info-panel').classList.add('active');
-                    } else {
-                        if(dir === this.data.correct) SCORE += 10;
-                        CURRENT_IDX++;
-                        renderCard();
+                    document.querySelectorAll('.center-label').forEach(l => l.classList.remove('active'));
+                    if(dir === "DOWN") this.showHint();
+                    else {
+                        if(dir === this.q.correct) STATE.score += 10;
+                        STATE.idx++; next();
                     }
                 }, 200);
             }
             reset() {
-                this.el.style.transition = '0.3s cubic-bezier(0.2, 0.8, 0.2, 1.5)';
-                this.el.style.transform = 'translate(0,0)';
-                document.querySelectorAll('.swipe-label').forEach(l => l.className = 'swipe-label');
-                this.x = 0; this.y = 0;
+                this.el.style.transition = '0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                this.el.style.transform = 'translate3d(0,0,0)';
+                this.el.style.filter = 'blur(0px)';
+                document.querySelectorAll('.center-label').forEach(l => l.classList.remove('active'));
+            }
+            showHint() {
+                const m = document.getElementById('hint-modal');
+                document.getElementById('modal-text').innerHTML = formatChem(this.q.explanation.split('||')[0]);
+                m.classList.add('show');
+                document.getElementById('modal-close').onclick = () => {
+                    m.classList.remove('show');
+                    next(); // Continue with same question (reshuffled or logic-based)
+                };
             }
         }
-
-        init();
+        start();
     </script>
 </body>
 </html>
