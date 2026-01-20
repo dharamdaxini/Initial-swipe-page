@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chemistry Master V65.3 (Click Fix)</title>
+    <title>Chemistry Master V66.1 (Stable)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,16 +30,20 @@
         sup { vertical-align: super; font-size: 0.65em; font-family: var(--font-num); line-height: 0; }
         .chem-bond { font-family: var(--font-ui); font-weight: 400; padding: 0 2px; color: #aaa; }
 
-        #header { position: absolute; top: 20px; width: 90%; display: flex; justify-content: space-between; z-index: 100; font-family: var(--font-code); font-size: 0.8rem; color: #888; }
-        #score-label { color: var(--accent-gold); font-weight: 800; }
+        #header { position: absolute; top: 20px; width: 90%; display: flex; flex-direction: column; z-index: 100; pointer-events: none; }
+        .header-top { display: flex; justify-content: space-between; font-family: var(--font-code); font-size: 0.75rem; color: #888; margin-bottom: 8px; }
+        #rank-label { color: var(--accent-gold); font-weight: 800; letter-spacing: 1px; }
+        #xp-text { color: #fff; font-weight: 700; }
 
-        #stack { position: relative; width: 100%; max-width: 360px; height: 65vh; margin-top: 40px; perspective: 1000px; }
+        .progress-container { width: 100%; height: 4px; background: #222; border-radius: 2px; overflow: hidden; }
+        #progress-bar { width: 0%; height: 100%; background: var(--accent-gold); transition: width 0.4s ease; }
+
+        #stack { position: relative; width: 100%; max-width: 360px; height: 60vh; margin-top: 60px; perspective: 1000px; }
 
         .card { position: absolute; width: 100%; height: 100%; background: var(--card-bg); border-radius: 32px; border: 1px solid #333; padding: 30px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 20px 50px rgba(0,0,0,0.8); will-change: transform; touch-action: none; cursor: grab; }
-        .card:active { cursor: grabbing; }
-        .card-q { font-family: var(--font-chem); font-size: 1.9rem; font-weight: 600; line-height: 1.4; color: #efefef; font-style: italic; pointer-events: none; }
+        .card-q { font-family: var(--font-chem); font-size: 1.8rem; font-weight: 600; line-height: 1.4; color: #efefef; font-style: italic; pointer-events: none; }
 
-        .hint-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 32px; opacity: 0; pointer-events: none; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 2.2rem; text-align: center; background: rgba(0,0,0,0.92); z-index: 10; color: #fff; font-family: var(--font-ui); text-transform: uppercase; }
+        .hint-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 32px; opacity: 0; pointer-events: none; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 2rem; text-align: center; background: rgba(0,0,0,0.92); z-index: 10; color: #fff; font-family: var(--font-ui); text-transform: uppercase; padding: 20px; }
 
         .info-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--info-bg); padding: 40px 25px; display: flex; flex-direction: column; justify-content: center; opacity: 0; pointer-events: none; transition: 0.2s; z-index: 20; }
         .info-overlay.active { opacity: 1; pointer-events: auto; }
@@ -53,12 +57,35 @@
 </head>
 <body>
     <div id="loader"><div class="spinner"></div></div>
-    <div id="header"><span>CHEM_MASTERY_V65.3</span><span id="score-label">XP: 0 ⚡</span></div>
+    
+    <div id="header">
+        <div class="header-top">
+            <span id="rank-label">RANK: NOVICE</span>
+            <span id="xp-text">LV. 1 | 0 XP</span>
+        </div>
+        <div class="progress-container"><div id="progress-bar"></div></div>
+    </div>
+
     <div id="stack"></div>
 
     <script>
         const DATA_ENDPOINT = "https://script.google.com/macros/s/AKfycbwrdBKhMeHPpkbZOd_zwFNY5A7FxWji2t11eNnMqXpcAptMAyPewImMG-7O6Ja-ad6Q/exec"; 
         let SCORE = 0, QUESTION_POOL = [], MISTAKE_POOL = [], APP_MODE = 'QUIZ';
+
+        function updateLevelUI() {
+            const level = Math.floor(SCORE / 100) + 1;
+            const xpInLevel = SCORE % 100;
+            const progress = Math.max(0, Math.min(100, xpInLevel));
+            
+            let rank = "NOVICE";
+            if (level >= 10) rank = "MASTER";
+            else if (level >= 6) rank = "SPECIALIST";
+            else if (level >= 3) rank = "ALCHEMIST";
+
+            document.getElementById('xp-text').innerText = `LV. ${level} | ${SCORE} XP`;
+            document.getElementById('rank-label').innerText = `RANK: ${rank}`;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
 
         function formatChem(text) {
             if (!text) return "";
@@ -78,6 +105,7 @@
                 const all = await res.json();
                 QUESTION_POOL = all.filter(q => q.deck === "Chemistry_Master_1").sort(() => Math.random() - 0.5);
                 document.getElementById('loader').style.display = 'none';
+                updateLevelUI();
                 spawnCard();
             } catch (e) { console.error("Link Failed", e); }
         }
@@ -114,15 +142,24 @@
         function nextQuestion() {
             if (QUESTION_POOL.length === 0) return null;
             const q = QUESTION_POOL.shift();
+            
+            // STABLE LABEL MAPPING
+            const labels = (APP_MODE === 'REVIEW') ? 
+                { up: "MORE INFO", right: "GOT IT", down: "NEXT", left: "CONFUSED" } :
+                { 
+                    up: q.swipe_up_label || q.up || "YES", 
+                    right: q.swipe_right_label || q.right || "MAYBE", 
+                    down: q.swipe_down_label || q.down || "SKIP", 
+                    left: q.swipe_left_label || q.left || "NO" 
+                };
+
             return {
                 id: q.question_id, 
                 text: q.question_text || q.text, 
-                explanation: q.explanation,
-                up: q.swipe_up_label || q.up || "YES", 
-                right: q.swipe_right_label || q.right || "MAYBE", 
-                down: q.swipe_down_label || q.down || "SKIP", 
-                left: q.swipe_left_label || q.left || "NO",
-                correct: q.correct, w: q.weight
+                explanation: q.explanation || "No explanation provided.",
+                ...labels,
+                correct: q.correct, 
+                w: q.weight
             };
         }
 
@@ -137,13 +174,9 @@
             constructor(el, data) {
                 this.el = el; this.data = data;
                 this.isDragging = false;
-
-                // Mouse Events
                 this.el.addEventListener('mousedown', this.start.bind(this));
                 window.addEventListener('mousemove', this.move.bind(this));
                 window.addEventListener('mouseup', this.end.bind(this));
-
-                // Touch Events
                 this.el.addEventListener('touchstart', this.start.bind(this));
                 this.el.addEventListener('touchmove', this.move.bind(this));
                 this.el.addEventListener('touchend', this.end.bind(this));
@@ -153,20 +186,16 @@
                 if(this.el.querySelector('.info-overlay.active')) return;
                 this.isDragging = true;
                 const pos = e.touches ? e.touches[0] : e;
-                this.startX = pos.clientX;
-                this.startY = pos.clientY;
+                this.startX = pos.clientX; this.startY = pos.clientY;
                 this.el.style.transition = 'none';
             }
 
             move(e) {
                 if (!this.isDragging) return;
                 const pos = e.touches ? e.touches[0] : e;
-                const dx = pos.clientX - this.startX;
-                const dy = pos.clientY - this.startY;
-
+                const dx = pos.clientX - this.startX, dy = pos.clientY - this.startY;
                 const moveX = Math.abs(dx) > Math.abs(dy) ? Math.max(-120, Math.min(120, dx)) : 0;
                 const moveY = Math.abs(dy) > Math.abs(dx) ? Math.max(-120, Math.min(120, dy)) : 0;
-                
                 this.el.style.transform = `translate(${moveX}px, ${moveY}px)`;
                 this.el.querySelector('.hint-up').style.opacity = moveY < -40 ? 1 : 0;
                 this.el.querySelector('.hint-down').style.opacity = moveY > 40 ? 1 : 0;
@@ -177,15 +206,21 @@
             end(e) {
                 if (!this.isDragging) return;
                 this.isDragging = false;
-                const endPos = e.changedTouches ? e.changedTouches[0] : e;
-                const dx = endPos.clientX - this.startX;
-                const dy = endPos.clientY - this.startY;
+                const endPos = e.changedTouches ? e.changedTouches[0] : (e.clientX ? e : {clientX: this.startX, clientY: this.startY});
+                const dx = (endPos.clientX || this.startX) - this.startX;
+                const dy = (endPos.clientY || this.startY) - this.startY;
 
                 if (dy > 80) { 
                     this.el.style.transform = 'none'; 
                     this.el.querySelector('.info-overlay').classList.add('active'); 
                 }
                 else if (Math.abs(dx) > 80 || dy < -80) {
+                    const dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'RIGHT' : 'LEFT') : 'UP';
+                    if (APP_MODE === 'QUIZ') {
+                        if (dir === this.data.correct) SCORE += parseInt(this.data.w) || 10;
+                        else if (dir !== 'DOWN' && dir !== 'SKIP') SCORE = Math.max(0, SCORE - 5);
+                        updateLevelUI();
+                    }
                     this.el.style.transition = '0.3s';
                     this.el.style.transform = `translate(${dx * 5}px, ${dy * 5}px)`;
                     setTimeout(() => { this.el.remove(); spawnCard(); }, 200);
@@ -196,10 +231,6 @@
                 }
             }
         }
-        window.onload = loadQuestions;
-    </script>
-</body>
-</html>
         window.onload = loadQuestions;
     </script>
 </body>
