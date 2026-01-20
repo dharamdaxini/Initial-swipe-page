@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Chemistry Master V74.1</title>
+<title>Chemistry Master V74.2</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -83,7 +83,7 @@ sup { font-size: 0.65em; vertical-align: super; line-height: 0; font-family: var
 </head>
 
 <body>
-<div id="loader">LOCKED PRODUCTION V74.1…</div>
+<div id="loader">LOCKED PRODUCTION V74.2…</div>
 
 <div id="header">
     <div class="header-meta">
@@ -112,10 +112,18 @@ const formatChem = t => {
 async function init(){
     try {
         const r = await fetch(ENDPOINT);
-        RAW_DATA = await r.json();
+        if (!r.ok) throw new Error(`HTTP Error: ${r.status}`);
+        const text = await r.text();
+        try {
+            RAW_DATA = JSON.parse(text);
+        } catch(e) {
+            throw new Error("API returned invalid JSON (Check Deployment Permissions)");
+        }
         document.getElementById('loader').remove();
         renderTopicSelect();
-    } catch(e) { document.getElementById('loader').innerHTML = `SYNC FAILED`; }
+    } catch(e) { 
+        document.getElementById('loader').innerHTML = `SYNC FAILED<br><br><small style="color:#ff4444; font-size:0.6rem;">${e.message}</small>`; 
+    }
 }
 
 function renderTopicSelect(){
@@ -141,7 +149,6 @@ function renderGenreSelect(topic){
 
 function startQuiz(topic, genre){
     CURRENT_GENRE = genre;
-    // V74.1 Logic: Filter based on topic AND q_type
     POOL = RAW_DATA.filter(q => 
         q.topic.trim().toLowerCase() === topic.toLowerCase() && 
         q.q_type.trim().toUpperCase() === genre.toUpperCase()
