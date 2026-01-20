@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chemistry Master V65.2 (Display Fix)</title>
+    <title>Chemistry Master V65.3 (Click Fix)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,8 +35,9 @@
 
         #stack { position: relative; width: 100%; max-width: 360px; height: 65vh; margin-top: 40px; perspective: 1000px; }
 
-        .card { position: absolute; width: 100%; height: 100%; background: var(--card-bg); border-radius: 32px; border: 1px solid #333; padding: 30px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 20px 50px rgba(0,0,0,0.8); will-change: transform; touch-action: none; }
-        .card-q { font-family: var(--font-chem); font-size: 1.9rem; font-weight: 600; line-height: 1.4; color: #efefef; font-style: italic; }
+        .card { position: absolute; width: 100%; height: 100%; background: var(--card-bg); border-radius: 32px; border: 1px solid #333; padding: 30px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 20px 50px rgba(0,0,0,0.8); will-change: transform; touch-action: none; cursor: grab; }
+        .card:active { cursor: grabbing; }
+        .card-q { font-family: var(--font-chem); font-size: 1.9rem; font-weight: 600; line-height: 1.4; color: #efefef; font-style: italic; pointer-events: none; }
 
         .hint-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 32px; opacity: 0; pointer-events: none; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 2.2rem; text-align: center; background: rgba(0,0,0,0.92); z-index: 10; color: #fff; font-family: var(--font-ui); text-transform: uppercase; }
 
@@ -44,7 +45,7 @@
         .info-overlay.active { opacity: 1; pointer-events: auto; }
         .info-text { font-family: var(--font-chem); font-size: 1.25rem; line-height: 1.5; color: #ddd; overflow-y: auto; max-height: 70%; }
 
-        .btn-next { background: #fff; color: #000; border: none; padding: 18px; border-radius: 50px; font-weight: 800; font-family: var(--font-ui); width: 100%; margin-top: 20px; }
+        .btn-next { background: #fff; color: #000; border: none; padding: 18px; border-radius: 50px; font-weight: 800; font-family: var(--font-ui); width: 100%; margin-top: 20px; cursor: pointer; }
         #loader { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; }
         .spinner { width: 40px; height: 40px; border: 4px solid #222; border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -52,12 +53,12 @@
 </head>
 <body>
     <div id="loader"><div class="spinner"></div></div>
-    <div id="header"><span>CHEM_MASTERY_V65.2</span><span id="score-label">XP: 0 ⚡</span></div>
+    <div id="header"><span>CHEM_MASTERY_V65.3</span><span id="score-label">XP: 0 ⚡</span></div>
     <div id="stack"></div>
 
     <script>
         const DATA_ENDPOINT = "https://script.google.com/macros/s/AKfycbwrdBKhMeHPpkbZOd_zwFNY5A7FxWji2t11eNnMqXpcAptMAyPewImMG-7O6Ja-ad6Q/exec"; 
-        let SCORE = 0, QUESTION_POOL = [], MISTAKE_POOL = [], APP_MODE = 'QUIZ', CURRENT_QUESTION_DATA = null;
+        let SCORE = 0, QUESTION_POOL = [], MISTAKE_POOL = [], APP_MODE = 'QUIZ';
 
         function formatChem(text) {
             if (!text) return "";
@@ -113,7 +114,6 @@
         function nextQuestion() {
             if (QUESTION_POOL.length === 0) return null;
             const q = QUESTION_POOL.shift();
-            // UNIVERSAL MAPPING: Support both long and short column names
             return {
                 id: q.question_id, 
                 text: q.question_text || q.text, 
@@ -136,31 +136,70 @@
         class Draggable {
             constructor(el, data) {
                 this.el = el; this.data = data;
-                this.el.addEventListener('touchstart', (e) => {
-                    if(this.el.querySelector('.info-overlay.active')) return;
-                    this.startY = e.touches[0].clientY; this.startX = e.touches[0].clientX;
-                });
-                this.el.addEventListener('touchmove', (e) => {
-                    const dy = e.touches[0].clientY - this.startY, dx = e.touches[0].clientX - this.startX;
-                    const moveX = Math.abs(dx) > Math.abs(dy) ? Math.max(-120, Math.min(120, dx)) : 0;
-                    const moveY = Math.abs(dy) > Math.abs(dx) ? Math.max(-120, Math.min(120, dy)) : 0;
-                    this.el.style.transform = `translate(${moveX}px, ${moveY}px)`;
-                    this.el.querySelector('.hint-up').style.opacity = moveY < -40 ? 1 : 0;
-                    this.el.querySelector('.hint-down').style.opacity = moveY > 40 ? 1 : 0;
-                    this.el.querySelector('.hint-left').style.opacity = moveX < -40 ? 1 : 0;
-                    this.el.querySelector('.hint-right').style.opacity = moveX > 40 ? 1 : 0;
-                });
-                this.el.addEventListener('touchend', (e) => {
-                    const dy = e.changedTouches[0].clientY - this.startY, dx = e.changedTouches[0].clientX - this.startX;
-                    if (dy > 80) { this.el.style.transform = 'none'; this.el.querySelector('.info-overlay').classList.add('active'); }
-                    else if (Math.abs(dx) > 80 || dy < -80) {
-                        this.el.style.transition = '0.3s';
-                        this.el.style.transform = `translate(${dx * 5}px, ${dy * 5}px)`;
-                        setTimeout(() => { this.el.remove(); spawnCard(); }, 200);
-                    } else { this.el.style.transform = 'none'; this.el.querySelectorAll('.hint-overlay').forEach(h => h.style.opacity = 0); }
-                });
+                this.isDragging = false;
+
+                // Mouse Events
+                this.el.addEventListener('mousedown', this.start.bind(this));
+                window.addEventListener('mousemove', this.move.bind(this));
+                window.addEventListener('mouseup', this.end.bind(this));
+
+                // Touch Events
+                this.el.addEventListener('touchstart', this.start.bind(this));
+                this.el.addEventListener('touchmove', this.move.bind(this));
+                this.el.addEventListener('touchend', this.end.bind(this));
+            }
+
+            start(e) {
+                if(this.el.querySelector('.info-overlay.active')) return;
+                this.isDragging = true;
+                const pos = e.touches ? e.touches[0] : e;
+                this.startX = pos.clientX;
+                this.startY = pos.clientY;
+                this.el.style.transition = 'none';
+            }
+
+            move(e) {
+                if (!this.isDragging) return;
+                const pos = e.touches ? e.touches[0] : e;
+                const dx = pos.clientX - this.startX;
+                const dy = pos.clientY - this.startY;
+
+                const moveX = Math.abs(dx) > Math.abs(dy) ? Math.max(-120, Math.min(120, dx)) : 0;
+                const moveY = Math.abs(dy) > Math.abs(dx) ? Math.max(-120, Math.min(120, dy)) : 0;
+                
+                this.el.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                this.el.querySelector('.hint-up').style.opacity = moveY < -40 ? 1 : 0;
+                this.el.querySelector('.hint-down').style.opacity = moveY > 40 ? 1 : 0;
+                this.el.querySelector('.hint-left').style.opacity = moveX < -40 ? 1 : 0;
+                this.el.querySelector('.hint-right').style.opacity = moveX > 40 ? 1 : 0;
+            }
+
+            end(e) {
+                if (!this.isDragging) return;
+                this.isDragging = false;
+                const endPos = e.changedTouches ? e.changedTouches[0] : e;
+                const dx = endPos.clientX - this.startX;
+                const dy = endPos.clientY - this.startY;
+
+                if (dy > 80) { 
+                    this.el.style.transform = 'none'; 
+                    this.el.querySelector('.info-overlay').classList.add('active'); 
+                }
+                else if (Math.abs(dx) > 80 || dy < -80) {
+                    this.el.style.transition = '0.3s';
+                    this.el.style.transform = `translate(${dx * 5}px, ${dy * 5}px)`;
+                    setTimeout(() => { this.el.remove(); spawnCard(); }, 200);
+                } else {
+                    this.el.style.transition = '0.2s';
+                    this.el.style.transform = 'none';
+                    this.el.querySelectorAll('.hint-overlay').forEach(h => h.style.opacity = 0);
+                }
             }
         }
+        window.onload = loadQuestions;
+    </script>
+</body>
+</html>
         window.onload = loadQuestions;
     </script>
 </body>
