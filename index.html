@@ -3,27 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist V84.2 Robust</title>
+<title>Alchemist V85.1 Final</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 
 <style>
-/* V84.2 CSS - ROBUST LOGIC BUILD */
+/* V85.1 CSS - FINAL ENGINE LINK */
 :root { 
-    --bg-color: #050505; --card-bg: #141414; 
+    --bg-color: #000000; --card-bg: #121212; 
     --accent-gold: #ffcc00; --hint-blue: #4dabf7; --err-red: #ff4d4d;
     --font-ui: 'Outfit', sans-serif; 
     --font-chem: 'Libre Baskerville', serif; 
     --font-code: 'JetBrains Mono', monospace; 
 }
 
+/* GLOBAL LAG KILLER */
 * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
 body { 
     margin: 0; height: 100vh; background: var(--bg-color); color: #fff; 
     font-family: var(--font-ui); overflow: hidden; 
-    touch-action: none; 
+    touch-action: none; /* STOPS BROWSER GESTURES */
     user-select: none; -webkit-user-select: none;
 }
 
@@ -39,8 +40,8 @@ body {
     background: var(--card-bg); border-radius: 24px; border: 1px solid #333; 
     display: flex; flex-direction: column; justify-content: center; align-items: center;
     transform-origin: center center; box-shadow: 0 25px 50px rgba(0,0,0,0.95); will-change: transform; 
-    padding: 30px; 
-    touch-action: none;
+    padding: 25px; 
+    touch-action: none; /* CRITICAL FOR LAG */
 }
 
 /* SMART TEXT SIZING */
@@ -52,28 +53,18 @@ body {
     text-align: center; 
     color: #e0e0e0;
     width: 100%;
-    word-wrap: break-word;
+    word-wrap: break-word; 
 }
 
-/* --- FIXED SWIPE LABELS (Perfectly Centered) --- */
+/* CLEAN SWIPE LABELS */
 .swipe-label { 
-    position: absolute; inset: 0; 
-    display: flex; flex-direction: column; 
-    align-items: center; justify-content: center; 
-    background: rgba(0,0,0,0.96); 
-    font-family: var(--font-ui); font-weight: 900; font-size: 2.2rem; 
-    text-transform: uppercase; border-radius: 24px; 
-    opacity: 0; pointer-events: none; z-index:100; 
-    letter-spacing: 2px; text-align: center;
-    padding: 20px;
+    position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; 
+    background: rgba(0,0,0,0.96); font-family: var(--font-ui); font-weight: 900; font-size: 2rem; 
+    text-transform: uppercase; border-radius: 24px; opacity: 0; pointer-events: none; z-index:100; letter-spacing: 2px; text-align:center; padding: 20px;
 }
-
 .sl-down-hint { 
-    color: var(--hint-blue) !important; 
-    font-size: 1.4rem !important; 
-    text-transform: none !important; 
-    font-family: var(--font-chem) !important; 
-    line-height: 1.6 !important;
+    color: var(--hint-blue) !important; font-size: 1.4rem !important; text-transform: none !important; 
+    font-family: var(--font-chem) !important; background: rgba(10, 10, 10, 0.98) !important; line-height: 1.6 !important;
 }
 .hint-icon { font-size: 3rem; margin-bottom: 15px; display: block; }
 
@@ -128,11 +119,11 @@ body {
 
 <script>
 // =========================================================
-// YOUR SCRIPT URL (Don't change this)
+// ✅ NEW ENGINE URL (UPDATED V85.1)
 // =========================================================
-const ENDPOINT = "https://script.google.com/macros/s/AKfycbx0MOn2CEOHtwcraedSgmR_622esgwSAiWks3tNV51yc9XeKGrIip7lIxAu5iT460YT/exec";
+const ENDPOINT = "https://script.google.com/macros/s/AKfycby_TgVH_qSlR6bKnnUTueTB6D_Upjf5Wm3bxF11DBkU2_F4Q8ALbZkhAIqiwiY-J7Sj0w/exec";
 
-// FALLBACK DATA (Minified)
+// FALLBACK DATA
 const BACKUP_DATA = [{ "dataset": "SET_A", "topic": "Physical", "q_type": "CONCEPT", "question_text": "What does a negative ΔG value signify?", "hint": "Thermodynamic direction.", "explanation": "✅ Spontaneous reaction.", "swipe_up_label": "Spontaneous", "swipe_right_label": "Equilibrium", "swipe_down_label": "HINT", "swipe_left_label": "Non-spontaneous", "correct": "UP", "weight": 1 }];
 
 let RAW_DATA = [...BACKUP_DATA], POOL=[], MISTAKES=[], SCORE=0, isTransitioning=false;
@@ -148,42 +139,43 @@ async function init(){
         const json = await r.json();
         if(Array.isArray(json) && json.length > 0) {
             RAW_DATA = json; 
-            status.innerText = `LOADED ${json.length} CARDS`; status.style.color = "#00ff00";
+            status.innerText = `ENGINE CONNECTED: ${json.length} CARDS`; status.style.color = "#00ff00";
+        } else {
+            status.innerText = "ENGINE EMPTY"; status.style.color = "red";
         }
     } catch(e) { status.innerText = "OFFLINE MODE"; status.style.color = "orange"; }
 
-    setTimeout(() => { l.remove(); renderDatasetSelect(); }, 1200);
+    setTimeout(() => { l.remove(); renderDatasetSelect(); }, 1500);
 }
 
-// --- ROBUST FILTERING LOGIC (THE FIX) ---
+// --- ROBUST FILTERING ---
 function attemptAutoStart(topic, genre){
     const cleanDataset = (CURRENT_DATASET||"").trim().toLowerCase();
     const cleanTopic = (topic||"").trim().toLowerCase();
-    const cleanGenre = (genre||"").trim().toLowerCase();
-
-    // 1. Try Specific Match
+    
+    // 1. Try Exact Match
     POOL = RAW_DATA.filter(q => {
         const d = (q.dataset||"").trim().toLowerCase();
         const t = (q.topic||"").trim().toLowerCase();
         return d === cleanDataset && t === cleanTopic;
     }).sort(() => Math.random() - .5);
 
-    // 2. Fallback: If 0 questions, ignore Topic and just load Dataset
+    // 2. Fallback: Dataset Only
     if(POOL.length === 0) {
-        console.log("Fallback triggered: Loading entire dataset");
+        console.log("Fallback: Loading entire dataset");
         POOL = RAW_DATA.filter(q => (q.dataset||"").trim().toLowerCase() === cleanDataset).sort(() => Math.random() - .5);
     }
 
-    // 3. Final Fallback: Load EVERYTHING
+    // 3. Final Fallback: All Questions
     if(POOL.length === 0) {
-        console.log("Emergency fallback: Loading all data");
+        console.log("Emergency fallback");
         POOL = [...RAW_DATA].sort(() => Math.random() - .5);
     }
 
     if(POOL.length > 0) { 
         CURRENT_TOPIC = topic; CURRENT_GENRE = genre; renderNext(); return true; 
     } else {
-        renderDatasetSelect(); // Should never happen with fallback
+        renderDatasetSelect(); 
         return false;
     }
 }
