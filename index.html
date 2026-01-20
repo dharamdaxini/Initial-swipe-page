@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chemistry Master V52 (MCQ Mode)</title>
+    <title>Chemistry Master V52 (NaN Fix)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,7 +15,7 @@
             --bg-color: #000000;
             --card-bg: #1a1a1a;
             --context-bg: #1a2333; 
-            --info-bg: rgba(0, 0, 0, 0.98); 
+            --info-bg: rgba(0, 0, 0, 0.98);
             --report-bg: #111111;
             --text-main: #ffffff;
             --text-muted: #888888;
@@ -41,6 +41,7 @@
             justify-content: center;
         }
 
+        /* --- LOADING OVERLAY --- */
         #loader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 9999;
@@ -55,6 +56,7 @@
         .status-text { font-family: var(--font-code); font-size: 0.9rem; color: var(--text-muted); }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+        /* --- UI LAYER --- */
         #header {
             position: absolute; top: 20px; width: 90%;
             display: flex; justify-content: space-between; z-index: 100;
@@ -68,11 +70,13 @@
             z-index: 50; pointer-events: none;
         }
 
+        /* --- CARD STACK --- */
         #stack {
             position: relative; width: 100%; max-width: 360px; height: 65vh;
             margin-top: 40px; perspective: 1000px;
         }
 
+        /* --- CARD STYLES --- */
         .card {
             position: absolute; width: 100%; height: 100%;
             background: var(--card-bg);
@@ -87,7 +91,7 @@
         .card.card-context { background: var(--context-bg); border-color: var(--accent-blue); }
 
         .card-q { 
-            font-size: 1.6rem; font-weight: 800; line-height: 1.3; 
+            font-size: 1.8rem; font-weight: 800; line-height: 1.2; 
             margin-bottom: 10px; margin-top: 20px; 
         }
 
@@ -97,34 +101,20 @@
             margin-top: 10px; display: inline-block;
         }
 
-        /* --- UPDATED HINT OVERLAYS (MCQ OPTIMIZED) --- */
+        /* --- HINT OVERLAYS --- */
         .hint-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             border-radius: 32px; pointer-events: none; opacity: 0;
             transition: opacity 0.1s;
             display: flex; align-items: center; justify-content: center;
-            font-weight: 800; 
-            font-size: 1.8rem; /* Smaller font for longer text */
-            padding: 20px;
-            text-align: center; /* Wrap text nicely */
-            text-transform: none; /* Allow Mixed Case for Chemical Formulas */
-            z-index: 10; text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-            background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+            font-weight: 900; font-size: 2.5rem; text-transform: uppercase;
+            z-index: 10; text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.7); 
         }
-        .hint-up { color: var(--accent-blue); align-items: flex-start; padding-top: 60px; }
-        .hint-left { color: var(--accent-red); justify-content: flex-end; padding-right: 40px; } 
-        .hint-right { color: var(--accent-green); justify-content: flex-start; padding-left: 40px; }
-        .hint-down { color: #ffffff; align-items: flex-end; padding-bottom: 60px; }
-
-        /* Guide Dots to show 3 Options */
-        .guide-dot {
-            position: absolute; width: 6px; height: 6px; border-radius: 50%;
-            background: #333; opacity: 0.5;
-        }
-        .guide-top { top: 15px; left: 50%; transform: translateX(-50%); }
-        .guide-left { left: 15px; top: 50%; transform: translateY(-50%); }
-        .guide-right { right: 15px; top: 50%; transform: translateY(-50%); }
-
+        .hint-up { color: var(--accent-blue); }
+        .hint-left { color: var(--accent-red); } 
+        .hint-right { color: var(--accent-green); }
+        .hint-down { color: #ffffff; }
 
         /* --- INFO OVERLAY --- */
         .info-overlay {
@@ -133,7 +123,7 @@
             padding: 30px;
             display: flex; flex-direction: column; justify-content: center;
             opacity: 0; pointer-events: none;
-            transition: opacity 0.1s ease;
+            transition: opacity 0.3s ease;
             z-index: 20;
         }
         .info-overlay.active { opacity: 1; pointer-events: auto; }
@@ -147,8 +137,8 @@
             width: 100%; cursor: pointer; text-transform: uppercase;
             box-shadow: 0 10px 20px rgba(255,255,255,0.2);
         }
-        .btn-next:active { transform: scale(0.95); transition: 0.05s; }
 
+        /* --- REPORT CARD --- */
         .report-card {
             background: var(--report-bg); border: 2px solid var(--accent-blue);
             align-items: center; justify-content: center; text-align: center;
@@ -213,8 +203,11 @@
                     .filter(q => q.deck === deck && !USED_IDS.has(q.question_id))
                     .sort(() => Math.random() - 0.5);
 
-                console.log(`[SYS] Loaded ${QUESTION_POOL.length} items`);
-                if(QUESTION_POOL.length === 0) throw new Error("Empty Deck");
+                if(QUESTION_POOL.length === 0) {
+                    status.innerHTML = "ERROR: Empty Deck.<br>Check Sheet Header B1 is 'deck'";
+                    status.style.color = "red";
+                    throw new Error("Empty Deck");
+                }
                 
             } catch (error) {
                 status.innerHTML = `ERROR: ${error.message}<br>Check Console.`;
@@ -238,13 +231,17 @@
 
         function showReportCard() {
             const accuracy = STATS.total_cards > 0 ? ((STATS.correct_count / STATS.total_cards) * 100).toFixed(0) : 0;
-            const avg_lat = STATS.total_cards > 0 ? Math.round(STATS.total_latency / STATS.total_cards) : 0;
+            
+            // CONVERT TO SECONDS
+            const avg_lat_ms = STATS.total_cards > 0 ? (STATS.total_latency / STATS.total_cards) : 0;
+            const avg_lat_sec = (avg_lat_ms / 1000).toFixed(1) + "s";
 
+            // Send Session Data
             fetch(DATA_ENDPOINT, {
                 method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     type: "SESSION_END", timestamp: new Date().toISOString(),
-                    total_score: SCORE, accuracy: accuracy, avg_latency: avg_lat, raw_stats: STATS.history
+                    total_score: SCORE, accuracy: accuracy, avg_latency: Math.round(avg_lat_ms), raw_stats: STATS.history
                 })
             });
 
@@ -256,7 +253,7 @@
                     <div class="report-score">${SCORE}</div>
                     <div class="report-grid">
                         <div class="report-stat"><div class="stat-label">ACCURACY</div><div class="stat-val">${accuracy}%</div></div>
-                        <div class="report-stat"><div class="stat-label">SPEED (MS)</div><div class="stat-val">${avg_lat}</div></div>
+                        <div class="report-stat"><div class="stat-label">SPEED</div><div class="stat-val">${avg_lat_sec}</div></div>
                     </div>
                     <button class="btn-restart" onclick="location.reload()">PLAY AGAIN</button>
                 </div>
@@ -283,18 +280,23 @@
                 right: q.swipe_right_label || "MAYBE",
                 down: q.swipe_down_label || "SKIP", 
                 left: q.swipe_left_label || "NO", 
-                correct: q.correct.toUpperCase(), // FIXED: Normalize Case
-                w: q.weight
+                correct: q.correct, w: q.weight
             };
         }
 
         function processAnswer(data, direction) {
             const ms = Date.now() - CARD_START_TIME;
-            
             let isCorrect = (direction === data.correct);
+            
             if (direction !== 'DOWN') {
-                if (isCorrect) SCORE += parseInt(data.w || 10);
-                else SCORE -= 5;
+                if (isCorrect) {
+                    // SAFE INTEGER PARSING (Fixes NaN)
+                    let w = parseInt(data.w);
+                    if (isNaN(w)) w = 10; // Default to 10 if missing/text
+                    SCORE += w;
+                } else {
+                    SCORE -= 5;
+                }
             }
             
             document.getElementById('score-label').innerText = `SCORE: ${SCORE}`;
@@ -312,10 +314,6 @@
             const subHTML = data.subs.length > 0 ? `<div class="card-sub">${data.subs.join(' ')}</div>` : '';
             
             el.innerHTML = `
-                <div class="guide-dot guide-top"></div>
-                <div class="guide-dot guide-left"></div>
-                <div class="guide-dot guide-right"></div>
-
                 <div class="card-content">
                     <div class="card-q">${data.text}</div>
                     ${subHTML}
@@ -338,9 +336,9 @@
         window.forceNext = function() {
             const card = document.querySelector('.card:not(.report-card)');
             if(card) {
-                card.style.transition = 'transform 0.15s ease-in'; 
+                card.style.transition = 'transform 0.3s ease-in';
                 card.style.transform = 'translate(0, 1000px)'; 
-                setTimeout(() => { card.remove(); spawnCard(); }, 50); 
+                setTimeout(() => { card.remove(); spawnCard(); }, 200);
             }
         }
 
@@ -402,14 +400,9 @@
             end() {
                 this.isDragging = false;
                 document.onmousemove = null; document.onmouseup = null;
-
                 const triggerDist = 80;
                 
-                if (this.y > triggerDist) {
-                    this.triggerInfo();
-                    return;
-                }
-
+                if (this.y > triggerDist) { this.triggerInfo(); return; }
                 if (this.y < -triggerDist) this.trigger('UP');
                 else if (this.x < -triggerDist) this.trigger('LEFT');
                 else if (this.x > triggerDist) this.trigger('RIGHT');
@@ -417,13 +410,11 @@
             }
 
             triggerInfo() {
-                this.el.style.transition = 'transform 0.1s cubic-bezier(0.2, 0.8, 0.2, 1)';
+                this.el.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
                 this.el.style.transform = 'translate(0, 0)';
                 this.el.querySelectorAll('.hint-overlay').forEach(h => h.style.opacity = 0);
-                
                 const overlay = this.el.querySelector('.info-overlay');
                 if(overlay) overlay.classList.add('active');
-                
                 processAnswer(this.data, 'DOWN');
             }
 
@@ -432,14 +423,13 @@
                 let tx = 0, ty = 0;
                 if (dir === 'UP') ty = -1000;
                 if (dir === 'LEFT') tx = -1000; if (dir === 'RIGHT') tx = 1000;
-
                 this.el.style.transform = `translate(${tx}px, ${ty}px)`;
                 processAnswer(this.data, dir);
                 setTimeout(() => { this.el.remove(); spawnCard(); }, 200);
             }
 
             reset() {
-                this.el.style.transition = 'transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1)'; 
+                this.el.style.transition = 'transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1)';
                 this.el.style.transform = 'translate(0, 0)';
                 this.el.querySelectorAll('.hint-overlay').forEach(h => h.style.opacity = 0);
             }
