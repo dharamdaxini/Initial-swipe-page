@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist Mastery V76.5 [Tactile]</title>
+<title>Alchemist Mastery V76.8</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -55,7 +55,7 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
     text-transform: uppercase; border-radius: 40px; z-index: 999; opacity: 0; pointer-events: none;
     text-align: center; padding: 20px; transform: scale(0.85) translateZ(0);
     will-change: opacity, transform; 
-    transition: opacity 0.05s linear; /* Ultra-fast response for linear ramp */
+    transition: opacity 0.05s linear;
 }
 
 .sl-down-hint { 
@@ -115,7 +115,13 @@ async function init(){
         const r = await fetch(ENDPOINT);
         RAW_DATA = await r.json();
         l.remove();
-        renderDatasetSelect();
+        
+        // --- AUTO-START SEQUENCE ---
+        // Automatically skips selection screens and starts Set A / Physical / Concept
+        CURRENT_DATASET = "SET_A";
+        CURRENT_TOPIC = "Physical";
+        startQuiz("Physical", "CONCEPT"); 
+        
     } catch(e) { l.innerHTML = "SYNC ERROR"; }
 }
 
@@ -149,7 +155,12 @@ function renderGenreSelect(topic){
 function startQuiz(topic, genre){
     CURRENT_GENRE=genre;
     POOL=RAW_DATA.filter(q => q.dataset.toUpperCase() === CURRENT_DATASET.toUpperCase() && q.topic.toLowerCase() === topic.toLowerCase() && q.q_type.toUpperCase() === genre.toUpperCase()).sort(() => Math.random() - .5);
-    if(!POOL.length){ alert("Section empty."); renderDatasetSelect(); return; }
+    if(!POOL.length){ 
+        // Fallback if default selection is empty
+        alert("Section empty. Loading Menu."); 
+        renderDatasetSelect(); 
+        return; 
+    }
     renderNext();
 }
 
@@ -213,7 +224,6 @@ function bindPhysics(el, data){
 
         if(activeLabel){
             activeLabel.style.opacity = opacity;
-            // Subtle scale for feedback
             activeLabel.style.transform = `scale(${0.85 + (opacity * 0.15)})`;
         }
 
@@ -244,7 +254,7 @@ function bindPhysics(el, data){
                 handleAction(el, data, x, y, triggerDir);
             }
         } else {
-            // SNAP BACK if release < 40px
+            // SNAP BACK
             el.style.transition="transform .2s cubic-bezier(0.175, 0.885, 0.32, 1.275)"; 
             el.style.transform="translate3d(0,0,0) rotate(0deg)";
         }
