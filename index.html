@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 
 <style>
-/* V81.1 CSS - INTEGRATED BUILD */
+/* V81.1 CSS - TEXT OVERFLOW FIX */
 :root { 
     --bg-color: #050505; --card-bg: #141414; --accent-gold: #ffcc00; --hint-blue: #4dabf7; --err-red: #ff4d4d;
     --font-ui: 'Outfit', sans-serif; --font-chem: 'Libre Baskerville', serif; --font-code: 'JetBrains Mono', monospace; 
@@ -29,11 +29,24 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 
 .card { 
     position: absolute; width: 100%; height: 100%; 
-    background: var(--card-bg); border-radius: 32px; border: 1px solid #333; padding: 35px; 
+    background: var(--card-bg); border-radius: 32px; border: 1px solid #333; padding: 30px; 
     display: flex; flex-direction: column; justify-content: center; transform-origin: center center; 
     box-shadow: 0 25px 50px rgba(0,0,0,0.95); will-change: transform; 
 }
-.card-q { font-family: var(--font-chem); font-size: 1.9rem; line-height: 1.5; font-weight: 400; text-align: center; color: #e0e0e0; }
+
+/* --- FIXED TEXT SCALING --- */
+.card-q { 
+    font-family: var(--font-chem); 
+    /* Dynamic sizing: Minimum 1.2rem, Preferred 5vw, Maximum 1.8rem */
+    font-size: clamp(1.2rem, 5vw, 1.8rem); 
+    line-height: 1.4; 
+    font-weight: 400; 
+    text-align: center; 
+    color: #e0e0e0;
+    /* Prevent cut-off */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
 
 .swipe-label { 
     position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; 
@@ -76,7 +89,7 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 </head>
 
 <body>
-<div id="loader">ALCHEMIST<br><small style="font-size:0.4em; opacity:0.5; margin-top:15px; font-weight:400; font-family:var(--font-code);">V81.1 FINAL</small></div>
+<div id="loader">ALCHEMIST<br><small style="font-size:0.4em; opacity:0.5; margin-top:15px; font-weight:400; font-family:var(--font-code);">V81.1 READY</small></div>
 
 <div id="analysis-modal">
     <div class="analysis-header">SESSION ANALYSIS</div>
@@ -94,7 +107,7 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 
 <script>
 // =========================================================
-// YOUR DEPLOYMENT URL IS HARDCODED HERE
+// YOUR DEPLOYMENT URL (HARDCODED)
 // =========================================================
 const ENDPOINT = "https://script.google.com/macros/s/AKfycbx0MOn2CEOHtwcraedSgmR_622esgwSAiWks3tNV51yc9XeKGrIip7lIxAu5iT460YT/exec"; 
 
@@ -184,7 +197,7 @@ const formatChem = t => { if(!t) return ""; return t.toString().replace(/([A-Z][
 
 async function init(){
     const l = document.getElementById('loader');
-    // Try cloud sync, default to backup
+    // Try to fetch new questions from cloud, else fallback to backup
     try {
         const r = await fetch(ENDPOINT);
         const json = await r.json();
@@ -360,12 +373,12 @@ function handleAction(el, data, x, y, dir){
         const w=parseInt(data.weight)||1; 
         if(dir===data.correct.toUpperCase()){ 
             SCORE+=(10*w); 
+            renderNext();
         } 
         else { 
             SCORE=Math.max(0, SCORE-5); MISTAKES.push(data); 
+            renderNext();
         }
-        // Always move to next card instantly (No popup)
-        renderNext();
     }
     else if(MODE==="DATASET_SELECT"){ const map={UP:"SET_A", LEFT:"SET_B", RIGHT:"SET_C", DOWN:"SET_D"}; renderTopicSelect(map[dir]); }
     else if(MODE==="TOPIC_SELECT"){ const map={UP:"Physical", LEFT:"Organic", RIGHT:"Inorganic", DOWN:"Analytical"}; renderGenreSelect(map[dir]); }
