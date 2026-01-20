@@ -3,229 +3,690 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>V38.5 Cognitive Engine | Organic Synthesis</title>
-    
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/contrib/auto-render.min.js"></script>
-
+    <title>Strategic Convergence 2026</title>
     <style>
+        /* --- CSS VARIABLES --- */
         :root {
-            --bg: #000000;
-            --card: #ffffff;
-            --accent: #2563eb;
-            --text-dark: #1a1a1a;
-            --gray: #666666;
+            --color-bg: #f4f4f5;
+            --color-card: #ffffff;
+            --color-text: #18181b;
+            --color-subtext: #71717a;
+            --color-up: #22c55e;
+            --color-down: #ef4444;
+            --color-right: #eab308;
+            --color-left: #64748b;
+            --shadow-card: 0 20px 40px -5px rgba(0, 0, 0, 0.1), 0 10px 20px -5px rgba(0, 0, 0, 0.04);
+            --shadow-desktop: 0 0 50px rgba(0,0,0,0.5);
+            --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
-        body, html { 
-            margin: 0; padding: 0; height: 100%; width: 100%;
-            background: var(--bg); font-family: -apple-system, system-ui, sans-serif;
-            overflow: hidden; touch-action: none;
+        /* --- GLOBAL RESET --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: none; /* Critical: Stops browser scroll hijacking */
         }
 
-        #app { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+        body {
+            font-family: var(--font-stack);
+            background-color: #27272a; /* Dark background for desktop focus */
+            color: var(--color-text);
+            height: 100svh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+        }
 
-        .view { display: none; position: absolute; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
-        .view.active { display: flex; opacity: 1; }
+        /* --- DEVICE CONTAINER (Desktop Proof) --- */
+        #app-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 450px; /* Mobile width constraint */
+            max-height: 900px; /* Height constraint for monitors */
+            background-color: var(--color-bg);
+            display: grid;
+            /* STRICT GRID: Header (15%) | Card Space (Auto) | Footer (25%) */
+            grid-template-rows: 15% 1fr 25%; 
+            grid-template-columns: 100%;
+            box-shadow: var(--shadow-desktop);
+            overflow: hidden;
+        }
 
-        /* V38.0 GPU-Accelerated Card */
+        /* --- ZONE 1: TOP HEADER --- */
+        #ui-header {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding-bottom: 1.5rem;
+            z-index: 20;
+            text-align: center;
+            transition: opacity 0.2s;
+        }
+
+        .header-topic {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--color-subtext);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            opacity: 0.8;
+        }
+
+        .header-type {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--color-text);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            line-height: 1;
+        }
+
+        /* --- ZONE 2: CARD STACK (Middle) --- */
+        #card-stack {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+            padding: 1rem;
+        }
+
         .card {
-            width: 85%; max-width: 420px; height: 65vh;
-            background: var(--card); border-radius: 40px;
-            padding: 2.5rem 2rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-            display: flex; flex-direction: column; justify-content: space-between;
-            will-change: transform; transform: translate3d(0,0,0);
-            transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
-            user-select: none; position: relative; z-index: 10;
+            position: absolute;
+            width: 90%;
+            aspect-ratio: 1/1; /* Keeps card square-ish */
+            max-height: 400px;
+            background: var(--color-card);
+            border-radius: 28px;
+            box-shadow: var(--shadow-card);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2.5rem;
+            text-align: center;
+            
+            will-change: transform;
+            transform: translateZ(0); 
+            backface-visibility: hidden;
+            
+            /* Center vertically in grid cell */
+            top: 50%;
+            left: 50%;
+            margin-top: -45%; /* Approx half width to center anchor */
+            margin-left: -45%;
         }
 
-        .card.dragging { transition: none !important; }
-
-        .question-text { font-size: 1.4rem; font-weight: 800; color: var(--text-dark); line-height: 1.25; margin-bottom: 1rem; }
-
-        .options-map { margin-top: 1rem; }
-        .option-item { 
-            font-size: 1.1rem; margin-bottom: 1rem; color: #333; font-weight: 500;
-            display: flex; align-items: center;
+        .card p {
+            font-size: 1.5rem;
+            line-height: 1.4;
+            font-weight: 600;
+            color: var(--color-text);
+            pointer-events: none;
+            margin: 0;
         }
+
+        /* --- ZONE 3: BOTTOM FOOTER (Arrows) --- */
+        #ui-footer {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 0;
+            align-content: center;
+            justify-items: center;
+            padding-bottom: 2rem;
+            z-index: 20;
+        }
+
+        .legend-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--color-subtext);
+            transition: transform 0.1s linear, opacity 0.15s ease, color 0.15s ease;
+            width: 80px; /* Hit area */
+        }
+
+        /* Grid Placement */
+        .legend-item.up { grid-column: 2; grid-row: 1; align-self: end; margin-bottom: 0.5rem; }
+        .legend-item.left { grid-column: 1; grid-row: 2; justify-self: end; margin-right: 0.5rem; }
+        .legend-item.down { grid-column: 2; grid-row: 2; align-self: start; margin-top: 0.5rem; }
+        .legend-item.right { grid-column: 3; grid-row: 2; justify-self: start; margin-left: 0.5rem; }
         
-        /* Progress Indicator */
-        #progress-bar { position: absolute; top: 0; left: 0; height: 6px; background: var(--accent); transition: width 0.3s; }
+        .legend-item .icon { font-size: 2rem; margin-bottom: 4px; display: block; line-height: 1; }
 
-        .hint { position: absolute; bottom: 20px; color: var(--gray); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; text-align: center; width: 100%; }
-
-        button {
-            padding: 1.2rem 3rem; border-radius: 100px; border: none;
-            background: var(--accent); color: white; font-weight: 800; font-size: 1.1rem;
-            cursor: pointer; box-shadow: 0 10px 20px rgba(37,99,235,0.3);
+        /* --- RESULTS OVERLAY --- */
+        #summary-view {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--color-bg);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            overflow-y: auto;
         }
 
-        #view-summary { color: white; text-align: center; padding: 2rem; }
+        #summary-view.visible { opacity: 1; pointer-events: auto; }
+
+        .summary-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .stat-box { text-align: center; }
+        .stat-num { font-size: 2rem; font-weight: 800; display: block; margin-bottom: 0.25rem; }
+        .stat-label { font-size: 0.75rem; color: var(--color-subtext); text-transform: uppercase; letter-spacing: 0.05em; }
+
+        #summary-list { margin-bottom: 2rem; }
+
+        .summary-item {
+            background: white;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            border-left: 6px solid transparent;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+        }
+
+        .confirmation-zone {
+            height: 120px;
+            margin-bottom: 2rem;
+            position: relative;
+            margin-top: auto;
+        }
+
+        #confirmation-card {
+            width: 100%;
+            height: 100%;
+            background: #1e293b;
+            color: white;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            will-change: transform;
+        }
+
+        .confirm-legend {
+            display: flex;
+            justify-content: space-between;
+            width: 80%;
+            margin-top: 0.75rem;
+            font-size: 0.7rem;
+            opacity: 0.6;
+            text-transform: uppercase;
+        }
+
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-<div id="app">
-    <div id="progress-bar" style="width: 0%"></div>
+    <div id="app-container">
+        
+        <header id="ui-header">
+            <span class="header-topic" id="header-topic">Topic</span>
+            <span class="header-type" id="header-type">Type</span>
+        </header>
 
-    <div id="view-start" class="view active">
-        <h1 style="color: white; font-size: 2.5rem; margin-bottom: 0.5rem;">V38.5 Master</h1>
-        <p style="color: var(--gray); margin-bottom: 2.5rem;">Advanced Organic Synthesis</p>
-        <button onclick="APP.start()">INITIALIZE SESSION</button>
-    </div>
-
-    <div id="view-game" class="view">
-        <div id="main-card" class="card">
-            <div id="q-text" class="question-text">Loading...</div>
-            <div class="options-map">
-                <div id="opt-up" class="option-item"></div>
-                <div id="opt-left" class="option-item"></div>
-                <div id="opt-right" class="option-item"></div>
+        <div id="card-stack" aria-live="polite">
             </div>
-        </div>
-        <div class="hint">↑ 1 | ← 2 | → 3 | ↓ LOGIC MAP</div>
+
+        <footer id="ui-footer">
+            <div class="legend-item up">
+                <span class="icon">↑</span>
+                <span class="label" id="label-up">True</span>
+            </div>
+            <div class="legend-item left">
+                <span class="icon">←</span>
+                <span class="label" id="label-left">Skip</span>
+            </div>
+            <div class="legend-item down">
+                <span class="icon">↓</span>
+                <span class="label" id="label-down">False</span>
+            </div>
+            <div class="legend-item right">
+                <span class="icon">→</span>
+                <span class="label" id="label-right">Unsure</span>
+            </div>
+        </footer>
+
+        <section id="summary-view" class="hidden">
+            <h2 style="font-size:1.5rem; margin-bottom:1.5rem; text-transform:uppercase; color:var(--color-subtext); text-align:center;">Session Complete</h2>
+            
+            <div class="summary-stats">
+                <div class="stat-box">
+                    <span class="stat-num" id="stat-total-score">0</span>
+                    <span class="stat-label">Total Score</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-num" id="stat-accuracy">0%</span>
+                    <span class="stat-label">Accuracy</span>
+                </div>
+            </div>
+
+            <div id="summary-list"></div>
+            
+            <div class="confirmation-zone">
+                <div id="confirmation-card">
+                    <p style="font-weight:600; font-size:1.1rem;">SWIPE TO SUBMIT</p>
+                    <div class="confirm-legend">
+                        <span>← Cancel</span>
+                        <span>Confirm →</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </div>
 
-    <div id="view-summary" class="view">
-        <h2 style="font-size: 2rem;">Mastery Logged</h2>
-        <div id="score-report" style="font-size: 1.2rem; color: var(--gray); margin: 1.5rem 0 3rem;"></div>
-        <button onclick="location.reload()">NEW ATTEMPT</button>
-    </div>
-</div>
+    <script>
+        /**
+         * ------------------------------------------------------------------
+         * CONFIGURATION
+         * ------------------------------------------------------------------
+         */
+        const CONFIG = {
+            API_URL: "https://script.google.com/macros/s/AKfycbz_ziu5Dezrz35J2FksQtNEYuZ5Kk6TrQvg3pM5O5eBYUDzWCCtqlGWwZj8D-TBQLFw/exec",
+            SWIPE_THRESHOLD: 80,
+            ROTATION_FACTOR: 0.05,
+            ARROW_MOVE_LIMIT: 25, // Pixels arrows move towards finger
+            COLORS: { UP: '#22c55e', DOWN: '#ef4444', RIGHT: '#eab308', LEFT: '#64748b', NEUTRAL: '#71717a' }
+        };
 
-<script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyC_2v2jzvZQQH088USUZRcWy6uSWX9-FAd5Vuh-lkLdHrYeCKThVoy2sd43AACjMeHQw/exec'; // Replace after deployment
+        const QUESTIONS = [
+            {
+                question_id: "q1", topic: "Strategic", q_type: "FACT RECALL", active: true,
+                question_text: "The Dholera semiconductor facility is fully operational as of Jan 2026.",
+                swipe_up_label: "True", swipe_right_label: "Unsure", swipe_down_label: "False", swipe_left_label: "Skip",
+                correct_swipe: "up", score_up: 10, score_right: 0, score_down: -5, score_left: 0, weight: 1
+            },
+            {
+                question_id: "q2", topic: "Logistics", q_type: "CONTEXT", active: true,
+                question_text: "ULIP integration has fully decoupled supply chain efficiency from crude oil volatility.",
+                swipe_up_label: "Agree", swipe_right_label: "Partial", swipe_down_label: "Disagree", swipe_left_label: "Skip",
+                correct_swipe: "right", score_up: -5, score_right: 10, score_down: -5, score_left: 0, weight: 2
+            },
+            {
+                question_id: "q3", topic: "Finance", q_type: "TRAP", active: true,
+                question_text: "The Indian Rupee was inducted into the IMF SDR basket in late 2025.",
+                swipe_up_label: "True", swipe_right_label: "Plausible", swipe_down_label: "False", swipe_left_label: "Skip",
+                correct_swipe: "down", score_up: -10, score_right: -5, score_down: 10, score_left: 0, weight: 1
+            }
+        ];
 
-const DECKS = [
-    { id: "C01", question: "Synthesis of $t$-butyl methyl ether.", up: "$(CH_3)_3C-Br + CH_3ONa$", left: "$(CH_3)_3CONa + CH_3I$ / $H_2O$", right: "$(CH_3)_3CONa + CH_3I$ / $CH_3CN$", map: "Eliminate Up: 3° halides do E2. Left: Protic solvents slow Sn2." },
-    { id: "C02", question: "Friedel-Crafts on Nitrobenzene.", up: "Toluene (High Yield)", left: "$o/p$-mixture", right: "No Reaction", map: "Nitrobenzene is deactivated; F-C requires electron-rich rings." },
-    { id: "C03", question: "Terminal Epoxide from Alkyne.", up: "$mCPBA$ on alkyne", left: "$Hg(OAc)_2/H_2O$", right: "1. $H_2/Lindlar$; 2. $mCPBA$", map: "Lindlar reduces alkyne to alkene first." },
-    { id: "C04", question: "$S_N2$ of $(S)$-2-bromobutane with $NaN_3$.", up: "$(S)$-azide", left: "$(R)$-azide / $CH_3OH$", right: "$(R)$-azide / $DMSO$", map: "Sn2 requires inversion + Aprotic solvent." },
-    { id: "C05", question: "Baeyer-Villiger of Cyclohexanone.", up: "$H_2O_2/NaOH$", left: "Cyclohexanol", right: "Caprolactone / $mCPBA$", map: "mCPBA is the standard BV oxidant." },
-    { id: "C06", question: "Birch Reduction of Benzoic Acid.", up: "1,4-product", left: "2,5-product", right: "2,5-dihydro (EWG at $sp^3$)", map: "EWG carbon is reduced in Birch." },
-    { id: "C07", question: "Hofmann Rearrangement of Benzamide.", up: "Benzylamine", left: "Aniline / $FeBr_3$", right: "Aniline / $Br_2/NaOH$", map: "Br2/NaOH/H2O are the Hofmann reagents." },
-    { id: "C08", question: "Stille Coupling: $R-SnBu_3 + R'-X$.", up: "$Pd$ in $H_2O$", left: "$NiCl_2$ in $THF$", right: "$Pd(PPh_3)_4$ / $DMF$", map: "Stille requires Pd catalyst and anhydrous DMF." },
-    { id: "C09", question: "Sharpless Asymmetric Epoxidation.", up: "Ti/DET/$H_2O_2$", left: "$mCPBA$", right: "Ti/DET/$tBuOOH$", map: "tBuOOH is the required oxidant for SAE." },
-    { id: "C10", question: "Clemmensen: $p$-acetamidobenzaldehyde.", up: "$Zn(Hg)/HCl$", left: "$NH_2NH_2/KOH$", right: "$HS(CH_2)_2SH$ / Raney Ni", map: "Acid/Base mismatch: HCl/KOH destroy the amide." },
-    { id: "C11", question: "Toluene to Benzoic Acid.", up: "Cold $KMnO_4$", left: "$CrO_3/Py$", right: "Hot $KMnO_4/NaOH$", map: "Aggressive hot oxidation required for C-H cleavage." },
-    { id: "C12", question: "Wittig: Cyclohexanone + Ylide.", up: "Alkene / $CH_3OH$", left: "Alcohol / Grignard", right: "Alkene / $THF$", map: "THF is the standard aprotic Wittig solvent." },
-    { id: "C13", question: "Diels-Alder: Anhydride + Butadiene.", up: "Endo (Slow)", left: "Exo", right: "Endo (Kinetic)", map: "Secondary orbital overlap favors Endo." },
-    { id: "C14", question: "Swern Oxidation of $1^\\circ$ Alcohol.", up: "$PCC$", left: "DMSO at $25^\\circ C$", right: "DMSO at $-78^\\circ C$", map: "Swern reagents decompose above -60°C." },
-    { id: "C15", question: "Heck: Ph-I + Methyl Acrylate.", up: "Pd / $H_2O$", left: "Pd / No base", right: "Pd / $PPh_3$ / $NEt_3$", map: "Base is critical for Pd(0) regeneration." }
-];
-
-const APP = {
-    deck: [],
-    idx: 0,
-    answers: [],
-    startX: 0,
-    startY: 0,
-    isDragging: false,
-    startTime: 0,
-
-    shuffle(arr) {
-        for (let i = arr.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [arr[i], arr[j]] = [arr[j], arr[i]];
-        }
-        return arr;
-    },
-
-    start() {
-        this.deck = this.shuffle([...DECKS]);
-        this.idx = 0;
-        this.answers = [];
-        this.showView('view-game');
-        this.render();
-    },
-
-    render() {
-        if (this.idx >= this.deck.length) {
-            this.complete();
-            return;
-        }
-
-        const q = this.deck[this.idx];
-        const card = document.getElementById('main-card');
+        /**
+         * ------------------------------------------------------------------
+         * STATE MANAGEMENT
+         * ------------------------------------------------------------------
+         */
+        const STATE = { IDLE: 'IDLE', DRAGGING: 'DRAGGING', ANIMATING: 'ANIMATING', SUMMARY: 'SUMMARY' };
         
-        card.style.transform = `translate3d(0,0,0)`;
-        document.getElementById('q-text').innerHTML = q.question;
-        document.getElementById('opt-up').innerHTML = `↑ ${q.up}`;
-        document.getElementById('opt-left').innerHTML = `← ${q.left}`;
-        document.getElementById('opt-right').innerHTML = `→ ${q.right}`;
-        document.getElementById('progress-bar').style.width = `${(this.idx / this.deck.length) * 100}%`;
+        const APP = {
+            currentState: STATE.IDLE,
+            deck: [],
+            currentIndex: 0,
+            answers: {}, 
+            activeCard: null,
+            startX: 0, startY: 0
+        };
 
-        renderMathInElement(document.body, { delimiters: [{left: "$", right: "$", display: false}] });
-        this.startTime = Date.now();
-    },
+        const DOM = {
+            stack: document.getElementById('card-stack'),
+            headerTopic: document.getElementById('header-topic'),
+            headerType: document.getElementById('header-type'),
+            labelUp: document.getElementById('label-up'),
+            labelDown: document.getElementById('label-down'),
+            labelLeft: document.getElementById('label-left'),
+            labelRight: document.getElementById('label-right'),
+            footer: document.getElementById('ui-footer'),
+            summaryView: document.getElementById('summary-view'),
+            summaryList: document.getElementById('summary-list'),
+            confirmCard: document.getElementById('confirmation-card'),
+            totalScore: document.getElementById('stat-total-score'),
+            accuracy: document.getElementById('stat-accuracy'),
+            container: document.getElementById('app-container')
+        };
 
-    handleMove(x, y) {
-        if (!this.isDragging) return;
-        const diffX = x - this.startX;
-        const diffY = y - this.startY;
-        document.getElementById('main-card').style.transform = `translate3d(${diffX}px, ${diffY}px, 0)`;
-    },
-
-    handleEnd(x, y) {
-        this.isDragging = false;
-        const card = document.getElementById('main-card');
-        card.classList.remove('dragging');
-        
-        const diffX = x - this.startX;
-        const diffY = y - this.startY;
-        const threshold = 80;
-
-        if (Math.abs(diffY) > Math.abs(diffX)) {
-            if (diffY < -threshold) this.resolve('UP');
-            else if (diffY > threshold) this.resolve('DOWN');
-            else this.reset();
-        } else {
-            if (diffX < -threshold) this.resolve('LEFT');
-            else if (diffX > threshold) this.resolve('RIGHT');
-            else this.reset();
+        function init() {
+            APP.deck = QUESTIONS.filter(q => q.active === true || q.active === "TRUE");
+            renderStack();
         }
-    },
 
-    resolve(dir) {
-        if (dir === 'DOWN') {
-            alert(`PIVOT LOGIC: ${this.deck[this.idx].map}`);
-            this.reset();
-        } else {
-            this.answers.push({ id: this.deck[this.idx].id, choice: dir, latency: Date.now() - this.startTime });
-            this.idx++;
-            this.render();
+        function renderStack() {
+            DOM.stack.innerHTML = '';
+            // Render in reverse so first index is on top visually
+            [...APP.deck].reverse().forEach((q, index) => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.style.zIndex = APP.deck.length - index;
+                // Only Question Text lives here now
+                card.innerHTML = `<p>${q.question_text}</p>`;
+                DOM.stack.appendChild(card);
+            });
+            updateTopCard();
         }
-    },
 
-    reset() { document.getElementById('main-card').style.transform = `translate3d(0,0,0)`; },
-
-    showView(id) {
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    },
-
-    async complete() {
-        this.showView('view-summary');
-        document.getElementById('score-report').innerText = `Session ID: ${Math.random().toString(36).substr(2, 9)} | Samples: ${this.answers.length}`;
-        document.getElementById('progress-bar').style.width = `100%`;
-        
-        if (SCRIPT_URL !== 'https://script.google.com/macros/s/AKfycbyC_2v2jzvZQQH088USUZRcWy6uSWX9-FAd5Vuh-lkLdHrYeCKThVoy2sd43AACjMeHQw/exec') {
-            fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(this.answers) });
+        function updateTopCard() {
+            const topCard = DOM.stack.lastElementChild;
+            if (topCard && APP.currentIndex < APP.deck.length) {
+                APP.activeCard = topCard;
+                bindInputEvents(topCard);
+                updateUI(APP.deck[APP.currentIndex]);
+            } else {
+                finishDeck();
+            }
         }
-    }
-};
 
-// Simplified Listeners
-const cardElem = document.getElementById('main-card');
-cardElem.addEventListener('touchstart', e => { 
-    APP.startX = e.touches[0].clientX; APP.startY = e.touches[0].clientY; 
-    APP.isDragging = true; cardElem.classList.add('dragging'); 
-}, {passive: true});
+        function updateUI(data) {
+            // Update Headers
+            DOM.headerTopic.textContent = data.topic;
+            DOM.headerType.textContent = data.q_type;
 
-document.addEventListener('touchmove', e => { if(APP.isDragging) APP.handleMove(e.touches[0].clientX, e.touches[0].clientY); }, {passive: true});
-document.addEventListener('touchend', e => { if(APP.isDragging) APP.handleEnd(e.changedTouches[0].clientX, e.changedTouches[0].clientY); });
+            // Update Labels
+            DOM.labelUp.textContent = data.swipe_up_label || "Up";
+            DOM.labelDown.textContent = data.swipe_down_label || "Down";
+            DOM.labelLeft.textContent = data.swipe_left_label || "Left";
+            DOM.labelRight.textContent = data.swipe_right_label || "Right";
+        }
 
-</script>
+        /**
+         * ------------------------------------------------------------------
+         * PHYSICS & INPUT HANDLING
+         * ------------------------------------------------------------------
+         */
+        function bindInputEvents(card) {
+            // Touch
+            card.addEventListener('touchstart', (e) => {
+                if (APP.currentState !== STATE.IDLE) return;
+                if (e.touches.length > 1) return; // Single touch only
+                startDrag(e.touches[0].clientX, e.touches[0].clientY);
+            }, { passive: false });
+
+            // Mouse (Desktop)
+            card.addEventListener('mousedown', (e) => {
+                if (APP.currentState !== STATE.IDLE) return;
+                startDrag(e.clientX, e.clientY);
+            });
+        }
+
+        function startDrag(x, y) {
+            APP.startX = x;
+            APP.startY = y;
+            APP.currentState = STATE.DRAGGING;
+            APP.activeCard.style.transition = 'none';
+
+            // Global listeners to catch fast swipes
+            window.addEventListener('touchmove', handleMove, { passive: false });
+            window.addEventListener('touchend', handleEnd);
+            window.addEventListener('mousemove', handleMove);
+            window.addEventListener('mouseup', handleEnd);
+        }
+
+        function handleMove(e) {
+            if (APP.currentState !== STATE.DRAGGING) return;
+            
+            let clientX, clientY;
+            if (e.type === 'touchmove') {
+                e.preventDefault(); 
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+
+            const deltaX = clientX - APP.startX;
+            const deltaY = clientY - APP.startY;
+
+            // 1. Move Card
+            const rotate = deltaX * CONFIG.ROTATION_FACTOR;
+            APP.activeCard.style.transform = `translate(${deltaX}px, ${deltaY}px) rotate(${rotate}deg)`;
+
+            // 2. Animate Footer Arrows
+            updateFooterVisuals(deltaX, deltaY);
+        }
+
+        function handleEnd(e) {
+            if (APP.currentState !== STATE.DRAGGING) return;
+
+            window.removeEventListener('touchmove', handleMove);
+            window.removeEventListener('touchend', handleEnd);
+            window.removeEventListener('mousemove', handleMove);
+            window.removeEventListener('mouseup', handleEnd);
+
+            let clientX, clientY;
+            if (e.changedTouches && e.changedTouches.length > 0) {
+                clientX = e.changedTouches[0].clientX;
+                clientY = e.changedTouches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+
+            const deltaX = clientX - APP.startX;
+            const deltaY = clientY - APP.startY;
+            const absX = Math.abs(deltaX);
+            const absY = Math.abs(deltaY);
+
+            resetFooterVisuals();
+            APP.currentState = STATE.ANIMATING;
+
+            let decision = null;
+            if (absY > absX && absY > CONFIG.SWIPE_THRESHOLD) {
+                decision = deltaY < 0 ? 'up' : 'down';
+            } else if (absX > absY && absX > CONFIG.SWIPE_THRESHOLD) {
+                decision = deltaX > 0 ? 'right' : 'left';
+            }
+
+            decision ? commitSwipe(decision) : resetCard();
+        }
+
+        /**
+         * ------------------------------------------------------------------
+         * VISUALS & ANIMATION
+         * ------------------------------------------------------------------
+         */
+        function updateFooterVisuals(dx, dy) {
+            const absX = Math.abs(dx);
+            const absY = Math.abs(dy);
+            
+            let activeClass = '';
+            let activeColor = '';
+            let xMove = 0, yMove = 0;
+
+            if (absY > absX) {
+                if (dy < 0) { activeClass = 'up'; activeColor = CONFIG.COLORS.UP; yMove = -CONFIG.ARROW_MOVE_LIMIT; }
+                else { activeClass = 'down'; activeColor = CONFIG.COLORS.DOWN; yMove = CONFIG.ARROW_MOVE_LIMIT; }
+            } else {
+                if (dx > 0) { activeClass = 'right'; activeColor = CONFIG.COLORS.RIGHT; xMove = CONFIG.ARROW_MOVE_LIMIT; }
+                else { activeClass = 'left'; activeColor = CONFIG.COLORS.LEFT; xMove = -CONFIG.ARROW_MOVE_LIMIT; }
+            }
+
+            const intensity = Math.min((Math.max(absX, absY) / CONFIG.SWIPE_THRESHOLD), 1);
+
+            const items = DOM.footer.querySelectorAll('.legend-item');
+            items.forEach(item => {
+                if (item.classList.contains(activeClass)) {
+                    // Active: Scale & Move towards finger
+                    const scale = 1 + (0.3 * intensity);
+                    const tx = xMove * intensity;
+                    const ty = yMove * intensity;
+                    
+                    item.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+                    item.style.color = activeColor;
+                    item.style.opacity = 1;
+                } else {
+                    // Inactive: Shrink & Fade
+                    item.style.transform = `scale(${1 - (0.15 * intensity)})`;
+                    item.style.opacity = 1 - (0.6 * intensity);
+                    item.style.color = CONFIG.COLORS.NEUTRAL;
+                }
+            });
+        }
+
+        function resetFooterVisuals() {
+            const items = DOM.footer.querySelectorAll('.legend-item');
+            items.forEach(item => {
+                item.style.transform = '';
+                item.style.opacity = '';
+                item.style.color = '';
+            });
+        }
+
+        function resetCard() {
+            APP.activeCard.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            APP.activeCard.style.transform = 'translate(0, 0) rotate(0)';
+            setTimeout(() => APP.currentState = STATE.IDLE, 400);
+        }
+
+        function commitSwipe(direction) {
+            const qData = APP.deck[APP.currentIndex];
+            let score = 0;
+            if (direction === 'up') score = qData.score_up;
+            if (direction === 'down') score = qData.score_down;
+            if (direction === 'right') score = qData.score_right;
+            if (direction === 'left') score = qData.score_left;
+
+            APP.answers[qData.question_id] = {
+                direction: direction,
+                raw_score: score,
+                weighted_score: score * qData.weight
+            };
+
+            let transX = 0, transY = 0;
+            const dist = window.innerWidth * 1.5;
+            if (direction === 'up') transY = -dist;
+            if (direction === 'down') transY = dist;
+            if (direction === 'left') transX = -dist;
+            if (direction === 'right') transX = dist;
+            
+            APP.activeCard.style.transition = 'transform 0.3s ease-in';
+            APP.activeCard.style.transform = `translate(${transX}px, ${transY}px) rotate(${transX * 0.1}deg)`;
+            
+            setTimeout(() => {
+                APP.activeCard.remove();
+                APP.currentIndex++;
+                APP.currentState = STATE.IDLE;
+                updateTopCard();
+            }, 300);
+        }
+
+        /**
+         * ------------------------------------------------------------------
+         * SUMMARY & SUBMISSION
+         * ------------------------------------------------------------------
+         */
+        function finishDeck() {
+            APP.currentState = STATE.SUMMARY;
+            DOM.summaryView.classList.remove('hidden');
+            setTimeout(() => DOM.summaryView.classList.add('visible'), 50);
+
+            let totalScore = 0;
+            let correctCount = 0;
+            const listHtml = APP.deck.map(q => {
+                const ans = APP.answers[q.question_id];
+                totalScore += ans.weighted_score;
+                if (ans.direction === q.correct_swipe) correctCount++;
+                let c = CONFIG.COLORS[ans.direction.toUpperCase()];
+                return `<div class="summary-item" style="border-left-color:${c}"><strong>${q.topic}</strong><br>${q.question_text}<br><div style="display:flex;justify-content:space-between;margin-top:0.5rem;font-size:0.8rem;"><span style="color:${c};font-weight:700;">${ans.direction.toUpperCase()}</span><span>Score: ${ans.weighted_score}</span></div></div>`;
+            }).join('');
+
+            DOM.totalScore.textContent = totalScore;
+            DOM.accuracy.textContent = Math.round((correctCount / APP.deck.length) * 100) + "%";
+            DOM.summaryList.innerHTML = listHtml;
+            initConfirmationSwipe();
+        }
+
+        function initConfirmationSwipe() {
+            const card = DOM.confirmCard;
+            let startX = 0;
+            
+            card.addEventListener('touchstart', (e) => { 
+                startX = e.touches[0].clientX; 
+                card.style.transition = 'none'; 
+            }, { passive: false });
+            
+            card.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const dx = e.touches[0].clientX - startX;
+                card.style.transform = `translateX(${dx}px)`;
+                if (dx > 50) card.style.background = CONFIG.COLORS.UP;
+                else if (dx < -50) card.style.background = CONFIG.COLORS.DOWN;
+                else card.style.background = '#1e293b';
+            }, { passive: false });
+            
+            card.addEventListener('touchend', (e) => {
+                const dx = e.changedTouches[0].clientX - startX;
+                if (dx > 100) submitData();
+                else if (dx < -100) location.reload();
+                else { 
+                    card.style.transition = 'transform 0.3s ease, background 0.3s'; 
+                    card.style.transform = 'translateX(0)'; 
+                    card.style.background = '#1e293b'; 
+                }
+            });
+        }
+
+        function submitData() {
+            const card = DOM.confirmCard;
+            card.innerHTML = "<h3>SYNCING...</h3>";
+            card.style.background = CONFIG.COLORS.LEFT;
+            
+            const payload = {
+                session_data: APP.answers,
+                total_score: parseInt(DOM.totalScore.textContent),
+                device: /Mobi|Android/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
+                timestamp: new Date().toISOString()
+            };
+
+            fetch(CONFIG.API_URL, { 
+                method: "POST", 
+                mode: "no-cors", 
+                headers: { "Content-Type": "text/plain" }, 
+                body: JSON.stringify(payload) 
+            })
+            .then(() => {
+                card.innerHTML = "<h3>SUBMITTED</h3>";
+                card.style.background = CONFIG.COLORS.UP;
+                card.style.transform = "translateX(0)";
+                const clone = card.cloneNode(true);
+                card.parentNode.replaceChild(clone, card);
+            })
+            .catch(error => {
+                console.error("Submission Error", error);
+                card.innerHTML = "<h3>ERROR</h3>";
+                card.style.background = CONFIG.COLORS.DOWN;
+            });
+        }
+
+        init();
+    </script>
 </body>
 </html>
