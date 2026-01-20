@@ -1,47 +1,256 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-  />
-  <title>Alchemist – Swipe Engine</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Alchemist Mastery V78.1</title>
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,600;1,600&family=Inter:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --bg: #000; --card: #111; --border: #222;
+    --accent: #ffd600; --hint: #3498db; --text: #f0f0f0;
+    --font-chem: 'Crimson Text', serif; --font-ui: 'Inter', sans-serif;
+    --spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+body { 
+    margin: 0; background: var(--bg); color: var(--text); 
+    font-family: var(--font-ui); height: 100vh; overflow: hidden; touch-action: none;
+}
+
+sub { font-size: 0.7em; vertical-align: sub; line-height: 0; }
+sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
+
+/* HEADER */
+#header { width: 90%; margin: calc(20px + env(safe-area-inset-top)) auto 0; z-index: 100; }
+.header-meta { display: flex; justify-content: space-between; font-size: 0.8rem; font-family: 'JetBrains Mono', monospace; color: #666; }
+.progress-track { width: 100%; height: 3px; background: #222; margin-top: 8px; border-radius: 2px; overflow: hidden; }
+#progress-bar { height: 100%; width: 0%; background: var(--accent); transition: width 0.4s var(--spring); }
+
+/* STACK & CARD */
+#stack { position: relative; width: 92%; max-width: 400px; height: calc(100vh - 160px - env(safe-area-inset-top)); margin: 25px auto 0; perspective: 1200px; }
+.card { 
+    position: absolute; inset: 0; background: var(--card); border-radius: 40px; padding: 40px; 
+    border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; 
+    text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,0.8); transform-origin: center center;
+    will-change: transform; transition: transform 0.1s linear;
+}
+
+.card-q { font-family: var(--font-chem); font-size: 2rem; line-height: 1.35; font-style: italic; font-weight: 600; color: #fdfdfd; }
+
+/* LABELS */
+.swipe-label { 
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; 
+    font-weight: 900; font-size: 2.1rem; opacity: 0; pointer-events: none; border-radius: 40px;
+    background: #000; text-transform: uppercase; transform: scale(0.9); transition: opacity 0.1s linear, transform 0.1s var(--spring);
+}
+.sl-up { color: #2ecc71; }
+.sl-ri { color: var(--accent); }
+.sl-le { color: #ff5555; }
+.sl-do { color: var(--hint); font-size: 1.4rem; font-family: var(--font-chem); text-transform: none; }
+
+/* OVERLAY */
+.overlay { 
+    position: absolute; inset: 0; background: #0d0d0d; border-radius: 40px; padding: 35px; 
+    display: none; flex-direction: column; justify-content: center; z-index: 1100;
+}
+.overlay.active { display: flex; }
+.overlay-label { font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 15px; color: var(--accent); font-family: 'JetBrains Mono'; }
+.overlay-body { font-size: 1.25rem; line-height: 1.7; font-family: var(--font-chem); color: #ccc; }
+
+.btn { 
+    margin-top: 30px; padding: 20px; border-radius: 50px; border: none; 
+    font-weight: 900; cursor: pointer; background: #fff; color: #000; text-transform: uppercase;
+}
+
+#loader { position: fixed; inset: 0; background: #000; display: flex; align-items: center; justify-content: center; font-weight: 900; letter-spacing: 5px; color: var(--accent); z-index: 9999; }
+</style>
 </head>
 
 <body>
-  <!-- ===================================================== -->
-  <!-- LOADER (BOOT / ERROR STATES) -->
-  <!-- ===================================================== -->
-  <div id="loader">
-    <div class="loader-title">ALCHEMIST</div>
-  </div>
+<div id="loader">ALCHEMIST</div>
 
-  <!-- ===================================================== -->
-  <!-- HEADER / NAV UI -->
-  <!-- ===================================================== -->
-  <div id="header">
+<div id="header">
     <div class="header-meta">
-      <span id="rank-ui">RANK: NOVICE</span>
-      <span id="xp-ui">0 XP</span>
+        <span id="rank-ui">RANK: NOVICE</span>
+        <span id="xp-ui">0 XP</span>
     </div>
+    <div class="progress-track"><div id="progress-bar"></div></div>
+</div>
 
-    <div class="progress-track">
-      <div id="progress-bar"></div>
-    </div>
-  </div>
+<div id="stack"></div>
 
-  <!-- ===================================================== -->
-  <!-- MAIN SWIPE STACK (ALL SCREENS RENDER HERE) -->
-  <!-- ===================================================== -->
-  <div id="stack"></div>
+<script>
+const CONFIG = { SWIPE: 75 };
+const STATE = { data: [], pool: [], score: 0, mode: "INIT", topic: "", isBusy: false };
 
-  <!-- ===================================================== -->
-  <!-- LOGIC -->
-  <!-- ===================================================== -->
-  <script src="swipe.js"></script>
+const DATA = [
+  {
+    topic: "PHYSICAL",
+    q: "Why does signal-to-noise in FT-NMR improve as √N?",
+    explanation: "Signal adds coherently across scans, while noise adds randomly. Therefore S/N increases as the square root of the number of scans.",
+    swipe: { UP: "Phase Coherence", RIGHT: "Random Noise", LEFT: "Field Shift", DOWN: "Hint: Root Scaling" },
+    correct: "RIGHT"
+  },
+  {
+    topic: "ANALYTICAL",
+    q: "Why does a conjugated C=O stretch shift to lower IR frequency?",
+    explanation: "Conjugation reduces the effective bond order of C=O, lowering the force constant and thus the IR frequency.",
+    swipe: { UP: "Higher Mass", RIGHT: "Lower Bond Order", LEFT: "H-Bonding", DOWN: "Hint: Force Constant" },
+    correct: "RIGHT"
+  }
+];
+
+const formatChem = t => !t ? "" : t.toString().replace(/([A-Z][a-z]?)(\d+)/g,'$1<sub>$2</sub>').replace(/(\d*)([+\-])/g, '<sup>$1$2</sup>').replace(/\|\|/g, '<br><br>');
+
+window.addEventListener("load", () => {
+    STATE.data = DATA;
+    document.getElementById("loader").remove();
+    renderDomain();
+});
+
+function renderDomain() {
+    STATE.mode = "DOMAIN";
+    createCard("CHOOSE DOMAIN", { UP: "PHYSICAL", DOWN: "ANALYTICAL" });
+}
+
+function startQuiz(topic) {
+    STATE.mode = "QUIZ";
+    STATE.topic = topic;
+    STATE.pool = STATE.data.filter(q => q.topic === topic).sort(() => Math.random() - 0.5);
+    next();
+}
+
+function next() {
+    if (!STATE.pool.length) return renderDomain();
+    const q = STATE.pool.shift();
+    createCard(q.q, q.swipe, q);
+}
+
+function createCard(text, labels, data) {
+    const stack = document.getElementById("stack");
+    stack.innerHTML = "";
+    const c = document.createElement("div");
+    c.className = "card";
+    c.innerHTML = `
+        <div class="card-q">${formatChem(text)}</div>
+        ${Object.entries(labels).map(([k,v]) => `<div class="swipe-label sl-${k.toLowerCase().slice(0,2)}">${v}</div>`).join("")}
+        ${data ? `<div class="overlay"><div class="overlay-label">LOGIC ANALYSIS</div><div class="overlay-body">${formatChem(data.explanation)}</div><button class="btn" onclick="this.parentNode.classList.remove('active')">CONTINUE</button></div>` : ""}
+    `;
+    stack.appendChild(c);
+    bindPhysics(c, data);
+}
+
+function bindPhysics(el, data) {
+    let sx=0, sy=0, dx=0, dy=0, active=false;
+    const labels = {
+        up: el.querySelector('.sl-up'),
+        dn: el.querySelector('.sl-do'),
+        le: el.querySelector('.sl-le'),
+        ri: el.querySelector('.sl-ri')
+    };
+
+    const start = e => {
+        if (STATE.isBusy || el.querySelector('.overlay.active')) return;
+        active = true;
+        const p = e.touches ? e.touches[0] : e;
+        sx = p.clientX; sy = p.clientY;
+        el.style.transition = "none";
+    };
+
+    const move = e => {
+        if (!active) return;
+        const p = e.touches ? e.touches[0] : e;
+        dx = p.clientX - sx; dy = p.clientY - sy;
+        const dist = Math.hypot(dx, dy);
+        let ang = Math.atan2(-dy, dx) * 180 / Math.PI;
+        if (ang < 0) ang += 360;
+
+        requestAnimationFrame(() => {
+            el.style.transform = `translate3d(${dx}px, ${dy}px, 0) rotate(${dx / 18}deg)`;
+            Object.values(labels).forEach(l => { if(l) l.style.opacity = 0; });
+            
+            if (dist > 10) {
+                let activeLabel;
+                if (ang >= 45 && ang < 135) activeLabel = labels.up;
+                else if (ang >= 135 && ang < 225) activeLabel = labels.le;
+                else if (ang >= 225 && ang < 315) activeLabel = labels.dn;
+                else activeLabel = labels.ri;
+
+                if (activeLabel) {
+                    activeLabel.style.opacity = Math.min(dist / 50, 1);
+                    activeLabel.style.transform = `scale(${0.9 + Math.min(dist/400, 0.1)})`;
+                }
+            }
+        });
+    };
+
+    const end = () => {
+        if (!active) return;
+        active = false;
+        const dist = Math.hypot(dx, dy);
+        let ang = Math.atan2(-dy, dx) * 180 / Math.PI;
+        if (ang < 0) ang += 360;
+
+        if (dist > CONFIG.SWIPE) {
+            const dir = ang >= 45 && ang < 135 ? "UP" : ang < 225 ? "LEFT" : ang < 315 ? "DOWN" : "RIGHT";
+            handleAction(el, dir, data, dx, dy);
+        } else {
+            el.style.transition = "transform 0.4s var(--spring)";
+            el.style.transform = "translate3d(0,0,0) rotate(0deg)";
+        }
+    };
+
+    el.addEventListener("mousedown", start);
+    el.addEventListener("touchstart", start, { passive: true });
+    window.addEventListener("mousemove", move);
+    window.addEventListener("touchmove", move, { passive: true });
+    window.addEventListener("mouseup", end);
+    window.addEventListener("touchend", end);
+}
+
+function handleAction(el, dir, data, dx, dy) {
+    if (STATE.mode === "DOMAIN") {
+        if (dir === "UP") startQuiz("PHYSICAL");
+        else if (dir === "DOWN") startQuiz("ANALYTICAL");
+        else { resetCard(el); return; }
+    } else if (STATE.mode === "QUIZ") {
+        if (dir === "DOWN") {
+            el.querySelector(".overlay").classList.add("active");
+            resetCard(el);
+            return;
+        } else {
+            if (dir === data.correct) STATE.score += 10;
+            updateUI();
+        }
+    }
+    
+    // Animate removal
+    STATE.isBusy = true;
+    el.style.transition = "transform 0.5s ease-in";
+    el.style.transform = `translate3d(${dx * 5}px, ${dy * 5}px, 0)`;
+    setTimeout(() => {
+        el.remove();
+        STATE.isBusy = false;
+        next();
+    }, 400);
+}
+
+function resetCard(el) {
+    el.style.transition = "transform 0.4s var(--spring)";
+    el.style.transform = "translate3d(0,0,0) rotate(0deg)";
+}
+
+function updateUI() {
+    document.getElementById("xp-ui").textContent = STATE.score + " XP";
+    document.getElementById("progress-bar").style.width = (STATE.score % 100) + "%";
+    document.getElementById("rank-ui").textContent = "RANK: " + (STATE.score > 500 ? "SCHOLAR" : "NOVICE");
+}
+</script>
 </body>
 </html>
