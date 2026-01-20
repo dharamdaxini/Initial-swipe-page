@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chemistry Master V58 (Answer Reveal)</title>
+    <title>Chemistry Master V59 (Structured Review)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -105,7 +105,6 @@
             margin-top: 10px; display: inline-block;
         }
 
-        /* --- CORRECT ANSWER REVEAL (REVIEW MODE) --- */
         .correct-reveal {
             margin-top: 20px;
             padding: 15px;
@@ -146,8 +145,13 @@
             z-index: 20;
         }
         .info-overlay.active { opacity: 1; pointer-events: auto; }
+        
         .info-label { font-family: var(--font-code); color: var(--accent-blue); font-size: 0.8rem; margin-bottom: 15px; letter-spacing: 1px; }
-        .info-text { font-size: 1.2rem; line-height: 1.5; color: #fff; margin-bottom: 40px; font-weight: 600; }
+        
+        /* NEW: STRUCTURED EXPLANATION STYLING */
+        .info-text { font-size: 1.1rem; line-height: 1.6; color: #fff; margin-bottom: 30px; }
+        .info-text ul { padding-left: 20px; text-align: left; }
+        .info-text li { margin-bottom: 15px; }
         
         .btn-next {
             background: #fff; color: #000; border: none;
@@ -317,43 +321,39 @@
             const q = QUESTION_POOL.shift();
             USED_IDS.add(q.question_id);
             
-            // --- LOGIC SPLIT FOR REVIEW vs QUIZ ---
+            let labels = {};
             if(APP_MODE === 'REVIEW') {
-                // REVIEW MODE: 'q' is already a fully processed card object
-                // We just override the swipe labels
-                return {
-                    ...q, 
-                    up: "MORE INFO", 
-                    right: "GOT IT", 
-                    down: "NEXT", 
-                    left: "CONFUSED"
-                };
-            } 
-            else {
-                // QUIZ MODE: 'q' is a raw row from Google Sheet
-                // Determine Correct Answer Text for later use
-                let correctText = "UNKNOWN";
-                if(q.correct === 'UP') correctText = q.swipe_up_label;
-                if(q.correct === 'DOWN') correctText = q.swipe_down_label;
-                if(q.correct === 'LEFT') correctText = q.swipe_left_label;
-                if(q.correct === 'RIGHT') correctText = q.swipe_right_label;
-
-                return {
-                    id: q.question_id, 
-                    topic: q.topic, 
-                    type: q.q_type,
-                    text: q.question_text, 
-                    subs: q.subs ? q.subs.toString().split('|') : [],
-                    explanation: q.explanation || "No details available.",
+                labels = { up: "MORE INFO", right: "GOT IT", down: "NEXT", left: "CONFUSED" };
+            } else {
+                labels = {
                     up: q.swipe_up_label || "YES", 
                     right: q.swipe_right_label || "MAYBE",
                     down: q.swipe_down_label || "SKIP", 
-                    left: q.swipe_left_label || "NO", 
-                    correct: q.correct, 
-                    w: q.weight,
-                    correctText: correctText // Store the correct answer string
+                    left: q.swipe_left_label || "NO"
                 };
             }
+
+            const finalText = q.question_text || q.text;
+            const finalSubs = q.subs ? (Array.isArray(q.subs) ? q.subs : q.subs.toString().split('|')) : [];
+
+            let correctText = "UNKNOWN";
+            if(q.correct === 'UP') correctText = q.swipe_up_label || q.up;
+            if(q.correct === 'DOWN') correctText = q.swipe_down_label || q.down;
+            if(q.correct === 'LEFT') correctText = q.swipe_left_label || q.left;
+            if(q.correct === 'RIGHT') correctText = q.swipe_right_label || q.right;
+
+            return {
+                id: q.question_id || q.id, 
+                topic: q.topic, 
+                type: q.q_type || q.type,
+                text: finalText, 
+                subs: finalSubs,
+                explanation: q.explanation || "No details available.",
+                ...labels,
+                correct: q.correct, 
+                w: q.weight,
+                correctText: correctText
+            };
         }
 
         function processAnswer(data, direction) {
@@ -370,7 +370,6 @@
                             SCORE += w;
                         } else {
                             SCORE -= 5;
-                            // Push CLONE to Mistake Pool
                             MISTAKE_POOL.push(JSON.parse(JSON.stringify(data))); 
                         }
                     }
@@ -399,13 +398,11 @@
             const el = document.createElement('div');
             el.className = 'card';
             
-            // Add Review Style
             if(APP_MODE === 'REVIEW') el.classList.add('card-review');
             else if(data.type && data.type.toLowerCase().includes('context')) el.classList.add('card-context');
             
             const subHTML = data.subs.length > 0 ? `<div class="card-sub">${data.subs.join(' ')}</div>` : '';
             
-            // Dynamic Size
             const getSizeClass = (text) => {
                 if(!text) return "";
                 if(text.length > 15) return "hint-xl";
@@ -413,10 +410,16 @@
                 return "";
             };
 
-            // Review Mode: Show Correct Answer
             let answerRevealHTML = '';
             if(APP_MODE === 'REVIEW' && data.correctText) {
                 answerRevealHTML = `<div class="correct-reveal">✅ ${data.correctText}</div>`;
+            }
+
+            // --- DEEP DIVE FORMATTER (3-Point Logic) ---
+            let explanationHTML = data.explanation;
+            if(data.explanation && data.explanation.includes('||')) {
+                const parts = data.explanation.split('||');
+                explanationHTML = '<ul>' + parts.map(p => `<li>${p.trim()}</li>`).join('') + '</ul>';
             }
 
             el.innerHTML = `
@@ -433,7 +436,7 @@
 
                 <div class="info-overlay" id="info-${data.id}">
                     <div class="info-label">DEEP DIVE</div>
-                    <div class="info-text">${data.explanation}</div>
+                    <div class="info-text">${explanationHTML}</div>
                     <button class="btn-next" onclick="forceNext()">GOT IT</button>
                 </div>
             `;
