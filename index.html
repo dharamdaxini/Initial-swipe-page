@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chemistry Master V53 (Neutral Colors)</title>
+    <title>Chemistry Master V54 (Review Mode)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,17 +15,14 @@
             --bg-color: #000000;
             --card-bg: #1a1a1a;
             --context-bg: #1a2333; 
+            --review-bg: #331a1a; /* Red tint for Review Cards */
             --info-bg: rgba(0, 0, 0, 0.98);
             --report-bg: #111111;
             --text-main: #ffffff;
             --text-muted: #888888;
-            
-            /* NEUTRAL COLOR PALETTE (No Right/Wrong Bias) */
-            --accent-blue: #2962ff;   /* UP */
-            --accent-cyan: #00e5ff;   /* LEFT (Was Red) */
-            --accent-purple: #d500f9; /* RIGHT (Was Green) */
-            --accent-white: #ffffff;  /* DOWN */
-            
+            --accent-blue: #2962ff;
+            --accent-red: #ff1744;
+            --accent-green: #00e676;
             --font-main: 'Inter', sans-serif;
             --font-code: 'JetBrains Mono', monospace;
         }
@@ -45,7 +42,6 @@
             justify-content: center;
         }
 
-        /* --- LOADING OVERLAY --- */
         #loader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 9999;
@@ -60,7 +56,6 @@
         .status-text { font-family: var(--font-code); font-size: 0.9rem; color: var(--text-muted); }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* --- UI LAYER --- */
         #header {
             position: absolute; top: 20px; width: 90%;
             display: flex; justify-content: space-between; z-index: 100;
@@ -74,13 +69,11 @@
             z-index: 50; pointer-events: none;
         }
 
-        /* --- CARD STACK --- */
         #stack {
             position: relative; width: 100%; max-width: 360px; height: 65vh;
             margin-top: 40px; perspective: 1000px;
         }
 
-        /* --- CARD STYLES --- */
         .card {
             position: absolute; width: 100%; height: 100%;
             background: var(--card-bg);
@@ -93,6 +86,12 @@
         }
 
         .card.card-context { background: var(--context-bg); border-color: var(--accent-blue); }
+        
+        /* REVIEW CARD STYLE */
+        .card.card-review { 
+            background: var(--review-bg); 
+            border-color: var(--accent-red); 
+        }
 
         .card-q { 
             font-size: 1.8rem; font-weight: 800; line-height: 1.2; 
@@ -105,23 +104,29 @@
             margin-top: 10px; display: inline-block;
         }
 
-        /* --- HINT OVERLAYS (UPDATED COLORS) --- */
+        /* Review Mode Specific Text */
+        .review-answer { color: var(--accent-green); font-weight: bold; margin-top: 10px; font-family: var(--font-code); }
+        .review-context { font-size: 0.9rem; color: #ccc; margin-top: 10px; line-height: 1.4; border-top: 1px solid #555; padding-top: 10px; }
+
         .hint-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             border-radius: 32px; pointer-events: none; opacity: 0;
             transition: opacity 0.1s;
             display: flex; align-items: center; justify-content: center;
-            font-weight: 900; font-size: 2.5rem; text-transform: uppercase;
+            font-weight: 900; 
+            font-size: 2.5rem; text-align: center; text-transform: uppercase;
             z-index: 10; text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            background: rgba(0,0,0,0.7); 
+            background: rgba(0,0,0,0.85); padding: 20px; word-wrap: break-word;
         }
         
-        .hint-up { color: var(--accent-blue); }
-        .hint-left { color: var(--accent-cyan); }   /* Neutral Cyan */
-        .hint-right { color: var(--accent-purple); } /* Neutral Purple */
-        .hint-down { color: var(--accent-white); }
+        .hint-long { font-size: 1.8rem !important; }
+        .hint-xl { font-size: 1.4rem !important; }
 
-        /* --- INFO OVERLAY --- */
+        .hint-up { color: var(--accent-blue); }
+        .hint-left { color: var(--accent-red); } 
+        .hint-right { color: var(--accent-green); }
+        .hint-down { color: #ffffff; }
+
         .info-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--info-bg);
@@ -143,7 +148,6 @@
             box-shadow: 0 10px 20px rgba(255,255,255,0.2);
         }
 
-        /* --- REPORT CARD --- */
         .report-card {
             background: var(--report-bg); border: 2px solid var(--accent-blue);
             align-items: center; justify-content: center; text-align: center;
@@ -154,10 +158,16 @@
         .report-stat { background: #222; padding: 15px; border-radius: 16px; }
         .stat-label { font-size: 0.7rem; color: #888; font-family: var(--font-code); }
         .stat-val { font-size: 1.2rem; font-weight: 700; color: #fff; margin-top: 5px; }
+        
         .btn-restart {
             background: var(--accent-blue); color: white; border: none;
             padding: 15px 40px; border-radius: 50px; font-size: 1rem; font-weight: 700;
-            cursor: pointer;
+            cursor: pointer; width: 100%; margin-bottom: 10px;
+        }
+        .btn-review {
+            background: transparent; color: var(--accent-red); border: 2px solid var(--accent-red);
+            padding: 15px 40px; border-radius: 50px; font-size: 1rem; font-weight: 700;
+            cursor: pointer; width: 100%;
         }
 
     </style>
@@ -181,21 +191,18 @@
     <div id="stack"></div>
 
     <script>
-        // ==========================================
-        // CONFIGURATION
-        // ==========================================
         const DATA_ENDPOINT = "https://script.google.com/macros/s/AKfycbxGZyuQOGf6eXwNZzcJwQYKk6pNw91nYcA403nOR4Ldma5zzLUb1Fz5P_U8-DLyEGOk/exec"; 
         let CURRENT_DECK = "Chemistry_Master_1"; 
-        
         let SCORE = 0;
         let QUESTION_POOL = [];
         let USED_IDS = new Set();
+        let WRONG_ANSWERS = []; // Stores data for review
         let CARD_START_TIME = 0;
         let STATS = { total_cards: 0, correct_count: 0, total_latency: 0, history: [] };
+        
+        let CURRENT_QUESTION_DATA = null;
+        let IS_REVIEW_MODE = false;
 
-        // ==========================================
-        // 1. DATA ENGINE
-        // ==========================================
         async function loadQuestions(deck) {
             const status = document.getElementById('status-msg');
             try {
@@ -221,10 +228,8 @@
             }
         }
 
-        // ==========================================
-        // 2. LOGGING ENGINE
-        // ==========================================
         function logSwipe(q, swipe, isCorrect, ms) {
+            if(IS_REVIEW_MODE) return; // Don't log review swipes
             fetch(DATA_ENDPOINT, {
                 method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -239,16 +244,25 @@
             const avg_lat_ms = STATS.total_cards > 0 ? (STATS.total_latency / STATS.total_cards) : 0;
             const avg_lat_sec = (avg_lat_ms / 1000).toFixed(1) + "s";
 
-            fetch(DATA_ENDPOINT, {
-                method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    type: "SESSION_END", timestamp: new Date().toISOString(),
-                    total_score: SCORE, accuracy: accuracy, avg_latency: Math.round(avg_lat_ms), raw_stats: STATS.history
-                })
-            });
+            // Only send log if not reviewing
+            if(!IS_REVIEW_MODE) {
+                fetch(DATA_ENDPOINT, {
+                    method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        type: "SESSION_END", timestamp: new Date().toISOString(),
+                        total_score: SCORE, accuracy: accuracy, avg_latency: Math.round(avg_lat_ms), raw_stats: STATS.history
+                    })
+                });
+            }
 
             const el = document.createElement('div');
             el.className = 'card report-card';
+            
+            // Logic to show/hide Review Button
+            const reviewBtn = WRONG_ANSWERS.length > 0 
+                ? `<button class="btn-review" onclick="startReview()">REVIEW MISTAKES (${WRONG_ANSWERS.length})</button>` 
+                : '';
+
             el.innerHTML = `
                 <div style="width:100%">
                     <div class="report-title">SESSION REPORT</div>
@@ -258,21 +272,30 @@
                         <div class="report-stat"><div class="stat-label">SPEED</div><div class="stat-val">${avg_lat_sec}</div></div>
                     </div>
                     <button class="btn-restart" onclick="location.reload()">PLAY AGAIN</button>
+                    ${reviewBtn}
                 </div>
             `;
             document.getElementById('stack').appendChild(el);
         }
 
-        // ==========================================
-        // 3. LOGIC ENGINE
-        // ==========================================
+        function startReview() {
+            document.querySelector('.report-card').remove();
+            IS_REVIEW_MODE = true;
+            QUESTION_POOL = [...WRONG_ANSWERS]; // Load wrongs into pool
+            WRONG_ANSWERS = []; // Clear so we don't loop forever
+            document.getElementById('deck-label').innerText = "REVIEW MODE";
+            document.getElementById('deck-label').style.color = "var(--accent-red)";
+            spawnCard();
+        }
+
         function nextQuestion() {
             if (QUESTION_POOL.length === 0) {
                 showReportCard();
                 return null;
             }
             const q = QUESTION_POOL.shift();
-            USED_IDS.add(q.question_id);
+            // Don't add to used IDs in review mode
+            if(!IS_REVIEW_MODE) USED_IDS.add(q.question_id);
             
             return {
                 id: q.question_id, topic: q.topic, type: q.q_type,
@@ -282,79 +305,123 @@
                 right: q.swipe_right_label || "MAYBE",
                 down: q.swipe_down_label || "SKIP", 
                 left: q.swipe_left_label || "NO", 
-                correct: q.correct, w: q.weight
+                correct: q.correct, w: q.weight,
+                // Pass raw data for review cards
+                raw_q: q 
             };
         }
 
         function processAnswer(data, direction) {
+            if(IS_REVIEW_MODE) return; // No scoring/logging in review
+
             const ms = Date.now() - CARD_START_TIME;
             let isCorrect = (direction === data.correct);
             
             if (direction !== 'DOWN') {
                 if (isCorrect) {
                     let w = parseInt(data.w);
-                    if (isNaN(w)) w = 10; 
+                    if (isNaN(w)) w = 10;
                     SCORE += w;
                 } else {
                     SCORE -= 5;
+                    // SAVE FOR REVIEW
+                    // We need the original raw object to push to pool
+                    if(data.raw_q) WRONG_ANSWERS.push(data.raw_q); 
                 }
+                
+                document.getElementById('score-label').innerText = `SCORE: ${SCORE}`;
+                STATS.total_cards++; STATS.total_latency += ms;
+                if(isCorrect) STATS.correct_count++;
+                STATS.history.push({id: data.id, res: isCorrect});
+                logSwipe(data, direction, isCorrect, ms);
             }
-            
-            document.getElementById('score-label').innerText = `SCORE: ${SCORE}`;
-            STATS.total_cards++; STATS.total_latency += ms;
-            if(isCorrect) STATS.correct_count++;
-            STATS.history.push({id: data.id, res: isCorrect});
-            logSwipe(data, direction, isCorrect, ms);
         }
 
         function createCardDOM(data) {
             const el = document.createElement('div');
             el.className = 'card';
-            if(data.type && data.type.toLowerCase().includes('context')) el.classList.add('card-context');
+            
+            // Style logic
+            if (IS_REVIEW_MODE) {
+                el.classList.add('card-review');
+            } else if(data.type && data.type.toLowerCase().includes('context')) {
+                el.classList.add('card-context');
+            }
             
             const subHTML = data.subs.length > 0 ? `<div class="card-sub">${data.subs.join(' ')}</div>` : '';
             
-            el.innerHTML = `
-                <div class="card-content">
-                    <div class="card-q">${data.text}</div>
-                    ${subHTML}
-                </div>
-                
-                <div class="hint-overlay hint-up">${data.up}</div>
-                <div class="hint-overlay hint-left">${data.left}</div>
-                <div class="hint-overlay hint-right">${data.right}</div>
-                <div class="hint-overlay hint-down">${data.down}</div>
+            // Helper for Text Sizing
+            const getSizeClass = (text) => {
+                if(!text) return "";
+                if(text.length > 15) return "hint-xl";
+                if(text.length > 8) return "hint-long";
+                return "";
+            };
 
-                <div class="info-overlay" id="info-${data.id}">
-                    <div class="info-label">DEEP DIVE</div>
-                    <div class="info-text">${data.explanation}</div>
-                    <button class="btn-next" onclick="forceNext()">GOT IT</button>
-                </div>
-            `;
+            // REVIEW MODE CONTENT vs NORMAL MODE
+            let contentHTML = '';
+            if (IS_REVIEW_MODE) {
+                // Show Correct Answer + Context immediately
+                contentHTML = `
+                    <div class="card-content">
+                        <div class="card-meta" style="color:var(--accent-red)">REVIEW MISTAKE</div>
+                        <div class="card-q" style="font-size:1.4rem">${data.text}</div>
+                        ${subHTML}
+                        <div class="review-answer">CORRECT: ${data.correct}</div>
+                        <div class="review-context">${data.explanation}</div>
+                    </div>
+                    <div class="hint-overlay hint-up">NEXT</div>
+                    <div class="hint-overlay hint-left">NEXT</div>
+                    <div class="hint-overlay hint-right">NEXT</div>
+                    <div class="hint-overlay hint-down">NEXT</div>
+                `;
+            } else {
+                // Normal Game
+                contentHTML = `
+                    <div class="card-content">
+                        <div class="card-q">${data.text}</div>
+                        ${subHTML}
+                    </div>
+                    <div class="hint-overlay hint-up ${getSizeClass(data.up)}">${data.up}</div>
+                    <div class="hint-overlay hint-left ${getSizeClass(data.left)}">${data.left}</div>
+                    <div class="hint-overlay hint-right ${getSizeClass(data.right)}">${data.right}</div>
+                    <div class="hint-overlay hint-down ${getSizeClass(data.down)}">${data.down}</div>
+                    
+                    <div class="info-overlay" id="info-${data.id}">
+                        <div class="info-label">DEEP DIVE</div>
+                        <div class="info-text">${data.explanation}</div>
+                        <button class="btn-next" onclick="restartCurrentCard()">GOT IT</button>
+                    </div>
+                `;
+            }
+
+            el.innerHTML = contentHTML;
             return el;
         }
 
-        window.forceNext = function() {
+        window.restartCurrentCard = function() {
             const card = document.querySelector('.card:not(.report-card)');
             if(card) {
-                card.style.transition = 'transform 0.3s ease-in';
-                card.style.transform = 'translate(0, 1000px)'; 
-                setTimeout(() => { card.remove(); spawnCard(); }, 200);
+                card.style.transition = 'transform 0.3s ease-in, opacity 0.3s';
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.9)'; 
+                setTimeout(() => { 
+                    card.remove(); 
+                    if(CURRENT_QUESTION_DATA) spawnCard(CURRENT_QUESTION_DATA); 
+                }, 300);
             }
         }
 
-        function spawnCard() {
-            const data = nextQuestion();
+        function spawnCard(forcedData = null) {
+            const data = forcedData || nextQuestion();
             if(!data) return;
+            CURRENT_QUESTION_DATA = data; 
             const card = createCardDOM(data);
             document.getElementById('stack').appendChild(card);
             new Draggable(card, data);
             CARD_START_TIME = Date.now();
         }
 
-        // ==========================================
-        // 4. PHYSICS ENGINE
-        // ==========================================
         class Draggable {
             constructor(element, data) {
                 this.el = element; this.data = data;
@@ -382,7 +449,7 @@
 
             processMove(dx, dy) {
                 if (Math.abs(dx) > Math.abs(dy)) dy = 0; else dx = 0; 
-                const MAX_DRAG = 150;
+                const MAX_DRAG = 220; 
                 dx = Math.max(-MAX_DRAG, Math.min(MAX_DRAG, dx));
                 dy = Math.max(-MAX_DRAG, Math.min(MAX_DRAG, dy));
                 this.update(dx, dy);
@@ -403,7 +470,16 @@
                 document.onmousemove = null; document.onmouseup = null;
                 const triggerDist = 80;
                 
-                if (this.y > triggerDist) { this.triggerInfo(); return; }
+                // If Review Mode, any swipe dismisses
+                if(IS_REVIEW_MODE) {
+                    if (Math.abs(this.x) > triggerDist || Math.abs(this.y) > triggerDist) {
+                        this.trigger('ANY');
+                        return;
+                    }
+                } else {
+                    if (this.y > triggerDist) { this.triggerInfo(); return; }
+                }
+
                 if (this.y < -triggerDist) this.trigger('UP');
                 else if (this.x < -triggerDist) this.trigger('LEFT');
                 else if (this.x > triggerDist) this.trigger('RIGHT');
@@ -424,8 +500,13 @@
                 let tx = 0, ty = 0;
                 if (dir === 'UP') ty = -1000;
                 if (dir === 'LEFT') tx = -1000; if (dir === 'RIGHT') tx = 1000;
+                // Review mode: any swipe goes down
+                if (IS_REVIEW_MODE || dir === 'ANY') ty = 1000;
+
                 this.el.style.transform = `translate(${tx}px, ${ty}px)`;
-                processAnswer(this.data, dir);
+                
+                if(!IS_REVIEW_MODE) processAnswer(this.data, dir);
+                
                 setTimeout(() => { this.el.remove(); spawnCard(); }, 200);
             }
 
