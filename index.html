@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chemistry Master V72.0 (Stable)</title>
+    <title>Chemistry Master V70.1 (Locked UI)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,7 +29,7 @@
             user-select: none; -webkit-user-select: none; touch-action: none;
         }
 
-        /* Scientific Typography */
+        /* Update 1: Scientific Typography */
         sub { vertical-align: sub; font-size: 0.75em; line-height: 0; }
         sup { vertical-align: super; font-size: 0.75em; line-height: 0; }
         .bond { font-family: var(--font-ui); color: #888; padding: 0 2px; }
@@ -40,34 +40,36 @@
         .progress-track { width: 100%; height: 3px; background: #222; border-radius: 2px; }
         #progress-bar { height: 100%; background: var(--accent-gold); width: 0%; transition: width 0.4s ease; }
 
-        /* Card System */
-        #stack { position: relative; width: 100%; max-width: 380px; height: 65vh; margin-top: 40px; }
+        /* Card System (V70 Pool Management) */
+        #stack { position: relative; width: 100%; max-width: 380px; height: 62vh; margin-top: 40px; }
         .card { 
             position: absolute; width: 100%; height: 100%; 
             background: var(--card-bg); border-radius: 35px; border: 1px solid #222;
             padding: 40px; display: flex; flex-direction: column; justify-content: center;
             box-shadow: 0 15px 50px rgba(0,0,0,0.9); will-change: transform; cursor: grab;
         }
-        .card:active { cursor: grabbing; }
-        .card-q { font-family: var(--font-chem); font-size: 2.1rem; line-height: 1.3; font-weight: 600; font-style: italic; pointer-events: none; }
+        .card-q { font-family: var(--font-chem); font-size: 2.1rem; line-height: 1.35; font-weight: 600; font-style: italic; pointer-events: none; color: #f0f0f0; }
 
-        /* Labels & Overlays */
-        .swipe-label {
-            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-            font-size: 2.2rem; font-weight: 900; opacity: 0; pointer-events: none;
-            z-index: 10; background: rgba(0,0,0,0.9); border-radius: 35px; text-align: center; padding: 20px;
-        }
+        /* Overlays (V70 Solid Isolation) */
         .overlay {
             position: absolute; inset: 0; background: var(--overlay-bg); 
             z-index: 60; padding: 45px 35px; opacity: 0; pointer-events: none;
             display: flex; flex-direction: column; justify-content: center; border-radius: 35px;
         }
         .overlay.active { opacity: 1; pointer-events: auto; }
-        .overlay-label { font-family: var(--font-code); color: var(--accent-blue); font-size: 0.75rem; margin-bottom: 15px; }
-        .overlay-body { font-family: var(--font-chem); font-size: 1.4rem; line-height: 1.6; margin-bottom: 40px; }
+        .overlay-label { font-family: var(--font-code); color: var(--accent-blue); font-size: 0.75rem; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+        .overlay-body { font-family: var(--font-chem); font-size: 1.45rem; line-height: 1.6; margin-bottom: 40px; color: #ddd; }
 
-        /* Buttons */
-        .btn { width: 100%; padding: 20px; border-radius: 60px; border: none; font-weight: 900; margin-bottom: 12px; font-size: 0.85rem; text-transform: uppercase; cursor: pointer; }
+        .swipe-label {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            font-size: 2.2rem; font-weight: 900; opacity: 0; pointer-events: none;
+            z-index: 10; background: rgba(0,0,0,0.95); border-radius: 35px; text-align: center; padding: 20px;
+        }
+
+        /* Update 2: End Slide Menu */
+        .end-menu { text-align: center; padding: 20px; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; }
+        .btn { width: 100%; padding: 18px; border-radius: 60px; border: none; font-weight: 900; margin-bottom: 12px; font-size: 0.85rem; text-transform: uppercase; cursor: pointer; transition: transform 0.1s; }
+        .btn:active { transform: scale(0.97); }
         .btn-primary { background: #fff; color: #000; }
         .btn-outline { background: transparent; color: #777; border: 1px solid #333; }
 
@@ -75,7 +77,7 @@
     </style>
 </head>
 <body>
-    <div id="loader"><span style="font-family:var(--font-code); font-size:0.8rem;">V72.0 BOOTING...</span></div>
+    <div id="loader"><span style="font-family:var(--font-code); font-size:0.7rem; color:#444;">V70.1 PERFORMANCE_LOCK...</span></div>
 
     <div id="header">
         <div class="header-meta">
@@ -107,7 +109,7 @@
                 POOL = d.filter(q => q.deck === "Chemistry_Master_1").sort(() => Math.random() - 0.5);
                 document.getElementById('loader').style.display = 'none';
                 renderNext();
-            } catch (e) { console.error("Sync Failed", e); }
+            } catch (e) { console.error("Sync Error", e); }
         }
 
         function renderNext() {
@@ -124,11 +126,11 @@
                 <div class="swipe-label sl-up">${formatChem(q.swipe_up_label || q.up || "YES")}</div>
                 <div class="swipe-label sl-left">${formatChem(q.swipe_left_label || q.left || "NO")}</div>
                 <div class="swipe-label sl-right">${formatChem(q.swipe_right_label || q.right || "MAYBE")}</div>
-                <div class="swipe-label sl-down">ANALYSIS</div>
+                <div class="swipe-label sl-down">ANALYSIS / HINT</div>
                 <div class="overlay">
-                    <div class="overlay-label">DEEP ANALYSIS</div>
+                    <div class="overlay-label">SCIENTIFIC ANALYSIS</div>
                     <div class="overlay-body">${formatChem(q.explanation.split('||')[0])}</div>
-                    <button class="btn btn-primary" onclick="this.parentElement.classList.remove('active')">BACK</button>
+                    <button class="btn btn-primary" onclick="this.parentElement.classList.remove('active')">BACK TO STUDY</button>
                 </div>
             `;
             stack.appendChild(card);
@@ -137,11 +139,13 @@
 
         function renderEnd() {
             document.getElementById('stack').innerHTML = `
-                <div style="text-align:center; padding:40px;">
-                    <h1 style="font-family:var(--font-chem); font-size:2.4rem;">Session Complete</h1>
-                    <p style="color:#666; margin-bottom:30px">${SCORE} XP Earned</p>
-                    <button class="btn btn-primary" onclick="location.reload()">RESTART</button>
+                <div class="end-menu">
+                    <h1 style="font-family:var(--font-chem); font-size:2.5rem; font-style:italic; margin-bottom:10px">Session Complete</h1>
+                    <p style="font-family:var(--font-code); color:#666; margin-bottom:30px">${SCORE} XP EARNED</p>
+                    <button class="btn btn-primary" onclick="location.reload()">RESTART CORE</button>
                     ${MISTAKES.length > 0 ? `<button class="btn btn-outline" onclick="reviewErrors()">REVIEW ERRORS (${MISTAKES.length})</button>` : ''}
+                    <button class="btn btn-outline">CHANGE TOPIC</button>
+                    <button class="btn btn-outline">CHANGE CORE</button>
                 </div>`;
         }
 
@@ -172,17 +176,17 @@
                 rt.style.opacity = x > 60 ? 1 : 0;
             };
 
-            const end = (e) => {
+            const end = () => {
                 if (!active || isBusy) return;
                 active = false;
-                const thresh = 100;
-                if (y > thresh) {
+                const t = 100;
+                if (y > t) {
                     el.style.transform = "translate(0,0)";
                     el.querySelector('.overlay').classList.add('active');
-                } else if (y < -thresh || Math.abs(x) > thresh) {
-                    processSwipe(el, q, x, y, thresh);
+                } else if (y < -t || Math.abs(x) > t) {
+                    processSwipe(el, q, x, y, t);
                 } else {
-                    el.style.transition = "transform 0.2s";
+                    el.style.transition = "transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1)";
                     el.style.transform = "translate(0,0)";
                 }
                 [up, dn, lt, rt].forEach(l => l.style.opacity = 0);
@@ -199,9 +203,7 @@
         function processSwipe(el, q, x, y, t) {
             isBusy = true;
             const dir = y < -t ? "UP" : x < -t ? "LEFT" : "RIGHT";
-            const isCorrect = (dir === (q.correct || "UP").toUpperCase());
-
-            if (isCorrect) SCORE += parseInt(q.weight || 10);
+            if (dir === (q.correct || "UP").toUpperCase()) SCORE += parseInt(q.weight || 10);
             else { SCORE = Math.max(0, SCORE - 5); MISTAKES.push(q); }
 
             updateUI();
