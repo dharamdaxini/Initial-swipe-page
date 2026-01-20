@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Chemistry Master V70.9</title>
+    <title>Chemistry Master V71.0 (Lag Fix)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,41 +37,46 @@
         .progress-track { width: 100%; height: 3px; background: #222; border-radius: 2px; }
         #progress-bar { height: 100%; background: var(--accent-gold); width: 0%; transition: width 0.4s ease; }
 
-        /* V70.5: Active Chrome Length */
+        /* PERFORMANCE FIX: will-change + optimized height */
         #stack { 
             position: relative; 
             width: 92%; 
             max-width: 400px; 
-            height: calc(100vh - 130px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); 
+            height: calc(100vh - 135px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); 
             margin-top: 25px; 
             perspective: 1200px; 
+            will-change: transform;
         }
 
-        /* V70.2: Circular Arc Pivot */
         .card { 
             position: absolute; width: 100%; height: 100%; 
             background: var(--card-bg); border-radius: 40px; border: 1px solid #282828;
             padding: 40px; display: flex; flex-direction: column; justify-content: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.95); will-change: transform; cursor: grab;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); will-change: transform; cursor: grab;
             transform-origin: center 150%; 
+            backface-visibility: hidden;
+            transform: translate3d(0,0,0);
         }
         .card-q { font-family: var(--font-chem); font-size: 1.95rem; line-height: 1.4; font-weight: 600; font-style: italic; pointer-events: none; color: #f2f2f2; text-align: center; }
 
+        /* PERFORMANCE FIX: hardware accelerated opacity */
         .overlay {
             position: absolute; inset: 0; background: var(--overlay-bg); 
-            z-index: 60; padding: 45px 35px; opacity: 0; pointer-events: none;
+            z-index: 110; padding: 45px 35px; opacity: 0; pointer-events: none;
             display: flex; flex-direction: column; justify-content: center; border-radius: 40px;
+            transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: opacity;
         }
         .overlay.active { opacity: 1; pointer-events: auto; }
         .overlay-label { font-family: var(--font-code); color: var(--accent-blue); font-size: 0.75rem; margin-bottom: 15px; text-transform: uppercase; }
         .overlay-body { font-family: var(--font-chem); font-size: 1.4rem; line-height: 1.6; color: #ddd; margin-bottom: 40px; }
 
-        /* V70.4: Deep Backdrops for Readability */
         .swipe-label {
             position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
             font-size: 1.9rem; font-weight: 900; opacity: 0; pointer-events: none;
-            z-index: 70; background: rgba(0,0,0,0.98); border-radius: 40px; text-align: center; padding: 25px;
+            z-index: 100; background: rgba(0,0,0,0.95); border-radius: 40px; text-align: center; padding: 25px;
             color: #fff; text-transform: uppercase; line-height: 1.1; 
+            will-change: opacity;
         }
 
         .btn { width: 100%; padding: 18px; border-radius: 60px; border: none; font-weight: 900; margin-bottom: 12px; font-size: 0.85rem; text-transform: uppercase; cursor: pointer; background: #fff; color: #000; }
@@ -79,7 +84,7 @@
     </style>
 </head>
 <body>
-    <div id="loader"><span style="font-family:var(--font-code); font-size:0.7rem;">V70.9 ARC_STABILITY_LOCK...</span></div>
+    <div id="loader"><span style="font-family:var(--font-code); font-size:0.7rem;">V71.0 GPU_OPTIMIZED...</span></div>
 
     <div id="header">
         <div class="header-meta">
@@ -121,7 +126,6 @@
             stack.innerHTML = "";
             const card = document.createElement('div');
             card.className = 'card';
-            // V70.9: Unified 4-Topic Navigation
             card.innerHTML = `
                 <div class="card-q">SELECT CORE TOPIC</div>
                 <div class="swipe-label sl-up">PHYSICAL</div>
@@ -193,12 +197,14 @@
                 const p = e.touches ? e.touches[0] : e;
                 x = p.clientX - sX; y = p.clientY - sY;
                 
-                const rotation = x / 12; 
+                // PERFORMANCE FIX: Simplified rotation calc
+                const rotation = x / 14; 
                 if (Math.abs(x) > Math.abs(y)) y = 0; else x = 0;
-                el.style.transform = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
+                el.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${rotation}deg)`;
                 
                 const thresh = 60;
-                const opacity = Math.min(1, Math.max(0, (Math.abs(x || y) - thresh) / 60));
+                // PERFORMANCE FIX: Linear opacity calc to reduce CPU load
+                const opacity = Math.min(1, Math.max(0, (Math.abs(x || y) - thresh) / 50));
                 
                 up.style.opacity = y < -thresh ? opacity : 0;
                 dn.style.opacity = y > thresh ? opacity : 0;
@@ -211,13 +217,15 @@
                 active = false;
                 const t = 100;
                 if (MODE === "QUIZ" && y > t) {
-                    el.style.transform = "translate(0,0) rotate(0deg)";
+                    // PERFORMANCE FIX: Instant snap-back to prevent overlap lag
+                    el.style.transition = "transform 0.15s ease-out";
+                    el.style.transform = "translate3d(0,0,0) rotate(0deg)";
                     el.querySelector('.overlay').classList.add('active');
                 } else if (Math.abs(x) > t || Math.abs(y) > t) {
                     handleAction(el, data, x, y);
                 } else {
                     el.style.transition = "transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
-                    el.style.transform = "translate(0,0) rotate(0deg)";
+                    el.style.transform = "translate3d(0,0,0) rotate(0deg)";
                 }
                 [up, dn, lt, rt].forEach(l => l.style.opacity = 0);
             };
@@ -248,7 +256,7 @@
 
             updateUI();
             el.style.transition = "transform 0.4s ease-in";
-            el.style.transform = `translate(${x * 6}px, ${y * 6}px) rotate(${x/5}deg)`;
+            el.style.transform = `translate3d(${x * 6}px, ${y * 6}px, 0) rotate(${x/5}deg)`;
             setTimeout(() => { el.remove(); isTransitioning = false; renderNext(); }, 350);
         }
 
