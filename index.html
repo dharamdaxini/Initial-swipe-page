@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Chemistry Master V72.2 | Final Stability</title>
+    <title>Chemistry Master V73.0 | Centric Stability</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&family=Crimson+Text:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #000; --card: #1a1a1a; --gold: #ffd600; --blue: #2962ff; --font-chem: 'Crimson Text', serif; }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
-        /* GESTURE LOCK: Prevents browser refresh/back while swiping */
         body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; touch-action: none; overscroll-behavior: none; user-select: none; }
         
         #header { position: absolute; top: 20px; width: 90%; max-width: 360px; z-index: 100; pointer-events: none; }
@@ -17,11 +16,24 @@
         #progress-bar { width: 0%; height: 4px; background: var(--gold); transition: width 0.3s ease; box-shadow: 0 0 8px var(--gold); }
 
         #stack { position: relative; width: 100%; max-width: 360px; height: 62vh; perspective: 1200px; }
-        .card { position: absolute; inset: 0; background: var(--card); border-radius: 32px; border: 1px solid #333; padding: 35px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 20px 50px rgba(0,0,0,0.9); will-change: transform; cursor: grab; z-index: 10; transform: translate3d(0,0,0); }
+        
+        /* ══════════════════════════════════════════════════════════
+           CENTRIC ORIGIN UI UPDATE
+           Rotation pivot locked to absolute center (0,0)
+           ══════════════════════════════════════════════════════════ */
+        .card { 
+            position: absolute; inset: 0; background: var(--card); border-radius: 32px; border: 1px solid #333; 
+            padding: 35px; display: flex; flex-direction: column; justify-content: space-between; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9); 
+            will-change: transform; cursor: grab; z-index: 10;
+            transform: translate3d(0,0,0);
+            transform-origin: center center; /* LOCKED TO CENTER AT 0 */
+        }
+
         .card-q { font-family: var(--font-chem); font-size: 1.85rem; font-weight: 600; line-height: 1.35; color: #f5f5f5; font-style: italic; pointer-events: none; }
 
         .hint-overlay { position: absolute; inset: 0; border-radius: 32px; opacity: 0; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 2rem; background: rgba(0,0,0,0.98); z-index: 50; pointer-events: none; text-transform: uppercase; text-align: center; padding: 25px; transition: opacity 0.1s; }
-        .info-overlay { position: absolute; inset: 0; border-radius: 32px; background: #000; padding: 40px 25px; display: flex; flex-direction: column; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 100; border-radius: 32px; }
+        .info-overlay { position: absolute; inset: 0; border-radius: 32px; background: #000; padding: 40px 25px; display: flex; flex-direction: column; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 100; }
         .info-overlay.active { opacity: 1; pointer-events: auto; }
         .info-text { font-family: var(--font-chem); font-size: 1.25rem; line-height: 1.6; color: #eee; overflow-y: auto; max-height: 70%; }
         
@@ -33,7 +45,7 @@
     </style>
 </head>
 <body>
-    <div id="loader"><div class="spinner"></div><div id="status">INIT HARDWARE DRIVERS...</div></div>
+    <div id="loader"><div class="spinner"></div><div id="status">INIT CENTRIC ENGINE...</div></div>
     <div id="header">
         <div class="header-top"><span id="rank-label">RANK: NOVICE</span><span id="xp-text">0 XP</span></div>
         <div style="background:#222; height:4px; border-radius:2px;"><div id="progress-bar"></div></div>
@@ -55,31 +67,24 @@
         }
 
         async function init() {
-            const statusEl = document.getElementById('status');
             try {
                 const res = await fetch(CONFIG.ENDPOINT);
                 const data = await res.json();
                 STATE.pool = data.filter(q => q.deck && q.deck.toString().trim() === CONFIG.DECK).sort(() => Math.random() - 0.5);
-                
-                if (STATE.pool.length === 0) {
-                    statusEl.innerText = "CRITICAL: DECK EMPTY";
-                    return;
-                }
-                
                 document.getElementById('loader').style.display = 'none';
                 spawn();
-            } catch (e) { statusEl.innerText = "NETWORK TIMEOUT: REFRESH APP"; }
+            } catch (e) { document.getElementById('status').innerText = "NETWORK TIMEOUT: REFRESH"; }
         }
 
         function spawn() {
             if (STATE.pool.length === 0) { 
-                document.getElementById('stack').innerHTML = "<div class='card-q' style='text-align:center'>SESSION COMPLETE<br><span style='font-size:1rem; font-style:normal; color:#888'>Mastery achieved.</span></div>"; 
+                document.getElementById('stack').innerHTML = "<div class='card-q' style='text-align:center'>SESSION COMPLETE</div>"; 
                 return; 
             }
             const q = STATE.pool.shift();
             const el = document.createElement('div');
             el.className = 'card';
-            const hint = q.explanation ? q.explanation.split('||')[0].replace(/✅|❌/g, '').trim() : "Review standard chemical properties.";
+            const hint = q.explanation ? q.explanation.split('||')[0].replace(/✅|❌/g, '').trim() : "Review properties.";
 
             el.innerHTML = `
                 <div class="card-q">${format(q.question_text || q.text)}</div>
@@ -88,9 +93,9 @@
                 <div class="hint-overlay h-left">${q.swipe_left_label || "NO"}</div>
                 <div class="hint-overlay h-right">${q.swipe_right_label || "SKIP"}</div>
                 <div class="info-overlay">
-                    <div style="color:var(--blue); font-family:'JetBrains Mono'; font-size:0.8rem; margin-bottom:15px; font-weight:800">CHEMICAL ANALYSIS</div>
+                    <div style="color:var(--blue); font-family:'JetBrains Mono'; font-size:0.8rem; margin-bottom:15px; font-weight:800">ANALYSIS</div>
                     <div class="info-text">${format(hint)}</div>
-                    <button class="btn-next">BACK TO QUESTION</button>
+                    <button class="btn-next">BACK</button>
                 </div>`;
             document.getElementById('stack').appendChild(el);
             new Interaction(el, q);
@@ -106,42 +111,54 @@
                 };
                 const move = (e) => {
                     if(!this.dragging) return; e.preventDefault(); const p = e.touches ? e.touches[0] : e;
-                    this.dx = p.clientX - this.sx; this.dy = p.clientY - this.sy;
+                    
+                    // ══════════════════════════════════════════════════════════
+                    // DAMPING LOGIC: Moves only available "blank" pixels
+                    // Multiplier of 0.4 ensures card stays within focal margins
+                    // ══════════════════════════════════════════════════════════
+                    const rawDX = p.clientX - this.sx;
+                    const rawDY = p.clientY - this.sy;
+                    this.dx = rawDX * 0.4; 
+                    this.dy = rawDY * 0.4; 
+
                     this.el.style.transform = `translate3d(${this.dx}px, ${this.dy}px, 0) rotate(${this.dx/25}deg)`;
-                    this.el.querySelector('.h-up').style.opacity = this.dy < -60 ? 1 : 0;
-                    this.el.querySelector('.h-down').style.opacity = this.dy > 60 ? 1 : 0;
-                    this.el.querySelector('.h-left').style.opacity = this.dx < -60 ? 1 : 0;
-                    this.el.querySelector('.h-right').style.opacity = this.dx > 60 ? 1 : 0;
+                    this.el.querySelector('.h-up').style.opacity = this.dy < -30 ? 1 : 0;
+                    this.el.querySelector('.h-down').style.opacity = this.dy > 30 ? 1 : 0;
+                    this.el.querySelector('.h-left').style.opacity = this.dx < -30 ? 1 : 0;
+                    this.el.querySelector('.h-right').style.opacity = this.dx > 30 ? 1 : 0;
                 };
-                const end = () => {
+                const end = (e) => {
                     if(!this.dragging) return; this.dragging = false;
-                    if(this.dy > 90 && Math.abs(this.dy) > Math.abs(this.dx)) {
+                    const p = e.changedTouches ? e.changedTouches[0] : e;
+                    const finalDX = p.clientX - this.sx;
+                    const finalDY = p.clientY - this.sy;
+
+                    if(finalDY > 90 && Math.abs(finalDY) > Math.abs(finalDX)) {
                         this.el.style.transform = 'translate3d(0,0,0)';
                         this.el.querySelector('.info-overlay').classList.add('active');
-                    } else if(Math.abs(this.dx) > 100 || this.dy < -100) { this.exit(); }
-                    else { 
+                    } else if(Math.abs(finalDX) > 100 || finalDY < -100) { 
+                        this.exit(finalDX, finalDY); 
+                    } else { 
                         this.el.style.transition = '0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'; 
                         this.el.style.transform = 'translate3d(0,0,0)'; 
                         this.el.querySelectorAll('.hint-overlay').forEach(o => o.style.opacity = 0);
                     }
                 };
-                this.el.addEventListener('touchstart', start); this.el.addEventListener('touchmove', move, {passive:false}); this.el.addEventListener('touchend', end);
+                this.el.addEventListener('touchstart', start); 
+                this.el.addEventListener('touchmove', move, {passive:false}); 
+                this.el.addEventListener('touchend', end);
                 this.el.querySelector('.btn-next').onclick = () => this.el.querySelector('.info-overlay').classList.remove('active');
             }
-            exit() {
+            exit(fdx, fdy) {
                 STATE.busy = true;
-                const dir = Math.abs(this.dx) > Math.abs(this.dy) ? (this.dx > 0 ? 'RIGHT' : 'LEFT') : 'UP';
-                if(dir === (this.data.correct || "UP").toUpperCase()) STATE.score += 10; else STATE.score = Math.max(0, STATE.score - 5);
+                const dir = Math.abs(fdx) > Math.abs(fdy) ? (fdx > 0 ? 'RIGHT' : 'LEFT') : 'UP';
+                STATE.score = Math.max(0, STATE.score + (dir === (this.data.correct || "UP").toUpperCase() ? 10 : -5));
                 
                 document.getElementById('xp-text').innerText = `${STATE.score} XP`;
                 document.getElementById('progress-bar').style.width = `${STATE.score % 100}%`;
                 
-                let rank = "NOVICE";
-                if(STATE.score >= 500) rank = "MASTER"; else if(STATE.score >= 200) rank = "SPECIALIST";
-                document.getElementById('rank-label').innerText = `RANK: ${rank}`;
-
                 this.el.style.transition = '0.3s ease-out';
-                this.el.style.transform = `translate3d(${this.dx*4}px, ${this.dy*4}px, 0)`;
+                this.el.style.transform = `translate3d(${fdx * 2}px, ${fdy * 2}px, 0)`;
                 setTimeout(() => { this.el.remove(); STATE.busy = false; spawn(); }, 200);
             }
         }
