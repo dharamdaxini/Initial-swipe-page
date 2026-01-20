@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Chemistry Master V74.3</title>
+<title>Chemistry Master V75.0</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -83,7 +83,7 @@ sup { font-size: 0.65em; vertical-align: super; line-height: 0; font-family: var
 </head>
 
 <body>
-<div id="loader">LOCKED PRODUCTION V74.3…</div>
+<div id="loader">LOCKED PRODUCTION V75.0…</div>
 
 <div id="header">
     <div class="header-meta">
@@ -99,7 +99,7 @@ sup { font-size: 0.65em; vertical-align: super; line-height: 0; font-family: var
 const ENDPOINT="https://script.google.com/macros/s/AKfycbPvkuXpkFPZfwoj4H9Kevn2VXDcjjpOPxHtDqGDFxdclDdlwH0_0sHV-g4K1AGgfUJ/exec";
 
 let RAW_DATA=[], POOL=[], MISTAKES=[], SCORE=0, isTransitioning=false;
-let MODE="TOPIC_SELECT", CURRENT_TOPIC="", CURRENT_GENRE="";
+let MODE="DATASET_SELECT", CURRENT_DATASET="", CURRENT_TOPIC="", CURRENT_GENRE="";
 
 const formatChem = t => {
     if(!t) return "";
@@ -112,26 +112,36 @@ const formatChem = t => {
 async function init(){
     try {
         const r = await fetch(ENDPOINT);
-        if (!r.ok) throw new Error(`HTTP Error: ${r.status}`);
-        const text = await r.text();
-        RAW_DATA = JSON.parse(text);
+        RAW_DATA = await r.json();
         document.getElementById('loader').remove();
-        renderTopicSelect();
-    } catch(e) { 
-        document.getElementById('loader').innerHTML = `SYNC FAILED<br><br><small style="color:#ff4444; font-size:0.6rem;">Check Deployment access.</small>`; 
-    }
+        renderDatasetSelect();
+    } catch(e) { document.getElementById('loader').innerHTML = `SYNC FAILED`; }
 }
 
-function renderTopicSelect(){
-    MODE="TOPIC_SELECT";
+// TIER 1: CHOOSE DATASET
+function renderDatasetSelect(){
+    MODE="DATASET_SELECT";
     const s=document.getElementById('stack'); s.innerHTML="";
     const c=document.createElement('div'); c.className="card";
-    c.innerHTML=`<div class="card-q">CHOOSE CORE TOPIC</div>
+    c.innerHTML=`<div class="card-q">CHOOSE DATASET</div>
+        <div class="swipe-label sl-up">DATASET A</div><div class="swipe-label sl-left">DATASET B</div>
+        <div class="swipe-label sl-right">DATASET C</div><div class="swipe-label sl-down">DATASET D</div>`;
+    s.appendChild(c); bindPhysics(c);
+}
+
+// TIER 2: CHOOSE TOPIC
+function renderTopicSelect(dataset){
+    MODE="TOPIC_SELECT";
+    CURRENT_DATASET = dataset;
+    const s=document.getElementById('stack'); s.innerHTML="";
+    const c=document.createElement('div'); c.className="card";
+    c.innerHTML=`<div class="card-q">DATASET: ${dataset}<br>CHOOSE TOPIC</div>
         <div class="swipe-label sl-up">PHYSICAL</div><div class="swipe-label sl-left">ORGANIC</div>
         <div class="swipe-label sl-right">INORGANIC</div><div class="swipe-label sl-down">ANALYTICAL</div>`;
     s.appendChild(c); bindPhysics(c);
 }
 
+// TIER 3: CHOOSE GENRE
 function renderGenreSelect(topic){
     MODE="GENRE_SELECT";
     CURRENT_TOPIC = topic;
@@ -146,6 +156,7 @@ function renderGenreSelect(topic){
 function startQuiz(topic, genre){
     CURRENT_GENRE = genre;
     POOL = RAW_DATA.filter(q => 
+        q.dataset.trim().toUpperCase() === CURRENT_DATASET.toUpperCase() &&
         q.topic.trim().toLowerCase() === topic.toLowerCase() && 
         q.q_type.trim().toUpperCase() === genre.toUpperCase()
     ).sort(() => Math.random() - .5);
@@ -179,7 +190,7 @@ function renderEnd(){
         <div class="swipe-label sl-up">RESTART</div>
         <div class="swipe-label sl-left">REVIEW ERRORS (${MISTAKES.length})</div>
         <div class="swipe-label sl-right">TOGGLE MODE</div>
-        <div class="swipe-label sl-down">CHANGE TOPIC</div>`;
+        <div class="swipe-label sl-down">CHANGE DATASET</div>`;
     s.appendChild(c); bindPhysics(c);
 }
 
@@ -255,7 +266,10 @@ function bindPhysics(el, data){
 
 function handleAction(el, data, x, y, dir){
     isTransitioning = true;
-    if(MODE === "TOPIC_SELECT"){
+    if(MODE === "DATASET_SELECT"){
+        const map = { UP: "SET_A", LEFT: "SET_B", RIGHT: "SET_C", DOWN: "SET_D" };
+        renderTopicSelect(map[dir]);
+    } else if(MODE === "TOPIC_SELECT"){
         const map = { UP: "Physical", LEFT: "Organic", RIGHT: "Inorganic", DOWN: "Analytical" };
         renderGenreSelect(map[dir]);
     } else if(MODE === "GENRE_SELECT"){
@@ -269,7 +283,7 @@ function handleAction(el, data, x, y, dir){
         if(dir === "UP") { startQuiz(CURRENT_TOPIC, CURRENT_GENRE); }
         else if(dir === "LEFT") { if(MISTAKES.length) { POOL = [...MISTAKES]; MISTAKES = []; renderNext(); } else { isTransitioning = false; return; } }
         else if(dir === "RIGHT") { const newGenre = (CURRENT_GENRE === "CONCEPT") ? "APPLICATION" : "CONCEPT"; startQuiz(CURRENT_TOPIC, newGenre); }
-        else if(dir === "DOWN") { renderTopicSelect(); }
+        else if(dir === "DOWN") { renderDatasetSelect(); }
     }
     el.style.transition = "transform .4s ease-in";
     el.style.transform = `translate3d(${x * 6}px,${y * 6}px,0) rotate(${x/5}deg)`;
