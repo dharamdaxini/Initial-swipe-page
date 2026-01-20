@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chemistry Master V38 (Live)</title>
+    <title>Chemistry Master V39.1 (Connected)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
-        /* --- CSS RESET & GLOBAL --- */
+        /* --- CSS RESET & GLOBAL VARIABLES --- */
         :root {
             --bg-color: #000000;
             --card-bg: #1a1a1a;
@@ -23,7 +23,10 @@
             --font-code: 'JetBrains Mono', monospace;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+        }
         
         body {
             background-color: var(--bg-color);
@@ -63,7 +66,10 @@
             font-size: 0.9rem;
             color: var(--text-muted);
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
 
         /* --- UI LAYER --- */
         #header {
@@ -79,15 +85,16 @@
             pointer-events: none;
         }
 
-        /* --- CARD STACK --- */
+        /* --- CARD STACK CONTAINER --- */
         #stack {
             position: relative;
             width: 100%;
             max-width: 360px;
-            height: 65vh; /* Aspect Ratio Lock */
+            height: 65vh; 
             perspective: 1000px;
         }
 
+        /* --- INDIVIDUAL CARD STYLING --- */
         .card {
             position: absolute;
             width: 100%;
@@ -103,12 +110,11 @@
             transform-origin: 50% 100%;
             transition: transform 0.1s linear;
             will-change: transform;
-            /* CRITICAL FOR PHYSICS ENGINE */
-            touch-action: none; 
+            touch-action: none; /* CRITICAL FOR PHYSICS ENGINE */
             user-select: none;
         }
 
-        /* --- CARD CONTENT --- */
+        /* --- CARD CONTENT TYPOGRAPHY --- */
         .card-meta {
             font-family: var(--font-code);
             font-size: 0.75rem;
@@ -136,7 +142,7 @@
             display: inline-block;
         }
 
-        /* --- HINT LABELS --- */
+        /* --- SWIPE HINT OVERLAYS --- */
         .hint-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -153,12 +159,32 @@
             z-index: 10;
         }
         
-        .hint-up { background: rgba(41, 98, 255, 0.2); color: var(--accent-blue); align-items: flex-start; padding-top: 40px; }
-        .hint-left { background: rgba(255, 23, 68, 0.2); color: var(--accent-red); justify-content: flex-end; padding-right: 40px; }
-        .hint-right { background: rgba(0, 230, 118, 0.2); color: var(--accent-green); justify-content: flex-start; padding-left: 40px; }
-        .hint-down { background: rgba(255, 255, 255, 0.1); color: #fff; align-items: flex-end; padding-bottom: 40px; }
+        .hint-up { 
+            background: rgba(41, 98, 255, 0.2); 
+            color: var(--accent-blue); 
+            align-items: flex-start; 
+            padding-top: 40px; 
+        }
+        .hint-left { 
+            background: rgba(255, 23, 68, 0.2); 
+            color: var(--accent-red); 
+            justify-content: flex-end; 
+            padding-right: 40px; 
+        }
+        .hint-right { 
+            background: rgba(0, 230, 118, 0.2); 
+            color: var(--accent-green); 
+            justify-content: flex-start; 
+            padding-left: 40px; 
+        }
+        .hint-down { 
+            background: rgba(255, 255, 255, 0.1); 
+            color: #fff; 
+            align-items: flex-end; 
+            padding-bottom: 40px; 
+        }
 
-        /* --- CONTROLS --- */
+        /* --- FOOTER CONTROLS --- */
         #controls {
             position: absolute;
             bottom: 40px;
@@ -175,7 +201,7 @@
 
     <div id="loader">
         <div class="spinner"></div>
-        <div class="status-text" id="status-msg">Connecting to Neural Link...</div>
+        <div class="status-text" id="status-msg">Initializing Neural Link...</div>
     </div>
 
     <div id="header">
@@ -194,42 +220,79 @@
         // ==========================================
         // CONFIGURATION & STATE
         // ==========================================
-        // !!! IMPORTANT: REPLACE THIS URL !!!
-        const DATA_ENDPOINT = "YOUR_GOOGLE_SCRIPT_WEB_APP_URL_HERE"; 
         
+        // UPDATED ENDPOINT
+        const DATA_ENDPOINT = "https://script.google.com/macros/s/AKfycbxGZyuQOGf6eXwNZzcJwQYKk6pNw91nYcA403nOR4Ldma5zzLUb1Fz5P_U8-DLyEGOk/exec"; 
+        
+        // Session Variables
+        const SESSION_ID = "SESS_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+        let CURRENT_DECK = "Chemistry_Master_1"; // Matches 'deck' column in Sheet
+        let SCORE = 0;
         let QUESTION_POOL = [];
         let USED_IDS = new Set();
-        let CURRENT_DECK = "Chemistry_Master_1"; // Must match 'deck' column in Sheet
-        let SCORE = 0;
-        let ACTIVE_CARD = null;
+        let CARD_START_TIME = 0;
 
         // ==========================================
-        // 1. DATA ENGINE (Live Loader)
+        // 1. DATA ENGINE (Live Loader - GET)
         // ==========================================
         async function loadQuestions(deck) {
             const status = document.getElementById('status-msg');
             try {
-                status.innerText = "Fetching Vector Data...";
+                status.innerText = "Downloading Protocols...";
                 const res = await fetch(DATA_ENDPOINT);
                 
-                status.innerText = "Parsing Protocols...";
+                status.innerText = "Parsing Vectors...";
                 const all = await res.json();
 
-                // Filter & Shuffle
+                // Filter by Deck and Remove duplicates
                 QUESTION_POOL = all
                     .filter(q => q.deck === deck && !USED_IDS.has(q.question_id))
                     .sort(() => Math.random() - 0.5);
 
-                console.log(`[SYS] Loaded ${QUESTION_POOL.length} items.`);
+                console.log(`[SYS] Loaded ${QUESTION_POOL.length} items for ${deck}`);
+                
+                if(QUESTION_POOL.length === 0) {
+                     status.innerText = "NO DATA FOUND (Check Sheet)";
+                     status.style.color = "red";
+                     throw new Error("Empty Deck");
+                }
                 
             } catch (error) {
                 console.error(error);
-                status.innerText = "CONNECTION FAILED. Refresh to retry.";
+                status.innerText = "CONNECTION FAILED. Refresh.";
                 status.style.color = "red";
-                throw new Error("Halt"); // Stop execution
+                throw new Error("Halt"); 
             }
         }
 
+        // ==========================================
+        // 2. LOGGING ENGINE (Analytics - POST)
+        // ==========================================
+        function logAnswer(q, swipe, score, ms) {
+            // Send data to Sheet without waiting (Fire & Forget)
+            fetch(DATA_ENDPOINT, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    session_id: SESSION_ID,
+                    timestamp: new Date().toISOString(),
+                    question_id: q.id,
+                    deck: CURRENT_DECK,
+                    topic: q.topic,
+                    q_type: q.type,
+                    swipe: swipe,
+                    correct: swipe === q.correct ? "TRUE" : "FALSE",
+                    score: score,
+                    response_ms: ms
+                })
+            }).then(() => console.log(`[LOG] Sent: ${q.id}`))
+              .catch(e => console.warn("[LOG] Fail", e));
+        }
+
+        // ==========================================
+        // 3. RENDER ENGINE (DOM Construction)
+        // ==========================================
         function nextQuestion() {
             if (QUESTION_POOL.length === 0) {
                 alert("DECK COMPLETE. Reloading...");
@@ -240,7 +303,7 @@
             const q = QUESTION_POOL.shift();
             USED_IDS.add(q.question_id);
 
-            // Schema Mapper
+            // Map Google Sheet columns to App schema
             return {
                 id: q.question_id,
                 topic: q.topic,
@@ -257,14 +320,11 @@
             };
         }
 
-        // ==========================================
-        // 2. RENDER ENGINE (DOM Builder)
-        // ==========================================
         function createCardDOM(data) {
             const el = document.createElement('div');
             el.className = 'card';
             
-            // Format Subscripts (Visual rendering of array)
+            // Format Subscripts if they exist
             const subHTML = data.subs.length > 0 
                 ? `<div class="card-sub">${data.subs.join(' ')}</div>` 
                 : '';
@@ -281,7 +341,6 @@
                 <div class="hint-right">${data.right}</div>
                 <div class="hint-down">ELIMINATE</div>
             `;
-            
             return el;
         }
 
@@ -292,28 +351,30 @@
             const card = createCardDOM(data);
             document.getElementById('stack').appendChild(card);
             
-            // Attach Physics
+            // Activate Physics
             new Draggable(card, data);
-            ACTIVE_CARD = card;
+            
+            // START TIMER
+            CARD_START_TIME = Date.now();
         }
 
         // ==========================================
-        // 3. PHYSICS ENGINE (Touch Logic)
+        // 4. PHYSICS ENGINE (Touch & Logic)
         // ==========================================
         class Draggable {
             constructor(element, data) {
                 this.el = element;
                 this.data = data;
-                this.x = 0;
+                this.x = 0; 
                 this.y = 0;
                 this.isDragging = false;
                 
-                // Bind Events
+                // Touch Events
                 this.el.addEventListener('touchstart', this.start.bind(this));
                 this.el.addEventListener('touchmove', this.move.bind(this));
                 this.el.addEventListener('touchend', this.end.bind(this));
                 
-                // Mouse fallback for testing
+                // Mouse Events (Debugging)
                 this.el.addEventListener('mousedown', this.startMouse.bind(this));
             }
 
@@ -329,7 +390,6 @@
                 this.startY = e.clientY;
                 this.isDragging = true;
                 this.el.style.transition = 'none';
-                
                 document.onmousemove = this.moveMouse.bind(this);
                 document.onmouseup = this.end.bind(this);
             }
@@ -338,59 +398,57 @@
                 if (!this.isDragging) return;
                 const dx = e.touches[0].clientX - this.startX;
                 const dy = e.touches[0].clientY - this.startY;
-                this.updateTransform(dx, dy);
+                this.update(dx, dy);
             }
 
             moveMouse(e) {
                 if (!this.isDragging) return;
                 const dx = e.clientX - this.startX;
                 const dy = e.clientY - this.startY;
-                this.updateTransform(dx, dy);
+                this.update(dx, dy);
             }
 
-            updateTransform(dx, dy) {
-                this.x = dx;
-                this.y = dy;
-                const rot = dx * 0.05;
-                this.el.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg)`;
+            update(dx, dy) {
+                this.x = dx; this.y = dy;
+                // Add slight rotation for realism
+                this.el.style.transform = `translate(${dx}px, ${dy}px) rotate(${dx * 0.05}deg)`;
                 
-                // Visual Feedback (Opacity of hints)
-                const threshold = 50;
-                this.el.querySelector('.hint-up').style.opacity = dy < -threshold ? 1 : 0;
-                this.el.querySelector('.hint-down').style.opacity = dy > threshold ? 1 : 0;
-                this.el.querySelector('.hint-left').style.opacity = dx < -threshold ? 1 : 0;
-                this.el.querySelector('.hint-right').style.opacity = dx > threshold ? 1 : 0;
+                // Show HINTS based on direction
+                const t = 50;
+                this.el.querySelector('.hint-up').style.opacity = dy < -t ? 1 : 0;
+                this.el.querySelector('.hint-down').style.opacity = dy > t ? 1 : 0;
+                this.el.querySelector('.hint-left').style.opacity = dx < -t ? 1 : 0;
+                this.el.querySelector('.hint-right').style.opacity = dx > t ? 1 : 0;
             }
 
             end() {
                 this.isDragging = false;
                 this.el.style.transition = 'transform 0.3s ease-out';
-                document.onmousemove = null;
+                document.onmousemove = null; 
                 document.onmouseup = null;
 
-                const threshold = 100; // Pixel distance to trigger swipe
-
-                if (this.y < -threshold) this.trigger('UP');
-                else if (this.y > threshold) this.trigger('DOWN');
-                else if (this.x < -threshold) this.trigger('LEFT');
-                else if (this.x > threshold) this.trigger('RIGHT');
+                const t = 100; // Swipe Threshold
+                if (this.y < -t) this.trigger('UP');
+                else if (this.y > t) this.trigger('DOWN');
+                else if (this.x < -t) this.trigger('LEFT');
+                else if (this.x > t) this.trigger('RIGHT');
                 else this.reset();
             }
 
-            trigger(direction) {
-                // Animate out
+            trigger(dir) {
                 let tx = 0, ty = 0;
-                if (direction === 'UP') ty = -1000;
-                if (direction === 'DOWN') ty = 1000;
-                if (direction === 'LEFT') tx = -1000;
-                if (direction === 'RIGHT') tx = 1000;
+                // Throw card off screen
+                if (dir === 'UP') ty = -1000;
+                if (dir === 'DOWN') ty = 1000;
+                if (dir === 'LEFT') tx = -1000;
+                if (dir === 'RIGHT') tx = 1000;
 
                 this.el.style.transform = `translate(${tx}px, ${ty}px) rotate(${tx * 0.1}deg)`;
                 
-                // Logic Processing
-                processAnswer(this.data, direction);
+                // Process Data
+                processAnswer(this.data, dir);
 
-                // Destroy & Next
+                // Destroy & Respawn
                 setTimeout(() => {
                     this.el.remove();
                     spawnCard();
@@ -398,46 +456,50 @@
             }
 
             reset() {
+                // Snap back to center
                 this.el.style.transform = 'translate(0, 0) rotate(0deg)';
                 this.el.querySelectorAll('.hint-overlay').forEach(h => h.style.opacity = 0);
             }
         }
 
         // ==========================================
-        // 4. GAME LOGIC
+        // 5. GAME LOGIC & ROUTING
         // ==========================================
         function processAnswer(data, direction) {
-            console.log(`Answered: ${direction} vs Correct: ${data.correct}`);
-            
-            // Basic Scoring
+            // 1. Calculate Thinking Time
+            const ms = Date.now() - CARD_START_TIME;
+
+            // 2. Update Score based on 'correct' field
             if (direction === data.correct) {
                 SCORE += parseInt(data.w || 10);
             } else if (direction === 'DOWN') {
-                // Elimination Logic (Safe Skip)
-                console.log("Elimination Triggered - Showing Details");
+                // Elimination/Skip Logic (Neutral Score)
+                console.log("Player Skipped / Eliminated");
             } else {
                 SCORE -= 5;
             }
-            
             document.getElementById('score-label').innerText = `SCORE: ${SCORE}`;
-            // Optional: Send result to Google Sheet here via another Fetch
+
+            // 3. Send Analytics to Cloud
+            logAnswer(data, direction, SCORE, ms);
         }
 
         // ==========================================
-        // 5. INIT SEQUENCE
+        // 6. INITIALIZATION SEQUENCE
         // ==========================================
         window.onload = async () => {
             const loader = document.getElementById('loader');
             
-            // 1. Load Data
+            // Step 1: Fetch Data
             await loadQuestions(CURRENT_DECK);
             
-            // 2. Hide Loader
+            // Step 2: Hide Loader
             loader.style.opacity = 0;
-            setTimeout(() => loader.style.display = 'none', 500);
-
-            // 3. Start App
-            spawnCard();
+            setTimeout(() => {
+                loader.style.display = 'none';
+                // Step 3: Begin Game
+                spawnCard();
+            }, 500);
         };
 
     </script>
