@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chemistry Master V40.1 (Auto-Detect)</title>
+    <title>Chemistry Master V42 (Axis Locked)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -85,12 +85,26 @@
             pointer-events: none;
         }
 
+        /* --- CONTROLS (TOP) --- */
+        #controls {
+            position: absolute;
+            top: 70px; 
+            width: 100%;
+            text-align: center;
+            color: #555;
+            font-family: var(--font-code);
+            font-size: 0.75rem;
+            z-index: 50;
+            pointer-events: none;
+        }
+
         /* --- CARD STACK CONTAINER --- */
         #stack {
             position: relative;
             width: 100%;
             max-width: 360px;
             height: 65vh; 
+            margin-top: 40px; 
             perspective: 1000px;
         }
 
@@ -108,7 +122,7 @@
             justify-content: space-between;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             transform-origin: 50% 100%;
-            transition: transform 0.1s linear;
+            transition: transform 0.1s linear; /* Fast snap back */
             will-change: transform;
             touch-action: none; 
             user-select: none;
@@ -142,58 +156,31 @@
             display: inline-block;
         }
 
-        /* --- SWIPE HINT OVERLAYS --- */
+        /* --- HINT OVERLAYS (Refined) --- */
         .hint-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             border-radius: 32px;
             pointer-events: none;
             opacity: 0;
-            transition: opacity 0.2s;
+            transition: opacity 0.1s; /* Faster fade for snappy feel */
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 900;
-            font-size: 2rem;
+            font-size: 3rem; 
             text-transform: uppercase;
             z-index: 10;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6); /* Darker backdrop for focus */
+            backdrop-filter: blur(4px);
         }
         
-        .hint-up { 
-            background: rgba(41, 98, 255, 0.2); 
-            color: var(--accent-blue); 
-            align-items: flex-start; 
-            padding-top: 40px; 
-        }
-        .hint-left { 
-            background: rgba(255, 23, 68, 0.2); 
-            color: var(--accent-red); 
-            justify-content: flex-end; 
-            padding-right: 40px; 
-        }
-        .hint-right { 
-            background: rgba(0, 230, 118, 0.2); 
-            color: var(--accent-green); 
-            justify-content: flex-start; 
-            padding-left: 40px; 
-        }
-        .hint-down { 
-            background: rgba(255, 255, 255, 0.1); 
-            color: #fff; 
-            align-items: flex-end; 
-            padding-bottom: 40px; 
-        }
+        .hint-up { color: var(--accent-blue); }
+        .hint-left { color: var(--accent-red); }
+        .hint-right { color: var(--accent-green); }
+        .hint-down { color: #ffffff; }
 
-        /* --- FOOTER CONTROLS --- */
-        #controls {
-            position: absolute;
-            bottom: 40px;
-            width: 100%;
-            text-align: center;
-            color: #555;
-            font-family: var(--font-code);
-            font-size: 0.8rem;
-        }
     </style>
 </head>
 <body>
@@ -208,31 +195,29 @@
         <span id="score-label">SCORE: 0</span>
     </div>
 
-    <div id="stack">
-        </div>
-
     <div id="controls">
         SWIPE UP / LEFT / RIGHT / DOWN
     </div>
+
+    <div id="stack">
+        </div>
 
     <script>
         // ==========================================
         // CONFIGURATION & STATE
         // ==========================================
         
-        // YOUR DEPLOYMENT URL (Last Known ID)
         const DATA_ENDPOINT = "https://script.google.com/macros/s/AKfycbxGZyuQOGf6eXwNZzcJwQYKk6pNw91nYcA403nOR4Ldma5zzLUb1Fz5P_U8-DLyEGOk/exec"; 
         
-        // Session Variables
         const SESSION_ID = "SESS_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
-        let CURRENT_DECK = "Chemistry_Master_1"; // Default attempt
+        let CURRENT_DECK = "Chemistry_Master_1"; 
         let SCORE = 0;
         let QUESTION_POOL = [];
         let USED_IDS = new Set();
         let CARD_START_TIME = 0;
 
         // ==========================================
-        // 1. DATA ENGINE (Live Loader + Auto Detect)
+        // 1. DATA ENGINE (Live Loader)
         // ==========================================
         async function loadQuestions(deck) {
             const status = document.getElementById('status-msg');
@@ -242,28 +227,12 @@
                 
                 status.innerText = "Parsing Vectors...";
                 const all = await res.json();
-                
-                // --- AUTO-DETECT FIX ---
-                if (all.length === 0) throw new Error("Sheet is completely empty!");
 
-                // Get list of ALL decks found in the sheet
-                const availableDecks = [...new Set(all.map(q => q.deck))];
-                console.log("Found Decks:", availableDecks);
-
-                // If requested deck is missing, switch to the FIRST available one
-                let targetDeck = deck;
-                if (!availableDecks.includes(deck)) {
-                    console.warn(`Deck "${deck}" not found. Switching to "${availableDecks[0]}"`);
-                    targetDeck = availableDecks[0];
-                    CURRENT_DECK = targetDeck; // Update global state
-                }
-
-                // Filter & Shuffle
                 QUESTION_POOL = all
-                    .filter(q => q.deck === targetDeck && !USED_IDS.has(q.question_id))
+                    .filter(q => q.deck === deck && !USED_IDS.has(q.question_id))
                     .sort(() => Math.random() - 0.5);
 
-                console.log(`[SYS] Loaded ${QUESTION_POOL.length} items for ${targetDeck}`);
+                console.log(`[SYS] Loaded ${QUESTION_POOL.length} items for ${deck}`);
                 
                 if(QUESTION_POOL.length === 0) {
                      status.innerText = "NO DATA FOUND (Check Sheet)";
@@ -304,7 +273,7 @@
         }
 
         // ==========================================
-        // 3. RENDER ENGINE (DOM Construction)
+        // 3. RENDER ENGINE (DOM)
         // ==========================================
         function nextQuestion() {
             if (QUESTION_POOL.length === 0) {
@@ -363,13 +332,11 @@
             document.getElementById('stack').appendChild(card);
             
             new Draggable(card, data);
-            
-            // START TIMER
             CARD_START_TIME = Date.now();
         }
 
         // ==========================================
-        // 4. PHYSICS ENGINE (Touch & Logic)
+        // 4. PHYSICS ENGINE (Axis Locked)
         // ==========================================
         class Draggable {
             constructor(element, data) {
@@ -403,22 +370,43 @@
 
             move(e) {
                 if (!this.isDragging) return;
-                const dx = e.touches[0].clientX - this.startX;
-                const dy = e.touches[0].clientY - this.startY;
-                this.update(dx, dy);
+                let dx = e.touches[0].clientX - this.startX;
+                let dy = e.touches[0].clientY - this.startY;
+                this.processMove(dx, dy);
             }
 
             moveMouse(e) {
                 if (!this.isDragging) return;
-                const dx = e.clientX - this.startX;
-                const dy = e.clientY - this.startY;
+                let dx = e.clientX - this.startX;
+                let dy = e.clientY - this.startY;
+                this.processMove(dx, dy);
+            }
+
+            // --- THE NEW LOGIC: AXIS LOCKING ---
+            processMove(dx, dy) {
+                // If horizontal movement is stronger, force vertical to 0
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    dy = 0; 
+                } 
+                // If vertical movement is stronger, force horizontal to 0
+                else {
+                    dx = 0; 
+                }
+
                 this.update(dx, dy);
             }
 
             update(dx, dy) {
                 this.x = dx; this.y = dy;
-                this.el.style.transform = `translate(${dx}px, ${dy}px) rotate(${dx * 0.05}deg)`;
                 
+                // No rotation if we want strictly straight lines
+                // or very subtle rotation only for horizontal
+                let rot = 0;
+                if(dx !== 0) rot = dx * 0.03; // Slight tilt only on X axis
+
+                this.el.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg)`;
+                
+                // Show HINTS
                 const t = 50;
                 this.el.querySelector('.hint-up').style.opacity = dy < -t ? 1 : 0;
                 this.el.querySelector('.hint-down').style.opacity = dy > t ? 1 : 0;
@@ -428,11 +416,11 @@
 
             end() {
                 this.isDragging = false;
-                this.el.style.transition = 'transform 0.3s ease-out';
+                this.el.style.transition = 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)'; // Bouncy snap back
                 document.onmousemove = null; 
                 document.onmouseup = null;
 
-                const t = 100; // Swipe Threshold
+                const t = 80; // Lower threshold for sensitivity
                 if (this.y < -t) this.trigger('UP');
                 else if (this.y > t) this.trigger('DOWN');
                 else if (this.x < -t) this.trigger('LEFT');
@@ -447,14 +435,14 @@
                 if (dir === 'LEFT') tx = -1000;
                 if (dir === 'RIGHT') tx = 1000;
 
-                this.el.style.transform = `translate(${tx}px, ${ty}px) rotate(${tx * 0.1}deg)`;
+                this.el.style.transform = `translate(${tx}px, ${ty}px)`; // Straight exit
                 
                 processAnswer(this.data, dir);
 
                 setTimeout(() => {
                     this.el.remove();
                     spawnCard();
-                }, 300);
+                }, 200);
             }
 
             reset() {
@@ -464,33 +452,28 @@
         }
 
         // ==========================================
-        // 5. GAME LOGIC & ROUTING
+        // 5. GAME LOGIC
         // ==========================================
         function processAnswer(data, direction) {
             const ms = Date.now() - CARD_START_TIME;
-
+            
             if (direction === data.correct) {
                 SCORE += parseInt(data.w || 10);
             } else if (direction === 'DOWN') {
-                console.log("Player Skipped / Eliminated");
+                console.log("Eliminated");
             } else {
                 SCORE -= 5;
             }
             document.getElementById('score-label').innerText = `SCORE: ${SCORE}`;
-
             logAnswer(data, direction, SCORE, ms);
         }
 
         // ==========================================
-        // 6. INITIALIZATION SEQUENCE
+        // 6. STARTUP
         // ==========================================
         window.onload = async () => {
             const loader = document.getElementById('loader');
-            
-            // Step 1: Fetch Data (With Auto-Detect)
             await loadQuestions(CURRENT_DECK);
-            
-            // Step 2: Hide Loader & Start
             loader.style.opacity = 0;
             setTimeout(() => {
                 loader.style.display = 'none';
