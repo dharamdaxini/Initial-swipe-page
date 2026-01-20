@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chemistry Master V59 (Structured Review)</title>
+    <title>Chemistry Master V60 (White UI & Smart Hints)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -132,9 +132,10 @@
         .hint-long { font-size: 1.8rem !important; }
         .hint-xl { font-size: 1.4rem !important; }
 
-        .hint-up { color: var(--accent-blue); }
-        .hint-left { color: var(--accent-red); }   
-        .hint-right { color: var(--accent-green); } 
+        /* FIXED: ALL SWIPE TEXT IS WHITE */
+        .hint-up { color: #ffffff; }
+        .hint-left { color: #ffffff; }   
+        .hint-right { color: #ffffff; } 
         .hint-down { color: #ffffff; }
 
         .info-overlay {
@@ -145,10 +146,9 @@
             z-index: 20;
         }
         .info-overlay.active { opacity: 1; pointer-events: auto; }
-        
         .info-label { font-family: var(--font-code); color: var(--accent-blue); font-size: 0.8rem; margin-bottom: 15px; letter-spacing: 1px; }
         
-        /* NEW: STRUCTURED EXPLANATION STYLING */
+        /* Structured Text Styles */
         .info-text { font-size: 1.1rem; line-height: 1.6; color: #fff; margin-bottom: 30px; }
         .info-text ul { padding-left: 20px; text-align: left; }
         .info-text li { margin-bottom: 15px; }
@@ -415,11 +415,22 @@
                 answerRevealHTML = `<div class="correct-reveal">✅ ${data.correctText}</div>`;
             }
 
-            // --- DEEP DIVE FORMATTER (3-Point Logic) ---
-            let explanationHTML = data.explanation;
-            if(data.explanation && data.explanation.includes('||')) {
-                const parts = data.explanation.split('||');
-                explanationHTML = '<ul>' + parts.map(p => `<li>${p.trim()}</li>`).join('') + '</ul>';
+            // --- SMART HINT / DEEP DIVE LOGIC ---
+            let infoLabel = "DEEP DIVE";
+            let infoContent = data.explanation;
+
+            if (APP_MODE === 'QUIZ') {
+                infoLabel = "HINT";
+                // Take only the first sentence (before || or first period if no pipes)
+                if(data.explanation.includes('||')) {
+                    infoContent = data.explanation.split('||')[0].replace(/✅|❌/g, '').trim();
+                }
+            } else {
+                // REVIEW MODE: Full 3-Point List
+                if(data.explanation.includes('||')) {
+                    const parts = data.explanation.split('||');
+                    infoContent = '<ul>' + parts.map(p => `<li>${p.trim()}</li>`).join('') + '</ul>';
+                }
             }
 
             el.innerHTML = `
@@ -435,8 +446,8 @@
                 <div class="hint-overlay hint-down ${getSizeClass(data.down)}">${data.down}</div>
 
                 <div class="info-overlay" id="info-${data.id}">
-                    <div class="info-label">DEEP DIVE</div>
-                    <div class="info-text">${explanationHTML}</div>
+                    <div class="info-label">${infoLabel}</div>
+                    <div class="info-text">${infoContent}</div>
                     <button class="btn-next" onclick="forceNext()">GOT IT</button>
                 </div>
             `;
@@ -511,8 +522,14 @@
                 document.onmousemove = null; document.onmouseup = null;
                 const triggerDist = 80;
                 
-                if (this.y > triggerDist && APP_MODE === 'QUIZ') { this.triggerInfo(); return; } 
-                if (this.y < -triggerDist && APP_MODE === 'REVIEW') { this.triggerInfo(); return; }
+                if (this.y > triggerDist && APP_MODE === 'QUIZ') { 
+                    this.triggerInfo(); 
+                    return; 
+                } 
+                if (this.y < -triggerDist && APP_MODE === 'REVIEW') { 
+                    this.triggerInfo(); 
+                    return; 
+                }
 
                 if (this.y < -triggerDist) this.trigger('UP');
                 else if (this.x < -triggerDist) this.trigger('LEFT');
