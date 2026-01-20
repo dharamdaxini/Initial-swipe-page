@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist Mastery V80.3</title>
+<title>Alchemist Mastery V76.7</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,82 +11,72 @@
 
 <style>
 :root {
-    --bg: #000; --card: #111; --border: #282828;
-    --gold: #ffd600; --blue: #3498db; --green: #2ecc71; --red: #ff5555;
+    --bg-color: #000; --card-bg: #111; --overlay-bg: #0d0d0d;
+    --accent-gold: #ffd600; --hint-blue: #3498db;
     --font-chem: 'Crimson Text', serif; --font-ui: 'Inter', sans-serif;
     --font-code: 'JetBrains Mono', monospace;
-    --spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* Global Reset & Gesture Lock */
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-body { 
-    margin: 0; height: 100vh; background: var(--bg); color: #fff; 
-    font-family: var(--font-ui); overflow: hidden; touch-action: none; 
-    user-select: none; -webkit-user-select: none;
+body {
+    margin: 0; height: 100vh; background: var(--bg-color); color: #fff;
+    font-family: var(--font-ui); overflow: hidden;
+    user-select: none; -webkit-user-select: none; touch-action: none;
 }
 
 sub { font-size: 0.7em; vertical-align: sub; line-height: 0; }
 sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 
-/* Dashboard Header HUD (V72.3 Aesthetic) */
-#header { 
-    position: absolute; top: calc(20px + env(safe-area-inset-top)); 
-    width: 90%; left: 5%; z-index: 1000; pointer-events: none; 
-}
-.header-meta { display: flex; justify-content: space-between; font-size: 0.75rem; color: #555; font-family: var(--font-code); margin-bottom: 8px; }
-.progress-track { width: 100%; height: 3px; background: #222; border-radius: 2px; overflow: hidden; }
-#progress-bar { height: 100%; background: var(--gold); width: 0%; transition: width 0.4s var(--spring); }
+#header { width: 90%; margin: calc(20px + env(safe-area-inset-top)) auto 0; z-index: 100; pointer-events: none; }
+.header-meta { display: flex; justify-content: space-between; font-family: var(--font-code); font-size: 0.75rem; color: #555; margin-bottom: 8px; }
+.progress-track { width: 100%; height: 3px; background: #222; border-radius: 2px; }
+#progress-bar { height: 100%; background: var(--accent-gold); width: 0%; transition: width 0.4s ease; }
 
-/* 1. Spatial Physics Viewport */
-#viewport { 
-    position: relative; width: 100%; height: 100%; 
-    display: flex; align-items: center; justify-content: center;
-    perspective: 1200px; /* Locked 3D Depth */
+#stack {
+    position: relative; width: 92%; max-width: 400px;
+    height: calc(100vh - 160px - env(safe-area-inset-top));
+    margin: 25px auto 0; perspective: 1200px;
 }
 
-#stack { position: relative; width: 92%; max-width: 400px; height: 520px; }
+.card {
+    position: absolute; width: 100%; height: 100%;
+    background: var(--card-bg); border-radius: 40px; border: 1px solid #282828;
+    padding: 40px; display: flex; flex-direction: column; justify-content: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.9); transform-origin: center center;
+    will-change: transform; cursor: grab; backface-visibility: hidden;
+    transform: translate3d(0,0,0);
+}
 
-/* Middle-Screen Pivot Card */
-.card { 
-    position: absolute; inset: 0; background: var(--card); 
-    border-radius: 40px; border: 1px solid var(--border); padding: 40px;
+.card-q { font-family: var(--font-chem); font-size: 2rem; line-height: 1.35; font-style: italic; font-weight: 600; text-align: center; color: #f0f0f0; }
+
+.swipe-label {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: #000; color: #fff; font-weight: 900; font-size: 2.1rem;
+    text-transform: uppercase; border-radius: 40px; z-index: 999; opacity: 0; pointer-events: none;
+    text-align: center; padding: 20px; transform: scale(0.85) translateZ(0);
+    will-change: opacity, transform; transition: opacity 0.08s linear; /* Faster transition for tighter clamp */
+}
+
+.sl-down-hint { 
+    color: var(--hint-blue) !important; 
+    font-size: 1.4rem !important; 
+    text-transform: none !important; 
+    font-family: var(--font-chem) !important;
+}
+
+.overlay {
+    position: absolute; inset: 0; background: var(--overlay-bg);
+    z-index: 1100; padding: 45px 35px; opacity: 0; pointer-events: none;
+    border-radius: 40px; transition: opacity 0.25s ease-out;
     display: flex; flex-direction: column; justify-content: center;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.9);
-    
-    /* 1. Spatial Physics: The Pivot Point */
-    transform-origin: center center; 
-    will-change: transform; backface-visibility: hidden;
+    overflow-y: auto;
 }
+.overlay.active { opacity: 1; pointer-events: auto; }
+.overlay-label { font-size: 0.8rem; color: var(--accent-gold); font-family: var(--font-code); margin-bottom: 15px; text-transform: uppercase; }
+.overlay-body { font-size: 1.2rem; line-height: 1.7; color: #ccc; margin-bottom: 30px; font-family: var(--font-chem); }
 
-.card-q { 
-    font-family: var(--font-chem); font-size: 2.1rem; line-height: 1.35; 
-    font-style: italic; font-weight: 600; text-align: center; color: #f0f0f0; 
-}
-
-/* 2. Unit Circle Feedback Labels */
-.swipe-label { 
-    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; 
-    font-weight: 900; font-size: 2.1rem; text-transform: uppercase; 
-    border-radius: 40px; background: #000; opacity: 0; pointer-events: none; 
-    transition: opacity 0.1s linear;
-}
-.sl-up { color: var(--green); }
-.sl-le { color: var(--red); }
-.sl-ri { color: var(--gold); }
-.sl-do { color: var(--blue); font-size: 1.4rem; font-family: var(--font-chem); text-transform: none; }
-
-/* Overlays & Loaders */
-.overlay { 
-    position: absolute; inset: 0; background: #0d0d0d; border-radius: 40px; padding: 35px; 
-    display: none; flex-direction: column; justify-content: center; z-index: 1100;
-}
-.overlay.active { display: flex; }
-.overlay-label { font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 15px; color: var(--gold); font-family: var(--font-code); }
-.overlay-body { font-size: 1.25rem; line-height: 1.7; font-family: var(--font-chem); color: #ccc; }
-.btn { margin-top: 30px; padding: 20px; border-radius: 50px; border: none; font-weight: 900; cursor: pointer; background: #fff; color: #000; text-transform: uppercase; }
-
-#loader { position: fixed; inset: 0; background: #000; display: flex; align-items: center; justify-content: center; font-weight: 900; letter-spacing: 5px; color: var(--gold); z-index: 9999; font-family: var(--font-code); }
+.btn { width: 100%; padding: 18px; border-radius: 60px; border: none; background: #fff; font-weight: 900; cursor: pointer; text-transform: uppercase; font-family: var(--font-ui); margin-top: 10px; }
+#loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: var(--font-code); font-size: 1.2rem; letter-spacing: 5px; color: var(--accent-gold); }
 </style>
 </head>
 
@@ -101,186 +91,205 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
     <div class="progress-track"><div id="progress-bar"></div></div>
 </div>
 
-<div id="viewport">
-    <div id="stack"></div>
-</div>
+<div id="stack"></div>
 
 <script>
-/** * 85-UNIT MASTER DATASET
- */
-const RAW_DATA = [
-    { "topic": "Physical", "question_text": "What does a negative ΔG value signify?", "hint": "Gibbs Energy.", "explanation": "✅ A negative ΔG indicates the reaction is spontaneous. || ❌ Positive ΔG means non-spontaneous.", "swipe_up_label": "Spontaneous", "swipe_right_label": "Equilibrium", "swipe_down_label": "HINT", "swipe_left_label": "Non-spontaneous", "correct": "UP", "weight": 1 },
-    { "topic": "Physical", "question_text": "If a reaction rate doubles when T increases from 298 K to 308 K, effect on k?", "hint": "Arrhenius eq.", "explanation": "✅ k increases exponentially with temperature as more molecules exceed Ea.", "swipe_up_label": "k Increases", "swipe_right_label": "k is Constant", "swipe_down_label": "HINT", "swipe_left_label": "k Decreases", "correct": "UP", "weight": 2 },
-    { "topic": "Physical", "question_text": "How does half-life change with concentration in a 1st order reaction?", "hint": "t1/2 = 0.693/k", "explanation": "✅ Independent of initial concentration.", "swipe_up_label": "Increases", "swipe_right_label": "Independent", "swipe_down_label": "HINT", "swipe_left_label": "Decreases", "correct": "RIGHT", "weight": 1 },
-    { "topic": "Organic", "question_text": "What defines a chiral carbon?", "hint": "Substituents.", "explanation": "✅ Bonded to four unique groups.", "swipe_up_label": "4 Groups", "swipe_right_label": "Symmetry", "swipe_down_label": "HINT", "swipe_left_label": "Doubles", "correct": "UP", "weight": 1 },
-    { "topic": "Analytical", "question_text": "pH at equivalence HCl vs NaOH?", "hint": "Strong/Strong.", "explanation": "✅ Strong Acid + Strong Base = pH 7.", "swipe_up_label": "pH 9", "swipe_right_label": "pH 7", "swipe_down_label": "HINT", "swipe_left_label": "pH 4", "correct": "RIGHT", "weight": 2 }
-    // Add all 85 units here...
-];
+const ENDPOINT="https://script.google.com/macros/s/AKfycbxaMo1Gi8KjfYOr1_pHJI5XYJ1t9FK4PWkFCm8lU4MsCmUXvY0nSUIqYTAqhpumFRFL/exec";
 
-const CONFIG = {
-    THRESHOLD: 80,
-    DAMPING: 18,    // 18px horizontal = 1 deg tilt
-    SMOOTHING: 0.8, // 120Hz Velocity Clamp
-    OPACITY_DIV: 50
-};
-
-let STATE = { pool: [], score: 0, isBusy: false, mode: "QUIZ", active: false, tx: 0, ty: 0, cx: 0, cy: 0, sx: 0, sy: 0 };
+let RAW_DATA=[], POOL=[], MISTAKES=[], SCORE=0, isTransitioning=false;
+let MODE="DATASET_SELECT", CURRENT_DATASET="", CURRENT_TOPIC="", CURRENT_GENRE="";
 
 /**
- * 2. UNIT CIRCLE LOGIC (Intent Detection)
- * Formula: $Angle = \text{atan2}(-y, x) \times \frac{180}{\pi}$
+ * V76.7 PHYSICS CALIBRATION
+ * 1cm approx 40px
+ * Hard Clamp reduced to 0.8cm (32px)
  */
-const getDirection = (x, y) => {
-    let ang = Math.atan2(-y, x) * (180 / Math.PI);
-    if (ang < 0) ang += 360;
-    if (ang >= 45 && ang < 135) return "UP";
-    if (ang >= 135 && ang < 225) return "LEFT";
-    if (ang >= 225 && ang < 315) return "DOWN";
-    return "RIGHT";
+const PX_PER_CM = 40; 
+const OPACITY_FULL_AT = 0.6 * PX_PER_CM; // 24px (Text visible early)
+const CLAMP_AT = 0.8 * PX_PER_CM;        // 32px (Card stops moving)
+
+const formatChem = t => {
+    if(!t) return "";
+    return t.toString().replace(/([A-Z][a-z]?)(\d+)/g,'$1<sub>$2</sub>').replace(/(\d*)([+\-])/g, '<sup>$1$2</sup>').replace(/\|\|/g, '<br><br>');
 };
 
-/** * 3. PHYSICS ENGINE (V80.3 Middle Pivot)
- */
-function physicsLoop() {
-    if (!STATE.active && !STATE.isBusy) return;
-
-    // Velocity Clamping for High-Refresh Fluidity
-    STATE.cx += (STATE.tx - STATE.cx) * CONFIG.SMOOTHING;
-    STATE.cy += (STATE.ty - STATE.cy) * CONFIG.SMOOTHING;
-
-    const el = document.querySelector('.card');
-    if (el && !STATE.isBusy) {
-        const dist = Math.sqrt(STATE.cx**2 + STATE.cy**2);
-        const rot = STATE.cx / CONFIG.DAMPING; 
-
-        // Apply Pivot Physics relative to Screen Center
-        el.style.transform = `translate3d(${STATE.cx}px, ${STATE.cy}px, 0) rotate(${rot}deg)`;
-
-        const labels = el.querySelectorAll('.swipe-label');
-        labels.forEach(l => l.style.opacity = 0);
-        if (dist > 15) {
-            const dir = getDirection(STATE.cx, STATE.cy).toLowerCase().slice(0,2);
-            const activeL = el.querySelector(`.sl-${dir}`);
-            if (activeL) {
-                activeL.style.opacity = Math.min(dist / CONFIG.OPACITY_DIV, 1);
-                activeL.style.transform = `scale(${0.9 + (dist/500)})`;
-            }
-        }
-    }
-    requestAnimationFrame(physicsLoop);
+async function init(){
+    const l = document.getElementById('loader');
+    try {
+        const r = await fetch(ENDPOINT);
+        RAW_DATA = await r.json();
+        l.remove();
+        renderDatasetSelect();
+    } catch(e) { l.innerHTML = "SYNC ERROR"; }
 }
 
-/** * 4. INPUT & STATE GUARDRAILS
- */
-const bindEvents = (el, data) => {
-    const start = e => {
-        if (STATE.isBusy || document.querySelector('.overlay.active')) return;
-        STATE.active = true;
-        const p = e.touches ? e.touches[0] : e;
-        STATE.sx = p.clientX; STATE.sy = p.clientY;
-        STATE.tx = 0; STATE.ty = 0;
-        physicsLoop();
-    };
+function renderDatasetSelect(){
+    MODE="DATASET_SELECT"; const s=document.getElementById('stack'); s.innerHTML="";
+    const c=document.createElement('div'); c.className="card";
+    c.innerHTML=`<div class="card-q">SELECT CURRICULUM</div>
+        <div class="swipe-label sl-up">CORE CHEMISTRY</div><div class="swipe-label sl-left">INDUSTRIAL APPS</div>
+        <div class="swipe-label sl-right">REVISION SET</div><div class="swipe-label sl-down">EXPERT CHALLENGE</div>`;
+    s.appendChild(c); bindPhysics(c);
+}
 
-    const move = e => {
-        if (!STATE.active) return;
-        const p = e.touches ? e.touches[0] : e;
-        STATE.tx = p.clientX - STATE.sx;
-        STATE.ty = p.clientY - STATE.sy;
-    };
+function renderTopicSelect(dataset){
+    MODE="TOPIC_SELECT"; CURRENT_DATASET=dataset; const s=document.getElementById('stack'); s.innerHTML="";
+    const c=document.createElement('div'); c.className="card";
+    c.innerHTML=`<div class="card-q">CHOOSE DOMAIN</div>
+        <div class="swipe-label sl-up">PHYSICAL</div><div class="swipe-label sl-left">ORGANIC</div>
+        <div class="swipe-label sl-right">INORGANIC</div><div class="swipe-label sl-down">ANALYTICAL</div>`;
+    s.appendChild(c); bindPhysics(c);
+}
 
-    const end = () => {
-        if (!STATE.active) return;
-        STATE.active = false;
-        const dist = Math.sqrt(STATE.tx**2 + STATE.ty**2);
-        const dir = getDirection(STATE.tx, STATE.ty);
+function renderGenreSelect(topic){
+    MODE="GENRE_SELECT"; CURRENT_TOPIC=topic; const s=document.getElementById('stack'); s.innerHTML="";
+    const c=document.createElement('div'); c.className="card";
+    c.innerHTML=`<div class="card-q">SELECT DEPTH</div>
+        <div class="swipe-label sl-up">CONCEPT MASTERY</div>
+        <div class="swipe-label sl-down">APPLIED PROBLEMS</div>`;
+    s.appendChild(c); bindPhysics(c);
+}
 
-        if (dist > CONFIG.THRESHOLD) {
-            // DOWN swipe Gating
-            if (dir === "DOWN") {
-                if (STATE.mode === "QUIZ") {
-                    document.getElementById('overlay-content').innerText = data.explanation;
-                    document.getElementById('analysis-overlay').classList.add('active');
-                    resetPosition(el);
-                } else { location.reload(); }
-            } else { handleSwipe(el, data, dir); }
-        } else { resetPosition(el); }
-    };
-
-    el.onmousedown = start; window.onmousemove = move; window.onmouseup = end;
-    el.ontouchstart = start; el.ontouchmove = move; el.ontouchend = end;
-};
-
-const handleSwipe = (el, data, dir) => {
-    STATE.isBusy = true;
-    if (STATE.mode === "QUIZ") {
-        const weight = data.weight || 1;
-        if (dir === data.correct) STATE.score += (10 * weight);
-        else STATE.score = Math.max(0, STATE.score - 5);
-        updateHUD();
-    }
-    
-    // Exit Acceleration
-    el.style.transition = "transform 0.5s ease-in";
-    el.style.transform = `translate3d(${STATE.tx * 5}px, ${STATE.ty * 5}px, 0) rotate(${STATE.tx / 5}deg)`;
-    
-    setTimeout(() => {
-        el.remove();
-        STATE.isBusy = false;
-        renderNext();
-    }, 500);
-};
-
-const resetPosition = (el) => {
-    STATE.tx = 0; STATE.ty = 0;
-    el.style.transition = "transform 0.4s var(--spring)";
-    el.style.transform = `translate3d(0,0,0) rotate(0deg)`;
-};
-
-const renderNext = () => {
-    const stack = document.getElementById('stack');
-    if (!STATE.pool.length) {
-        STATE.mode = "END";
-        const endCard = document.createElement('div');
-        endCard.className = 'card';
-        endCard.innerHTML = `<div class="card-q">MISSION COMPLETE</div><div class="swipe-label sl-up">RESTART</div><div class="swipe-label sl-do">RELOAD</div>`;
-        stack.appendChild(endCard);
-        bindEvents(endCard, {});
-        return;
-    }
-    
-    const data = STATE.pool.shift();
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.innerHTML = `
-        <div class="card-q">${data.question_text}</div>
-        <div class="swipe-label sl-up">${data.swipe_up_label}</div>
-        <div class="swipe-label sl-le">${data.swipe_left_label}</div>
-        <div class="swipe-label sl-ri">${data.swipe_right_label}</div>
-        <div class="swipe-label sl-do">${data.swipe_down_label}</div>
-        <div id="analysis-overlay" class="overlay">
-            <div class="overlay-label">LOGIC ANALYSIS</div>
-            <div id="overlay-content" class="overlay-body"></div>
-            <button class="btn" onclick="this.parentNode.classList.remove('active')">CONTINUE</button>
-        </div>
-    `;
-    stack.appendChild(card);
-    bindEvents(card, data);
-};
-
-const updateHUD = () => {
-    document.getElementById('xp-ui').innerText = `${STATE.score} XP`;
-    document.getElementById('progress-bar').style.width = `${(STATE.score % 100)}%`;
-    document.getElementById('rank-ui').innerText = `RANK: ${STATE.score > 500 ? 'SCHOLAR' : 'NOVICE'}`;
-};
-
-/** * 5. DIRECT ENTRY INITIALIZATION 
- */
-window.onload = () => {
-    STATE.pool = [...RAW_DATA].sort(() => Math.random() - 0.5);
-    document.getElementById('loader').remove();
+function startQuiz(topic, genre){
+    CURRENT_GENRE=genre;
+    POOL=RAW_DATA.filter(q => q.dataset.toUpperCase() === CURRENT_DATASET.toUpperCase() && q.topic.toLowerCase() === topic.toLowerCase() && q.q_type.toUpperCase() === genre.toUpperCase()).sort(() => Math.random() - .5);
+    if(!POOL.length){ alert("Section empty."); renderDatasetSelect(); return; }
     renderNext();
-};
+}
+
+function renderNext(){
+    const s=document.getElementById('stack'); s.innerHTML="";
+    if(!POOL.length){ renderEnd(); return; }
+    MODE="QUIZ"; const q = POOL.shift();
+    const c=document.createElement('div'); c.className="card";
+    c.innerHTML=`<div class="card-q">${formatChem(q.question_text)}</div>
+        <div class="swipe-label sl-up">${q.swipe_up_label}</div><div class="swipe-label sl-left">${q.swipe_left_label}</div>
+        <div class="swipe-label sl-right">${q.swipe_right_label}</div><div class="swipe-label sl-down sl-down-hint">${formatChem(q.hint)}</div>
+        <div class="overlay"><div class="overlay-label">LOGIC ANALYSIS</div><div class="overlay-body">${formatChem(q.explanation)}</div><button class="btn" onclick="this.parentElement.classList.remove('active')">CONTINUE</button></div>`;
+    s.appendChild(c); bindPhysics(c, q);
+}
+
+function renderEnd(){
+    MODE="SESSION_END"; const s=document.getElementById('stack'); s.innerHTML="";
+    const c=document.createElement('div'); c.className="card";
+    c.innerHTML=`<div class="card-q">SESSION COMPLETE<br><small>${SCORE} XP EARNED</small></div>
+        <div class="swipe-label sl-up">RESTART</div><div class="swipe-label sl-down">MAIN MENU</div>`;
+    s.appendChild(c); bindPhysics(c);
+}
+
+function bindPhysics(el, data){
+    let x=0, y=0, sx=0, sy=0, active=false, triggerDir=null;
+    const labels={up:el.querySelector('.sl-up'), dn:el.querySelector('.sl-down'), lt:el.querySelector('.sl-left'), rt:el.querySelector('.sl-right')};
+
+    const start=e=>{ if(isTransitioning||(el.querySelector('.overlay')&&el.querySelector('.overlay').classList.contains('active')))return; active=true; const p=e.touches?e.touches[0]:e; sx=p.clientX; sy=p.clientY; el.style.transition="none"; };
+    
+    const move=e=>{
+        if(!active)return; const p=e.touches?e.touches[0]:e;
+        const rawDx = p.clientX - sx;
+        const rawDy = p.clientY - sy;
+        const rawDist = Math.sqrt(rawDx*rawDx + rawDy*rawDy);
+        
+        // 1. Calculate Opacity based on 0.6cm (24px)
+        const opacity = Math.min(rawDist / OPACITY_FULL_AT, 1);
+        
+        // 2. Clamp Movement at 0.8cm (32px)
+        let clampedDx = rawDx;
+        let clampedDy = rawDy;
+        if(rawDist > CLAMP_AT){
+            const ratio = CLAMP_AT / rawDist;
+            clampedDx = rawDx * ratio;
+            clampedDy = rawDy * ratio;
+        }
+
+        // 3. Determine Angle & Active Label
+        let ang = Math.atan2(-clampedDy, clampedDx)*(180/Math.PI); 
+        if(ang<0) ang+=360;
+        
+        let activeLabel = null;
+        Object.values(labels).forEach(l=>{if(l)l.style.opacity=0;}); // Reset all
+
+        if(rawDist > 5){
+            if(ang>=45&&ang<135) activeLabel=labels.up; 
+            else if(ang>=135&&ang<225) activeLabel=labels.lt;
+            else if(ang>=225&&ang<315) activeLabel=labels.dn; 
+            else activeLabel=labels.rt;
+        }
+
+        // Apply Opacity & Scale
+        if(activeLabel){
+            activeLabel.style.opacity = opacity;
+            activeLabel.style.transform = `scale(${0.85 + (opacity * 0.15)})`;
+        }
+
+        // Apply Clamped Transform
+        x = clampedDx; y = clampedDy;
+        requestAnimationFrame(()=>{
+            el.style.transform=`translate3d(${x}px,${y}px,0) rotate(${x/25}deg)`;
+        });
+        
+        // Store direction if we hit the clamp limit (trigger ready)
+        if(rawDist >= CLAMP_AT) {
+             triggerDir = (ang>=45&&ang<135)?"UP":(ang>=135&&ang<225)?"LEFT":(ang>=225&&ang<315)?"DOWN":"RIGHT";
+        } else {
+             triggerDir = null;
+        }
+    };
+    
+    const end=()=>{
+        if(!active)return; active=false;
+        
+        // Execute Action ONLY if we hit the clamp limit (0.8cm)
+        if(triggerDir){
+            if(MODE==="QUIZ" && triggerDir==="DOWN"){ 
+                el.querySelector('.overlay').classList.add('active'); 
+                el.style.transition="transform .3s"; 
+                el.style.transform="translate3d(0,0,0) rotate(0deg)"; 
+            }
+            else {
+                handleAction(el, data, x, y, triggerDir);
+            }
+        } else {
+            // Snap back if didn't reach limit
+            el.style.transition="transform .2s cubic-bezier(0.175, 0.885, 0.32, 1.275)"; 
+            el.style.transform="translate3d(0,0,0) rotate(0deg)";
+        }
+        Object.values(labels).forEach(l=>{if(l)l.style.opacity=0;});
+    };
+    
+    el.onmousedown=start; window.onmousemove=move; window.onmouseup=end; el.ontouchstart=start; el.ontouchmove=move; el.ontouchend=end;
+}
+
+function handleAction(el, data, x, y, dir){
+    isTransitioning=true;
+    if(MODE==="DATASET_SELECT"){ const map={UP:"SET_A", LEFT:"SET_B", RIGHT:"SET_C", DOWN:"SET_D"}; renderTopicSelect(map[dir]); }
+    else if(MODE==="TOPIC_SELECT"){ const map={UP:"Physical", LEFT:"Organic", RIGHT:"Inorganic", DOWN:"Analytical"}; renderGenreSelect(map[dir]); }
+    else if(MODE==="GENRE_SELECT"){ 
+        if(dir==="UP") { startQuiz(CURRENT_TOPIC, "CONCEPT"); }
+        else if(dir==="DOWN") { startQuiz(CURRENT_TOPIC, "APPLICATION"); }
+        else { isTransitioning=false; return; }
+        el.style.transition="transform .4s ease-in"; el.style.transform=`translate3d(${x*6}px,${y*6}px,0) rotate(${x/5}deg)`;
+        setTimeout(()=>{el.remove(); isTransitioning=false;}, 400);
+        return; 
+    }
+    else if(MODE==="QUIZ"){ 
+        const w=parseInt(data.weight)||1;
+        if(dir===data.correct.toUpperCase()){ SCORE+=(10*w); } 
+        else { SCORE=Math.max(0, SCORE-5); MISTAKES.push(data); }
+        renderNext();
+    } else if(MODE==="SESSION_END"){ 
+        if(dir==="UP") startQuiz(CURRENT_TOPIC, CURRENT_GENRE); 
+        else if(dir==="DOWN") renderDatasetSelect();
+        else { isTransitioning=false; return; }
+    }
+    el.style.transition="transform .4s ease-in"; el.style.transform=`translate3d(${x*6}px,${y*6}px,0) rotate(${x/5}deg)`;
+    updateUI(); setTimeout(()=>{el.remove(); isTransitioning=false;}, 350);
+}
+
+function updateUI(){
+    document.getElementById('xp-ui').innerText=`${SCORE} XP`;
+    document.getElementById('progress-bar').style.width=`${(SCORE%100)}%`;
+}
+window.onload=init;
 </script>
 </body>
 </html>
