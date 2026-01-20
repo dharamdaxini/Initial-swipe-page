@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist V84.1 Polish</title>
+<title>Alchemist V84.2 Robust</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 
 <style>
-/* V84.1 CSS - CENTERED LAYOUT & NO POPUPS */
+/* V84.2 CSS - ROBUST LOGIC BUILD */
 :root { 
     --bg-color: #050505; --card-bg: #141414; 
     --accent-gold: #ffcc00; --hint-blue: #4dabf7; --err-red: #ff4d4d;
@@ -58,7 +58,7 @@ body {
 /* --- FIXED SWIPE LABELS (Perfectly Centered) --- */
 .swipe-label { 
     position: absolute; inset: 0; 
-    display: flex; flex-direction: column; /* Stacks emoji above text */
+    display: flex; flex-direction: column; 
     align-items: center; justify-content: center; 
     background: rgba(0,0,0,0.96); 
     font-family: var(--font-ui); font-weight: 900; font-size: 2.2rem; 
@@ -68,7 +68,6 @@ body {
     padding: 20px;
 }
 
-/* Hint Specific Styling */
 .sl-down-hint { 
     color: var(--hint-blue) !important; 
     font-size: 1.4rem !important; 
@@ -77,6 +76,16 @@ body {
     line-height: 1.6 !important;
 }
 .hint-icon { font-size: 3rem; margin-bottom: 15px; display: block; }
+
+/* MENU LAYOUT (PREVENTS CUTOFF) */
+.menu-container { position: absolute; inset: 0; padding: 20px; pointer-events: none; }
+.menu-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 100%; }
+.menu-opt { position: absolute; font-family: var(--font-ui); font-weight: 800; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; color: #666; transition: color 0.2s; }
+
+.opt-top { top: 25px; left: 0; right: 0; text-align: center; color: var(--accent-gold); }
+.opt-bottom { bottom: 25px; left: 0; right: 0; text-align: center; color: var(--hint-blue); }
+.opt-left { top: 50%; left: 25px; transform: translateY(-50%); text-align: left; }
+.opt-right { top: 50%; right: 25px; transform: translateY(-50%); text-align: right; }
 
 /* ANALYSIS MODAL */
 #analysis-modal { position: absolute; inset: 0; background: #000; z-index: 2000; display: flex; flex-direction: column; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; padding-top: env(safe-area-inset-top); }
@@ -118,7 +127,9 @@ body {
 <div id="stack"></div>
 
 <script>
-// *** YOUR SCRIPT URL ***
+// =========================================================
+// YOUR SCRIPT URL (Don't change this)
+// =========================================================
 const ENDPOINT = "https://script.google.com/macros/s/AKfycbx0MOn2CEOHtwcraedSgmR_622esgwSAiWks3tNV51yc9XeKGrIip7lIxAu5iT460YT/exec";
 
 // FALLBACK DATA (Minified)
@@ -137,33 +148,59 @@ async function init(){
         const json = await r.json();
         if(Array.isArray(json) && json.length > 0) {
             RAW_DATA = json; 
-            status.innerText = "LIVE DATA LOADED"; status.style.color = "#00ff00";
+            status.innerText = `LOADED ${json.length} CARDS`; status.style.color = "#00ff00";
         }
     } catch(e) { status.innerText = "OFFLINE MODE"; status.style.color = "orange"; }
 
     setTimeout(() => { l.remove(); renderDatasetSelect(); }, 1200);
 }
 
+// --- ROBUST FILTERING LOGIC (THE FIX) ---
 function attemptAutoStart(topic, genre){
-    const cleanD = (CURRENT_DATASET||"").trim().toUpperCase();
-    POOL = RAW_DATA.filter(q => (q.dataset||"").toUpperCase() === cleanD || (q.dataset||"") === "").sort(() => Math.random() - .5);
-    
-    // POPUP FIX: If no questions, silently return to menu (NO ALERT)
+    const cleanDataset = (CURRENT_DATASET||"").trim().toLowerCase();
+    const cleanTopic = (topic||"").trim().toLowerCase();
+    const cleanGenre = (genre||"").trim().toLowerCase();
+
+    // 1. Try Specific Match
+    POOL = RAW_DATA.filter(q => {
+        const d = (q.dataset||"").trim().toLowerCase();
+        const t = (q.topic||"").trim().toLowerCase();
+        return d === cleanDataset && t === cleanTopic;
+    }).sort(() => Math.random() - .5);
+
+    // 2. Fallback: If 0 questions, ignore Topic and just load Dataset
+    if(POOL.length === 0) {
+        console.log("Fallback triggered: Loading entire dataset");
+        POOL = RAW_DATA.filter(q => (q.dataset||"").trim().toLowerCase() === cleanDataset).sort(() => Math.random() - .5);
+    }
+
+    // 3. Final Fallback: Load EVERYTHING
+    if(POOL.length === 0) {
+        console.log("Emergency fallback: Loading all data");
+        POOL = [...RAW_DATA].sort(() => Math.random() - .5);
+    }
+
     if(POOL.length > 0) { 
         CURRENT_TOPIC = topic; CURRENT_GENRE = genre; renderNext(); return true; 
     } else {
-        renderDatasetSelect(); // Just go back to menu silently
+        renderDatasetSelect(); // Should never happen with fallback
         return false;
     }
 }
 
-// --- CLEAN MENU SYSTEM ---
+// --- VISUAL MENU SYSTEM ---
 
 function renderDatasetSelect(){
     MODE="DATASET_SELECT"; const s=document.getElementById('stack'); s.innerHTML="";
     const c=document.createElement('div'); c.className="card";
     c.innerHTML=`
-        <div class="card-q">SELECT<br>CURRICULUM</div>
+        <div class="menu-container">
+            <div class="opt-top menu-opt">⬆️ CORE</div>
+            <div class="opt-left menu-opt">⬅️ APPS</div>
+            <div class="menu-center"><div class="card-q" style="margin:0">SELECT<br>CURRICULUM</div></div>
+            <div class="opt-right menu-opt">REVISE ➡️</div>
+            <div class="opt-bottom menu-opt">⬇️ EXPERT</div>
+        </div>
         <div class="swipe-label sl-up">CORE CHEMISTRY</div><div class="swipe-label sl-left">INDUSTRIAL</div>
         <div class="swipe-label sl-right">REVISION</div><div class="swipe-label sl-down">EXPERT</div>
     `;
@@ -174,7 +211,13 @@ function renderTopicSelect(dataset){
     MODE="TOPIC_SELECT"; CURRENT_DATASET=dataset; const s=document.getElementById('stack'); s.innerHTML="";
     const c=document.createElement('div'); c.className="card";
     c.innerHTML=`
-        <div class="card-q">CHOOSE<br>DOMAIN</div>
+        <div class="menu-container">
+            <div class="opt-top menu-opt">⬆️ PHYS</div>
+            <div class="opt-left menu-opt">⬅️ ORG</div>
+            <div class="menu-center"><div class="card-q" style="margin:0">CHOOSE<br>DOMAIN</div></div>
+            <div class="opt-right menu-opt">INORG ➡️</div>
+            <div class="opt-bottom menu-opt">⬇️ ANALYT</div>
+        </div>
         <div class="swipe-label sl-up">PHYSICAL</div><div class="swipe-label sl-left">ORGANIC</div>
         <div class="swipe-label sl-right">INORGANIC</div><div class="swipe-label sl-down">ANALYTICAL</div>
     `;
@@ -185,14 +228,19 @@ function renderGenreSelect(topic){
     MODE="GENRE_SELECT"; CURRENT_TOPIC=topic; const s=document.getElementById('stack'); s.innerHTML="";
     const c=document.createElement('div'); c.className="card";
     c.innerHTML=`
-        <div class="card-q">SELECT<br>DEPTH</div>
-        <div class="swipe-label sl-up">CONCEPTS</div><div class="swipe-label sl-down">APPLIED</div>
+        <div class="menu-container">
+            <div class="opt-top menu-opt">⬆️ CONCEPTS</div>
+            <div class="menu-center"><div class="card-q" style="margin:0">SELECT<br>DEPTH</div></div>
+            <div class="opt-bottom menu-opt">⬇️ APPLIED</div>
+        </div>
+        <div class="swipe-label sl-up">CONCEPTS</div>
+        <div class="swipe-label sl-down">APPLIED</div>
     `;
     s.appendChild(c); bindPhysics(c);
 }
 
 function startQuiz(topic, genre){
-    attemptAutoStart(topic, genre); // Calls the silent version
+    attemptAutoStart(topic, genre);
 }
 
 function renderNext(){
