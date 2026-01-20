@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Chemistry Master V73.3 [FINAL]</title>
+<title>Chemistry Master V74.1</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,10 +15,9 @@
     --card-bg:#111;
     --overlay-bg:#0d0d0d;
     --accent-gold:#ffd600;
-    --text-main:#fff;
-    --font-chem:'Crimson Text',serif;
-    --font-ui:'Inter',sans-serif;
-    --font-code:'JetBrains Mono',monospace;
+    --font-chem:'Crimson Text', serif;
+    --font-ui:'Inter', sans-serif;
+    --font-code:'JetBrains Mono', monospace;
 }
 
 * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; outline:none; }
@@ -28,8 +27,8 @@ body {
     user-select:none; -webkit-user-select:none; touch-action:none;
 }
 
-sub { font-size:.75em; vertical-align:sub; line-height:0; }
-sup { font-size:.75em; vertical-align:super; line-height:0; }
+sub { font-size: 0.65em; vertical-align: sub; line-height: 0; font-family: var(--font-chem); }
+sup { font-size: 0.65em; vertical-align: super; line-height: 0; font-family: var(--font-chem); }
 
 #header { width:90%; margin:calc(15px + env(safe-area-inset-top)) auto 0; z-index:100; pointer-events:none; }
 .header-meta { display:flex; justify-content:space-between; font-family:var(--font-code); font-size:.7rem; color:#666; margin-bottom:10px; }
@@ -65,6 +64,8 @@ sup { font-size:.75em; vertical-align:super; line-height:0; }
     will-change: opacity, transform;
 }
 
+.sl-down { font-size: 1.4rem; font-style: normal; text-transform: none; color: var(--accent-gold); font-family: var(--font-chem); }
+
 .overlay {
     position:absolute; inset:0; background:var(--overlay-bg);
     z-index:1100; padding:45px 35px; opacity:0; pointer-events:none;
@@ -74,19 +75,19 @@ sup { font-size:.75em; vertical-align:super; line-height:0; }
 }
 .overlay.active { opacity:1; pointer-events:auto; }
 .overlay-label { font-size:.8rem; color:var(--accent-gold); font-family:var(--font-code); margin-bottom:15px; text-transform:uppercase; }
-.overlay-body { font-size:1.1rem; line-height:1.6; color:#ccc; margin-bottom:30px; }
+.overlay-body { font-size:1.15rem; line-height:1.7; color:#ccc; margin-bottom:30px; font-family: var(--font-chem); }
 
-.btn { width:100%; padding:18px; border-radius:60px; border:none; background:#fff; font-weight:900; cursor:pointer; text-transform:uppercase; }
+.btn { width:100%; padding:18px; border-radius:60px; border:none; background:#fff; font-weight:900; cursor:pointer; text-transform:uppercase; font-family: var(--font-ui); }
 #loader { position:fixed; inset:0; background:#000; z-index:5000; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:var(--font-code); font-size:.8rem; text-align:center; }
 </style>
 </head>
 
 <body>
-<div id="loader">50 QUE FROM CORE CHEMISTRY…</div>
+<div id="loader">LOCKED PRODUCTION V74.1…</div>
 
 <div id="header">
     <div class="header-meta">
-        <span id="rank-ui">KNOWLEDGE: NOVICE</span>
+        <span id="rank-ui">LEVEL: NOVICE</span>
         <span id="xp-ui">0 XP</span>
     </div>
     <div class="progress-track"><div id="progress-bar"></div></div>
@@ -95,44 +96,57 @@ sup { font-size:.75em; vertical-align:super; line-height:0; }
 <div id="stack"></div>
 
 <script>
-// REPLACE WITH YOUR ACTUAL APPS SCRIPT URL
-const ENDPOINT="https://script.google.com/macros/s/AKfycbxX7BYWwtuCXAItt6mpUrMUcNnmhDBb5OdYNckmSo9tzuAeR6V9v2eEttBtFNV4Fw2j/exec";
+const ENDPOINT="https://script.google.com/macros/s/AKfycbX7BYWwtuCXAItt6mpUrMUcNnmhDBb5OdYNckmSo9tzuAeR6V9v2eEttBtFNV4Fw2j/exec";
 
 let RAW_DATA=[], POOL=[], MISTAKES=[], SCORE=0, isTransitioning=false;
-let MODE="TOPIC_SELECT";
+let MODE="TOPIC_SELECT", CURRENT_TOPIC="", CURRENT_GENRE="";
 
 const formatChem = t => {
     if(!t) return "";
-    return t.toString().replace(/([A-Z][a-z]?)(\d+)/g,'$1<sub>$2</sub>')
-            .replace(/(\d+)([+\-])/g, '<sup>$1$2</sup>')
+    return t.toString()
+            .replace(/([A-Z][a-z]?)(\d+)/g,'$1<sub>$2</sub>')
+            .replace(/(\d*)([+\-])/g, '<sup>$1$2</sup>')
             .replace(/\|\|/g, '<br><br>');
 };
 
 async function init(){
     try {
-        console.log("Syncing with Endpoint...");
         const r = await fetch(ENDPOINT);
-        if (!r.ok) throw new Error(`Network response was not ok: ${r.status}`);
-        
         RAW_DATA = await r.json();
-        console.log("Sync Complete. Records found:", RAW_DATA.length);
-        
         document.getElementById('loader').remove();
         renderTopicSelect();
-    } catch(e) {
-        console.error("Critical Sync Error:", e);
-        document.getElementById('loader').innerHTML = `SYNC FAILED<br><br><small style="color:#ff4444; font-size:0.6rem;">Check console or Deployment "Anyone" access.<br>${e.message}</small>`;
-    }
+    } catch(e) { document.getElementById('loader').innerHTML = `SYNC FAILED`; }
 }
 
 function renderTopicSelect(){
     MODE="TOPIC_SELECT";
     const s=document.getElementById('stack'); s.innerHTML="";
     const c=document.createElement('div'); c.className="card";
-    c.innerHTML=`<div class="card-q">SELECT CORE TOPIC</div>
+    c.innerHTML=`<div class="card-q">CHOOSE CORE TOPIC</div>
         <div class="swipe-label sl-up">PHYSICAL</div><div class="swipe-label sl-left">ORGANIC</div>
         <div class="swipe-label sl-right">INORGANIC</div><div class="swipe-label sl-down">ANALYTICAL</div>`;
-    s.appendChild(c); bindPhysics(c,{type:"nav"});
+    s.appendChild(c); bindPhysics(c);
+}
+
+function renderGenreSelect(topic){
+    MODE="GENRE_SELECT";
+    CURRENT_TOPIC = topic;
+    const s=document.getElementById('stack'); s.innerHTML="";
+    const c=document.createElement('div'); c.className="card";
+    c.innerHTML=`<div class="card-q">${topic.toUpperCase()}<br>SELECT MODE</div>
+        <div class="swipe-label sl-up">CONCEPT (CORE)</div>
+        <div class="swipe-label sl-down">APPLICATION (ADV)</div>`;
+    s.appendChild(c); bindPhysics(c);
+}
+
+function startQuiz(topic, genre){
+    CURRENT_GENRE = genre;
+    // V74.1 Logic: Filter based on topic AND q_type
+    POOL = RAW_DATA.filter(q => 
+        q.topic.trim().toLowerCase() === topic.toLowerCase() && 
+        q.q_type.trim().toUpperCase() === genre.toUpperCase()
+    ).sort(() => Math.random() - .5);
+    renderNext();
 }
 
 function renderNext(){
@@ -145,11 +159,11 @@ function renderNext(){
         <div class="swipe-label sl-up">${q.swipe_up_label}</div>
         <div class="swipe-label sl-left">${q.swipe_left_label}</div>
         <div class="swipe-label sl-right">${q.swipe_right_label}</div>
-        <div class="swipe-label sl-down">${q.swipe_down_label}</div>
+        <div class="swipe-label sl-down">${formatChem(q.hint)}</div>
         <div class="overlay">
-            <div class="overlay-label">DEEP DIVE REPORT</div>
+            <div class="overlay-label">ANALYSIS REPORT</div>
             <div class="overlay-body">${formatChem(q.explanation)}</div>
-            <button class="btn" onclick="this.parentElement.classList.remove('active')">BACK</button>
+            <button class="btn" onclick="this.parentElement.classList.remove('active')">DISMISS</button>
         </div>`;
     s.appendChild(c); bindPhysics(c, q);
 }
@@ -158,103 +172,78 @@ function renderEnd(){
     MODE="SESSION_END";
     const s=document.getElementById('stack'); s.innerHTML="";
     const c=document.createElement('div'); c.className="card";
-    c.innerHTML=`<div class="card-q">SESSION COMPLETE<br><small>${SCORE} XP</small></div>
-        <div class="swipe-label sl-up">RESTART</div><div class="swipe-label sl-left">REVIEW ERRORS (${MISTAKES.length})</div>
-        <div class="swipe-label sl-right">CHANGE TOPIC</div><div class="swipe-label sl-down">EXIT</div>`;
-    s.appendChild(c); bindPhysics(c,{type:"nav"});
+    c.innerHTML=`<div class="card-q">SESSION END<br><small>${SCORE} XP</small></div>
+        <div class="swipe-label sl-up">RESTART</div>
+        <div class="swipe-label sl-left">REVIEW ERRORS (${MISTAKES.length})</div>
+        <div class="swipe-label sl-right">TOGGLE MODE</div>
+        <div class="swipe-label sl-down">CHANGE TOPIC</div>`;
+    s.appendChild(c); bindPhysics(c);
 }
 
 function bindPhysics(el, data){
-    let x=0, y=0, sx=0, sy=0, active=false;
-    let isFrozen = false;
+    let x=0, y=0, sx=0, sy=0, active=false, isFrozen = false;
     const labels = { up: el.querySelector('.sl-up'), dn: el.querySelector('.sl-down'), lt: el.querySelector('.sl-left'), rt: el.querySelector('.sl-right') };
-    const qTextEl = el.querySelector('.card-q');
-    const originalQText = qTextEl.innerHTML;
 
     const start = e => {
         if(isTransitioning || el.querySelector('.overlay.active')) return;
         active = true; const p = e.touches ? e.touches[0] : e;
         sx = p.clientX; sy = p.clientY; el.style.transition = "none";
-        isFrozen = false;
     };
 
     const move = e => {
         if(!active) return;
         const p = e.touches ? e.touches[0] : e;
         let dx = p.clientX - sx; let dy = p.clientY - sy;
-        
-        const transitionLimit = 30; // 0.75cm
-        const selectLimit = 40;     // 1.0cm
         const dist = Math.sqrt(dx*dx + dy*dy);
-        
         let angle = Math.atan2(-dy, dx) * (180 / Math.PI);
         if (angle < 0) angle += 360;
 
-        // V73.3 TACTILE LATCH
-        if (dist >= selectLimit) isFrozen = true;
+        if (dist >= 40) isFrozen = true;
         else if (dist < 20) isFrozen = false;
-
         if (isFrozen) {
             const rad = angle * (Math.PI / 180);
-            dx = Math.cos(rad) * selectLimit; dy = -Math.sin(rad) * selectLimit;
+            dx = Math.cos(rad) * 40; dy = -Math.sin(rad) * 40;
         }
         x = dx; y = dy;
 
         requestAnimationFrame(() => {
-            // V73.3 ORIGIN PIVOT (Card Center)
             el.style.transform = `translate3d(${x}px,${y}px,0) rotate(${x/18}deg)`;
-            
-            Object.values(labels).forEach(l => { 
-                l.style.opacity = 0; 
-                l.style.transform = "scale(0.85) translateZ(0)"; 
-            });
+            Object.values(labels).forEach(l => { if(l) { l.style.opacity = 0; l.style.transform = "scale(0.85)"; } });
             
             if (dist > 1) {
                 let activeLabel;
                 if (angle >= 45 && angle < 135) activeLabel = labels.up;
                 else if (angle >= 135 && angle < 225) activeLabel = labels.lt;
-                else if (angle >= 225 && angle < 315) {
-                    activeLabel = labels.dn;
-                    // SHOW HINT IN QUESTION AREA
-                    if (MODE === "QUIZ" && data.hint) qTextEl.innerHTML = `<span style="font-size:1.2rem; color:var(--accent-gold); font-style:normal;">HINT: ${formatChem(data.hint)}</span>`;
-                }
+                else if (angle >= 225 && angle < 315) activeLabel = labels.dn;
                 else activeLabel = labels.rt;
 
-                // Reset text if not swiping down
-                if (!(angle >= 225 && angle < 315)) qTextEl.innerHTML = originalQText;
-
-                // Symmetric LERP Fade
-                const alpha = Math.min(dist / transitionLimit, 1);
-                activeLabel.style.opacity = alpha;
-                activeLabel.style.transform = `scale(${0.85 + (alpha * 0.25)}) translateZ(0)`;
+                if(activeLabel) {
+                    const alpha = Math.min(dist / 30, 1);
+                    activeLabel.style.opacity = alpha;
+                    activeLabel.style.transform = `scale(${0.85 + (alpha * 0.25)})`;
+                }
             }
         });
     };
 
     const end = () => {
         if(!active) return; active = false; 
-        const selectThresh = 40; const dist = Math.sqrt(x*x + y*y);
+        const dist = Math.sqrt(x*x + y*y);
         let angle = Math.atan2(-y, x) * (180 / Math.PI);
         if (angle < 0) angle += 360;
 
-        if (dist >= selectThresh) {
+        if (dist >= 40) {
             let dir = (angle >= 45 && angle < 135) ? "UP" : (angle >= 135 && angle < 225) ? "LEFT" : (angle >= 225 && angle < 315) ? "DOWN" : "RIGHT";
             if (MODE === "QUIZ" && dir === "DOWN") {
                 el.querySelector('.overlay').classList.add('active');
-                el.style.transition = "transform .3s ease-out";
+                el.style.transition = "transform .3s";
                 el.style.transform = "translate3d(0,0,0) rotate(0deg)";
             } else handleAction(el, data, x, y, dir);
         } else {
             el.style.transition = "transform .4s cubic-bezier(.175,.885,.32,1.275)";
             el.style.transform = "translate3d(0,0,0) rotate(0deg)";
         }
-        
-        qTextEl.innerHTML = originalQText;
-        Object.values(labels).forEach(l => { 
-            l.style.transition = "opacity .2s ease-out"; 
-            l.style.opacity = 0; 
-        });
-        isFrozen = false;
+        Object.values(labels).forEach(l => { if(l) l.style.opacity = 0; });
     };
 
     el.onmousedown = start; window.onmousemove = move; window.onmouseup = end;
@@ -265,35 +254,29 @@ function handleAction(el, data, x, y, dir){
     isTransitioning = true;
     if(MODE === "TOPIC_SELECT"){
         const map = { UP: "Physical", LEFT: "Organic", RIGHT: "Inorganic", DOWN: "Analytical" };
-        POOL = RAW_DATA.filter(q => q.topic === map[dir]).sort(() => Math.random() - .5);
-        SCORE = 0; MISTAKES = [];
+        renderGenreSelect(map[dir]);
+    } else if(MODE === "GENRE_SELECT"){
+        const genre = (dir === "UP") ? "CONCEPT" : "APPLICATION";
+        startQuiz(CURRENT_TOPIC, genre);
     } else if(MODE === "QUIZ"){
-        // Sync: Validate against uppercase Spreadsheet value
-        if(dir === (data.correct || "UP").toString().toUpperCase()) {
-            SCORE += 10;
-        } else {
-            SCORE = Math.max(0, SCORE - 5);
-            MISTAKES.push(data);
-        }
+        if(dir === (data.correct || "UP").toString().toUpperCase()) SCORE += 10;
+        else { SCORE = Math.max(0, SCORE - 5); MISTAKES.push(data); }
+        renderNext();
     } else if(MODE === "SESSION_END"){
-        if(dir === "LEFT" && MISTAKES.length){ 
-            POOL = [...MISTAKES]; 
-            MISTAKES = []; 
-            isTransitioning = false; 
-            renderNext(); 
-            return; 
-        }
-        SCORE = 0; MISTAKES = []; renderTopicSelect(); isTransitioning = false; return;
+        if(dir === "UP") { startQuiz(CURRENT_TOPIC, CURRENT_GENRE); }
+        else if(dir === "LEFT") { if(MISTAKES.length) { POOL = [...MISTAKES]; MISTAKES = []; renderNext(); } else { isTransitioning = false; return; } }
+        else if(dir === "RIGHT") { const newGenre = (CURRENT_GENRE === "CONCEPT") ? "APPLICATION" : "CONCEPT"; startQuiz(CURRENT_TOPIC, newGenre); }
+        else if(dir === "DOWN") { renderTopicSelect(); }
     }
-    updateUI();
     el.style.transition = "transform .4s ease-in";
     el.style.transform = `translate3d(${x * 6}px,${y * 6}px,0) rotate(${x/5}deg)`;
-    setTimeout(() => { el.remove(); isTransitioning = false; renderNext(); }, 350);
+    updateUI();
+    setTimeout(() => { el.remove(); isTransitioning = false; }, 350);
 }
 
 function updateUI(){
     document.getElementById('xp-ui').innerText = `${SCORE} XP`;
-    document.getElementById('rank-ui').innerText = `KNOWLEDGE: ${SCORE > 300 ? "ALCHEMIST" : "NOVICE"}`;
+    document.getElementById('rank-ui').innerText = `LEVEL: ${SCORE > 300 ? "ALCHEMIST" : "NOVICE"}`;
     document.getElementById('progress-bar').style.width = `${SCORE % 100}%`;
 }
 window.onload = init;
