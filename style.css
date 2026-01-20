@@ -114,6 +114,19 @@ body {
     touch-action: none;
     will-change: transform;
     transform-origin: 50% 100%;
+
+    
+    will-change: transform;
+    transform: translate3d(0, 0, 0); /* Force GPU Acceleration */
+    transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1); /* Faster snap */
+    touch-action: none;
+    user-select: none;
+}
+
+/* Remove rotation to stop the "wobble" lag */
+.card.dragging {
+    transition: none !important;
+}
 }
 
 .card:active {
