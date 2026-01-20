@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Chemistry Master V75.1 [DIAGNOSTIC]</title>
+<title>Chemistry Master V75.2</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -96,7 +96,7 @@ sup { font-size: 0.65em; vertical-align: super; line-height: 0; font-family: var
 <div id="stack"></div>
 
 <script>
-// ENSURE THIS URL ENDS IN /exec
+// REPLACE WITH YOUR LATEST DEPLOYMENT URL
 const ENDPOINT="https://script.google.com/macros/s/AKfycbPvkuXpkFPZfwoj4H9Kevn2VXDcjjpOPxHtDqGDFxdclDdlwH0_0sHV-g4K1AGgfUJ/exec";
 
 let RAW_DATA=[], POOL=[], MISTAKES=[], SCORE=0, isTransitioning=false;
@@ -113,30 +113,27 @@ const formatChem = t => {
 async function init(){
     const loader = document.getElementById('loader');
     try {
-        console.log("Fetching data from:", ENDPOINT);
-        const response = await fetch(ENDPOINT);
+        console.log("Starting fetch handshake...");
+        const response = await fetch(ENDPOINT, { method: 'GET', redirect: 'follow' });
         
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        if (!response.ok) throw new Error(`Server Response: ${response.status}`);
         
         const dataText = await response.text();
+        if (dataText.startsWith("<!DOCTYPE")) throw new Error("Login Required: Check Deployment access.");
+
+        RAW_DATA = JSON.parse(dataText);
+        console.log("Sync successful. Rows loaded:", RAW_DATA.length);
+        loader.remove();
+        renderDatasetSelect();
         
-        try {
-            RAW_DATA = JSON.parse(dataText);
-            console.log("Successfully synced", RAW_DATA.length, "rows.");
-            loader.remove();
-            renderDatasetSelect();
-        } catch(parseErr) {
-            console.error("JSON Parse Error. Server returned:", dataText);
-            throw new Error("API returned HTML instead of JSON. Ensure deployment is set to 'Anyone'.");
-        }
     } catch(e) {
-        console.error("Sync Failure:", e);
-        loader.innerHTML = `<span style="color:red; font-weight:900;">SYNC FAILED</span><br><br>
-        <div style="font-size:0.65rem; color:#666; max-width:280px;">
-        ERROR: ${e.message}<br><br>
-        1. Set Deployment to 'Anyone'<br>
-        2. Use Incognito Mode<br>
-        3. Verify 'dataset' column exists
+        console.error("Connectivity Fault:", e);
+        loader.innerHTML = `<span style="color:#ff4444; font-weight:900;">CONNECTION BLOCKED</span><br><br>
+        <div style="font-size:0.7rem; color:#aaa; max-width:300px; line-height:1.4;">
+        Reason: ${e.message}<br><br>
+        1. Set Deployment to 'Anyone'.<br>
+        2. Verify 'dataset' column exists.<br>
+        3. Test in Incognito Mode.
         </div>`;
     }
 }
@@ -183,7 +180,7 @@ function startQuiz(topic, genre){
     }).sort(() => Math.random() - .5);
 
     if(POOL.length === 0) {
-        alert("No questions found for this selection. Resetting...");
+        alert("Selection empty. Returning to start.");
         renderDatasetSelect();
         return;
     }
