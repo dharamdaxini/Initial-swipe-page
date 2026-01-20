@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Chemistry Master V72.5 (60 FPS)</title>
+<title>Chemistry Master V72.6 (Tactile Latch)</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,7 +40,6 @@ body {
     margin:30px auto 0; perspective:1200px;
 }
 
-/* V72.5: GPU COMPOSITOR LOCK */
 .card {
     position:absolute; width:100%; height:100%;
     background:var(--card-bg); border-radius:40px; border:1px solid #282828;
@@ -61,7 +60,6 @@ body {
     z-index:999; opacity:0; pointer-events:none;
     transform:scale(0.85);
     will-change:opacity, transform;
-    /* Removed discrete transitions for continuous manual control */
 }
 
 .overlay {
@@ -78,7 +76,7 @@ body {
 </head>
 
 <body>
-<div id="loader">V72.5 HIGH_FRAME_RATE_SYNC…</div>
+<div id="loader">V72.6 TACTILE_LATCH_ACTIVE…</div>
 
 <div id="header">
     <div class="header-meta">
@@ -124,8 +122,8 @@ function renderNext(){
     c.innerHTML=`<div class="card-q">${formatChem(q.question_text||q.text)}</div>
         <div class="swipe-label sl-up">${q.swipe_up_label||"YES"}</div><div class="swipe-label sl-left">${q.swipe_left_label||"NO"}</div>
         <div class="swipe-label sl-right">${q.swipe_right_label||"MAYBE"}</div><div class="swipe-label sl-down">ANALYSIS</div>
-        <div class="overlay"><div class="overlay-label">SCIENTIFIC ANALYSIS</div><div class="overlay-body">${formatChem(q.explanation)}</div>
-        <button class="btn" onclick="this.parentElement.classList.remove('active')">CONTINUE</button></div>`;
+        <div class="overlay"><div class="overlay-label">ANALYSIS</div><div class="overlay-body">${formatChem(q.explanation)}</div>
+        <button class="btn" onclick="this.parentElement.classList.remove('active')">BACK</button></div>`;
     s.appendChild(c); bindPhysics(c,q);
 }
 
@@ -141,30 +139,42 @@ function renderEnd(){
 
 function bindPhysics(el,data){
     let x=0, y=0, sx=0, sy=0, active=false;
+    let isFrozen = false;
     const labels = { up: el.querySelector('.sl-up'), dn: el.querySelector('.sl-down'), lt: el.querySelector('.sl-left'), rt: el.querySelector('.sl-right') };
 
     const start = e => {
         if(isTransitioning || el.querySelector('.overlay.active')) return;
         active = true; const p = e.touches ? e.touches[0] : e;
         sx = p.clientX; sy = p.clientY; el.style.transition = "none";
+        isFrozen = false;
     };
 
     const move = e => {
         if(!active) return; const p = e.touches ? e.touches[0] : e;
         let dx = p.clientX - sx; let dy = p.clientY - sy;
         
-        const govLimit = 20; 
-        const selectLimit = 40; 
+        const govLimit = 20; // 0.5cm
+        const selectLimit = 40; // 1cm
         const dist = Math.sqrt(dx*dx + dy*dy);
         let angle = Math.atan2(-dy, dx) * (180 / Math.PI);
         if (angle < 0) angle += 360;
 
-        // V72.5: NON-LINEAR DAMPING (REPLACES HARD STOP)
-        if (dist > govLimit && dist < selectLimit) {
+        // V72.6 TACTILE LATCH LOGIC
+        if (dist >= selectLimit) {
+            isFrozen = true;
+        } else if (dist < govLimit) {
+            isFrozen = false;
+        }
+
+        if (isFrozen) {
+            // Keep card clamped at the 1cm selection radius
             const rad = angle * (Math.PI / 180);
-            // Elastic resistance between 0.5cm and 1cm
-            const overflow = dist - govLimit;
-            const dampenedDist = govLimit + (overflow * 0.3); // Moves at 30% speed in governor zone
+            dx = Math.cos(rad) * selectLimit;
+            dy = -Math.sin(rad) * selectLimit;
+        } else if (dist > govLimit) {
+            // Damping zone between 0.5cm and 1cm
+            const rad = angle * (Math.PI / 180);
+            const dampenedDist = govLimit + ((dist - govLimit) * 0.3);
             dx = Math.cos(rad) * dampenedDist;
             dy = -Math.sin(rad) * dampenedDist;
         }
@@ -172,17 +182,17 @@ function bindPhysics(el,data){
         x = dx; y = dy;
         el.style.transform = `translate3d(${x}px,${y}px,0) rotate(${x/18}deg)`;
 
-        // V72.5: CONTINUOUS ALPHA INTERPOLATION
+        // Label visibility tied to card position for smooth interpolation
+        const currentDist = Math.sqrt(x*x + y*y);
         Object.values(labels).forEach(l => { l.style.opacity = 0; });
-        if (dist >= govLimit) {
+        if (currentDist >= govLimit) {
             let activeLabel;
             if (angle >= 45 && angle < 135) activeLabel = labels.up;
             else if (angle >= 135 && angle < 225) activeLabel = labels.lt;
             else if (angle >= 225 && angle < 315) activeLabel = labels.dn;
             else activeLabel = labels.rt;
 
-            // Interpolate based on distance for 60fps feel
-            const alpha = Math.min((dist - govLimit) / 15, 1);
+            const alpha = Math.min((currentDist - govLimit) / 15, 1);
             activeLabel.style.opacity = alpha;
             activeLabel.style.transform = `scale(${0.9 + (alpha * 0.2)})`;
         }
@@ -213,10 +223,8 @@ function bindPhysics(el,data){
             el.style.transition = "transform .4s cubic-bezier(.175,.885,.32,1.275)";
             el.style.transform = "translate3d(0,0,0) rotate(0deg)";
         }
-        Object.values(labels).forEach(l => { 
-            l.style.transition = "opacity .2s ease"; // Smooth exit
-            l.style.opacity = 0; 
-        });
+        Object.values(labels).forEach(l => { l.style.opacity = 0; });
+        isFrozen = false;
     };
 
     el.onmousedown = start; window.onmousemove = move; window.onmouseup = end;
