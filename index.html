@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chemistry Master V39.1 (Connected)</title>
+    <title>Chemistry Master V40 (Stable)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -159,6 +159,7 @@
             z-index: 10;
         }
         
+        /* Directional Styles */
         .hint-up { 
             background: rgba(41, 98, 255, 0.2); 
             color: var(--accent-blue); 
@@ -221,7 +222,7 @@
         // CONFIGURATION & STATE
         // ==========================================
         
-        // UPDATED ENDPOINT
+        // YOUR DEPLOYMENT URL
         const DATA_ENDPOINT = "https://script.google.com/macros/s/AKfycbxGZyuQOGf6eXwNZzcJwQYKk6pNw91nYcA403nOR4Ldma5zzLUb1Fz5P_U8-DLyEGOk/exec"; 
         
         // Session Variables
@@ -258,9 +259,10 @@
                 }
                 
             } catch (error) {
-                console.error(error);
-                status.innerText = "CONNECTION FAILED. Refresh.";
+                // PRINT ERROR TO SCREEN FOR DEBUGGING
+                status.innerHTML = `ERROR: ${error.message}<br><br>Check Console.`;
                 status.style.color = "red";
+                console.error(error);
                 throw new Error("Halt"); 
             }
         }
@@ -337,9 +339,9 @@
                 </div>
                 
                 <div class="hint-overlay hint-up">${data.up}</div>
-                <div class="hint-left">${data.left}</div>
-                <div class="hint-right">${data.right}</div>
-                <div class="hint-down">ELIMINATE</div>
+                <div class="hint-overlay hint-left">${data.left}</div>
+                <div class="hint-overlay hint-right">${data.right}</div>
+                <div class="hint-overlay hint-down">ELIMINATE</div>
             `;
             return el;
         }
