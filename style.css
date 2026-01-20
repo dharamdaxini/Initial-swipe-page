@@ -17,6 +17,7 @@
     --spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+/* Global Reset & Performance Gating */
 * { 
     box-sizing: border-box; 
     -webkit-tap-highlight-color: transparent; 
@@ -30,7 +31,7 @@ body {
     color: #fff; 
     font-family: var(--font-ui); 
     overflow: hidden; 
-    touch-action: none; 
+    touch-action: none; /* Prevents browser scroll interference */
     user-select: none; 
     -webkit-user-select: none;
 }
@@ -39,7 +40,7 @@ body {
 sub { font-size: 0.7em; vertical-align: sub; line-height: 0; }
 sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 
-/* 1. Spatial Physics Container */
+/* 1. Spatial Physics Viewport */
 #viewport { 
     position: relative; 
     width: 100%; 
@@ -48,6 +49,7 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
     align-items: center; 
     justify-content: center;
     perspective: 1200px; /* Locked 3D Perspective Depth */
+    perspective-origin: center center;
 }
 
 #stack { 
@@ -57,7 +59,7 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
     height: 520px; 
 }
 
-/* 2. The Pivot Engine Card */
+/* 2. Middle-Screen Pivot Card */
 .card { 
     position: absolute; 
     inset: 0; 
@@ -70,11 +72,13 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
     justify-content: center;
     box-shadow: 0 20px 60px rgba(0,0,0,0.9);
     
-    /* Critical Pivot Point Logic */
+    /* Middle-Screen Pivot Point Logic */
     transform-origin: center center; 
     will-change: transform; 
     backface-visibility: hidden;
 }
+
+
 
 .card-q { 
     font-family: var(--font-chem); 
@@ -113,13 +117,13 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
     text-transform: none; 
 }
 
-/* V72.3 HUD HUD/Overlay HUD HUD Style */
+/* 4. V72.3 HUD Aesthetic */
 #header { 
     position: absolute; 
     top: calc(20px + env(safe-area-inset-top)); 
     width: 90%; 
     left: 5%; 
-    z-index: 100; 
+    z-index: 1000; 
     pointer-events: none; 
 }
 
@@ -147,7 +151,7 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
     transition: width 0.4s var(--spring); 
 }
 
-/* Analysis Overlay Engine */
+/* 5. Analysis Overlay Engine */
 .overlay { 
     position: absolute; 
     inset: 0; 
