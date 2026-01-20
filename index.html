@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Chemistry Master V73.2</title>
+<title>Chemistry Master V73.3</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -54,14 +54,19 @@ sup { font-size:.75em; vertical-align:super; line-height:0; }
 
 .card-q { font-family:var(--font-chem); font-size:2rem; line-height:1.35; font-style:italic; font-weight:600; text-align:center; color:#f0f0f0; }
 
+/* V73.3: Optimized for Hint text density */
 .swipe-label {
     position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
     background:#000; color:#fff; font-weight:900; font-size:2.1rem;
     text-transform:uppercase; border-radius:40px;
     z-index:999; opacity:0; pointer-events:none;
+    text-align:center; padding:20px;
     transform: scale(0.85) translateZ(0);
     will-change: opacity, transform;
 }
+
+/* Down Label specific sizing for hints */
+.sl-down { font-size: 1.4rem; font-style: normal; text-transform: none; color: var(--accent-gold); }
 
 .overlay {
     position:absolute; inset:0; background:var(--overlay-bg);
@@ -93,8 +98,7 @@ sup { font-size:.75em; vertical-align:super; line-height:0; }
 <div id="stack"></div>
 
 <script>
-// LIVE DEPLOYMENT URL
-const ENDPOINT="https://script.google.com/macros/s/AKfycbxX7BYWwtuCXAItt6mpUrMUcNnmhDBb5OdYNckmSo9tzuAeR6V9v2eEttBtFNV4Fw2j/exec";
+const ENDPOINT="https://script.google.com/macros/s/AKfycbX7BYWwtuCXAItt6mpUrMUcNnmhDBb5OdYNckmSo9tzuAeR6V9v2eEttBtFNV4Fw2j/exec";
 
 let RAW_DATA=[], POOL=[], MISTAKES=[], SCORE=0, isTransitioning=false;
 let MODE="TOPIC_SELECT";
@@ -135,13 +139,13 @@ function renderNext(){
         <div class="swipe-label sl-up">${q.swipe_up_label}</div>
         <div class="swipe-label sl-left">${q.swipe_left_label}</div>
         <div class="swipe-label sl-right">${q.swipe_right_label}</div>
-        <div class="swipe-label sl-down">${q.swipe_down_label}</div>
+        <div class="swipe-label sl-down">${formatChem(q.hint)}</div>
         <div class="overlay">
             <div class="overlay-label">DEEP DIVE REPORT</div>
             <div class="overlay-body">${formatChem(q.explanation)}</div>
             <button class="btn" onclick="this.parentElement.classList.remove('active')">BACK</button>
         </div>`;
-    s.appendChild(c); bindPhysics(c, q, q.hint);
+    s.appendChild(c); bindPhysics(c, q);
 }
 
 function renderEnd(){
@@ -154,12 +158,10 @@ function renderEnd(){
     s.appendChild(c); bindPhysics(c,{type:"nav"});
 }
 
-function bindPhysics(el, data, hintText){
+function bindPhysics(el, data){
     let x=0, y=0, sx=0, sy=0, active=false;
     let isFrozen = false;
     const labels = { up: el.querySelector('.sl-up'), dn: el.querySelector('.sl-down'), lt: el.querySelector('.sl-left'), rt: el.querySelector('.sl-right') };
-    const qTextEl = el.querySelector('.card-q');
-    const originalQText = qTextEl.innerHTML;
 
     const start = e => {
         if(isTransitioning || el.querySelector('.overlay.active')) return;
@@ -194,13 +196,8 @@ function bindPhysics(el, data, hintText){
                 let activeLabel;
                 if (angle >= 45 && angle < 135) activeLabel = labels.up;
                 else if (angle >= 135 && angle < 225) activeLabel = labels.lt;
-                else if (angle >= 225 && angle < 315) {
-                    activeLabel = labels.dn;
-                    if (MODE === "QUIZ" && hintText) qTextEl.innerHTML = `<span style="font-size:1.2rem; color:var(--accent-gold); font-style:normal;">HINT: ${formatChem(hintText)}</span>`;
-                }
+                else if (angle >= 225 && angle < 315) activeLabel = labels.dn;
                 else activeLabel = labels.rt;
-
-                if (!(angle >= 225 && angle < 315)) qTextEl.innerHTML = originalQText;
 
                 const alpha = Math.min(dist / transitionLimit, 1);
                 activeLabel.style.opacity = alpha;
@@ -226,7 +223,6 @@ function bindPhysics(el, data, hintText){
             el.style.transition = "transform .4s cubic-bezier(.175,.885,.32,1.275)";
             el.style.transform = "translate3d(0,0,0) rotate(0deg)";
         }
-        qTextEl.innerHTML = originalQText;
         Object.values(labels).forEach(l => { l.style.transition = "opacity .2s ease-out"; l.style.opacity = 0; });
         isFrozen = false;
     };
@@ -242,7 +238,6 @@ function handleAction(el, data, x, y, dir){
         POOL = RAW_DATA.filter(q => q.topic === map[dir]).sort(() => Math.random() - .5);
         SCORE = 0; MISTAKES = [];
     } else if(MODE === "QUIZ"){
-        // SYNC: Matches Spreadsheet Uppercase 'correct' values
         if(dir === (data.correct || "UP").toString().toUpperCase()) SCORE += 10;
         else { SCORE = Math.max(0, SCORE - 5); MISTAKES.push(data); }
     } else if(MODE === "SESSION_END"){
