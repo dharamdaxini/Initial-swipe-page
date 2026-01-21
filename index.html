@@ -3,75 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist V81.8.1 - Resolute</title>
+<title>Alchemist V81.10 - Structural Integrity</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 <style>
 /* -----------------------------------------------------------
-   V79 UI + V81.8 PHYSICS STYLING
+   LOCKED TO V81.4 UI + V81.10 ENHANCEMENTS
    ----------------------------------------------------------- */
 :root {
-    --bg: #000;
-    --card: #111;
-    --gold: #ffd600;
-    --blue: #3498db;
-    --border: #2a2a2a;
-    --ui-font: 'Outfit', sans-serif;
-    --serif: 'Libre Baskerville', serif;
+    --bg-color: #000;
+    --card-bg: #111;
+    --overlay-bg: #0d0d0d;
+    --border-color: #282828;
+    --accent-gold: #ffd600;
+    --hint-blue: #3498db;
+    --font-serif: 'Libre Baskerville', serif;
+    --font-ui: 'Outfit', sans-serif;
+    --font-code: 'JetBrains Mono', monospace;
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-
-body {
-    margin: 0; height: 100vh; background: var(--bg); color: #fff;
-    font-family: var(--ui-font); overflow: hidden; touch-action: none;
-    user-select: none; -webkit-user-select: none;
-}
-
-/* HEADER UI */
-#header { width: 90%; margin: calc(20px + env(safe-area-inset-top)) auto 0; z-index: 100; pointer-events: none; }
-.header-meta { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #555; margin-bottom: 8px; letter-spacing: 1px; }
-.progress-track { width: 100%; height: 4px; background: #222; border-radius: 2px; }
-#progress-bar { height: 100%; background: var(--gold); width: 0%; transition: width 0.4s ease; box-shadow: 0 0 12px rgba(255, 214, 0, 0.4); }
-
-/* CARD STACK */
-#stack { position: relative; width: 92%; max-width: 400px; height: calc(100vh - 180px - env(safe-area-inset-top)); margin: 25px auto 0; perspective: 1200px; }
-.card { position: absolute; width: 100%; height: 100%; background: var(--card); border-radius: 40px; border: 1px solid var(--border); padding: 30px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 20px 60px rgba(0,0,0,0.9); will-change: transform; cursor: grab; z-index: 1; }
-
-.card-q { 
-    font-family: var(--serif); font-size: clamp(1.2rem, 4.5vw, 1.7rem); 
-    line-height: 1.4; text-align: center; color: #f0f0f0; 
-}
-
-/* SWIPE LABELS (V81.8 RESOLUTE) */
-.swipe-label { 
-    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; 
-    background: rgba(0,0,0,0.96); font-weight: 900; font-size: 1.8rem; 
-    text-transform: uppercase; border-radius: 40px; z-index: 1000; opacity: 0; 
-    pointer-events: none; padding: 30px; text-align: center; 
-}
-
-/* HINT LAYOUT (CENTERED EMOJI + TEXT) */
-.sl-dn { flex-direction: column !important; }
-.sl-down-emoji { font-size: 3.2rem; margin-bottom: 12px; display: block; filter: drop-shadow(0 0 10px rgba(255,214,0,0.3)); }
-.sl-down-hint-text { color: var(--blue); font-size: 1.1rem; text-transform: none; font-family: var(--serif); font-weight: 400; line-height: 1.4; max-width: 85%; }
-
-/* ANALYSIS OVERLAY */
-.overlay { position: absolute; inset: 0; background: #0d0d0d; z-index: 1100; padding: 30px; opacity: 0; pointer-events: none; border-radius: 40px; display: none; flex-direction: column; justify-content: center; transition: opacity 0.2s; }
-.overlay.active { opacity: 1; display: flex; pointer-events: auto; }
-.overlay-body { font-size: 1rem; line-height: 1.6; color: #ccc; margin-bottom: 25px; font-family: var(--serif); }
-
-.btn { width: 100%; padding: 18px; border-radius: 100px; border: none; background: #fff; color: #000; font-weight: 900; cursor: pointer; text-transform: uppercase; font-family: var(--ui-font); }
-
-/* LOADER */
-#loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: var(--ui-font); font-weight: 900; font-size: 1.5rem; letter-spacing: 4px; color: var(--gold); }
+body { margin: 0; height: 100vh; background: var(--bg-color); color: #fff; font-family: var(--font-ui); overflow: hidden; touch-action: none; }
 
 sub { font-size: 0.7em; vertical-align: sub; line-height: 0; }
 sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
+
+/* HEADER */
+#header { width: 90%; margin: calc(20px + env(safe-area-inset-top)) auto 0; z-index: 100; }
+.header-meta { display: flex; justify-content: space-between; font-family: var(--font-code); font-size: 0.75rem; color: #555; margin-bottom: 8px; }
+.progress-track { width: 100%; height: 4px; background: #222; border-radius: 2px; overflow: hidden; }
+#progress-bar { height: 100%; background: var(--accent-gold); width: 0%; transition: width 0.4s ease; }
+
+/* STACK & CARDS */
+#stack { position: relative; width: 92%; max-width: 400px; height: calc(100vh - 180px - env(safe-area-inset-top)); margin: 25px auto 0; perspective: 1200px; }
+.card { position: absolute; width: 100%; height: 100%; background: var(--card-bg); border-radius: 40px; border: 1px solid var(--border-color); padding: 30px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 20px 60px rgba(0,0,0,0.9); transform-origin: center center; will-change: transform; z-index: 1; }
+.card-q { font-family: var(--font-serif); font-size: clamp(1.2rem, 4.5vw, 1.7rem); line-height: 1.4; font-weight: 700; text-align: center; color: #f0f0f0; }
+
+/* SWIPE LABELS - FIX: HIGHER Z-INDEX TO PREVENT DROPPING */
+.swipe-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.96); font-weight: 900; font-size: 1.8rem; text-transform: uppercase; border-radius: 40px; z-index: 1000; opacity: 0; pointer-events: none; text-align: center; padding: 20px; transition: opacity 0.1s; }
+
+/* CENTERED HINT FIX */
+.sl-dn { flex-direction: column !important; justify-content: center !important; }
+.sl-down-emoji { font-size: 4rem; margin-bottom: 15px; display: block; }
+.sl-down-hint-text { color: var(--hint-blue) !important; font-size: 1.1rem !important; text-transform: none !important; font-family: var(--font-serif) !important; font-weight: 400; line-height: 1.4; max-width: 80%; margin: 0 auto; }
+
+/* ANALYSIS OVERLAY - PARAGRAPH SUPPORT */
+.overlay { position: absolute; inset: 0; background: var(--overlay-bg); z-index: 1100; padding: 40px 30px; opacity: 0; pointer-events: none; border-radius: 40px; display: none; flex-direction: column; justify-content: center; }
+.overlay.active { opacity: 1; display: flex; pointer-events: auto; }
+.overlay-label { font-size: 0.75rem; color: var(--accent-gold); font-family: var(--font-code); margin-bottom: 15px; letter-spacing: 2px; font-weight: 900; }
+.overlay-body { font-size: 1rem; line-height: 1.7; color: #ccc; margin-bottom: 30px; font-family: var(--font-serif); }
+
+.btn { width: 100%; padding: 20px; border-radius: 100px; border: none; background: #fff; color: #000; font-weight: 900; cursor: pointer; text-transform: uppercase; font-family: var(--font-ui); }
+
+#loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.5rem; letter-spacing: 4px; color: var(--gold); }
 </style>
 </head>
 <body>
 
-<div id="loader">ALCHEMIST V81.8.1</div>
+<div id="loader">ALCHEMIST V81.10</div>
 
 <div id="header">
     <div class="header-meta"><span>RANK: NOVICE</span><span id="xp-ui">0 XP</span></div>
@@ -81,61 +69,43 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 <div id="stack"></div>
 
 <script>
-// -----------------------------------------------------------
-// 75-QUESTION DATABASE (INTEGRATED)
-// -----------------------------------------------------------
+// JSON DATABASE
 const DATABASE = [
-  { "q": "What does a negative ΔG value signify?", "h": "Think about energy requirement vs. release.", "e": "❌ Positive ΔG means the reaction is non-spontaneous. ❌ Zero ΔG means equilibrium. || ✅ A negative ΔG signifies that the reaction is spontaneous and can proceed without outside intervention.", "u": "Spontaneous", "r": "Equilibrium", "l": "Non-Spont", "c": "UP", "w": 1 },
-  { "q": "Hybridization of carbon in Ethene (C2H4)?", "h": "Consider the presence of a double bond.", "e": "❌ sp hybridization is for triple bonds. ❌ sp3 is for saturated alkanes. || ✅ Ethene has a double bond; each carbon uses sp2 orbitals to form trigonal planar geometry.", "u": "sp", "r": "sp2", "l": "sp3", "c": "RIGHT", "w": 1 },
-  { "q": "pH of a 0.001 M HCl solution?", "h": "Use the negative log of H+ concentration.", "e": "❌ pH 7 is neutral. ❌ pH 1 is for 0.1 M. || ✅ pH = -log(0.001) = 3.", "u": "pH=7", "r": "pH=3", "l": "pH=1", "c": "RIGHT", "w": 1 }
-  // Add all 75 questions here following this pattern
+  { "q": "What does a negative ΔG value signify?", "h": "Analyze the energy requirement vs. energy release of the system.", "e": "❌ Positive ΔG means the reaction is non-spontaneous and requires work input. || ❌ Zero ΔG means the system has reached maximum stability and equilibrium. || ✅ A negative ΔG signifies that the reaction is spontaneous and can proceed without outside intervention.", "u": "Spontaneous", "r": "Equilibrium", "l": "Non-Spont", "c": "UP", "w": 1 },
+  { "q": "Why does a catalyst speed up a reaction?", "h": "Think about the energy 'hill' the reactants must climb.", "e": "❌ Catalysts do not change the equilibrium constant K or enthalpy ΔH. || ✅ They provide an alternative reaction pathway with a lower activation energy (Ea), allowing more successful collisions.", "u": "Changes K", "r": "Lowers Ea", "l": "Increases ΔH", "c": "RIGHT", "w": 1 }
 ];
 
-// -----------------------------------------------------------
-// V81.8.1 RESOLUTE ENGINE
-// -----------------------------------------------------------
 let POOL = [], SCORE = 0, isTransitioning = false;
 const CLAMP = 32, OPACITY = 24;
 
+// THE FORMATTER: Correct Paragraph Support Logic
 const format = t => {
     if(!t) return "";
     return t.toString()
         .replace(/([A-Z][a-z]?)(\d+)/g,'$1<sub>$2</sub>')
         .replace(/(\d*)([+\-])/g, '<sup>$1$2</sup>')
-        .replace(/\|\|/g, '<br><br>')
+        .replace(/\|\|/g, '<div style="margin-bottom:15px;"></div>') // Paragraph break
         .replace(/Δ/g, '&Delta;');
 };
 
 function init(){
     POOL = [...DATABASE].sort(() => Math.random() - 0.5);
-    setTimeout(() => { 
-        const l = document.getElementById('loader');
-        if(l) l.remove(); 
-        renderNext(); 
-    }, 1000);
+    setTimeout(() => { document.getElementById('loader').remove(); renderNext(); }, 1000);
 }
 
 function renderNext(){
-    const s = document.getElementById('stack'); 
-    s.innerHTML = "";
+    const s = document.getElementById('stack'); s.innerHTML = "";
+    if(!POOL.length){ s.innerHTML = `<div class="card"><div class="card-q">MISSION COMPLETE<br>${SCORE} XP</div><button class="btn" onclick="location.reload()">REPLAY</button></div>`; return; }
     
-    if(!POOL.length){ 
-        s.innerHTML = `<div class="card"><div class="card-q">MISSION COMPLETE<br>${SCORE} XP</div><button class="btn" onclick="location.reload()">REPLAY</button></div>`; 
-        return; 
-    }
-
     const q = POOL.shift();
-    const c = document.createElement('div'); 
-    c.className = "card";
+    const c = document.createElement('div'); c.className = "card";
     
-    // DATA INTEGRITY FIX: Flexible Parsing
-    const text = q.question_text || q.q || "Missing Text";
-    const up   = q.swipe_up_label || q.u || "Up";
-    const lt   = q.swipe_left_label || q.l || "Left";
-    const rt   = q.swipe_right_label || q.r || "Right";
-    const hint = q.hint || q.h || "Check Analysis";
-    const expl = q.explanation || q.e || "No explanation provided.";
-    const correct = (q.correct || q.c || "UP").toUpperCase();
+    const text = q.q || q.question_text || "";
+    const up   = q.u || q.swipe_up_label || "";
+    const lt   = q.l || q.swipe_left_label || "";
+    const rt   = q.r || q.swipe_right_label || "";
+    const hint = q.h || q.hint || "";
+    const expl = q.e || q.explanation || "";
 
     c.innerHTML = `
         <div class="card-q">${format(text)}</div>
@@ -147,24 +117,20 @@ function renderNext(){
             <span class="sl-down-hint-text">${format(hint)}</span>
         </div>
         <div class="overlay">
-            <div style="color:var(--gold); font-size:0.75rem; margin-bottom:12px; letter-spacing:2px; font-weight:900;">ANALYSIS</div>
+            <div class="overlay-label">LOGIC ANALYSIS</div>
             <div class="overlay-body">${format(expl)}</div>
             <button class="btn" onclick="this.parentElement.classList.remove('active')">CONTINUE</button>
         </div>
     `;
-    
     s.appendChild(c); 
-    bindPhysics(c, {c: correct, w: q.weight || q.w || 1});
+    bindPhysics(c, {c: (q.c || q.correct || "UP").toUpperCase(), w: q.w || q.weight || 1});
 }
 
 function bindPhysics(el, data){
     let sx=0, sy=0, active=false, dir=null;
     const labels = { up: el.querySelector('.sl-up'), dn: el.querySelector('.sl-dn'), lt: el.querySelector('.sl-lt'), rt: el.querySelector('.sl-rt') };
 
-    const start = e => { 
-        if(isTransitioning || el.querySelector('.overlay').classList.contains('active')) return; 
-        active=true; const p=e.touches?e.touches[0]:e; sx=p.clientX; sy=p.clientY; el.style.transition="none"; 
-    };
+    const start = e => { if(isTransitioning || el.querySelector('.overlay').classList.contains('active')) return; active=true; const p=e.touches?e.touches[0]:e; sx=p.clientX; sy=p.clientY; el.style.transition="none"; };
     
     const move = e => {
         if(!active) return; const p=e.touches?e.touches[0]:e;
@@ -179,7 +145,6 @@ function bindPhysics(el, data){
             else if(ang>=225&&ang<315) labels.dn.style.opacity = op;
             else labels.rt.style.opacity = op;
         }
-
         el.style.transform = `translate3d(${dx}px, ${dy}px, 0) rotate(${dx/25}deg)`;
         dir = (dist >= CLAMP) ? (ang>=45&&ang<135?"UP":ang>=135&&ang<225?"LEFT":ang>=225&&ang<315?"DOWN":"RIGHT") : null;
     };
@@ -187,10 +152,13 @@ function bindPhysics(el, data){
     const end = () => {
         if(!active) return; active = false;
         if(dir === "DOWN"){ 
+            if(window.navigator.vibrate) window.navigator.vibrate(10);
             el.querySelector('.overlay').classList.add('active'); 
             el.style.transition = "transform .3s"; el.style.transform = "translate3d(0,0,0) rotate(0deg)"; 
         } else if(dir){
-            isTransitioning = true; if(dir === data.c) SCORE += (10 * data.w);
+            isTransitioning = true;
+            if(dir !== data.c && window.navigator.vibrate) window.navigator.vibrate([50, 100, 50]);
+            if(dir === data.c) SCORE += (10 * data.w);
             el.style.transition = "transform .4s ease-in"; el.style.transform = `translate3d(${dir==="LEFT"?-400:400}px, ${dir==="UP"?-400:400}px, 0)`;
             setTimeout(() => { el.remove(); isTransitioning = false; renderNext(); updateUI(); }, 300);
         } else { el.style.transition = "transform .2s"; el.style.transform = "translate3d(0,0,0) rotate(0deg)"; }
@@ -200,11 +168,7 @@ function bindPhysics(el, data){
     el.onmousedown=start; window.onmousemove=move; window.onmouseup=end; el.ontouchstart=start; el.ontouchmove=move; el.ontouchend=end;
 }
 
-function updateUI(){ 
-    document.getElementById('xp-ui').innerText = `${SCORE} XP`; 
-    document.getElementById('progress-bar').style.width = `${(SCORE % 100)}%`; 
-}
-
+function updateUI(){ document.getElementById('xp-ui').innerText = `${SCORE} XP`; document.getElementById('progress-bar').style.width = `${(SCORE % 100)}%`; }
 window.onload = init;
 </script>
 </body>
