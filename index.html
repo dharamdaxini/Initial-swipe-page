@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist V81.55 - Ultimate Core</title>
+<title>Alchemist V81.56 - Blind Vault</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 <style>
 /* --- CORE CSS ENGINE --- */
@@ -17,13 +17,14 @@ body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family
 #progress-bar { height: 100%; background: var(--gold); width: 0%; transition: width 0.4s ease; }
 
 #stack { position: relative; width: 92%; max-width: 400px; height: calc(100vh - 180px - env(safe-area-inset-top)); margin: 25px auto 0; perspective: 1200px; }
-.card { position: absolute; width: 100%; height: 100%; background: var(--card); border-radius: 40px; border: 1px solid #282828; padding: 30px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 20px 60px rgba(0,0,0,0.9); transform-origin: center center; will-change: transform; z-index: 1; transition: backdrop-filter 0.8s ease-in-out; }
+.card { position: absolute; width: 100%; height: 100%; background: var(--card); border-radius: 40px; border: 1px solid #282828; padding: 30px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 20px 60px rgba(0,0,0,0.9); transform-origin: center center; z-index: 1; transition: backdrop-filter 0.8s ease-in-out; }
 .card.pulse { animation: blurPulse 1.6s ease-in-out infinite; }
 @keyframes blurPulse { 0%, 100% { backdrop-filter: blur(0px); } 50% { backdrop-filter: blur(8px); } }
 
-.card-q { font-family: var(--serif); font-size: clamp(1.2rem, 4.5vw, 1.7rem); line-height: 1.4; font-weight: 700; text-align: center; color: #f0f0f0; pointer-events: none; transition: transform 0.25s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.15s ease; will-change: transform, opacity; z-index: 5; }
+.card-q { font-family: var(--serif); font-size: clamp(1.2rem, 4.5vw, 1.7rem); line-height: 1.4; font-weight: 700; text-align: center; color: #f0f0f0; pointer-events: none; transition: transform 0.25s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.15s ease; z-index: 5; }
 
-.swipe-label { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: transparent; z-index: 2000; pointer-events: none; transition: transform 0.1s linear, opacity 0.2s ease; }
+/* FEEDBACK LABELS - HIDDEN BY DEFAULT */
+.swipe-label { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: transparent; z-index: 2000; pointer-events: none; opacity: 0; }
 .label-content { display: flex; flex-direction: column; align-items: center; gap: 10px; font-weight: 900; font-size: 1.6rem; text-transform: uppercase; color: var(--gold); }
 .arrow { font-size: 2.5rem; }
 
@@ -39,13 +40,13 @@ body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family
 .judgement-body { font-size: 1.1rem; line-height: 1.6; color: #ccc; font-family: var(--serif); font-style: italic; }
 
 .sl-dn { flex-direction: column !important; justify-content: center !important; }
-.sl-down-emoji { font-size: 4rem; display: none; opacity: 0; transition: filter 0.1s, opacity 0.2s; will-change: filter, transform, opacity; margin-top: 20px; z-index: 6; }
+.sl-down-emoji { font-size: 4rem; display: none; opacity: 0; transition: filter 0.1s, opacity 0.2s; margin-top: 20px; z-index: 6; }
 #loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.5rem; letter-spacing: 4px; color: var(--gold); }
 </style>
 </head>
 <body>
 
-<div id="loader">ALCHEMIST V81.55</div>
+<div id="loader">ALCHEMIST V81.56</div>
 <div id="header">
     <div class="header-meta"><span id="difficulty-ui">LEVEL: 1</span><span id="xp-ui">0 XP</span></div>
     <div class="progress-track"><div id="progress-bar"></div></div>
@@ -55,6 +56,7 @@ body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family
     <div id="sl-up" class="swipe-label"><div class="label-content"><span class="arrow">↑</span><span>GOT IT</span></div></div>
     <div id="sl-lt" class="swipe-label"><div class="label-content"><span class="arrow">←</span><span>CONFUSED</span></div></div>
     <div id="sl-rt" class="swipe-label"><div class="label-content"><span class="arrow">→</span><span>NOT SURE</span></div></div>
+    
     <div id="sl-dn" class="swipe-label">
         <div id="study-mount" class="study-wrap">
             <div class="context-block">
@@ -72,23 +74,15 @@ body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family
 </div>
 
 <script>
-// --- CONFIGURATION ---
 const DEPLOY_URL = "https://script.google.com/macros/s/AKfycbzXysKDBmYF6cyPVG55ShZ1k0u0kK7vJQ7Vm65OqGUEGgEFdZdtfi7O1TRnodJh_GaG/exec";
 
-// STRESS TEST DATASET (SET B/C CHEMISTRY)
 const DATABASE = [
     { "q": "Signs of ΔH and ΔS for spontaneity at all temps?", "topic": "Thermodynamics", "difficulty": "B", "c": "UP", "bullets": ["ΔH must be negative (Exothermic)", "ΔS must be positive (Increased entropy)"], "j": "Nature favors states of lower energy and higher chaos." },
-    { "q": "Condition for spontaneity when both ΔH & ΔS are positive?", "topic": "Thermodynamics", "difficulty": "C", "c": "UP", "bullets": ["TΔS must exceed ΔH", "Temperature must be high"], "j": "The 'Entropy Overdrive' threshold where heat fuels spontaneity." },
-    { "q": "Order of reaction if doubling [A] increases rate 4x?", "topic": "Kinetics", "difficulty": "B", "c": "UP", "bullets": ["Rate = k[A]^2", "Square relationship (2^2 = 4)"], "j": "A standard second-order quadratic rate relationship." },
-    { "q": "How does a catalyst affect k and Ea?", "topic": "Kinetics", "difficulty": "C", "c": "UP", "bullets": ["Lowers Ea (pathway shift)", "Increases k exponentially"], "j": "Catalysts are molecular shortcuts, not energy sources." },
-    { "q": "Effect of increasing pressure on: N2 + 3H2 ⇌ 2NH3?", "topic": "Equilibrium", "difficulty": "B", "c": "UP", "bullets": ["Shifts Right (Forward)", "Favors side with fewer gas moles"], "j": "Le Chatelier's principle acts as a pressure-relief valve." },
-    { "q": "Does adding inert gas at constant volume shift equilibrium?", "topic": "Equilibrium", "difficulty": "C", "c": "UP", "bullets": ["No shift occurs", "Partial pressures stay constant"], "j": "Total pressure rises, but chemical 'tension' is unchanged." },
-    { "q": "Why do polar aprotic solvents favor SN2 reactions?", "topic": "Organic", "difficulty": "B", "c": "UP", "bullets": ["They don't solvate the nucleophile", "Keeps nucleophile 'naked'"], "j": "Solvent choice determines the speed of the backside attack." },
-    { "q": "Predicted stereochemistry of SN2 at a chiral center?", "topic": "Organic", "difficulty": "C", "c": "UP", "bullets": ["Walden Inversion", "100% inversion of configuration"], "j": "The spatial equivalent of an umbrella turning inside out." }
+    { "q": "Condition for spontaneity when both ΔH & ΔS are positive?", "topic": "Thermodynamics", "difficulty": "C", "c": "UP", "bullets": ["TΔS must exceed ΔH", "Temperature must be high"], "j": "The 'Entropy Overdrive' threshold where heat fuels spontaneity." }
 ];
 
 let POOL = [...DATABASE], SCORE = 0, DIFFICULTY = 1, isTransitioning = false;
-let questionStartTime = 0, latencyMS = 0, confidenceRating = null, isLocked = false, decisionPath = "";
+let questionStartTime = 0, latencyMS = 0, confidenceRating = null, isLocked = false;
 
 const CM_0_5 = 16, CM_1_0 = 32, CM_3_0 = 96;
 const MAX_TEXT_PX = 190, MAX_BULB_PX = 155;
@@ -107,10 +101,12 @@ function renderNext(){
     c.innerHTML = `<div class="card-q">${format(q.q)}</div>`;
     s.appendChild(c); 
     
-    questionStartTime = Date.now(); latencyMS = 0; confidenceRating = null; isLocked = false; decisionPath = "";
+    questionStartTime = Date.now(); latencyMS = 0; isLocked = false;
     document.getElementById('bullet-mount').innerHTML = q.bullets.map(b => `<li class="bullet-item">${format(b)}</li>`).join('');
     document.getElementById('judgement-text').innerText = q.j;
-    updateUI();
+    document.getElementById('study-mount').classList.remove('active');
+    document.getElementById('bulb-element').style.display = 'none';
+    
     bindPhysics(c, q);
 }
 
@@ -121,7 +117,7 @@ function bindPhysics(el, qData){
     const wrap = document.getElementById('study-mount');
     const queText = el.querySelector('.card-q');
 
-    const start = e => { if(isTransitioning) return; active=true; const p=e.touches?e.touches[0]:e; sx=p.clientX; sy=p.clientY; el.style.transition="none"; queText.style.transition="none"; bulb.style.transition="none"; };
+    const start = e => { if(isTransitioning) return; active=true; const p=e.touches?e.touches[0]:e; sx=p.clientX; sy=p.clientY; el.style.transition="none"; queText.style.transition="none"; };
     
     const move = e => {
         if(!active) return; const p=e.touches?e.touches[0]:e;
@@ -129,77 +125,65 @@ function bindPhysics(el, qData){
         finalDist = Math.sqrt(dx*dx + dy*dy);
         let ang = Math.atan2(-dy, dx) * (180 / Math.PI); if(ang<0) ang+=360;
 
-        let prevDir = dir;
         if(finalDist > 5) {
             if(ang>=45&&ang<135) dir="UP"; else if(ang>=135&&ang<225) dir="LEFT"; else if(ang>=225&&ang<315) dir="DOWN"; else dir="RIGHT";
         }
 
-        if(prevDir && prevDir !== "DOWN" && dir === "DOWN") {
-            labels[prevDir.toLowerCase()].style.transform = `translate3d(0, 0, 0)`; 
-            labels[prevDir.toLowerCase()].style.opacity = 0;
-            queText.style.opacity = 0;
-        }
-
-        if(isLocked) {
-            el.style.transform = `translate3d(${dx}px, ${dy}px, 0) rotate(${dx/25}deg)`;
-            Object.values(labels).forEach(l => { if(l) { l.style.display = 'none'; l.style.opacity = 0; } });
-            let target = (dir === "DOWN") ? labels.dnLab : labels[dir.toLowerCase()];
-            if(target) { target.style.display = 'flex'; target.style.opacity = Math.min(finalDist / 40, 1); target.style.transform = `translate3d(${dx}px, ${dy}px, 0)`; }
-            return;
-        }
-
-        let cardX = (dir === "DOWN") ? 0 : dx, cardY = (dir === "DOWN") ? 0 : dy;
-        el.style.transform = `translate3d(${cardX}px, ${cardY}px, 0) rotate(${dir === "DOWN" ? 0 : dx/25}deg)`;
-
-        if(dir === "DOWN") {
-            if(finalDist >= 20) queText.style.opacity = 1;
+        // FORCE DOWN-SWIPE FIRST
+        if(!isLocked) {
+            if(dir !== "DOWN") {
+                el.style.transform = `translate3d(${dx*0.2}px, ${dy*0.2}px, 0)`; // Resistance
+                return;
+            }
+            // Vertical Rift Logic
             labels.dn.style.display = 'flex'; labels.dn.style.opacity = Math.min(finalDist / 24, 1);
             if(finalDist >= CM_0_5) queText.style.transform = `translateY(-${Math.min((finalDist - CM_0_5) / 64, 1) * MAX_TEXT_PX}px)`;
             if(finalDist >= CM_1_0) {
                 bulb.style.display = 'block'; bulb.style.opacity = Math.min((finalDist - CM_1_0) / 48, 1);
                 bulb.style.transform = `translateY(${Math.min((finalDist - CM_1_0) / 48, 1) * MAX_BULB_PX}px)`;
-                if(confidenceRating === null) confidenceRating = "High";
             }
             if(finalDist >= CM_3_0) {
                 isLocked = true; latencyMS = Date.now() - questionStartTime;
                 wrap.classList.add('active'); el.classList.add('pulse');
                 bulb.style.filter = `drop-shadow(0 0 30px var(--gold)) brightness(2.2)`;
-                confidenceRating = "Low";
-                queText.style.transform = `translateY(-${MAX_TEXT_PX}px)`; bulb.style.transform = `translateY(${MAX_BULB_PX}px)`;
+                queText.style.transform = `translateY(-${MAX_TEXT_PX}px)`;
             }
+        } else {
+            // CARDINAL GRID ACTIVATED AFTER JUDGEMENT
+            el.style.transform = `translate3d(${dx}px, ${dy}px, 0) rotate(${dx/25}deg)`;
+            Object.values(labels).forEach(l => { if(l) { l.style.display = 'none'; l.style.opacity = 0; } });
+            let target = (dir === "DOWN") ? labels.dnLab : labels[dir.toLowerCase()];
+            if(target) { target.style.display = 'flex'; target.style.opacity = Math.min(finalDist / 40, 1); target.style.transform = `translate3d(${dx}px, ${dy}px, 0)`; }
+            labels.dn.style.display = 'flex'; // Keep rift visible
         }
     };
 
     const end = () => {
         if(!active) return; active = false;
-        if(dir === "DOWN" && !isLocked) {
+        if(!isLocked) {
             queText.style.transition = "transform .22s"; queText.style.transform = `translateY(0)`;
-            bulb.style.transition = "transform .22s, opacity .2s"; bulb.style.transform = `translateY(0)`; bulb.style.opacity = 0;
+            bulb.style.transition = "transform .22s, opacity .2s"; bulb.style.opacity = 0;
             el.style.transition = "transform .2s"; el.style.transform = "translate(0,0)";
-        } else if(dir && (finalDist >= 32 || isLocked)) {
+        } else if(dir && finalDist >= 32) {
             isTransitioning = true;
-            decisionPath = isLocked ? dir : "DIRECT";
-            submitToMatrix(qData);
+            submitToMatrix(qData, dir);
             el.style.transition = "transform .4s ease-in"; el.style.transform = `translate3d(${dir==="LEFT"?-400:400}px, ${dir==="UP"?-400:400}px, 0)`;
-            if(dir === "UP") SCORE += (confidenceRating === "High" ? 15 : 10);
+            if(dir === "UP") SCORE += 10;
             setTimeout(() => { isTransitioning = false; POOL.shift(); renderNext(); }, 300);
-        } else { el.style.transition = "transform .2s"; el.style.transform = "translate(0,0)"; queText.style.transform = `translateY(0)`; queText.style.opacity = 1; }
-        Object.values(labels).forEach(l => { if(l && (l !== labels.dn || !isLocked)) l.style.display = 'none'; });
+        } else { el.style.transition = "transform .2s"; el.style.transform = "translate(0,0)"; }
     };
     el.ontouchstart=start; el.ontouchmove=move; el.ontouchend=end;
 }
 
-async function submitToMatrix(qData) {
+async function submitToMatrix(qData, finalDecision) {
     const payload = {
-        question: qData.q, topic: qData.topic, isCorrect: (dir === "UP"),
-        xpEarned: (confidenceRating === "High" ? 15 : 10), confidence: confidenceRating || "High",
-        decision: decisionPath, latency: latencyMS, difficulty: qData.difficulty,
-        totalTime: Date.now() - questionStartTime
+        question: qData.q, topic: qData.topic, isCorrect: (finalDecision === "UP"),
+        confidence: "Low", decision: finalDecision, latency: latencyMS,
+        difficulty: qData.difficulty, totalTime: Date.now() - questionStartTime
     };
-    try { await fetch(DEPLOY_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) }); } catch (e) { console.error(e); }
+    try { await fetch(DEPLOY_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) }); } catch (e) {}
 }
 
-function updateUI(){ document.getElementById('xp-ui').innerText = `${SCORE} XP`; document.getElementById('difficulty-ui').innerText = `LEVEL: ${DIFFICULTY}`; document.getElementById('progress-bar').style.width = `${(SCORE % 100)}%`; }
 window.onload = init;
 </script>
 </body>
