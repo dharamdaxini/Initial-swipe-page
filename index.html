@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist V81.60 - Industrial Precision</title>
+<title>Alchemist V81.62 - Locked Handshake</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 <style>
-/* --- MINIMALIST INDUSTRIAL CSS --- */
+/* --- MINIMALIST INDUSTRIAL CSS (V81.60 Inheritance) --- */
 :root { --bg: #000; --card: #111; --gold: #ffd600; --border: #222; --serif: 'Libre Baskerville', serif; --ui: 'Outfit', sans-serif; --code: 'JetBrains Mono', monospace; }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
 body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family: var(--ui); overflow: hidden; touch-action: none; }
@@ -18,16 +18,11 @@ body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family
 
 #stack { position: relative; width: 92%; max-width: 420px; height: calc(100vh - 180px - env(safe-area-inset-top)); margin: 25px auto 0; perspective: 1200px; }
 .card { position: absolute; width: 100%; height: 100%; background: var(--card); border-radius: 32px; border: 1px solid var(--border); padding: 40px 30px; display: flex; flex-direction: column; justify-content: center; transform-origin: center center; z-index: 1; transition: filter 0.4s ease, opacity 0.4s ease; }
-
 .card.study-active { filter: blur(20px) brightness(0.2); opacity: 0.5; }
 
 .card-q { font-family: var(--serif); font-size: clamp(1.4rem, 5.5vw, 1.9rem); line-height: 1.5; font-weight: 700; text-align: center; color: #fff; pointer-events: none; transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1); z-index: 5; }
 
-/* CLEAN DRAWER SYSTEM */
-.study-drawer { 
-    position: absolute; inset: 0; padding: 40px 20px; z-index: 10; display: flex; flex-direction: column; 
-    opacity: 0; visibility: hidden; transform: translateY(30px); transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1); 
-}
+.study-drawer { position: absolute; inset: 0; padding: 40px 20px; z-index: 10; display: flex; flex-direction: column; opacity: 0; visibility: hidden; transform: translateY(30px); transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1); }
 .study-drawer.active { opacity: 1; visibility: visible; transform: translateY(0); }
 
 .content-section { flex: 1; overflow-y: auto; padding-top: 20px; }
@@ -47,14 +42,14 @@ body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family
 </head>
 <body>
 
-<div id="loader">ALCHEMIST V81.60</div>
+<div id="loader">ALCHEMIST V81.62</div>
 <div id="header">
-    <div class="header-meta"><span id="difficulty-ui">SET B</span><span id="xp-ui">0 XP</span></div>
+    <div class="header-meta"><span id="difficulty-ui">SET B/C</span><span id="xp-ui">0 XP</span></div>
     <div class="progress-track"><div id="progress-bar"></div></div>
 </div>
 
 <div id="stack">
-    <div id="sl-up" class="swipe-label">↑ SUBMIT FEEDBACK</div>
+    <div id="sl-up" class="swipe-label">↑ SUBMIT DATA</div>
     <div id="study-drawer" class="study-drawer">
         <div class="study-header">Analysis</div>
         <div class="content-section">
@@ -68,12 +63,13 @@ body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family
 </div>
 
 <script>
-const DEPLOY_URL = "https://script.google.com/macros/s/AKfycbzXysKDBmYF6cyPVG55ShZ1k0u0kK7vJQ7Vm65OqGUEGgEFdZdtfi7O1TRnodJh_GaG/exec";
+// --- SCRIPT URL GENERATION ---
+const DEPLOY_ID = "AKfycby1KCqAjaEW61_jHV8D9vl8odhJi0yzcXdcpcBWl7PpRwgafuT4eplpzxxBBSrRwXAm";
+const DEPLOY_URL = `https://script.google.com/macros/s/${DEPLOY_ID}/exec`;
 
-// ACTUAL CHEMISTRY DATA (SET B/C)
 const DATABASE = [
-    { "q": "Signs of ΔH and ΔS for spontaneity at all temps?", "topic": "Thermodynamics", "difficulty": "B", "bullets": ["ΔH must be negative (Exothermic)", "ΔS must be positive (Increased entropy)", "TΔS > ΔH must hold true"], "j": "Nature favors processes that release energy and maximize disorder." },
-    { "q": "Order of reaction if doubling [A] increases rate 4x?", "topic": "Kinetics", "difficulty": "B", "bullets": ["Rate = k[A]^x", "2^x = 4 implies x = 2", "Second-order kinetics with respect to A"], "j": "Quadratic relationships define second-order rate laws." }
+    { "q": "Signs of ΔH and ΔS for spontaneity at all temps?", "topic": "Thermodynamics", "difficulty": "B", "bullets": ["ΔH must be negative (Exothermic)", "ΔS must be positive (Increased entropy)", "Gibbs Free Energy ΔG must be negative"], "j": "Nature favors energy release and maximum disorder." },
+    { "q": "When is +ΔH and +ΔS spontaneous?", "topic": "Thermodynamics", "difficulty": "C", "bullets": ["Only at High Temperatures", "TΔS term must overcome the ΔH barrier"], "j": "Heat fuels the entropy drive to overcome chemical stability." }
 ];
 
 let POOL = [...DATABASE], SCORE = 0, isTransitioning = false, questionStartTime = 0, latencyMS = 0, isLocked = false;
@@ -97,7 +93,6 @@ function renderNext(){
     document.getElementById('bullet-mount').innerHTML = q.bullets.map(b => `<li class="bullet-item">${format(b)}</li>`).join('');
     document.getElementById('judgement-text').innerText = q.j;
     document.getElementById('study-drawer').classList.remove('active');
-    
     bindPhysics(c, q);
 }
 
@@ -114,7 +109,7 @@ function bindPhysics(el, qData){
         const dy = e.touches[0].clientY - sy; finalDist = Math.abs(dy);
         
         if(!isLocked) {
-            if(dy < 0) { el.style.transform = `translate3d(0, ${dy*0.1}px, 0)`; return; } // Resist Up
+            if(dy < 0) { el.style.transform = `translate3d(0, ${dy*0.1}px, 0)`; return; } 
             queText.style.transform = `translateY(-${Math.min(finalDist / 96, 1) * MAX_TEXT_PX}px)`;
             if(finalDist >= CM_3_0) {
                 isLocked = true; latencyMS = Date.now() - questionStartTime;
@@ -144,13 +139,35 @@ function bindPhysics(el, qData){
     };
 }
 
+// --- DIAGNOSTIC HANDSHAKE (V81.61 logic) ---
 async function submitToMatrix(qData) {
     const payload = {
-        question: qData.q, topic: qData.topic, isCorrect: true,
-        confidence: "Low", decision: "GOT_IT", latency: latencyMS,
-        difficulty: qData.difficulty, totalTime: Date.now() - questionStartTime
+        Timestamp: new Date().toISOString(),
+        Question: qData.q,
+        Topic: qData.topic,
+        Correct: "TRUE",
+        XP_Earned: 15,
+        ConfidenceStatus: "Low",
+        DecisionPath: "STUDY_DRAWER",
+        LuminousLatency: latencyMS,
+        DifficultyLevel: qData.difficulty,
+        TotalTimeTaken: Date.now() - questionStartTime
     };
-    try { await fetch(DEPLOY_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) }); } catch (e) {}
+
+    console.log("ALCHEMIST: Dispatching to Matrix...", payload);
+
+    try {
+        await fetch(DEPLOY_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            cache: 'no-cache',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        console.log("ALCHEMIST: Success. Check 'Stress Test Matrix' sheet.");
+    } catch (e) {
+        console.error("ALCHEMIST: Connection Failed.", e);
+    }
 }
 
 window.onload = init;
