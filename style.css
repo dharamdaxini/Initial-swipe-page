@@ -221,23 +221,25 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 }
 
 /* =========================================
-   READABILITY & OVERFLOW SAFETY PATCH
-   (NON-DESTRUCTIVE)
+   SAFE TEXT VISIBILITY PATCH (SWIPE-SAFE)
    ========================================= */
 
+/* Overlay only may scroll */
+.overlay {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
 
-
-
-/* Prevent text from spilling outside card width */
+/* Text wrapping only — no layout changes */
 .card-q,
 .overlay-body,
 .swipe-label {
-  word-wrap: break-word;
   overflow-wrap: break-word;
+  word-break: break-word;
   hyphens: auto;
 }
 
-/* Responsive text scaling for small screens */
+/* Small screens: reduce font, not layout */
 @media (max-height: 700px) {
   .card-q {
     font-size: 1.6rem;
@@ -250,12 +252,8 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
   }
 }
 
-/* Extra safety for very small devices */
+/* Very small screens */
 @media (max-height: 600px) {
-  .card {
-    padding: 28px;
-  }
-
   .card-q {
     font-size: 1.4rem;
   }
@@ -265,14 +263,7 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
   }
 }
 
-/* Ensure swipe labels never clip */
-.swipe-label {
-  padding: 24px;
-  text-align: center;
-  white-space: normal;
-}
-
-/* Prevent accidental horizontal overflow */
-body, #stack {
+/* Absolute safety */
+body {
   overflow-x: hidden;
 }
