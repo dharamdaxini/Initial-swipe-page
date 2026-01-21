@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist V81.15 - Absolute Anchor</title>
+<title>Alchemist V81.16 - Abstract Motion</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 <style>
 /* --- LOCKED TO V81.4 UI ENGINE --- */
@@ -20,13 +20,13 @@ body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family
 .card { position: absolute; width: 100%; height: 100%; background: var(--card); border-radius: 40px; border: 1px solid #282828; padding: 30px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 20px 60px rgba(0,0,0,0.9); transform-origin: center center; will-change: transform; z-index: 1; }
 .card-q { font-family: var(--serif); font-size: clamp(1.2rem, 4.5vw, 1.7rem); line-height: 1.4; font-weight: 700; text-align: center; color: #f0f0f0; pointer-events: none; }
 
-/* FIXED SWIPE LABELS - OUTSIDE CARD */
+/* AXIS-LOCKED LABELS - OUTSIDE CARD */
 .swipe-label { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.92); color: #fff; font-weight: 900; font-size: 1.8rem; text-transform: uppercase; border-radius: 40px; z-index: 2000; text-align: center; padding: 20px; will-change: transform, opacity; pointer-events: none; }
 .sl-dn { flex-direction: column !important; }
 .sl-down-emoji { font-size: 4rem; margin-bottom: 15px; display: block; }
 .sl-down-hint-text { color: var(--blue) !important; font-size: 1.1rem; text-transform: none; font-family: var(--serif); font-weight: 400; line-height: 1.4; max-width: 80%; margin: 0 auto; }
 
-/* STUDY OVERLAY - FIX OVERFLOW */
+/* STUDY OVERLAY */
 .overlay { position: absolute; inset: 0; background: #000; z-index: 3000; padding: 20px; opacity: 0; pointer-events: none; border-radius: 40px; display: none; flex-direction: column; justify-content: space-between; }
 .overlay.active { opacity: 1; display: flex; pointer-events: auto; }
 .study-container { width: 100%; height: 60vh; overflow: hidden; position: relative; margin-top: 10px; }
@@ -46,7 +46,7 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 </head>
 <body>
 
-<div id="loader">ALCHEMIST V81.15</div>
+<div id="loader">ALCHEMIST V81.16</div>
 <div id="header">
     <div class="header-meta"><span>RANK: NOVICE</span><span id="xp-ui">0 XP</span></div>
     <div class="progress-track"><div id="progress-bar"></div></div>
@@ -64,8 +64,7 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 
 <script>
 const DATABASE = [
-  { "q": "What does a negative ΔG value signify?", "h": "Think about energy release vs requirement.", "u": "Spontaneous", "r": "Equilibrium", "l": "Non-Spont", "c": "UP", "s1": "❌ Positive ΔG requires constant energy input (non-spontaneous). || ❌ Zero ΔG means equilibrium. || ✅ Negative ΔG confirms the system releases free energy naturally.", "s2": "Imagine a ball on a slope. It rolls down without a push because it moves to lower potential energy. That's ΔG < 0.", "s3": "The negative sign is a mathematical signal that the reaction is thermodynamically favorable." },
-  { "q": "Why does a catalyst speed up a reaction?", "h": "Think about the energy 'hill'.", "u": "Changes K", "r": "Lowers Ea", "l": "Increases ΔH", "c": "RIGHT", "s1": "❌ Catalysts don't shift K or ΔH. || ✅ They lower Activation Energy (Ea).", "s2": "Imagine a mountain tunnel. The start and end are the same height, but the tunnel is much faster than climbing over.", "s3": "Catalysts offer that 'tunnel' pathway." }
+  { "q": "What does a negative ΔG value signify?", "h": "Think about energy release vs requirement.", "u": "Spontaneous", "r": "Equilibrium", "l": "Non-Spont", "c": "UP", "s1": "❌ Positive ΔG requires energy input. || ✅ Negative ΔG confirms the system releases free energy naturally.", "s2": "Imagine a ball on a slope. It naturally rolls down to lower potential energy.", "s3": "Mathematically, negative sign = thermodynamically favorable." }
 ];
 
 let POOL = [], SCORE = 0, isTransitioning = false;
@@ -86,11 +85,10 @@ function renderNext(){
     const existingCard = s.querySelector('.card');
     if(existingCard) existingCard.remove();
     
-    if(!POOL.length){ s.innerHTML = `<div class="card"><div class="card-q">MISSION COMPLETE<br>${SCORE} XP</div><button class="btn" onclick="location.reload()">REPLAY</button></div>`; return; }
+    if(!POOL.length){ s.innerHTML = `<div class="card"><div class="card-q">COMPLETE<br>${SCORE} XP</div><button class="btn" onclick="location.reload()">REPLAY</button></div>`; return; }
     
     const q = POOL.shift();
     const c = document.createElement('div'); c.className = "card";
-    
     c.innerHTML = `
         <div class="card-q">${format(q.q)}</div>
         <div class="overlay">
@@ -106,8 +104,6 @@ function renderNext(){
         </div>
     `;
     s.appendChild(c); 
-    
-    // Mount text to global labels
     document.getElementById('sl-up').innerText = q.u;
     document.getElementById('sl-lt').innerText = q.l;
     document.getElementById('sl-rt').innerText = q.r;
@@ -126,23 +122,25 @@ function bindMainPhysics(el, qData){
         if(!active) return; const p=e.touches?e.touches[0]:e;
         const dx = p.clientX - sx, dy = p.clientY - sy, dist = Math.sqrt(dx*dx + dy*dy);
         const op = Math.min(dist / OPACITY, 1);
+        
+        // UNIT CIRCLE METHOD - BACKEND PROCESS
         let ang = Math.atan2(-dy, dx) * (180 / Math.PI); if(ang<0) ang+=360;
         
-        Object.values(labels).forEach(l => { l.style.display = 'none'; l.style.opacity = 0; l.style.transform = "translate3d(0,0,0)"; });
+        Object.values(labels).forEach(l => { l.style.display = 'none'; l.style.opacity = 0; });
 
         if(dist > 5){
             let target = null;
-            // 1:1 MOVEMENT + AXIS LOCKDOWN
-            if(ang>=45&&ang<135) { target = labels.up; target.style.transform = `translate3d(0, ${dy}px, 0)`; }
-            else if(ang>=135&&ang<225) { target = labels.lt; target.style.transform = `translate3d(${dx}px, 0, 0)`; }
-            else if(ang>=225&&ang<315) { target = labels.dn; target.style.transform = `translate3d(0, ${dy}px, 0)`; }
-            else { target = labels.rt; target.style.transform = `translate3d(${dx}px, 0, 0)`; }
+            // 4-SECTOR MAPPING
+            if(ang>=45&&ang<135) { target = labels.up; target.style.transform = `translate3d(0, ${dy}px, 0)`; dir="UP"; }
+            else if(ang>=135&&ang<225) { target = labels.lt; target.style.transform = `translate3d(${dx}px, 0, 0)`; dir="LEFT"; }
+            else if(ang>=225&&ang<315) { target = labels.dn; target.style.transform = `translate3d(0, ${dy}px, 0)`; dir="DOWN"; }
+            else { target = labels.rt; target.style.transform = `translate3d(${dx}px, 0, 0)`; dir="RIGHT"; }
             
             if(target) { target.style.display = 'flex'; target.style.opacity = op; }
+            if(dist < CLAMP) dir = null; // Lock trigger to Unit Circle distance
         }
 
         el.style.transform = `translate3d(${dx}px, ${dy}px, 0) rotate(${dx/25}deg)`;
-        dir = (dist >= CLAMP) ? (ang>=45&&ang<135?"UP":ang>=135&&ang<225?"LEFT":ang>=225&&ang<315?"DOWN":"RIGHT") : null;
     };
 
     const end = () => {
