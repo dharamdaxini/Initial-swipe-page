@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist V84.0 - Nexus Control</title>
+<title>Alchemist V83.1 - Live Synapse</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,11 +11,12 @@
 
 <style>
 /* -----------------------------------------------------------
-   V84.0 "NEXUS CONTROL" CSS
+   V83.1 "LIVE SYNAPSE" CSS
    ----------------------------------------------------------- */
 :root {
     --bg-color: #000000;
     --card-bg: #121212;
+    --border: #222222;
     --accent-gold: #ffcc00;
     --hint-blue: #4dabf7;
     --text-main: #ffffff;
@@ -33,14 +34,14 @@ body {
 }
 
 #header { width: 90%; margin: calc(20px + env(safe-area-inset-top)) auto 0; position: relative; z-index: 100; }
-.header-meta { display: flex; justify-content: space-between; font-family: var(--font-code); font-size: 0.75rem; color: #666; margin-bottom: 8px; }
+.header-meta { display: flex; justify-content: space-between; font-family: var(--font-code); font-size: 0.75rem; color: #444; margin-bottom: 8px; }
 #progress-bar { height: 4px; background: var(--accent-gold); width: 0%; transition: width 0.4s ease; border-radius: 4px; }
 
 #stack { position: relative; width: 92%; max-width: 400px; height: calc(100vh - 180px - env(safe-area-inset-top)); margin: 25px auto 0; perspective: 1200px; }
 
 .card {
     position: absolute; width: 100%; height: 100%;
-    background: var(--card-bg); border-radius: 32px; border: 1px solid #333;
+    background: var(--card-bg); border-radius: 32px; border: 1px solid var(--border);
     padding: 30px; display: flex; flex-direction: column; justify-content: center; align-items: center;
     box-shadow: 0 25px 60px rgba(0,0,0,0.9); transform-origin: center center;
     will-change: transform; cursor: grab;
@@ -55,16 +56,16 @@ body {
 
 .btn { width: 100%; padding: 20px; border-radius: 100px; border: none; background: #fff; color: #000; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-top: 10px; }
 
-/* --- THE V84 LOADER --- */
+/* --- THE V83.1 LOADER --- */
 #loader { 
     position: fixed; inset: 0; background: #000; z-index: 5000; 
     display: flex; align-items: center; justify-content: center; 
     font-family: var(--font-ui); font-weight: 900; font-size: 1.5rem; 
-    letter-spacing: 4px; color: var(--accent-gold); flex-direction: column; 
+    letter-spacing: 5px; color: var(--accent-gold); flex-direction: column; 
 }
-.status-sub { 
-    margin-top: 12px; font-size: 0.65rem; font-family: var(--font-code); 
-    color: #444; letter-spacing: 2px; text-transform: uppercase;
+.status-tag { 
+    margin-top: 15px; font-size: 0.65rem; font-family: var(--font-code); 
+    color: #333; letter-spacing: 2px; text-transform: uppercase;
 }
 </style>
 </head>
@@ -72,7 +73,7 @@ body {
 <body>
 <div id="loader">
     ALCHEMIST
-    <div class="status-sub">CONNECTING...</div>
+    <div class="status-tag">CONNECTING...</div>
 </div>
 
 <div id="header">
@@ -83,13 +84,20 @@ body {
 <div id="stack"></div>
 
 <script>
-// --- V84.0 LOCAL CORE DATA ---
-const LOCAL_DATA = [
-  { "q": "Significance of negative ΔG?", "u": "Spontaneous", "r": "Equilibrium", "l": "Non-Spont", "c": "UP", "e": "✅ ΔG < 0 means spontaneous." },
-  { "q": "Hybridization of carbon in Ethene (C2H4)?", "u": "sp", "r": "sp2", "l": "sp3", "c": "RIGHT", "e": "✅ sp2 for trigonal planar double bonds." }
+// -----------------------------------------------------------
+// V83.1 LIVE INFRASTRUCTURE
+// -----------------------------------------------------------
+// Backend Endpoint
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbzXysKDBmYF6cyPVG55ShZ1k0u0kK7vJQ7Vm65OqGUEGgEFdZdtfi7O1TRnodJh_GaG/exec"; 
+
+// Library Reference (Backend dependency)
+// https://script.google.com/macros/library/d/1BO6L38uJwlpkHQ7Bn_qnSvN4KD3p7mDchQSE6YIS0lHxe6j1qK9Virbm/44
+
+const BACKUP_DATA = [
+  { "q": "Significance of negative ΔG?", "u": "Spontaneous", "r": "Equilibrium", "l": "Non-Spont", "c": "UP", "e": "✅ ΔG < 0: Spontaneous." }
 ];
 
-let POOL = [...LOCAL_DATA], SCORE = 0, isTransitioning = false;
+let POOL = [], SCORE = 0, isTransitioning = false;
 const CLAMP = 32, OPACITY = 24;
 
 const format = t => {
@@ -101,17 +109,35 @@ const format = t => {
 };
 
 async function init() {
-    const l = document.getElementById('loader');
-    const s = l.querySelector('.status-sub');
+    const loader = document.getElementById('loader');
+    const tag = loader.querySelector('.status-tag');
 
-    // Simulate connection phases of V84
-    setTimeout(() => { s.innerText = "NEXUS HANDSHAKE..."; s.style.color = "#666"; }, 600);
-    setTimeout(() => { s.innerText = "INITIALIZING CORE..."; s.style.color = "#888"; }, 1200);
+    // Sequence 1: Initial Handshake
+    setTimeout(() => { tag.innerText = "INITIALIZING SYNAPSE..."; tag.style.color = "#444"; }, 700);
 
+    // Sequence 2: Live Fetch
+    try {
+        const response = await fetch(ENDPOINT);
+        const json = await response.json();
+        
+        if(Array.isArray(json) && json.length > 0) {
+            POOL = json.sort(() => Math.random() - 0.5);
+            tag.innerText = "SYNCHRONIZING DATA...";
+            tag.style.color = "#666";
+        } else {
+            throw new Error("Invalid Data");
+        }
+    } catch(e) {
+        POOL = [...BACKUP_DATA];
+        tag.innerText = "OFFLINE MODE ACTIVATED";
+        tag.style.color = "orange";
+    }
+
+    // Finalize
     setTimeout(() => {
-        l.remove();
+        loader.remove();
         render();
-    }, 2000);
+    }, 2500);
 }
 
 function render() {
@@ -120,14 +146,23 @@ function render() {
     
     const q = POOL.shift();
     const c = document.createElement('div'); c.className = "card";
+    
+    // Support for both Google Sheet keys and local BACKUP keys
+    const text = q.question_text || q.q;
+    const up = q.swipe_up_label || q.u;
+    const lt = q.swipe_left_label || q.l;
+    const rt = q.swipe_right_label || q.r;
+    const expl = q.explanation || q.e;
+    const correct = q.correct || q.c;
+
     c.innerHTML = `
-        <div class="card-q">${format(q.q)}</div>
-        <div class="swipe-label sl-up">${format(q.u)}</div>
-        <div class="swipe-label sl-lt">${format(q.l)}</div>
-        <div class="swipe-label sl-rt">${format(q.r)}</div>
-        <div class="overlay"><div class="overlay-body">${format(q.e)}</div><button class="btn" onclick="this.parentElement.classList.remove('active')">NEXT</button></div>
+        <div class="card-q">${format(text)}</div>
+        <div class="swipe-label sl-up">${format(up)}</div>
+        <div class="swipe-label sl-lt">${format(lt)}</div>
+        <div class="swipe-label sl-rt">${format(rt)}</div>
+        <div class="overlay"><div class="overlay-body">${format(expl)}</div><button class="btn" onclick="this.parentElement.classList.remove('active')">NEXT</button></div>
     `;
-    s.appendChild(c); bind(c, q);
+    s.appendChild(c); bind(c, {c: correct});
 }
 
 function bind(el, data){
@@ -145,7 +180,7 @@ function bind(el, data){
         if(dist > 5){
             if(ang>=45&&ang<135) labels.up.style.opacity = op;
             else if(ang>=135&&ang<225) labels.lt.style.opacity = op;
-            else if(ang>=225&&ang<315) {} // Reserved for down-swipe
+            else if(ang>=225&&ang<315) {} 
             else labels.rt.style.opacity = op;
         }
 
@@ -155,15 +190,20 @@ function bind(el, data){
 
     const end = () => {
         if(!active) return; active = false;
-        if(dir && dir !== "DOWN"){
+        if(dir){
             isTransitioning = true; if(dir === data.c.toUpperCase()) SCORE += 10;
             el.style.transition = "transform .4s ease-in"; el.style.transform = `translate3d(${dir==="LEFT"?-400:400}px, ${dir==="UP"?-400:400}px, 0)`;
-            setTimeout(() => { el.remove(); isTransitioning = false; render(); }, 300);
+            setTimeout(() => { el.remove(); isTransitioning = false; render(); updateUI(); }, 300);
         } else { el.style.transition = "transform .2s"; el.style.transform = "translate3d(0,0,0) rotate(0deg)"; }
         Object.values(labels).forEach(l => { if(l) l.style.opacity = 0; });
     };
 
     el.onmousedown=start; window.onmousemove=move; window.onmouseup=end; el.ontouchstart=start; el.ontouchmove=move; el.ontouchend=end;
+}
+
+function updateUI(){ 
+    document.getElementById('xp-ui').innerText = `${SCORE} XP`; 
+    document.getElementById('progress-bar').style.width = `${(SCORE % 100)}%`;
 }
 
 window.onload = init;
