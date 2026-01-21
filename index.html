@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist V81.10 - Structural Integrity</title>
+<title>Alchemist V81.11 - Study Mode</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 <style>
 /* -----------------------------------------------------------
-   LOCKED TO V81.4 UI + V81.10 ENHANCEMENTS
+   LOCKED TO V81.4 UI + V81.11 STUDY MODE ENHANCEMENTS
    ----------------------------------------------------------- */
 :root {
     --bg-color: #000;
@@ -38,28 +38,36 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 .card { position: absolute; width: 100%; height: 100%; background: var(--card-bg); border-radius: 40px; border: 1px solid var(--border-color); padding: 30px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 20px 60px rgba(0,0,0,0.9); transform-origin: center center; will-change: transform; z-index: 1; }
 .card-q { font-family: var(--font-serif); font-size: clamp(1.2rem, 4.5vw, 1.7rem); line-height: 1.4; font-weight: 700; text-align: center; color: #f0f0f0; }
 
-/* SWIPE LABELS - FIX: HIGHER Z-INDEX TO PREVENT DROPPING */
+/* SWIPE LABELS */
 .swipe-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.96); font-weight: 900; font-size: 1.8rem; text-transform: uppercase; border-radius: 40px; z-index: 1000; opacity: 0; pointer-events: none; text-align: center; padding: 20px; transition: opacity 0.1s; }
-
-/* CENTERED HINT FIX */
 .sl-dn { flex-direction: column !important; justify-content: center !important; }
 .sl-down-emoji { font-size: 4rem; margin-bottom: 15px; display: block; }
 .sl-down-hint-text { color: var(--hint-blue) !important; font-size: 1.1rem !important; text-transform: none !important; font-family: var(--font-serif) !important; font-weight: 400; line-height: 1.4; max-width: 80%; margin: 0 auto; }
 
-/* ANALYSIS OVERLAY - PARAGRAPH SUPPORT */
-.overlay { position: absolute; inset: 0; background: var(--overlay-bg); z-index: 1100; padding: 40px 30px; opacity: 0; pointer-events: none; border-radius: 40px; display: none; flex-direction: column; justify-content: center; }
+/* V81.11 STUDY MODE OVERLAY CAROUSEL */
+.overlay { position: absolute; inset: 0; background: var(--overlay-bg); z-index: 1100; padding: 30px 20px; opacity: 0; pointer-events: none; border-radius: 40px; display: none; flex-direction: column; justify-content: space-between; overflow: hidden; }
 .overlay.active { opacity: 1; display: flex; pointer-events: auto; }
-.overlay-label { font-size: 0.75rem; color: var(--accent-gold); font-family: var(--font-code); margin-bottom: 15px; letter-spacing: 2px; font-weight: 900; }
-.overlay-body { font-size: 1rem; line-height: 1.7; color: #ccc; margin-bottom: 30px; font-family: var(--font-serif); }
 
-.btn { width: 100%; padding: 20px; border-radius: 100px; border: none; background: #fff; color: #000; font-weight: 900; cursor: pointer; text-transform: uppercase; font-family: var(--font-ui); }
+.study-container { width: 100%; flex-grow: 1; overflow: hidden; position: relative; display: flex; align-items: center; }
+.study-track { display: flex; width: 300%; height: auto; transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); will-change: transform; }
+.study-slide { width: 33.333%; flex-shrink: 0; padding: 0 20px; display: flex; flex-direction: column; justify-content: center; opacity: 0.4; transition: opacity 0.3s; }
+.study-slide.active { opacity: 1; }
+
+.study-header { font-size: 0.75rem; color: var(--accent-gold); font-family: var(--font-code); margin-bottom: 15px; letter-spacing: 2px; font-weight: 900; text-transform: uppercase; }
+.study-body { font-size: 1.05rem; line-height: 1.6; color: #ccc; font-family: var(--font-serif); }
+
+.study-nav { display: flex; justify-content: center; margin-bottom: 20px; gap: 8px; }
+.nav-dot { width: 8px; height: 8px; border-radius: 50%; background: #333; transition: background 0.3s; }
+.nav-dot.active { background: var(--accent-gold); }
+
+.btn { width: 100%; padding: 20px; border-radius: 100px; border: none; background: #fff; color: #000; font-weight: 900; cursor: pointer; text-transform: uppercase; font-family: var(--ui-font); }
 
 #loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.5rem; letter-spacing: 4px; color: var(--gold); }
 </style>
 </head>
 <body>
 
-<div id="loader">ALCHEMIST V81.10</div>
+<div id="loader">ALCHEMIST V81.11</div>
 
 <div id="header">
     <div class="header-meta"><span>RANK: NOVICE</span><span id="xp-ui">0 XP</span></div>
@@ -69,27 +77,23 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 <div id="stack"></div>
 
 <script>
-// JSON DATABASE
+// BASIC DATABASE (We will override explanation for the hardcoded examples)
 const DATABASE = [
-  { "q": "What does a negative ΔG value signify?", "h": "Analyze the energy requirement vs. energy release of the system.", "e": "❌ Positive ΔG means the reaction is non-spontaneous and requires work input. || ❌ Zero ΔG means the system has reached maximum stability and equilibrium. || ✅ A negative ΔG signifies that the reaction is spontaneous and can proceed without outside intervention.", "u": "Spontaneous", "r": "Equilibrium", "l": "Non-Spont", "c": "UP", "w": 1 },
-  { "q": "Why does a catalyst speed up a reaction?", "h": "Think about the energy 'hill' the reactants must climb.", "e": "❌ Catalysts do not change the equilibrium constant K or enthalpy ΔH. || ✅ They provide an alternative reaction pathway with a lower activation energy (Ea), allowing more successful collisions.", "u": "Changes K", "r": "Lowers Ea", "l": "Increases ΔH", "c": "RIGHT", "w": 1 }
+  { "q": "What does a negative ΔG value signify?", "h": "Analyze the energy requirement vs. energy release.", "u": "Spontaneous", "r": "Equilibrium", "l": "Non-Spont", "c": "UP", "w": 1 },
+  { "q": "Why does a catalyst speed up a reaction?", "h": "Think about the energy 'hill' reactants must climb.", "u": "Changes K", "r": "Lowers Ea", "l": "Increases ΔH", "c": "RIGHT", "w": 1 }
 ];
 
 let POOL = [], SCORE = 0, isTransitioning = false;
 const CLAMP = 32, OPACITY = 24;
 
-// THE FORMATTER: Correct Paragraph Support Logic
 const format = t => {
     if(!t) return "";
-    return t.toString()
-        .replace(/([A-Z][a-z]?)(\d+)/g,'$1<sub>$2</sub>')
-        .replace(/(\d*)([+\-])/g, '<sup>$1$2</sup>')
-        .replace(/\|\|/g, '<div style="margin-bottom:15px;"></div>') // Paragraph break
-        .replace(/Δ/g, '&Delta;');
+    return t.toString().replace(/([A-Z][a-z]?)(\d+)/g,'$1<sub>$2</sub>').replace(/(\d*)([+\-])/g, '<sup>$1$2</sup>').replace(/\|\|/g, '<br><br>').replace(/Δ/g, '&Delta;');
 };
 
 function init(){
-    POOL = [...DATABASE].sort(() => Math.random() - 0.5);
+    // Not sorting for this demo to ensure hardcoded examples show first
+    POOL = [...DATABASE]; 
     setTimeout(() => { document.getElementById('loader').remove(); renderNext(); }, 1000);
 }
 
@@ -105,7 +109,26 @@ function renderNext(){
     const lt   = q.l || q.swipe_left_label || "";
     const rt   = q.r || q.swipe_right_label || "";
     const hint = q.h || q.hint || "";
-    const expl = q.e || q.explanation || "";
+    const correct = (q.c || q.correct || "UP").toUpperCase();
+
+    // --- V81.11 HARDCODED STUDY MODE EXAMPLES ---
+    let slide1_insights, slide2_context, slide3_judgment;
+
+    if(text.includes("negative ΔG")) {
+        slide1_insights = "❌ Positive ΔG requires energy input (non-spontaneous). ❌ Zero ΔG indicates equilibrium. || ✅ Negative ΔG means the system releases free energy, allowing the process to occur naturally.";
+        slide2_context = "Think of a ball at the top of a hill. It naturally rolls down, releasing potential energy. It does not need a push to start moving downwards.";
+        slide3_judgment = "Therefore, a negative value definitively confirms the process happens spontaneously under current conditions.";
+    } else if (text.includes("catalyst speed up")) {
+        slide1_insights = "❌ Catalysts do not change equilibrium (K) or enthalpy (ΔH). || ✅ They provide an alternative pathway with a lower Activation Energy (Ea), increasing successful collisions.";
+        slide2_context = "Imagine hiking over a tall mountain versus taking a tunnel through it. The start and end points are the same, but the tunnel requires much less effort to cross.";
+        slide3_judgment = "The catalyst speeds up the journey by offering an easier path, not by changing the destination.";
+    } else {
+        // Fallback for other questions
+        slide1_insights = q.e || "Standard Analysis";
+        slide2_context = "Context not available for this question.";
+        slide3_judgment = "Final judgment not available.";
+    }
+    // -------------------------------------------
 
     c.innerHTML = `
         <div class="card-q">${format(text)}</div>
@@ -117,16 +140,69 @@ function renderNext(){
             <span class="sl-down-hint-text">${format(hint)}</span>
         </div>
         <div class="overlay">
-            <div class="overlay-label">LOGIC ANALYSIS</div>
-            <div class="overlay-body">${format(expl)}</div>
-            <button class="btn" onclick="this.parentElement.classList.remove('active')">CONTINUE</button>
+            <div class="study-container">
+                <div class="study-track">
+                    <div class="study-slide active">
+                        <div class="study-header">1. LOGIC INSIGHTS</div>
+                        <div class="study-body">${format(slide1_insights)}</div>
+                    </div>
+                    <div class="study-slide">
+                        <div class="study-header">2. REAL-WORLD CONTEXT</div>
+                        <div class="study-body">${format(slide2_context)}</div>
+                    </div>
+                    <div class="study-slide">
+                        <div class="study-header">3. FINAL JUDGMENT</div>
+                        <div class="study-body">${format(slide3_judgment)}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="study-nav">
+                <div class="nav-dot active"></div><div class="nav-dot"></div><div class="nav-dot"></div>
+            </div>
+            <button class="btn" onclick="closeOverlay(this)">CONTINUE</button>
         </div>
     `;
     s.appendChild(c); 
-    bindPhysics(c, {c: (q.c || q.correct || "UP").toUpperCase(), w: q.w || q.weight || 1});
+    bindMainPhysics(c, {c: correct, w: q.w || 1});
 }
 
-function bindPhysics(el, data){
+// --- V81.11 OVERLAY PHYSICS ENGINE ---
+function bindOverlayPhysics(overlayEl) {
+    const track = overlayEl.querySelector('.study-track');
+    const slides = overlayEl.querySelectorAll('.study-slide');
+    const dots = overlayEl.querySelectorAll('.nav-dot');
+    let currentSlide = 0;
+    let sx = 0, dx = 0;
+
+    const updateCarousel = () => {
+        track.style.transform = `translateX(-${currentSlide * 33.333}%)`;
+        slides.forEach((s, i) => s.classList.toggle('active', i === currentSlide));
+        dots.forEach((d, i) => d.classList.toggle('active', i === currentSlide));
+    };
+
+    track.ontouchstart = e => { sx = e.touches[0].clientX; };
+    track.ontouchmove = e => { dx = e.touches[0].clientX - sx; };
+    track.ontouchend = () => {
+        if (dx < -50 && currentSlide < 2) currentSlide++;
+        if (dx > 50 && currentSlide > 0) currentSlide--;
+        updateCarousel();
+        dx = 0; 
+    };
+}
+
+function closeOverlay(btn) {
+    btn.parentElement.classList.remove('active');
+    // Reset carousel for next time
+    const track = btn.parentElement.querySelector('.study-track');
+    if(track) track.style.transform = `translateX(0%)`;
+    const dots = btn.parentElement.querySelectorAll('.nav-dot');
+    if(dots.length) { dots.forEach(d=>d.classList.remove('active')); dots[0].classList.add('active'); }
+    const slides = btn.parentElement.querySelectorAll('.study-slide');
+    if(slides.length) { slides.forEach(s=>s.classList.remove('active')); slides[0].classList.add('active'); }
+}
+// ------------------------------------
+
+function bindMainPhysics(el, data){
     let sx=0, sy=0, active=false, dir=null;
     const labels = { up: el.querySelector('.sl-up'), dn: el.querySelector('.sl-dn'), lt: el.querySelector('.sl-lt'), rt: el.querySelector('.sl-rt') };
 
@@ -137,7 +213,6 @@ function bindPhysics(el, data){
         const dx = p.clientX - sx, dy = p.clientY - sy, dist = Math.sqrt(dx*dx + dy*dy);
         const op = Math.min(dist / OPACITY, 1);
         let ang = Math.atan2(-dy, dx) * (180 / Math.PI); if(ang<0) ang+=360;
-        
         Object.values(labels).forEach(l => { if(l) l.style.opacity = 0; });
         if(dist > 5){
             if(ang>=45&&ang<135) labels.up.style.opacity = op;
@@ -153,7 +228,10 @@ function bindPhysics(el, data){
         if(!active) return; active = false;
         if(dir === "DOWN"){ 
             if(window.navigator.vibrate) window.navigator.vibrate(10);
-            el.querySelector('.overlay').classList.add('active'); 
+            const overlay = el.querySelector('.overlay');
+            overlay.classList.add('active');
+            // Initialize overlay physics only when opened
+            bindOverlayPhysics(overlay);
             el.style.transition = "transform .3s"; el.style.transform = "translate3d(0,0,0) rotate(0deg)"; 
         } else if(dir){
             isTransitioning = true;
@@ -164,10 +242,8 @@ function bindPhysics(el, data){
         } else { el.style.transition = "transform .2s"; el.style.transform = "translate3d(0,0,0) rotate(0deg)"; }
         Object.values(labels).forEach(l => { if(l) l.style.opacity = 0; });
     };
-
     el.onmousedown=start; window.onmousemove=move; window.onmouseup=end; el.ontouchstart=start; el.ontouchmove=move; el.ontouchend=end;
 }
-
 function updateUI(){ document.getElementById('xp-ui').innerText = `${SCORE} XP`; document.getElementById('progress-bar').style.width = `${(SCORE % 100)}%`; }
 window.onload = init;
 </script>
