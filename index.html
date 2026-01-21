@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist V81.11 - Study Mode</title>
+<title>Alchemist V81.14 - Mechanical Precision</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 <style>
 /* -----------------------------------------------------------
-   LOCKED TO V81.4 UI + V81.11 STUDY MODE ENHANCEMENTS
+   LOCKED TO V81.4 UI + V81.14 MECHANICAL PRECISION
    ----------------------------------------------------------- */
 :root {
     --bg-color: #000;
@@ -33,219 +33,37 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 .progress-track { width: 100%; height: 4px; background: #222; border-radius: 2px; overflow: hidden; }
 #progress-bar { height: 100%; background: var(--accent-gold); width: 0%; transition: width 0.4s ease; }
 
-/* STACK & CARDS */
+/* STACK & CARDS - LOCKED TO 40px RADIUS */
 #stack { position: relative; width: 92%; max-width: 400px; height: calc(100vh - 180px - env(safe-area-inset-top)); margin: 25px auto 0; perspective: 1200px; }
 .card { position: absolute; width: 100%; height: 100%; background: var(--card-bg); border-radius: 40px; border: 1px solid var(--border-color); padding: 30px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 20px 60px rgba(0,0,0,0.9); transform-origin: center center; will-change: transform; z-index: 1; }
 .card-q { font-family: var(--font-serif); font-size: clamp(1.2rem, 4.5vw, 1.7rem); line-height: 1.4; font-weight: 700; text-align: center; color: #f0f0f0; }
 
-/* SWIPE LABELS */
-.swipe-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.96); font-weight: 900; font-size: 1.8rem; text-transform: uppercase; border-radius: 40px; z-index: 1000; opacity: 0; pointer-events: none; text-align: center; padding: 20px; transition: opacity 0.1s; }
+/* 1:1 AXIS-LOCKED LABELS (DETACHED) */
+.swipe-label { 
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; 
+    background: rgba(0,0,0,0.94); color: #fff; font-weight: 900; font-size: 1.8rem; 
+    text-transform: uppercase; border-radius: 40px; z-index: 1000; opacity: 0; 
+    pointer-events: none; text-align: center; padding: 20px; 
+    will-change: transform, opacity;
+}
+
 .sl-dn { flex-direction: column !important; justify-content: center !important; }
 .sl-down-emoji { font-size: 4rem; margin-bottom: 15px; display: block; }
 .sl-down-hint-text { color: var(--hint-blue) !important; font-size: 1.1rem !important; text-transform: none !important; font-family: var(--font-serif) !important; font-weight: 400; line-height: 1.4; max-width: 80%; margin: 0 auto; }
 
-/* V81.11 STUDY MODE OVERLAY CAROUSEL */
-.overlay { position: absolute; inset: 0; background: var(--overlay-bg); z-index: 1100; padding: 30px 20px; opacity: 0; pointer-events: none; border-radius: 40px; display: none; flex-direction: column; justify-content: space-between; overflow: hidden; }
+/* STUDY OVERLAY - RESPONSIVE SCROLL (V81.12) */
+.overlay { position: absolute; inset: 0; background: var(--overlay-bg); z-index: 1100; padding: 20px; opacity: 0; pointer-events: none; border-radius: 40px; display: none; flex-direction: column; justify-content: space-between; }
 .overlay.active { opacity: 1; display: flex; pointer-events: auto; }
 
-.study-container { width: 100%; flex-grow: 1; overflow: hidden; position: relative; display: flex; align-items: center; }
-.study-track { display: flex; width: 300%; height: auto; transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); will-change: transform; }
-.study-slide { width: 33.333%; flex-shrink: 0; padding: 0 20px; display: flex; flex-direction: column; justify-content: center; opacity: 0.4; transition: opacity 0.3s; }
-.study-slide.active { opacity: 1; }
+.study-container { width: 100%; height: 65vh; overflow: hidden; position: relative; display: flex; align-items: flex-start; margin-top: 10px; }
+.study-track { display: flex; width: 300%; height: 100%; transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); will-change: transform; }
+.study-slide { width: 33.333%; height: 100%; flex-shrink: 0; padding: 0 15px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 
-.study-header { font-size: 0.75rem; color: var(--accent-gold); font-family: var(--font-code); margin-bottom: 15px; letter-spacing: 2px; font-weight: 900; text-transform: uppercase; }
-.study-body { font-size: 1.05rem; line-height: 1.6; color: #ccc; font-family: var(--font-serif); }
+.study-header { font-size: 0.7rem; color: var(--accent-gold); font-family: var(--font-code); margin-bottom: 12px; letter-spacing: 2px; font-weight: 900; text-transform: uppercase; position: sticky; top: 0; background: var(--overlay-bg); padding: 5px 0; }
+.study-body { font-size: 1.05rem; line-height: 1.6; color: #ccc; font-family: var(--font-serif); padding-bottom: 20px; }
 
-.study-nav { display: flex; justify-content: center; margin-bottom: 20px; gap: 8px; }
-.nav-dot { width: 8px; height: 8px; border-radius: 50%; background: #333; transition: background 0.3s; }
+.study-nav { display: flex; justify-content: center; margin-bottom: 15px; gap: 8px; }
+.nav-dot { width: 7px; height: 7px; border-radius: 50%; background: #333; transition: background 0.3s; }
 .nav-dot.active { background: var(--accent-gold); }
 
-.btn { width: 100%; padding: 20px; border-radius: 100px; border: none; background: #fff; color: #000; font-weight: 900; cursor: pointer; text-transform: uppercase; font-family: var(--ui-font); }
-
-#loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.5rem; letter-spacing: 4px; color: var(--gold); }
-</style>
-</head>
-<body>
-
-<div id="loader">ALCHEMIST V81.11</div>
-
-<div id="header">
-    <div class="header-meta"><span>RANK: NOVICE</span><span id="xp-ui">0 XP</span></div>
-    <div class="progress-track"><div id="progress-bar"></div></div>
-</div>
-
-<div id="stack"></div>
-
-<script>
-// BASIC DATABASE (We will override explanation for the hardcoded examples)
-const DATABASE = [
-  { "q": "What does a negative ΔG value signify?", "h": "Analyze the energy requirement vs. energy release.", "u": "Spontaneous", "r": "Equilibrium", "l": "Non-Spont", "c": "UP", "w": 1 },
-  { "q": "Why does a catalyst speed up a reaction?", "h": "Think about the energy 'hill' reactants must climb.", "u": "Changes K", "r": "Lowers Ea", "l": "Increases ΔH", "c": "RIGHT", "w": 1 }
-];
-
-let POOL = [], SCORE = 0, isTransitioning = false;
-const CLAMP = 32, OPACITY = 24;
-
-const format = t => {
-    if(!t) return "";
-    return t.toString().replace(/([A-Z][a-z]?)(\d+)/g,'$1<sub>$2</sub>').replace(/(\d*)([+\-])/g, '<sup>$1$2</sup>').replace(/\|\|/g, '<br><br>').replace(/Δ/g, '&Delta;');
-};
-
-function init(){
-    // Not sorting for this demo to ensure hardcoded examples show first
-    POOL = [...DATABASE]; 
-    setTimeout(() => { document.getElementById('loader').remove(); renderNext(); }, 1000);
-}
-
-function renderNext(){
-    const s = document.getElementById('stack'); s.innerHTML = "";
-    if(!POOL.length){ s.innerHTML = `<div class="card"><div class="card-q">MISSION COMPLETE<br>${SCORE} XP</div><button class="btn" onclick="location.reload()">REPLAY</button></div>`; return; }
-    
-    const q = POOL.shift();
-    const c = document.createElement('div'); c.className = "card";
-    
-    const text = q.q || q.question_text || "";
-    const up   = q.u || q.swipe_up_label || "";
-    const lt   = q.l || q.swipe_left_label || "";
-    const rt   = q.r || q.swipe_right_label || "";
-    const hint = q.h || q.hint || "";
-    const correct = (q.c || q.correct || "UP").toUpperCase();
-
-    // --- V81.11 HARDCODED STUDY MODE EXAMPLES ---
-    let slide1_insights, slide2_context, slide3_judgment;
-
-    if(text.includes("negative ΔG")) {
-        slide1_insights = "❌ Positive ΔG requires energy input (non-spontaneous). ❌ Zero ΔG indicates equilibrium. || ✅ Negative ΔG means the system releases free energy, allowing the process to occur naturally.";
-        slide2_context = "Think of a ball at the top of a hill. It naturally rolls down, releasing potential energy. It does not need a push to start moving downwards.";
-        slide3_judgment = "Therefore, a negative value definitively confirms the process happens spontaneously under current conditions.";
-    } else if (text.includes("catalyst speed up")) {
-        slide1_insights = "❌ Catalysts do not change equilibrium (K) or enthalpy (ΔH). || ✅ They provide an alternative pathway with a lower Activation Energy (Ea), increasing successful collisions.";
-        slide2_context = "Imagine hiking over a tall mountain versus taking a tunnel through it. The start and end points are the same, but the tunnel requires much less effort to cross.";
-        slide3_judgment = "The catalyst speeds up the journey by offering an easier path, not by changing the destination.";
-    } else {
-        // Fallback for other questions
-        slide1_insights = q.e || "Standard Analysis";
-        slide2_context = "Context not available for this question.";
-        slide3_judgment = "Final judgment not available.";
-    }
-    // -------------------------------------------
-
-    c.innerHTML = `
-        <div class="card-q">${format(text)}</div>
-        <div class="swipe-label sl-up">${format(up)}</div>
-        <div class="swipe-label sl-lt">${format(lt)}</div>
-        <div class="swipe-label sl-rt">${format(rt)}</div>
-        <div class="swipe-label sl-dn">
-            <span class="sl-down-emoji">💡</span>
-            <span class="sl-down-hint-text">${format(hint)}</span>
-        </div>
-        <div class="overlay">
-            <div class="study-container">
-                <div class="study-track">
-                    <div class="study-slide active">
-                        <div class="study-header">1. LOGIC INSIGHTS</div>
-                        <div class="study-body">${format(slide1_insights)}</div>
-                    </div>
-                    <div class="study-slide">
-                        <div class="study-header">2. REAL-WORLD CONTEXT</div>
-                        <div class="study-body">${format(slide2_context)}</div>
-                    </div>
-                    <div class="study-slide">
-                        <div class="study-header">3. FINAL JUDGMENT</div>
-                        <div class="study-body">${format(slide3_judgment)}</div>
-                    </div>
-                </div>
-            </div>
-            <div class="study-nav">
-                <div class="nav-dot active"></div><div class="nav-dot"></div><div class="nav-dot"></div>
-            </div>
-            <button class="btn" onclick="closeOverlay(this)">CONTINUE</button>
-        </div>
-    `;
-    s.appendChild(c); 
-    bindMainPhysics(c, {c: correct, w: q.w || 1});
-}
-
-// --- V81.11 OVERLAY PHYSICS ENGINE ---
-function bindOverlayPhysics(overlayEl) {
-    const track = overlayEl.querySelector('.study-track');
-    const slides = overlayEl.querySelectorAll('.study-slide');
-    const dots = overlayEl.querySelectorAll('.nav-dot');
-    let currentSlide = 0;
-    let sx = 0, dx = 0;
-
-    const updateCarousel = () => {
-        track.style.transform = `translateX(-${currentSlide * 33.333}%)`;
-        slides.forEach((s, i) => s.classList.toggle('active', i === currentSlide));
-        dots.forEach((d, i) => d.classList.toggle('active', i === currentSlide));
-    };
-
-    track.ontouchstart = e => { sx = e.touches[0].clientX; };
-    track.ontouchmove = e => { dx = e.touches[0].clientX - sx; };
-    track.ontouchend = () => {
-        if (dx < -50 && currentSlide < 2) currentSlide++;
-        if (dx > 50 && currentSlide > 0) currentSlide--;
-        updateCarousel();
-        dx = 0; 
-    };
-}
-
-function closeOverlay(btn) {
-    btn.parentElement.classList.remove('active');
-    // Reset carousel for next time
-    const track = btn.parentElement.querySelector('.study-track');
-    if(track) track.style.transform = `translateX(0%)`;
-    const dots = btn.parentElement.querySelectorAll('.nav-dot');
-    if(dots.length) { dots.forEach(d=>d.classList.remove('active')); dots[0].classList.add('active'); }
-    const slides = btn.parentElement.querySelectorAll('.study-slide');
-    if(slides.length) { slides.forEach(s=>s.classList.remove('active')); slides[0].classList.add('active'); }
-}
-// ------------------------------------
-
-function bindMainPhysics(el, data){
-    let sx=0, sy=0, active=false, dir=null;
-    const labels = { up: el.querySelector('.sl-up'), dn: el.querySelector('.sl-dn'), lt: el.querySelector('.sl-lt'), rt: el.querySelector('.sl-rt') };
-
-    const start = e => { if(isTransitioning || el.querySelector('.overlay').classList.contains('active')) return; active=true; const p=e.touches?e.touches[0]:e; sx=p.clientX; sy=p.clientY; el.style.transition="none"; };
-    
-    const move = e => {
-        if(!active) return; const p=e.touches?e.touches[0]:e;
-        const dx = p.clientX - sx, dy = p.clientY - sy, dist = Math.sqrt(dx*dx + dy*dy);
-        const op = Math.min(dist / OPACITY, 1);
-        let ang = Math.atan2(-dy, dx) * (180 / Math.PI); if(ang<0) ang+=360;
-        Object.values(labels).forEach(l => { if(l) l.style.opacity = 0; });
-        if(dist > 5){
-            if(ang>=45&&ang<135) labels.up.style.opacity = op;
-            else if(ang>=135&&ang<225) labels.lt.style.opacity = op;
-            else if(ang>=225&&ang<315) labels.dn.style.opacity = op;
-            else labels.rt.style.opacity = op;
-        }
-        el.style.transform = `translate3d(${dx}px, ${dy}px, 0) rotate(${dx/25}deg)`;
-        dir = (dist >= CLAMP) ? (ang>=45&&ang<135?"UP":ang>=135&&ang<225?"LEFT":ang>=225&&ang<315?"DOWN":"RIGHT") : null;
-    };
-
-    const end = () => {
-        if(!active) return; active = false;
-        if(dir === "DOWN"){ 
-            if(window.navigator.vibrate) window.navigator.vibrate(10);
-            const overlay = el.querySelector('.overlay');
-            overlay.classList.add('active');
-            // Initialize overlay physics only when opened
-            bindOverlayPhysics(overlay);
-            el.style.transition = "transform .3s"; el.style.transform = "translate3d(0,0,0) rotate(0deg)"; 
-        } else if(dir){
-            isTransitioning = true;
-            if(dir !== data.c && window.navigator.vibrate) window.navigator.vibrate([50, 100, 50]);
-            if(dir === data.c) SCORE += (10 * data.w);
-            el.style.transition = "transform .4s ease-in"; el.style.transform = `translate3d(${dir==="LEFT"?-400:400}px, ${dir==="UP"?-400:400}px, 0)`;
-            setTimeout(() => { el.remove(); isTransitioning = false; renderNext(); updateUI(); }, 300);
-        } else { el.style.transition = "transform .2s"; el.style.transform = "translate3d(0,0,0) rotate(0deg)"; }
-        Object.values(labels).forEach(l => { if(l) l.style.opacity = 0; });
-    };
-    el.onmousedown=start; window.onmousemove=move; window.onmouseup=end; el.ontouchstart=start; el.ontouchmove=move; el.ontouchend=end;
-}
-function updateUI(){ document.getElementById('xp-ui').innerText = `${SCORE} XP`; document.getElementById('progress-bar').style.width = `${(SCORE % 100)}%`; }
-window.onload = init;
-</script>
-</body>
-</html>
+.btn { width: 100%; padding: 18px; border-radius: 100px; border: none; background: #fff; color
