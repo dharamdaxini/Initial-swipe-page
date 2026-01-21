@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Alchemist Nexus V80.1</title>
-    
+    <title>Alchemist V80.2 Universal</title>
     <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,600;1,600&family=Inter:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 
     <style>
@@ -13,32 +12,45 @@
             --font-chem: 'Crimson Text', serif; --font-ui: 'Inter', sans-serif; --font-code: 'JetBrains Mono', monospace;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        /* HARDWARE ACCELERATION ENABLED */
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+            outline: none;
+            -webkit-font-smoothing: antialiased;
+            backface-visibility: hidden;
+        }
+
         body { 
             margin: 0; height: 100vh; background: var(--bg); color: #fff;
             font-family: var(--font-ui); overflow: hidden; touch-action: none; 
+            display: flex; flex-direction: column;
         }
 
         sub { font-size: 0.7em; vertical-align: sub; line-height: 0; }
         sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 
         /* HEADER HUD */
-        #header { width: 90%; margin: calc(25px + env(safe-area-inset-top)) auto 0; z-index: 100; position: relative; }
+        #header { width: 90%; margin: 25px auto 0; z-index: 100; position: relative; flex-shrink: 0; }
         .header-meta { display: flex; justify-content: space-between; font-family: var(--font-code); font-size: 0.7rem; color: #555; letter-spacing: 2px; }
         .progress-track { width: 100%; height: 2px; background: #1a1a1a; margin-top: 10px; border-radius: 1px; overflow: hidden; }
         #progress-bar { height: 100%; background: var(--gold); width: 0%; transition: width 0.4s ease; }
 
         /* THE STACK */
-        #stack { position: relative; width: 92%; max-width: 400px; height: 72vh; margin: 30px auto 0; perspective: 1200px; }
+        #stack { 
+            position: relative; width: 92%; max-width: 400px; height: 70vh; 
+            margin: auto; perspective: 1200px; display: flex; align-items: center; justify-content: center;
+        }
         
         .card { 
-            position: absolute; width: 100%; height: 100%; background: var(--card); border-radius: 40px; border: 1px solid var(--border);
-            padding: 45px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 30px 90px rgba(0,0,0,0.9);
-            transition: filter 0.4s ease, opacity 0.4s ease, transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+            position: absolute; width: 100%; height: 90%; background: var(--card); border-radius: 40px; border: 1px solid var(--border);
+            padding: 40px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 30px 90px rgba(0,0,0,0.9);
+            will-change: transform, opacity; /* FORCES GPU RENDERING */
+            transform: translate3d(0,0,0);
         }
 
-        /* RIFT PHYSICS */
-        .card.study-active { filter: blur(20px) brightness(0.2); opacity: 0.5; transform: scale(0.85) translateY(40px); pointer-events: none; }
+        /* RIFT PHYSICS (DESKTOP OPTIMIZED) */
+        .card.study-active { filter: blur(20px) brightness(0.2); opacity: 0.5; transform: scale(0.85) translateY(40px) !important; pointer-events: none; }
         
         .card-q { font-family: var(--font-chem); font-size: 1.8rem; line-height: 1.4; font-style: italic; font-weight: 600; text-align: center; color: #f0f0f0; }
 
@@ -46,9 +58,8 @@
         .swipe-label {
             position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
             background: #000; color: #fff; font-weight: 900; font-size: 1.8rem; text-transform: uppercase;
-            border-radius: 40px; z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.1s; text-align: center; padding: 20px;
+            border-radius: 40px; z-index: 999; opacity: 0; pointer-events: none; text-align: center; padding: 20px;
         }
-        .sl-down-hint { color: var(--blue) !important; font-size: 1.2rem !important; text-transform: none !important; font-family: var(--font-chem) !important; }
 
         /* OVERLAY */
         .overlay {
@@ -59,14 +70,14 @@
         .overlay.active { opacity: 1; pointer-events: auto; }
         .overlay-label { font-size: 0.7rem; color: var(--gold); font-family: var(--font-code); margin-bottom: 10px; letter-spacing: 2px; }
         .overlay-body { font-size: 1.15rem; line-height: 1.6; color: #bbb; margin-bottom: 30px; font-family: var(--font-chem); }
-        .btn { width: 100%; padding: 18px; border-radius: 50px; border: none; background: #fff; color: #000; font-weight: 900; text-transform: uppercase; }
+        .btn { width: 100%; padding: 18px; border-radius: 50px; border: none; background: #fff; color: #000; font-weight: 900; text-transform: uppercase; cursor: pointer;}
 
         #loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: var(--font-code); color: var(--gold); letter-spacing: 5px; }
     </style>
 </head>
 <body>
 
-<div id="loader">NEXUS V80.1</div>
+<div id="loader">UNIVERSAL V80.2</div>
 
 <div id="header">
     <div class="header-meta">
@@ -79,66 +90,51 @@
 <div id="stack"></div>
 
 <script>
-    /* --- CONFIGURATION --- */
     const ENDPOINT = "https://script.google.com/macros/s/AKfycbwv_n-Q0J0hwRPIzy2D0mx54-fKNDmvKG0kPgZZwoN5xZGloJbAFP-upgMbGf/exec";
 
-    /* --- THE 1000Q REPOSITORY --- */
+    // INSERT YOUR DATA REPOSITORY HERE
     const RAW_DATA = [
-        { "dataset": "SET_A", "topic": "Physical", "q_type": "CONCEPT", "question_text": "What does a negative ΔG value signify for a chemical reaction?", "hint": "Spontaneity depends on Gibbs free energy.", "explanation": "✅ A negative ΔG indicates the reaction is spontaneous at the given temperature. || ❌ Positive ΔG means the reaction is non-spontaneous.", "swipe_up_label": "Spontaneous", "swipe_right_label": "Equilibrium", "swipe_left_label": "Non-spontaneous", "correct": "UP", "weight": 1 },
-        { "dataset": "SET_A", "topic": "Physical", "q_type": "APPLICATION", "question_text": "What is the pH of a 0.001 M HCl solution?", "hint": "pH = -log[H+].", "explanation": "✅ -log(10-3) = 3. || ❌ pH 1 would be for a 0.1 M solution.", "swipe_up_label": "pH 7", "swipe_right_label": "pH 3", "swipe_left_label": "pH 1", "correct": "RIGHT", "weight": 2 }
-        /* Add up to 1000 objects here */
+        { "id": "A_PH_C_001", "dataset": "SET_A", "topic": "Physical", "q_type": "CONCEPT", "question_text": "What does a negative ΔG value signify?", "hint": "Spontaneity check.", "explanation": "✅ Spontaneous reaction.", "swipe_up_label": "Spontaneous", "swipe_right_label": "Equilibrium", "swipe_left_label": "Non-Spontaneous", "correct": "UP", "weight": 1 }
     ];
 
-    let POOL = [], MISTAKES = [], SCORE = 0, isTransitioning = false;
+    let POOL = [], SCORE = 0, isTransitioning = false;
     let MODE = "DATASET_SELECT", CUR_DATASET = "", CUR_TOPIC = "", CUR_GENRE = "";
     let startTime = 0, latency = 0;
 
     const formatChem = t => t.toString().replace(/([A-Z][a-z]?)(\d+)/g,'$1<sub>$2</sub>').replace(/(\d*)([+\-])/g, '<sup>$1$2</sup>').replace(/\|\|/g, '<br><br>');
 
     function init() {
-        setTimeout(() => { document.getElementById('loader').remove(); renderDatasetSelect(); }, 1200);
+        setTimeout(() => { document.getElementById('loader').remove(); renderDatasetSelect(); }, 800);
     }
 
-    /* --- NICHE SELECTION RENDERERS --- */
+    /* --- NAVIGATION --- */
     function renderDatasetSelect() {
-        MODE = "DATASET_SELECT"; 
-        const s = document.getElementById('stack'); s.innerHTML = "";
-        const c = document.createElement('div'); c.className = "card";
-        c.innerHTML = `<div class="card-q">SELECT CURRICULUM</div>
-            <div class="swipe-label sl-up">SET A</div><div class="swipe-label sl-left">SET B</div>
-            <div class="swipe-label sl-right">SET C</div><div class="swipe-label sl-down">SET D</div>`;
-        s.appendChild(c); bindPhysics(c);
+        MODE = "DATASET_SELECT"; renderMenuCard("SELECT CURRICULUM", "SET A", "SET B", "SET C", "SET D");
     }
 
     function renderTopicSelect(dataset) {
         MODE = "TOPIC_SELECT"; CUR_DATASET = dataset;
-        const s = document.getElementById('stack'); s.innerHTML = "";
-        const c = document.createElement('div'); c.className = "card";
-        c.innerHTML = `<div class="card-q">CHOOSE DOMAIN</div>
-            <div class="swipe-label sl-up">PHYSICAL</div><div class="swipe-label sl-left">ORGANIC</div>
-            <div class="swipe-label sl-right">INORGANIC</div><div class="swipe-label sl-down">ANALYTICAL</div>`;
-        s.appendChild(c); bindPhysics(c);
+        renderMenuCard("CHOOSE DOMAIN", "PHYSICAL", "ORGANIC", "INORGANIC", "ANALYTICAL");
     }
 
     function renderGenreSelect(topic) {
         MODE = "GENRE_SELECT"; CUR_TOPIC = topic;
+        renderMenuCard("SELECT DEPTH", "CONCEPT", "", "", "APPLICATION");
+    }
+
+    function renderMenuCard(q, up, lt, rt, dn) {
         const s = document.getElementById('stack'); s.innerHTML = "";
         const c = document.createElement('div'); c.className = "card";
-        c.innerHTML = `<div class="card-q">SELECT DEPTH</div>
-            <div class="swipe-label sl-up">CONCEPT</div><div class="swipe-label sl-down">APPLICATION</div>`;
+        c.innerHTML = `<div class="card-q">${q}</div>
+            <div class="swipe-label sl-up">${up}</div><div class="swipe-label sl-left">${lt}</div>
+            <div class="swipe-label sl-right">${rt}</div><div class="swipe-label sl-down">${dn}</div>`;
         s.appendChild(c); bindPhysics(c);
     }
 
-    /* --- QUIZ ENGINE --- */
     function startQuiz(genre) {
         CUR_GENRE = genre;
-        POOL = RAW_DATA.filter(q => 
-            q.dataset === CUR_DATASET && 
-            q.topic === CUR_TOPIC && 
-            q.q_type === CUR_GENRE
-        ).sort(() => Math.random() - .5);
-
-        if(!POOL.length) { alert("Niche Empty. Returning..."); renderDatasetSelect(); return; }
+        POOL = RAW_DATA.filter(q => q.dataset === CUR_DATASET && q.topic === CUR_TOPIC && q.q_type === CUR_GENRE).sort(() => Math.random() - .5);
+        if(!POOL.length) { alert("Empty niche."); renderDatasetSelect(); return; }
         renderNext();
     }
 
@@ -146,81 +142,79 @@
         MODE = "QUIZ";
         const s = document.getElementById('stack'); s.innerHTML = "";
         if(!POOL.length) { renderEnd(); return; }
-        
         const q = POOL[0];
         const c = document.createElement('div'); c.className = "card";
-        c.innerHTML = `
-            <div class="card-q">${formatChem(q.question_text)}</div>
-            <div class="swipe-label sl-up">${q.swipe_up_label}</div>
-            <div class="swipe-label sl-left">${q.swipe_left_label}</div>
-            <div class="swipe-label sl-right">${q.swipe_right_label}</div>
-            <div class="swipe-label sl-down sl-down-hint">${q.hint}</div>
-            <div class="overlay">
-                <div class="overlay-label">LOGIC ANALYSIS</div>
-                <div class="overlay-body">${formatChem(q.explanation)}</div>
-                <button class="btn" onclick="this.parentElement.classList.remove('active')">CONTINUE</button>
-            </div>
-        `;
+        c.innerHTML = `<div class="card-q">${formatChem(q.question_text)}</div>
+            <div class="swipe-label sl-up">${q.swipe_up_label}</div><div class="swipe-label sl-left">${q.swipe_left_label}</div>
+            <div class="swipe-label sl-right">${q.swipe_right_label}</div><div class="swipe-label sl-down" style="color:var(--blue)">${q.hint}</div>
+            <div class="overlay"><div class="overlay-label">ANALYSIS</div><div class="overlay-body">${formatChem(q.explanation)}</div><button class="btn" onclick="this.parentElement.classList.remove('active')">CONTINUE</button></div>`;
         s.appendChild(c); bindPhysics(c, q);
     }
 
-    /* --- PHYSICS & INTERACTION --- */
+    /* --- UNIVERSAL INPUT ENGINE (MOUSE + TOUCH) --- */
     function bindPhysics(el, data) {
         let x=0, y=0, sx=0, sy=0, active=false, triggerDir=null;
         const labels = { up: el.querySelector('.sl-up'), dn: el.querySelector('.sl-down'), lt: el.querySelector('.sl-left'), rt: el.querySelector('.sl-right') };
 
-        el.ontouchstart = e => { 
-            if(isTransitioning) return; active=true; 
-            const p = e.touches[0]; sx=p.clientX; sy=p.clientY; startTime = Date.now(); el.style.transition="none"; 
+        const start = e => {
+            if(isTransitioning) return; active=true;
+            const p = (e.touches ? e.touches[0] : e);
+            sx = p.clientX; sy = p.clientY; startTime = Date.now();
+            el.style.transition = "none";
         };
-        
-        el.ontouchmove = e => {
-            if(!active) return; const p = e.touches[0], dx = p.clientX - sx, dy = p.clientY - sy, dist = Math.sqrt(dx*dx + dy*dy);
-            const opacity = Math.min(dist/24, 1);
-            x = (dist > 32) ? dx * (32/dist) : dx; y = (dist > 32) ? dy * (32/dist) : dy;
-            let ang = Math.atan2(-y, x) * (180/Math.PI); if(ang<0) ang+=360;
+
+        const move = e => {
+            if(!active) return;
+            const p = (e.touches ? e.touches[0] : e);
+            const dx = p.clientX - sx, dy = p.clientY - sy, dist = Math.sqrt(dx*dx + dy*dy);
+            x = (dist > 35) ? dx * (35/dist) : dx; y = (dist > 35) ? dy * (35/dist) : dy;
             
+            let ang = Math.atan2(-y, x) * (180/Math.PI); if(ang<0) ang+=360;
             Object.values(labels).forEach(l => { if(l) l.style.opacity = 0; });
-            if(dist > 5) {
+
+            if(dist > 10) {
                 let L = (ang>=45&&ang<135)?labels.up:(ang>=135&&ang<225)?labels.lt:(ang>=225&&ang<315)?labels.dn:labels.rt;
-                if(L) { L.style.opacity = opacity; L.style.transform = `scale(${0.85 + (opacity*0.15)})`; }
+                if(L) { L.style.opacity = Math.min(dist/30, 1); L.style.transform = `scale(${0.9 + (dist/100)})`; }
             }
             if(MODE === "QUIZ" && triggerDir === "DOWN") el.classList.add('study-active');
             else el.classList.remove('study-active');
 
-            el.style.transform = `translate3d(${x}px,${y}px,0) rotate(${x/25}deg)`;
-            triggerDir = (dist >= 32) ? ((ang>=45&&ang<135)?"UP":(ang>=135&&ang<225)?"LEFT":(ang>=225&&ang<315)?"DOWN":"RIGHT") : null;
+            el.style.transform = `translate3d(${x}px,${y}px,0) rotate(${x/20}deg)`;
+            triggerDir = (dist >= 35) ? ((ang>=45&&ang<135)?"UP":(ang>=135&&ang<225)?"LEFT":(ang>=225&&ang<315)?"DOWN":"RIGHT") : null;
         };
-        
-        el.ontouchend = () => {
+
+        const end = () => {
             if(!active) return; active=false;
             if(triggerDir) {
                 if(MODE === "QUIZ" && triggerDir === "DOWN") {
                     latency = Date.now() - startTime;
                     el.querySelector('.overlay').classList.add('active');
-                    el.style.transition="transform .3s"; el.style.transform="translate3d(0,0,0)";
+                    el.style.transition = "transform 0.3s ease"; el.style.transform = "translate3d(0,0,0)";
                 } else handleAction(el, data, x, y, triggerDir);
-            } else { el.style.transition="transform .2s"; el.style.transform="translate3d(0,0,0)"; el.classList.remove('study-active'); }
+            } else {
+                el.style.transition = "transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+                el.style.transform = "translate3d(0,0,0)"; el.classList.remove('study-active');
+            }
         };
+
+        el.addEventListener('mousedown', start); window.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
+        el.addEventListener('touchstart', start); el.addEventListener('touchmove', move); el.addEventListener('touchend', end);
     }
 
     function handleAction(el, data, x, y, dir) {
         isTransitioning = true;
-        
-        // Data Routing for Selection Modes
-        if(MODE === "DATASET_SELECT") { renderTopicSelect(dir === "UP" ? "SET_A" : dir === "LEFT" ? "SET_B" : dir === "RIGHT" ? "SET_C" : "SET_D"); }
-        else if(MODE === "TOPIC_SELECT") { renderGenreSelect(dir === "UP" ? "Physical" : dir === "LEFT" ? "Organic" : dir === "RIGHT" ? "Inorganic" : "Analytical"); }
-        else if(MODE === "GENRE_SELECT") { startQuiz(dir === "UP" ? "CONCEPT" : "APPLICATION"); }
+        if(MODE === "DATASET_SELECT") renderTopicSelect(dir === "UP" ? "SET_A" : dir === "LEFT" ? "SET_B" : dir === "RIGHT" ? "SET_C" : "SET_D");
+        else if(MODE === "TOPIC_SELECT") renderTopicSelect(dir === "UP" ? "Physical" : dir === "LEFT" ? "Organic" : dir === "RIGHT" ? "Inorganic" : "Analytical");
+        else if(MODE === "GENRE_SELECT") startQuiz(dir === "UP" ? "CONCEPT" : "APPLICATION");
         else if(MODE === "QUIZ") {
             const correct = dir === data.correct;
-            if(correct) SCORE += (10 * (data.weight || 1));
+            if(correct) SCORE += 10;
             new Image().src = `${ENDPOINT}?target=Telemetry&questionId=${data.id}&result=${correct}&vectorChoice=${dir}&latency=${latency}`;
-            POOL.shift(); updateUI(); renderNext();
+            POOL.shift(); renderNext();
         }
-
-        el.style.transition="transform .4s ease-in, opacity .4s";
-        el.style.transform=`translate3d(${x*10}px,${y*10}px,0)`; el.style.opacity="0";
-        setTimeout(() => { el.remove(); isTransitioning = false; }, 400);
+        el.style.transition = "transform 0.4s ease-in, opacity 0.3s";
+        el.style.transform = `translate3d(${x*10}px,${y*10}px,0)`; el.style.opacity = "0";
+        setTimeout(() => { el.remove(); isTransitioning = false; updateUI(); }, 400);
     }
 
     function updateUI() {
@@ -230,8 +224,7 @@
 
     function renderEnd() {
         const s = document.getElementById('stack');
-        s.innerHTML = `<div class="card"><div class="card-q">NICHE COMPLETE<br><span style="color:var(--gold)">${SCORE} XP</span></div>
-            <button class="btn" onclick="location.reload()">MAIN MENU</button></div>`;
+        s.innerHTML = `<div class="card"><div class="card-q">NICHE DONE<br>${SCORE} XP</div><button class="btn" onclick="location.reload()">RESTART</button></div>`;
     }
 
     window.onload = init;
