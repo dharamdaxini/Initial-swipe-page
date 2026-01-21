@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist V81.24 - Linear Insight</title>
+<title>Alchemist V81.25 - Luminous Stage One</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 <style>
 /* --- LOCKED TO V81.4 UI ENGINE --- */
@@ -23,23 +23,18 @@ body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family
 /* RESTRAINED XY PLANE LABELS */
 .swipe-label { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.95); color: #fff; font-weight: 900; font-size: 1.8rem; text-transform: uppercase; border-radius: 40px; z-index: 2000; text-align: center; padding: 20px; will-change: transform, opacity; pointer-events: none; }
 
-/* PROGRESSIVE STUDY LAYOUT */
-.sl-dn { flex-direction: column !important; justify-content: flex-start !important; padding-top: 60px; }
-.sl-down-emoji { font-size: 5rem; display: block; transition: filter 0.2s; will-change: filter; margin-bottom: 30px; }
+/* STAGE ONE DOWN-SWIPE LAYOUT */
+.sl-dn { flex-direction: column !important; justify-content: flex-start !important; padding-top: 80px; } /* Pinned to Blue Marked Location */
+.sl-down-emoji { font-size: 5.5rem; display: none; transition: filter 0.1s; will-change: filter; margin-bottom: 25px; }
 
-/* CONTENT WRAPPER */
-.study-content-wrap { width: 100%; padding: 0 10px; opacity: 0; transform: translateY(20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-.study-content-wrap.active { opacity: 1; transform: translateY(0); }
+/* READABLE BULLET CONTEXT */
+.context-wrap { width: 100%; padding: 0 15px; opacity: 0; transform: translateY(30px); transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.2); }
+.context-wrap.active { opacity: 1; transform: translateY(0); }
 
-.context-block { margin-bottom: 25px; }
-.study-header { font-size: 0.7rem; color: var(--gold); font-family: var(--code); margin-bottom: 8px; letter-spacing: 2px; font-weight: 900; }
-.study-body { font-size: 1.1rem; line-height: 1.6; color: #ccc; font-family: var(--serif); text-align: center; }
-
-/* OPTION COMPARISON (STAGE 2) */
-.comparison-block { margin-top: 20px; border-top: 1px solid #333; padding-top: 20px; display: none; }
-.comparison-block.active { display: block; animation: slideUp 0.4s ease forwards; }
-
-@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.study-header { font-size: 0.75rem; color: var(--gold); font-family: var(--code); margin-bottom: 12px; letter-spacing: 2px; font-weight: 900; }
+.bullet-list { list-style: none; padding: 0; margin: 0; text-align: left; }
+.bullet-item { font-size: 1.15rem; line-height: 1.6; color: #eee; font-family: var(--serif); margin-bottom: 12px; position: relative; padding-left: 25px; }
+.bullet-item::before { content: "•"; position: absolute; left: 0; color: var(--gold); font-size: 1.4rem; }
 
 #loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.5rem; letter-spacing: 4px; color: var(--gold); }
 sub { font-size: 0.7em; vertical-align: sub; line-height: 0; }
@@ -48,7 +43,7 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 </head>
 <body>
 
-<div id="loader">ALCHEMIST V81.24</div>
+<div id="loader">ALCHEMIST V81.25</div>
 <div id="header">
     <div class="header-meta"><span>RANK: NOVICE</span><span id="xp-ui">0 XP</span></div>
     <div class="progress-track"><div id="progress-bar"></div></div>
@@ -60,33 +55,27 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
     <div id="sl-rt" class="swipe-label">RIGHT</div>
     <div id="sl-dn" class="swipe-label">
         <span class="sl-down-emoji">💡</span>
-        <div id="study-mount" class="study-content-wrap">
-            <div class="context-block">
-                <div class="study-header">CONTEXT</div>
-                <div id="context-text" class="study-body"></div>
-            </div>
-            <div id="comparison-mount" class="comparison-block">
-                <div class="study-header">OPTION COMPARISON</div>
-                <div id="comparison-text" class="study-body"></div>
-            </div>
+        <div id="context-mount" class="context-wrap">
+            <div class="study-header">CONTEXT</div>
+            <ul id="bullet-mount" class="bullet-list"></ul>
         </div>
     </div>
 </div>
 
 <script>
 const DATABASE = [
-  { "q": "What does a negative ΔG value signify?", "h": "Analyze energy release vs requirement.", "u": "Spontaneous", "r": "Equilibrium", "l": "Non-Spont", "c": "UP", "context": "Think of a ball on a slope. It naturally rolls down to lower potential energy without a push.", "insights": "❌ Positive ΔG = Requires Energy || ✅ Negative ΔG = Releases Energy (Spontaneous)." },
-  { "q": "Why does a catalyst speed up a reaction?", "h": "Think about the energy 'hill'.", "u": "Changes K", "r": "Lowers Ea", "l": "Increases ΔH", "c": "RIGHT", "context": "Imagine a mountain tunnel. The start and end are the same height, but the tunnel is much faster to cross.", "insights": "❌ ΔH/K Unchanged || ✅ Lower Activation Energy (Ea) path provided." }
+  { "q": "What does a negative ΔG value signify?", "u": "Spontaneous", "r": "Equilibrium", "l": "Non-Spont", "c": "UP", "bullets": ["Naturally rolls down a slope", "Releases potential energy", "Needs no external push"] }
 ];
 
-let POOL = [], SCORE = 0, isTransitioning = false, studyStage = 0;
+let POOL = [], SCORE = 0, isTransitioning = false;
 const CLAMP_UI = 32;
-const TRIGGER_DEEP = 96; // 3 cm
+const TRIGGER_BULB = 64; // 2 cm Appearance
+const TRIGGER_CONTEXT = 96; // 3 cm Reveal
 const OPACITY_START = 24;
 
 const format = t => {
     if(!t) return "";
-    return t.toString().replace(/([A-Z][a-z]?)(\d+)/g,'$1<sub>$2</sub>').replace(/(\d*)([+\-])/g, '<sup>$1$2</sup>').replace(/\|\|/g, '<br><br>').replace(/Δ/g, '&Delta;');
+    return t.toString().replace(/([A-Z][a-z]?)(\d+)/g,'$1<sub>$2</sub>').replace(/(\d*)([+\-])/g, '<sup>$1$2</sup>').replace(/Δ/g, '&Delta;');
 };
 
 function init(){
@@ -109,8 +98,9 @@ function renderNext(){
     document.getElementById('sl-up').innerText = q.u;
     document.getElementById('sl-lt').innerText = q.l;
     document.getElementById('sl-rt').innerText = q.r;
-    document.getElementById('context-text').innerHTML = format(q.context);
-    document.getElementById('comparison-text').innerHTML = format(q.insights);
+    
+    const bMount = document.getElementById('bullet-mount');
+    bMount.innerHTML = q.bullets.map(b => `<li class="bullet-item">${format(b)}</li>`).join('');
 
     bindMainPhysics(c, q);
 }
@@ -119,8 +109,7 @@ function bindMainPhysics(el, qData){
     let sx=0, sy=0, active=false, dir=null, finalDist=0;
     const labels = { up: document.getElementById('sl-up'), dn: document.getElementById('sl-dn'), lt: document.getElementById('sl-lt'), rt: document.getElementById('sl-rt') };
     const bulb = labels.dn.querySelector('.sl-down-emoji');
-    const wrap = document.getElementById('study-mount');
-    const compare = document.getElementById('comparison-mount');
+    const wrap = document.getElementById('context-mount');
 
     const start = e => { if(isTransitioning) return; active=true; const p=e.touches?e.touches[0]:e; sx=p.clientX; sy=p.clientY; el.style.transition="none"; };
     
@@ -142,13 +131,22 @@ function bindMainPhysics(el, qData){
             else if(ang>=135&&ang<225) { target = labels.lt; dir="LEFT"; }
             else if(ang>=225&&ang<315) { 
                 target = labels.dn; dir="DOWN"; 
-                const glow = Math.min((finalDist / TRIGGER_DEEP) * 40, 40);
-                bulb.style.filter = `drop-shadow(0 0 ${glow}px var(--gold)) brightness(${1 + glow/15})`;
-                
-                // STAGE 1 REVEAL
-                if(finalDist >= TRIGGER_DEEP && studyStage === 0) { wrap.classList.add('active'); }
-                // STAGE 2 PREP
-                if(finalDist >= TRIGGER_DEEP && studyStage === 1) { compare.classList.add('active'); }
+                // STAGE ONE PHYSICS
+                if(finalDist >= TRIGGER_BULB) {
+                    bulb.style.display = 'block';
+                    // 0% to 50% glow intensity between 2cm and 3cm
+                    const glowScale = Math.min(((finalDist - TRIGGER_BULB) / (TRIGGER_CONTEXT - TRIGGER_BULB)) * 25, 25);
+                    bulb.style.filter = `drop-shadow(0 0 ${glowScale}px var(--gold)) brightness(${1 + glowScale/10})`;
+                } else {
+                    bulb.style.display = 'none';
+                }
+                // TRIGGER CONTEXT
+                if(finalDist >= TRIGGER_CONTEXT) { 
+                    wrap.classList.add('active');
+                    bulb.style.filter = `drop-shadow(0 0 50px var(--gold)) brightness(2.5)`; 
+                } else {
+                    wrap.classList.remove('active');
+                }
             }
             else { target = labels.rt; dir="RIGHT"; }
             
@@ -162,28 +160,19 @@ function bindMainPhysics(el, qData){
 
     const end = () => {
         if(!active) return; active = false;
-        
         if(dir === "DOWN"){
-            if(finalDist >= TRIGGER_DEEP) { // Stage Advancement
-                if(window.navigator.vibrate) window.navigator.vibrate(20);
-                if(studyStage === 0) studyStage = 1;
-                else if(studyStage === 1) studyStage = 0; // Toggle or hold
-                el.style.transition = "transform .3s"; el.style.transform = "translate(0,0)";
-            } else {
-                // If let go early, hide hints but keep card
-                wrap.classList.remove('active'); compare.classList.remove('active'); studyStage = 0;
-                el.style.transition = "transform .2s"; el.style.transform = "translate(0,0)";
-            }
+            el.style.transition = "transform .3s"; el.style.transform = "translate(0,0)";
+            // Persistence logic: context stays if trigger was met
+            if(finalDist < TRIGGER_CONTEXT) wrap.classList.remove('active');
         } else if(dir && finalDist >= CLAMP_UI){
             isTransitioning = true;
             el.style.transition = "transform .4s ease-in"; el.style.transform = `translate3d(${dir==="LEFT"?-400:400}px, ${dir==="UP"?-400:400}px, 0)`;
             if(dir === qData.c.toUpperCase()) SCORE += 10;
-            setTimeout(() => { isTransitioning = false; studyStage = 0; wrap.classList.remove('active'); compare.classList.remove('active'); renderNext(); updateUI(); }, 300);
+            setTimeout(() => { isTransitioning = false; wrap.classList.remove('active'); renderNext(); updateUI(); }, 300);
         } else {
             el.style.transition = "transform .2s"; el.style.transform = "translate3d(0,0,0) rotate(0deg)"; 
         }
-        Object.values(labels).forEach(l => { l.style.display = 'none'; });
-        bulb.style.filter = 'none';
+        Object.values(labels).forEach(l => { if(l !== labels.dn || finalDist < TRIGGER_CONTEXT) l.style.display = 'none'; });
     };
     el.onmousedown=start; window.onmousemove=move; window.onmouseup=end; el.ontouchstart=start; el.ontouchmove=move; el.ontouchend=end;
 }
