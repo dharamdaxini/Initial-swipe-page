@@ -3,103 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Alchemist V81.82 - Legacy Core</title>
+    <title>Alchemist V81.83 - Full Matrix</title>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
-        /* --- V81.26 - V81.4 LEGACY UI ENGINE --- */
         :root { --bg: #000; --card: #121212; --gold: #ffd600; --serif: 'Libre Baskerville', serif; --ui: 'Outfit', sans-serif; --code: 'JetBrains Mono', monospace; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family: var(--ui); overflow: hidden; touch-action: none; }
 
-        /* ATMOSPHERIC HEADER */
         #header { width: 92%; margin: calc(20px + env(safe-area-inset-top)) auto 0; z-index: 100; position: relative; }
-        .header-meta { display: flex; justify-content: space-between; font-family: var(--code); font-size: 0.7rem; color: #444; letter-spacing: 2px; text-transform: uppercase; }
-        .progress-track { width: 100%; height: 2px; background: #1a1a1a; margin-top: 10px; border-radius: 1px; overflow: hidden; }
+        .header-meta { display: flex; justify-content: space-between; font-family: var(--code); font-size: 0.7rem; color: #444; letter-spacing: 2px; }
+        .progress-track { width: 100%; height: 2px; background: #1a1a1a; margin-top: 10px; }
         #progress-bar { height: 100%; background: var(--gold); width: 0%; transition: width 0.4s ease; }
 
-        /* DEPTH-STACKED STACK */
-        #stack { position: relative; width: 92%; max-width: 420px; height: 72vh; margin: 30px auto 0; perspective: 1200px; }
-        
+        #stack { position: relative; width: 92%; max-width: 420px; height: 75vh; margin: 30px auto 0; perspective: 1200px; }
         .card { 
             position: absolute; width: 100%; height: 100%; background: var(--card); border-radius: 36px; border: 1px solid #222; 
             padding: 40px 30px; display: flex; flex-direction: column; justify-content: center; z-index: 5; 
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-            transition: filter 0.5s ease, opacity 0.4s ease, transform 0.3s cubic-bezier(0.19, 1, 0.22, 1); 
-            will-change: transform, filter;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8); transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1); 
         }
-
-        /* SPATIAL RIFT BLUR */
-        .card.study-active { filter: blur(25px) brightness(0.2); opacity: 0.4; pointer-events: none; }
-        .card-q { font-family: var(--serif); font-size: clamp(1.4rem, 6vw, 1.9rem); line-height: 1.5; font-weight: 700; text-align: center; color: #fff; pointer-events: none; }
+        .card.study-active { filter: blur(30px) brightness(0.15); opacity: 0.3; pointer-events: none; transform: scale(0.9) translateY(20px); }
+        .card-q { font-family: var(--serif); font-size: 1.6rem; line-height: 1.4; font-weight: 700; text-align: center; }
 
         /* THE PHYSICAL DRAWER */
         .study-drawer { 
-            position: absolute; inset: 0; padding: 45px 25px; z-index: 10; display: flex; flex-direction: column; 
+            position: absolute; inset: 0; padding: 30px 20px; z-index: 10; display: flex; flex-direction: column; 
             opacity: 0; visibility: hidden; transform: translateY(40px); transition: all 0.6s cubic-bezier(0.19, 1, 0.22, 1); 
         }
         .study-drawer.active { opacity: 1; visibility: visible; transform: translateY(0); }
+        .drawer-section { flex: 1; display: flex; flex-direction: column; gap: 20px; }
+        .study-header { font-size: 0.65rem; color: #555; font-family: var(--code); letter-spacing: 4px; font-weight: 900; text-transform: uppercase; }
         
-        .drawer-section { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 30px; }
-        .study-header { font-size: 0.75rem; color: #555; font-family: var(--code); letter-spacing: 5px; font-weight: 900; text-transform: uppercase; margin-bottom: 10px; }
+        .bullet-item { font-size: 1rem; line-height: 1.6; color: #ddd; font-family: var(--serif); margin-bottom: 12px; padding-left: 24px; position: relative; }
+        .bullet-item::before { content: ""; position: absolute; left: 0; top: 8px; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; }
         
-        .bullet-list { list-style: none; padding: 0; margin: 0; }
-        .bullet-item { font-size: 1.15rem; line-height: 1.7; color: #ddd; font-family: var(--serif); margin-bottom: 20px; padding-left: 28px; position: relative; }
-        .bullet-item::before { content: ""; position: absolute; left: 0; top: 12px; width: 7px; height: 7px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 10px var(--gold); }
-        
-        .judgement-wrap { border-top: 1px solid #222; padding-top: 25px; text-align: center; }
-        .principle-text { font-size: 1.4rem; line-height: 1.5; color: var(--gold); font-family: var(--serif); font-style: italic; font-weight: 400; text-shadow: 0 0 20px rgba(255,214,0,0.2); }
+        .judgement-wrap { border-top: 1px solid #222; padding-top: 15px; }
+        .principle-text { font-size: 1.2rem; line-height: 1.4; color: var(--gold); font-family: var(--serif); font-style: italic; }
 
-        /* CARDINAL FEEDBACK */
-        .feedback-label { position: absolute; top: 50px; left: 0; width: 100%; text-align: center; font-weight: 900; font-size: 1.3rem; color: var(--gold); letter-spacing: 3px; display: none; z-index: 2000; text-transform: uppercase; }
-        
-        #loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--gold); letter-spacing: 5px; font-size: 1.2rem; }
+        /* OPTION GRID [NEW V81.83] */
+        .option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+        .opt { 
+            background: #1a1a1a; border: 1px solid #333; padding: 15px 10px; border-radius: 15px; 
+            font-size: 0.9rem; text-align: center; font-family: var(--ui); font-weight: 700; transition: 0.2s;
+        }
+        .opt:active { background: var(--gold); color: #000; border-color: var(--gold); transform: scale(0.95); }
+
+        #loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--gold); letter-spacing: 5px; }
     </style>
 </head>
 <body>
 
-<div id="loader">ALCHEMIST V81.82</div>
-
+<div id="loader">ALCHEMIST V81.83</div>
 <div id="header">
-    <div class="header-meta"><span>STRESS TEST MATRIX</span><span id="xp-ui">LEVEL B/C</span></div>
+    <div class="header-meta"><span>STRESS TEST</span><span id="xp-ui">0 XP</span></div>
     <div class="progress-track"><div id="progress-bar"></div></div>
 </div>
 
 <div id="stack">
-    <div id="feedback-up" class="feedback-label">↑ LOG MASTERY</div>
     <div id="study-drawer" class="study-drawer">
         <div class="drawer-section">
             <div>
-                <div class="study-header">Context Analysis</div>
+                <div class="study-header">Analysis</div>
                 <div id="bullet-mount"></div>
             </div>
             <div class="judgement-wrap">
                 <div class="study-header">The Principle</div>
                 <div id="judgement-text" class="principle-text"></div>
             </div>
+            <div class="option-grid" id="opt-mount"></div>
         </div>
     </div>
 </div>
 
 <script>
-    /* --- CONFIGURATION --- */
     const DEPLOY_URL = "https://script.google.com/macros/s/AKfycby1KCqAjaEW61_jHV8D9vl8odhJi0yzcXdcpcBWl7PpRwgafuT4eplpzxxBBSrRwXAm/exec";
 
     const DATABASE = [
-        { "q": "Predict spontaneity: ΔH = -120 kJ/mol, ΔS = -150 J/K·mol at 298 K.", "topic": "Thermodynamics", "difficulty": "B", "bullets": ["ΔG = ΔH - TΔS", "ΔG = -120 - (298 * -0.150)", "Result: -75.3 kJ (Spontaneous)"], "j": "Exothermic release overcomes entropy loss at standard temperatures." },
-        { "q": "Mechanism: (R)-2-bromobutane + aqueous NaOH?", "topic": "Organic", "difficulty": "C", "bullets": ["SN2 Backside Attack", "One-step concerted mechanism", "100% Walden Inversion"], "j": "The SN2 transition state forces a complete stereochemical flip." }
+        { "q": "Signs of ΔH and ΔS for spontaneity at all temps?", "topic": "Thermodynamics", "difficulty": "B", 
+          "bullets": ["ΔH < 0 (Exothermic)", "ΔS > 0 (Disorder increases)"], "j": "Nature favors low energy and high chaos.",
+          "opts": ["-ΔH, +ΔS", "+ΔH, -ΔS", "-ΔH, -ΔS", "+ΔH, +ΔS"], "c": "-ΔH, +ΔS" },
+        { "q": "Order of reaction if doubling [A] increases rate 4x?", "topic": "Kinetics", "difficulty": "B",
+          "bullets": ["Rate = k[A]^x", "2^x = 4"], "j": "Quadratic growth implies second-order.",
+          "opts": ["Zero", "First", "Second", "Third"], "c": "Second" },
+        { "q": "Predict spontaneity: ΔH = -120 kJ, ΔS = -150 J/K at 298 K.", "topic": "Thermodynamics", "difficulty": "C",
+          "bullets": ["ΔG = ΔH - TΔS", "ΔG = -120 - (298 * -0.15)", "ΔG = -75.3 kJ"], "j": "Exothermic release overcomes entropy loss.",
+          "opts": ["Spontaneous", "Non-Spontaneous", "Equilibrium", "Impossible"], "c": "Spontaneous" },
+        { "q": "Effect of increasing pressure on: N2 + 3H2 ⇌ 2NH3?", "topic": "Equilibrium", "difficulty": "B",
+          "bullets": ["Le Chatelier's Principle", "Gas Moles: 4 → 2"], "j": "Pressure shifts toward fewer moles.",
+          "opts": ["Shift Right", "Shift Left", "No Change", "Catalyst Needed"], "c": "Shift Right" },
+        { "q": "Mechanism of SN2 with (R)-2-bromobutane?", "topic": "Organic", "difficulty": "C",
+          "bullets": ["Backside Attack", "Walden Inversion"], "j": "Configuration flips 100%.",
+          "opts": ["(S)-isomer", "(R)-isomer", "Racemic", "No Reaction"], "c": "(S)-isomer" },
+        { "q": "Strongest intermolecular force in H2O?", "topic": "Bonding", "difficulty": "B",
+          "bullets": ["H-bond donor and acceptor", "O is highly electronegative"], "j": "Hydrogen bonds dominate aqueous physics.",
+          "opts": ["H-Bond", "Dipole", "London", "Ionic"], "c": "H-Bond" },
+        { "q": "pH of 0.01 M HCl solution?", "topic": "Acids", "difficulty": "B",
+          "bullets": ["pH = -log[H+]", "[H+] = 10^-2"], "j": "Logarithmic scale: 100x = 2 units.",
+          "opts": ["1", "2", "7", "12"], "c": "2" },
+        { "q": "Hybridization of Carbon in Ethane?", "topic": "Organic", "difficulty": "B",
+          "bullets": ["4 single bonds", "Tetrahedral geometry"], "j": "Sp3 allows for flexible rotation.",
+          "opts": ["sp", "sp2", "sp3", "dsp2"], "c": "sp3" },
+        { "q": "Inert gas added at constant volume: N2 + 3H2 ⇌ 2NH3?", "topic": "Equilibrium", "difficulty": "C",
+          "bullets": ["Total P increases", "Partial P remains constant"], "j": "Concentration is king, not total pressure.",
+          "opts": ["No Shift", "Shift Right", "Shift Left", "Explosion"], "c": "No Shift" },
+        { "q": "Condition for spontaneity if ΔH is positive?", "topic": "Thermodynamics", "difficulty": "C",
+          "bullets": ["TΔS > ΔH", "High temperatures"], "j": "Heat fuels the entropy drive.",
+          "opts": ["High Temp", "Low Temp", "Never", "Abs Zero"], "c": "High Temp" }
     ];
 
     let POOL = [...DATABASE], sy = 0, latency = 0, startTime = 0, isLocked = false;
-    const CM_LIMIT = 100;
 
-    function init() { 
-        setTimeout(() => { document.getElementById('loader').remove(); renderNext(); }, 1200); 
-    }
+    function init() { setTimeout(() => { document.getElementById('loader').remove(); renderNext(); }, 1200); }
 
     function renderNext() {
         const s = document.getElementById('stack');
         const existing = s.querySelector('.card'); if(existing) existing.remove();
-        if(!POOL.length) { s.innerHTML = '<div class="card"><div class="card-q">POOL DEPLETED<br><small style="font-size:0.8rem; color:#444; font-family:var(--code);">CHECK MATRIX</small></div></div>'; return; }
+        if(!POOL.length) { s.innerHTML = '<div class="card">POOL COMPLETE</div>'; return; }
         
         const q = POOL[0];
         const c = document.createElement('div'); c.className = "card";
@@ -108,63 +126,41 @@
         
         document.getElementById('bullet-mount').innerHTML = q.bullets.map(b => `<div class="bullet-item">${b}</div>`).join('');
         document.getElementById('judgement-text').innerText = q.j;
+        document.getElementById('opt-mount').innerHTML = q.opts.map(o => `<div class="opt" onclick="selectOpt('${o}')">${o}</div>`).join('');
         document.getElementById('study-drawer').classList.remove('active');
         isLocked = false;
-        
-        bindPhysics(c, q);
+        bindPhysics(c);
     }
 
-    function bindPhysics(el, qData) {
-        el.addEventListener('touchstart', (e) => { 
-            if(isLocked && e.touches[0].clientY > sy) return; // Prevent re-swiping down once locked
-            sy = e.touches[0].clientY; 
-            startTime = Date.now(); 
-            el.style.transition = "none"; 
-        });
-        
+    function bindPhysics(el) {
+        el.addEventListener('touchstart', (e) => { sy = e.touches[0].clientY; startTime = Date.now(); el.style.transition = "none"; });
         el.addEventListener('touchmove', (e) => {
             let dy = e.touches[0].clientY - sy;
-            
-            if(!isLocked) {
-                if(dy > CM_LIMIT) { // Physical Rift Trigger
-                    isLocked = true;
-                    latency = Date.now() - startTime;
-                    document.getElementById('study-drawer').classList.add('active');
-                    el.classList.add('study-active');
-                    return;
-                }
-                if(dy > 0) el.style.transform = `translateY(${dy * 0.3}px) rotate(${dy/50}deg)`;
-            } else if (dy < 0) { // Mastery Submission
-                el.style.transform = `translateY(${dy}px)`;
-                const label = document.getElementById('feedback-up');
-                label.style.display = "block";
-                label.style.opacity = Math.min(Math.abs(dy)/60, 1);
+            if(!isLocked && dy > 100) {
+                isLocked = true;
+                latency = Date.now() - startTime;
+                document.getElementById('study-drawer').classList.add('active');
+                el.classList.add('study-active');
             }
+            if(!isLocked && dy > 0) el.style.transform = `translateY(${dy * 0.3}px)`;
         });
-
-        el.addEventListener('touchend', (e) => {
-            let dy = e.changedTouches[0].clientY - sy;
-            const label = document.getElementById('feedback-up');
-            
-            if(isLocked && dy < -80) { // Push to Matrix
-                submitToMatrix(qData);
-                el.style.transition = "transform 0.4s cubic-bezier(0.19, 1, 0.22, 1)";
-                el.style.transform = "translateY(-1000px)";
-                setTimeout(() => { POOL.shift(); renderNext(); }, 350);
-            } else {
-                el.style.transition = "transform 0.4s cubic-bezier(0.19, 1, 0.22, 1)";
-                el.style.transform = "translateY(0)";
-            }
-            label.style.display = "none";
-        });
+        el.addEventListener('touchend', () => { if(!isLocked) el.style.transform = "translateY(0)"; });
     }
 
-    function submitToMatrix(qData) {
-        // V81.80 GHOST PIXEL HANDSHAKE
-        const query = `?q=${encodeURIComponent(qData.q)}&t=${encodeURIComponent(qData.topic)}&l=${latency}&d=${qData.difficulty}&tt=${Date.now() - startTime}`;
-        const img = new Image();
-        img.src = DEPLOY_URL + query;
-        console.log("ALCHEMIST: LOGGED -> " + query);
+    function selectOpt(val) {
+        const qData = POOL[0];
+        const isCorrect = (val === qData.c);
+        submitToMatrix(qData, isCorrect, val);
+        
+        const card = document.querySelector('.card');
+        card.style.filter = "blur(100px)";
+        card.style.opacity = "0";
+        setTimeout(() => { POOL.shift(); renderNext(); }, 400);
+    }
+
+    function submitToMatrix(qData, isCorrect, chosen) {
+        const query = `?q=${encodeURIComponent(qData.q)}&t=${encodeURIComponent(qData.topic)}&l=${latency}&d=${qData.difficulty}&tt=${Date.now() - startTime}&c=${isCorrect}&choice=${encodeURIComponent(chosen)}`;
+        new Image().src = DEPLOY_URL + query;
     }
 
     window.onload = init;
