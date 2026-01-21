@@ -3,180 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Alchemist V81.1</title>
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>Alchemist V81.1 Production</title>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
         :root { 
-            --bg: #000; 
-            --card: #0d0d0d; 
-            --gold: #ffd600; 
-            --border: #1a1a1a;
-            --serif: 'Libre Baskerville', serif; 
-            --ui: 'Outfit', sans-serif;
+            --bg: #000; --card: #0d0d0d; --gold: #ffd600; --border: #1a1a1a;
+            --serif: 'Libre Baskerville', serif; --ui: 'Outfit', sans-serif; --code: 'JetBrains Mono', monospace;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family: var(--ui); overflow: hidden; touch-action: none; }
 
-        body { 
-            margin: 0; 
-            height: 100vh; 
-            background: var(--bg); 
-            color: #fff; 
-            font-family: var(--ui); 
-            overflow: hidden; 
-            touch-action: none; 
-        }
-
-        /* HEADER - V81.1 MINIMALISM */
-        #header { width: 90%; margin: 35px auto 0; position: relative; z-index: 100; text-align: center; }
+        /* HEADER */
+        #header { width: 92%; margin: 35px auto 0; position: relative; z-index: 100; }
         .header-meta { 
-            font-size: 0.75rem; 
-            color: #444; 
-            letter-spacing: 4px; 
-            text-transform: uppercase; 
-            font-weight: 900; 
+            display: flex; justify-content: space-between;
+            font-family: var(--code); font-size: 0.7rem; color: #444; 
+            letter-spacing: 3px; text-transform: uppercase; font-weight: 900; 
         }
 
-        /* THE ORIGINAL STACK */
-        #stack { 
-            position: relative; 
-            width: 90%; 
-            max-width: 400px; 
-            height: 70vh; 
-            margin: 40px auto 0; 
-            perspective: 1000px; 
-        }
-
+        /* THE STACK */
+        #stack { position: relative; width: 92%; max-width: 420px; height: 70vh; margin: 30px auto 0; perspective: 1000px; }
+        
         .card { 
-            position: absolute; 
-            width: 100%; 
-            height: 100%; 
-            background: var(--card); 
-            border-radius: 24px; 
-            border: 1px solid var(--border); 
-            padding: 40px 25px; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center; 
-            z-index: 5; 
+            position: absolute; width: 100%; height: 100%; background: var(--card); border-radius: 28px; border: 1px solid var(--border); 
+            padding: 40px 25px; display: flex; flex-direction: column; justify-content: center; z-index: 5; 
             box-shadow: 0 30px 60px rgba(0,0,0,0.8);
             transition: filter 0.4s ease, opacity 0.4s ease, transform 0.3s cubic-bezier(0.19, 1, 0.22, 1); 
         }
 
-        /* THE ATMOSPHERIC BLUR (V81.1) */
-        .card.study-active { 
-            filter: blur(15px) brightness(0.3); 
-            opacity: 0.6; 
-            transform: scale(0.92) translateY(30px); 
-            pointer-events: none; 
-        }
+        .card.study-active { filter: blur(18px) brightness(0.25); opacity: 0.5; transform: scale(0.9) translateY(40px); pointer-events: none; }
+        .card-q { font-family: var(--serif); font-size: 1.6rem; line-height: 1.4; font-weight: 700; text-align: center; color: #fff; }
 
-        .card-q { 
-            font-family: var(--serif); 
-            font-size: 1.6rem; 
-            line-height: 1.5; 
-            font-weight: 700; 
-            text-align: center; 
-            color: #fff; 
-        }
-
-        /* STUDY DRAWER Reveal */
+        /* ANALYSIS DRAWER */
         .study-drawer { 
-            position: absolute; 
-            inset: 0; 
-            padding: 40px 20px; 
-            z-index: 10; 
-            display: flex; 
-            flex-direction: column; 
-            opacity: 0; 
-            visibility: hidden; 
-            transform: translateY(20px); 
-            transition: all 0.5s ease; 
+            position: absolute; inset: 0; padding: 30px 20px; z-index: 10; display: flex; flex-direction: column; 
+            opacity: 0; visibility: hidden; transform: translateY(20px); transition: all 0.5s ease; 
+        }
+        .study-drawer.active { opacity: 1; visibility: visible; transform: translateY(0); }
+        
+        .meta-label { font-family: var(--code); font-size: 0.6rem; color: #555; letter-spacing: 4px; margin-bottom: 20px; text-transform: uppercase; }
+        
+        /* OPTION MATRIX */
+        .option-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 20px; }
+        .opt-item { 
+            font-size: 0.95rem; padding: 12px; background: #111; border: 1px solid #222; border-radius: 12px;
+            font-family: var(--serif); color: #ccc; display: flex; align-items: center; transition: 0.15s;
+        }
+        .opt-item span { font-family: var(--code); color: var(--gold); font-size: 0.65rem; margin-right: 12px; font-weight: 900; }
+        .opt-item:active { background: var(--gold); color: #000; transform: scale(0.98); }
+
+        .explanation-text { 
+            font-size: 1.15rem; line-height: 1.5; color: var(--gold); font-family: var(--serif); font-style: italic; 
+            border-top: 1px solid #1a1a1a; padding-top: 15px; margin-top: auto; 
         }
 
-        .study-drawer.active { 
-            opacity: 1; 
-            visibility: visible; 
-            transform: translateY(0); 
-        }
-
-        .bullet-item { 
-            font-size: 1.05rem; 
-            line-height: 1.7; 
-            color: #bbb; 
-            font-family: var(--serif); 
-            margin-bottom: 20px; 
-            padding-left: 20px; 
-            position: relative; 
-        }
-
-        .bullet-item::before { 
-            content: ""; 
-            position: absolute; 
-            left: 0; 
-            top: 12px; 
-            width: 5px; 
-            height: 5px; 
-            background: var(--gold); 
-            border-radius: 50%; 
-        }
-
-        .principle-text { 
-            font-size: 1.25rem; 
-            line-height: 1.5; 
-            color: var(--gold); 
-            font-family: var(--serif); 
-            font-style: italic; 
-            border-top: 1px solid #1a1a1a; 
-            padding-top: 25px; 
-            margin-top: 15px; 
-        }
-
-        #loader { 
-            position: fixed; 
-            inset: 0; 
-            background: #000; 
-            z-index: 5000; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-weight: 900; 
-            color: var(--gold); 
-            letter-spacing: 5px; 
-        }
+        #loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--gold); letter-spacing: 5px; }
     </style>
 </head>
 <body>
 
-<div id="loader">V81.1 INITIALIZING</div>
+<div id="loader">V81.1 PRODUCTION</div>
 
 <div id="header">
-    <div class="header-meta">CORE PREP / V81.1</div>
+    <div class="header-meta"><span id="category-ui">SYSTEM</span><span id="id-ui">BOOT</span></div>
 </div>
 
 <div id="stack">
     <div id="study-drawer" class="study-drawer">
-        <div id="bullet-mount"></div>
-        <div id="judgement-text" class="principle-text"></div>
+        <div class="meta-label" id="hint-ui">HINT: READY</div>
+        <div class="option-grid">
+            <div class="opt-item" onclick="submit('UP')"><span>UP</span><div id="opt-up"></div></div>
+            <div class="opt-item" onclick="submit('RIGHT')"><span>RIGHT</span><div id="opt-right"></div></div>
+            <div class="opt-item" onclick="submit('LEFT')"><span>LEFT</span><div id="opt-left"></div></div>
+        </div>
+        <div id="explanation-mount" class="explanation-text"></div>
     </div>
 </div>
 
 <script>
-    var DATABASE = [
-        { "q": "Signs of ΔH and ΔS for spontaneity at all temps?", "bullets": ["ΔH < 0 (Exothermic)", "ΔS > 0 (Increased Disorder)"], "j": "Nature favors energy release and maximum entropy." },
-        { "q": "Predict spontaneity: ΔH = -120 kJ, ΔS = -150 J/K at 298 K.", "bullets": ["ΔG = ΔH - TΔS", "ΔG = -120 - (298 * -0.150)", "Result: -75.3 kJ"], "j": "Exothermic release overcomes entropy loss at 298K." }
+    /* --- CONFIGURATION --- */
+    var DEPLOY_URL = "https://script.google.com/macros/s/AKfycbxMOVzmONXP6nAHNoN92nmO2MnMPek7omYcw0JCeizbsIOQZUik0VmUK0nTfikIfFLm/exec";
+
+    /* --- DATASET --- */
+    var DATASET = [
+      { "id": "SET_A_0301", "set": "SET_A", "category": "Gas Laws", "question": "The ideal gas constant R has the same value regardless of gas identity.", "option_up": "Depends on gas type", "option_right": "Universal constant", "option_left": "Changes with pressure", "correct_option": "option_right", "explanation": "R does not vary with gas identity. It is a universal constant for ideal gases.", "hint": "Universal constant." },
+      { "id": "SET_A_0302", "set": "SET_A", "category": "Gas Laws", "question": "At constant volume an increase in temperature increases pressure.", "option_up": "Pressure decreases", "option_right": "Pressure remains same", "option_left": "Pressure increases", "correct_option": "option_left", "explanation": "Higher temperature increases molecular collisions, raising pressure.", "hint": "Gay-Lussac." },
+      { "id": "SET_A_0303", "set": "SET_A", "category": "Gas Laws", "question": "Absolute temperature must be used in gas law calculations.", "option_up": "Celsius scale acceptable", "option_right": "Only Fahrenheit works", "option_left": "Temperature in Kelvin", "correct_option": "option_left", "explanation": "Kelvin scale reflects absolute temperature.", "hint": "Absolute scale." },
+      { "id": "SET_A_0304", "set": "SET_A", "category": "Physical Chemistry", "question": "Kinetic molecular theory assumes negligible molecular volume.", "option_up": "Molecules occupy significant volume", "option_right": "Only valid for liquids", "option_left": "Particle volume neglected", "correct_option": "option_left", "explanation": "Kinetic theory neglects molecular volume compared to container size.", "hint": "Point particles." },
+      { "id": "SET_A_0305", "set": "SET_A", "category": "Physical Chemistry", "question": "Average kinetic energy of gas molecules depends only on temperature.", "option_up": "Depends on gas mass", "option_right": "Depends on pressure only", "option_left": "Depends only on temperature", "correct_option": "option_left", "explanation": "Temperature alone determines average kinetic energy.", "hint": "KE–T relation." }
+      /* ... Dataset continues ... */
     ];
 
-    var POOL = DATABASE.slice();
-    var sy = 0;
-    var isLocked = false;
+    var POOL = DATASET.slice();
+    var sy = 0, isLocked = false, startTime = 0, latency = 0;
 
     function init() { 
         setTimeout(function() { 
-            var l = document.getElementById('loader');
-            if(l) l.remove(); 
+            var loader = document.getElementById('loader');
+            if(loader) loader.remove(); 
             render(); 
-        }, 1000); 
+        }, 1200); 
     }
 
     function render() {
@@ -192,53 +119,56 @@
         var d = POOL[0];
         var card = document.createElement('div');
         card.className = "card";
-        card.innerHTML = '<div class="card-q">' + d.q + '</div>';
+        card.innerHTML = '<div class="card-q">' + d.question + '</div>';
         s.appendChild(card);
         
-        document.getElementById('bullet-mount').innerHTML = d.bullets.map(function(b) { 
-            return '<div class="bullet-item">' + b + '</div>'; 
-        }).join('');
-        
-        document.getElementById('judgement-text').innerText = d.j;
+        document.getElementById('category-ui').innerText = d.category;
+        document.getElementById('id-ui').innerText = d.id;
+        document.getElementById('hint-ui').innerText = "HINT: " + d.hint;
+        document.getElementById('opt-up').innerText = d.option_up;
+        document.getElementById('opt-right').innerText = d.option_right;
+        document.getElementById('opt-left').innerText = d.option_left;
+        document.getElementById('explanation-mount').innerText = d.explanation;
+
         document.getElementById('study-drawer').classList.remove('active');
         isLocked = false;
-        
         bindPhysics(card);
     }
 
     function bindPhysics(el) {
-        el.ontouchstart = function(e) { 
-            sy = e.touches[0].clientY; 
-            el.style.transition = "none"; 
-        };
-        
+        el.ontouchstart = function(e) { sy = e.touches[0].clientY; startTime = Date.now(); el.style.transition = "none"; };
         el.ontouchmove = function(e) {
             var dy = e.touches[0].clientY - sy;
-            if(!isLocked && dy > 100) { 
+            if(!isLocked && dy > 110) { 
                 isLocked = true;
+                latency = Date.now() - startTime;
                 document.getElementById('study-drawer').classList.add('active');
                 el.classList.add('study-active');
             }
-            if(!isLocked && dy > 0) {
-                el.style.transform = "translateY(" + (dy * 0.2) + "px)";
-            }
+            if(!isLocked && dy > 0) el.style.transform = "translateY(" + (dy * 0.22) + "px)";
         };
-
         el.ontouchend = function(e) {
-            var dy = e.changedTouches[0].clientY - sy;
-            if(isLocked && dy < -50) { 
-                el.style.transition = "transform 0.4s ease-in, opacity 0.4s";
-                el.style.transform = "translateY(-600px)";
-                el.style.opacity = "0";
-                setTimeout(function() { 
-                    POOL.shift(); 
-                    render(); 
-                }, 300);
-            } else {
-                el.style.transition = "transform 0.3s ease";
-                el.style.transform = "translateY(0)";
-            }
+            if(!isLocked) { el.style.transition = "transform 0.4s cubic-bezier(0.19, 1, 0.22, 1)"; el.style.transform = "translateY(0)"; }
         };
+    }
+
+    function submit(choice) {
+        var d = POOL[0];
+        var correct = (("option_" + choice.toLowerCase()) === d.correct_option);
+        
+        // GHOST PIXEL TELEMETRY
+        var ping = DEPLOY_URL + "?target=Telemetry&questionId=" + encodeURIComponent(d.id) + "&result=" + correct + "&vectorChoice=" + choice + "&latency=" + latency;
+        new Image().src = ping;
+
+        // EJECT ANIMATION
+        var card = document.querySelector('.card');
+        if(card) {
+            card.style.transition = "transform 0.4s ease-in, opacity 0.4s";
+            card.style.transform = "translateY(-700px)";
+            card.style.opacity = "0";
+        }
+
+        setTimeout(function() { POOL.shift(); render(); }, 400);
     }
 
     window.onload = init;
