@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Alchemist V80.0 | Industrial</title>
+    <title>Alchemist V80.0 Production</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@800&display=swap" rel="stylesheet">
 
@@ -29,17 +29,16 @@
             -webkit-user-select: none; touch-action: none; 
         }
 
-        /* Logic for Chemistry Formulas */
         sub { font-size: 0.7em; vertical-align: sub; line-height: 0; }
         sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 
-        /* HUD ARCHITECTURE */
+        /* HUD */
         #header { width: 90%; margin: calc(25px + env(safe-area-inset-top)) auto 0; z-index: 100; position: relative; }
         .header-meta { display: flex; justify-content: space-between; font-family: var(--font-code); font-size: 0.7rem; color: var(--muted); letter-spacing: 2px; }
         .progress-track { width: 100%; height: 2px; background: #1a1a1a; margin-top: 10px; border-radius: 1px; overflow: hidden; }
         #progress-bar { height: 100%; background: var(--gold); width: 0%; transition: width 0.4s ease; }
 
-        /* THE SINGULARITY STACK */
+        /* STACK */
         #stack { position: relative; width: 92%; max-width: 400px; height: 72vh; margin: 30px auto 0; perspective: 1200px; }
         .card { 
             position: absolute; width: 100%; height: 100%; background: var(--card-bg); border-radius: 40px; border: 1px solid var(--border);
@@ -48,7 +47,7 @@
         }
         .card-q { font-family: var(--font-chem); font-size: 1.9rem; line-height: 1.4; font-style: italic; font-weight: 600; text-align: center; color: #f0f0f0; }
 
-        /* VECTOR HUD LABELS */
+        /* LABELS */
         .swipe-label {
             position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
             background: #000; color: #fff; font-weight: 900; font-size: 2rem; text-transform: uppercase;
@@ -56,7 +55,7 @@
         }
         .sl-down-hint { color: var(--blue) !important; font-size: 1.3rem !important; text-transform: none !important; font-family: var(--font-chem) !important; }
 
-        /* LOGIC ANALYSIS OVERLAY */
+        /* OVERLAY */
         .overlay {
             position: absolute; inset: 0; background: var(--overlay-bg); z-index: 1100; padding: 40px;
             opacity: 0; pointer-events: none; border-radius: 40px; transition: opacity 0.3s ease;
@@ -72,11 +71,11 @@
 </head>
 <body>
 
-<div id="loader">SINGULARITY V80.0</div>
+<div id="loader">ALCHEMIST V80.0</div>
 
 <div id="header">
     <div class="header-meta">
-        <span id="id-ui">ID: ALPHA</span>
+        <span id="id-ui">ID: CONNECTING</span>
         <span id="xp-ui">0 XP</span>
     </div>
     <div class="progress-track"><div id="progress-bar"></div></div>
@@ -85,14 +84,13 @@
 <div id="stack"></div>
 
 <script>
-    /* --- MASTER CONFIG --- */
-    const ENDPOINT = "https://script.google.com/macros/s/AKfycbxMOVzmONXP6nAHNoN92nmO2MnMPek7omYcw0JCeizbsIOQZUik0VmUK0nTfikIfFLm/exec";
+    /* --- MASTER PRODUCTION CONFIG --- */
+    const ENDPOINT = "https://script.google.com/macros/s/AKfycbwv_n-Q0J0hwRPIzy2D0mx54-fKNDmvKG0kPgZZwoN5xZGloJbAFP-upgMbGf/exec";
     
-    // Industrial Dataset R1
     const BACKUP_DATA = [
         { "id": "SET_A_0301", "question": "The ideal gas constant R has the same value regardless of gas identity.", "option_up": "Depends on gas type", "option_right": "Universal constant", "option_left": "Changes with pressure", "correct_option": "option_right", "explanation": "R is a universal constant for ideal gases.", "hint": "Universal constant.", "weight": 1 },
         { "id": "SET_A_0302", "question": "At constant volume an increase in temperature increases pressure.", "option_up": "Pressure decreases", "option_right": "Pressure remains same", "option_left": "Pressure increases", "correct_option": "option_left", "explanation": "Higher temperature increases molecular collisions, raising pressure.", "hint": "Gay-Lussac.", "weight": 1 }
-        /* Paste the remaining 48 questions here */
+        /* Dataset expansion here */
     ];
 
     let POOL = [...BACKUP_DATA].sort(() => Math.random() - .5);
@@ -101,7 +99,11 @@
     const formatChem = t => t.toString().replace(/([A-Z][a-z]?)(\d+)/g,'$1<sub>$2</sub>').replace(/(\d*)([+\-])/g, '<sup>$1$2</sup>');
 
     async function init() {
-        setTimeout(() => { document.getElementById('loader').remove(); renderNext(); }, 1200);
+        setTimeout(() => { 
+            const loader = document.getElementById('loader');
+            if(loader) loader.remove(); 
+            renderNext(); 
+        }, 1200);
     }
 
     function renderNext() {
@@ -173,6 +175,7 @@
         const correct = ("option_" + dir.toLowerCase()) === data.correct_option;
         if(correct) SCORE += 10;
         
+        // GHOST PIXEL TELEMETRY
         new Image().src = `${ENDPOINT}?target=Telemetry&questionId=${data.id}&result=${correct}&vectorChoice=${dir}&latency=${latency}`;
         
         el.style.transition="transform .4s ease-in, opacity .4s";
