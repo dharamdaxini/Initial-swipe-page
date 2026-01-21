@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist V81.29 - Gravity Lock</title>
+<title>Alchemist V81.30 - Vertical Rift</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 <style>
 /* --- LOCKED TO V81.4 UI ENGINE --- */
@@ -18,20 +18,22 @@ body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family
 
 #stack { position: relative; width: 92%; max-width: 400px; height: calc(100vh - 180px - env(safe-area-inset-top)); margin: 25px auto 0; perspective: 1200px; }
 .card { position: absolute; width: 100%; height: 100%; background: var(--card); border-radius: 40px; border: 1px solid #282828; padding: 30px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 20px 60px rgba(0,0,0,0.9); transform-origin: center center; will-change: transform; z-index: 1; }
-.card-q { font-family: var(--serif); font-size: clamp(1.2rem, 4.5vw, 1.7rem); line-height: 1.4; font-weight: 700; text-align: center; color: #f0f0f0; pointer-events: none; }
+
+/* THE QUESTION TEXT - WILL MOVE +Y */
+.card-q { font-family: var(--serif); font-size: clamp(1.2rem, 4.5vw, 1.7rem); line-height: 1.4; font-weight: 700; text-align: center; color: #f0f0f0; pointer-events: none; transition: transform 0.2s ease-out; will-change: transform; }
 
 /* FLOATING INTERACTION LAYER */
 .swipe-label { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: transparent; color: #fff; font-weight: 900; font-size: 1.8rem; text-transform: uppercase; border-radius: 40px; z-index: 2000; text-align: center; padding: 20px; will-change: transform, opacity; pointer-events: none; }
 
-/* DOWN-SWIPE COMPONENTS - LOCKED TO UPPER MIDDLE */
-.sl-dn { flex-direction: column !important; justify-content: flex-start !important; padding-top: 80px; }
-.sl-down-emoji { font-size: 5.5rem; display: none; transition: filter 0.1s; will-change: filter; margin-bottom: 25px; }
+/* DOWN-SWIPE COMPONENTS */
+.sl-dn { flex-direction: column !important; justify-content: center !important; }
+.sl-down-emoji { font-size: 4.5rem; display: none; transition: filter 0.1s, transform 0.2s ease-out; will-change: filter, transform; margin-top: 20px; }
 
-/* CONTEXT - Y-AXIS ABSOLUTE LOCK */
-.context-wrap { width: 100%; padding: 0 15px; opacity: 0; transform: translateY(30px); transition: opacity 0.5s, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.2); will-change: transform, opacity; }
-.context-wrap.active { opacity: 1; transform: translateY(0); }
+/* CONTEXT REVEAL */
+.context-wrap { width: 100%; padding: 0 15px; opacity: 0; transform: translateY(0); transition: opacity 0.4s ease; position: absolute; top: 50%; left: 0; transform: translateY(-50%); }
+.context-wrap.active { opacity: 1; }
 
-.study-header { font-size: 0.75rem; color: var(--gold); font-family: var(--code); margin-bottom: 12px; letter-spacing: 2px; font-weight: 900; }
+.study-header { font-size: 0.75rem; color: var(--gold); font-family: var(--code); margin-bottom: 12px; letter-spacing: 2px; font-weight: 900; text-align: center; }
 .bullet-list { list-style: none; padding: 0; margin: 0; text-align: left; }
 .bullet-item { font-size: 1.15rem; line-height: 1.6; color: #eee; font-family: var(--serif); margin-bottom: 12px; position: relative; padding-left: 25px; }
 .bullet-item::before { content: "•"; position: absolute; left: 0; color: var(--gold); font-size: 1.4rem; }
@@ -43,7 +45,7 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 </head>
 <body>
 
-<div id="loader">ALCHEMIST V81.29</div>
+<div id="loader">ALCHEMIST V81.30</div>
 <div id="header">
     <div class="header-meta"><span>RANK: NOVICE</span><span id="xp-ui">0 XP</span></div>
     <div class="progress-track"><div id="progress-bar"></div></div>
@@ -54,11 +56,11 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
     <div id="sl-lt" class="swipe-label" style="background: rgba(0,0,0,0.95);">LEFT</div>
     <div id="sl-rt" class="swipe-label" style="background: rgba(0,0,0,0.95);">RIGHT</div>
     <div id="sl-dn" class="swipe-label">
-        <span id="bulb-element" class="sl-down-emoji">💡</span>
         <div id="context-mount" class="context-wrap">
             <div class="study-header">CONTEXT</div>
             <ul id="bullet-mount" class="bullet-list"></ul>
         </div>
+        <span id="bulb-element" class="sl-down-emoji">💡</span>
     </div>
 </div>
 
@@ -68,7 +70,10 @@ const DATABASE = [
 ];
 
 let POOL = [], SCORE = 0, isTransitioning = false;
-const CLAMP_UI = 32, TRIGGER_BULB = 64, TRIGGER_CONTEXT = 96;
+const CLAMP_UI = 32;
+const TRIGGER_BULB = 16;   // 0.5 cm
+const TRIGGER_RIFT = 32;   // 1.0 cm
+const TRIGGER_CONTEXT = 96; // 3.0 cm
 
 const format = t => {
     if(!t) return "";
@@ -100,6 +105,7 @@ function bindMainPhysics(el, qData){
     const labels = { up: document.getElementById('sl-up'), dn: document.getElementById('sl-dn'), lt: document.getElementById('sl-lt'), rt: document.getElementById('sl-rt') };
     const bulb = document.getElementById('bulb-element');
     const wrap = document.getElementById('context-mount');
+    const queText = el.querySelector('.card-q');
 
     const start = e => { if(isTransitioning) return; active=true; const p=e.touches?e.touches[0]:e; sx=p.clientX; sy=p.clientY; el.style.transition="none"; };
     
@@ -115,28 +121,44 @@ function bindMainPhysics(el, qData){
             if(ang>=45&&ang<135) dir="UP"; else if(ang>=135&&ang<225) dir="LEFT"; else if(ang>=225&&ang<315) dir="DOWN"; else dir="RIGHT";
         }
 
-        // --- BACKGROUND CARD: ORIGIN LOCK ---
+        // --- STATIC ORIGIN LOCK ---
         let cardX = (dir === "DOWN") ? 0 : dx;
         let cardY = (dir === "DOWN") ? 0 : dy;
         el.style.transform = `translate3d(${cardX}px, ${cardY}px, 0) rotate(${dir === "DOWN" ? 0 : dx/25}deg)`;
 
-        // --- FOREGROUND: Y-AXIS ONLY ---
+        // --- VERTICAL RIFT LOGIC ---
         if(dir === "DOWN"){
             labels.dn.style.display = 'flex';
             labels.dn.style.opacity = Math.min(finalDist / 24, 1);
-            labels.dn.style.transform = `translate3d(0, 0, 0)`; // Locked to Center X
-            
-            // Elements move only in Y following the thumb
-            bulb.style.transform = `translate3d(0, ${dy}px, 0)`;
-            wrap.style.transform = `translate3d(0, ${dy}px, 0)`;
 
+            // Phase 1: Bulb Pops Up at 0.5 cm
             if(finalDist >= TRIGGER_BULB) {
                 bulb.style.display = 'block';
-                const glow = Math.min(((finalDist - TRIGGER_BULB) / (TRIGGER_CONTEXT - TRIGGER_BULB)) * 30, 30);
-                bulb.style.filter = `drop-shadow(0 0 ${glow}px var(--gold)) brightness(${1 + glow/10})`;
+            } else {
+                bulb.style.display = 'none';
             }
-            if(finalDist >= TRIGGER_CONTEXT) wrap.classList.add('active'); else wrap.classList.remove('active');
+
+            // Phase 2: Rift Opens at 1.0 cm
+            if(finalDist >= TRIGGER_RIFT) {
+                // Calculate displacement for text (+Y) and bulb (-Y)
+                const riftProg = Math.min((finalDist - TRIGGER_RIFT) / 100, 1);
+                queText.style.transform = `translateY(-${riftProg * 140}px)`; // Move Up
+                bulb.style.transform = `translateY(${riftProg * 140}px)`;    // Move Down
+            } else {
+                queText.style.transform = `translateY(0)`;
+                bulb.style.transform = `translateY(0)`;
+            }
+
+            // Phase 3: Context Appearance
+            if(finalDist >= TRIGGER_CONTEXT) {
+                wrap.classList.add('active');
+                bulb.style.filter = `drop-shadow(0 0 30px var(--gold)) brightness(2)`;
+            } else {
+                wrap.classList.remove('active');
+                bulb.style.filter = 'none';
+            }
         } else if(dir) {
+            queText.style.transform = `translateY(0)`;
             const target = labels[dir.toLowerCase()];
             if(target) { target.style.display = 'flex'; target.style.opacity = Math.min(finalDist / 24, 1); target.style.transform = `translate3d(${dx}px, ${dy}px, 0)`; }
         }
@@ -146,12 +168,16 @@ function bindMainPhysics(el, qData){
         if(!active) return; active = false;
         if(dir === "DOWN"){
             el.style.transition = "transform .3s"; el.style.transform = "translate(0,0)";
-            if(finalDist < TRIGGER_CONTEXT) wrap.classList.remove('active');
+            if(finalDist < TRIGGER_CONTEXT) {
+                wrap.classList.remove('active');
+                queText.style.transform = `translateY(0)`;
+                bulb.style.transform = `translateY(0)`;
+            }
         } else if(dir && finalDist >= CLAMP_UI){
             isTransitioning = true;
             el.style.transition = "transform .4s ease-in"; el.style.transform = `translate3d(${dir==="LEFT"?-400:400}px, ${dir==="UP"?-400:400}px, 0)`;
             setTimeout(() => { isTransitioning = false; wrap.classList.remove('active'); renderNext(); updateUI(); }, 300);
-        } else { el.style.transition = "transform .2s"; el.style.transform = "translate(0,0) rotate(0deg)"; }
+        } else { el.style.transition = "transform .2s"; el.style.transform = "translate(0,0) rotate(0deg)"; queText.style.transform = `translateY(0)`; }
         if(finalDist < TRIGGER_CONTEXT) labels.dn.style.display = 'none';
         bulb.style.filter = 'none';
     };
