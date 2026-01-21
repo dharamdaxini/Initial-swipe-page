@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <title>Offline Chemistry Quiz</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
 <style>
+/* ===== BASE UI (UNCHANGED CORE LOOK) ===== */
 body{
   margin:0;
   background:#000;
@@ -22,26 +23,29 @@ body{
   background:#111;
   border-radius:16px;
   padding:20px;
+  max-height:90vh;
+  overflow-y:auto;
 }
 h2{
-  font-size:1.2rem;
-  margin-bottom:16px;
+  font-size:clamp(1rem,4.5vw,1.3rem);
+  line-height:1.4;
 }
-.option{
+.option,.topic{
   padding:12px;
   margin-bottom:10px;
   background:#1c1c1c;
   border-radius:10px;
   cursor:pointer;
 }
-.option.correct{ background:#1e7e34; }
-.option.wrong{ background:#7e1e1e; }
-#hint, #explanation{
-  font-size:0.9rem;
+.option.correct{background:#1e7e34;}
+.option.wrong{background:#7e1e1e;}
+.topic{text-align:center;font-weight:bold;}
+#hint,#explanation{
+  font-size:clamp(.8rem,3.6vw,.95rem);
   color:#aaa;
   margin-top:10px;
 }
-#next{
+button{
   margin-top:16px;
   padding:12px;
   width:100%;
@@ -55,855 +59,180 @@ h2{
 
 <body>
 <div id="app">
-  <h2 id="question"></h2>
-
-  <div class="option" id="up"></div>
-  <div class="option" id="right"></div>
-  <div class="option" id="left"></div>
-
-  <div id="hint"></div>
-  <div id="explanation"></div>
-
-  <button id="next" style="display:none;">NEXT</button>
+  <h2 id="title">Select Set</h2>
+  <div id="content"></div>
 </div>
 
 <script>
-// ---------------- DATA (OFFLINE) ----------------
+/* ===============================
+   OFFLINE DATA (PASTE FULL DATA)
+   =============================== */
 const DATA = [
-  {
-    "id":"SET_A_0301",
-    "set":"SET_A",
-    "category":"Gas Laws",
-    "question":"The ideal gas constant R has the same value regardless of gas identity.",
-    "option_up":"Depends on gas type",
-    "option_right":"Universal constant",
-    "option_left":"Changes with pressure",
-    "correct_option":"option_right",
-    "explanation":"R does not vary with gas identity. Pressure does not alter the constant. R is a universal constant for ideal gases.",
-    "hint":"Universal constant.",
-    "weight":0.34
-  },
-  {
-    "id":"SET_A_0302",
-    "set":"SET_A",
-    "category":"Gas Laws",
-    "question":"At constant volume an increase in temperature increases pressure.",
-    "option_up":"Pressure decreases",
-    "option_right":"Pressure remains same",
-    "option_left":"Pressure increases",
-    "correct_option":"option_left",
-    "explanation":"Higher temperature increases molecular collisions, raising pressure.",
-    "hint":"Gay-Lussac.",
-    "weight":0.36
-  },
-  {
-    "id":"SET_A_0303",
-    "set":"SET_A",
-    "category":"Gas Laws",
-    "question":"Absolute temperature must be used in gas law calculations.",
-    "option_up":"Celsius scale acceptable",
-    "option_right":"Only Fahrenheit works",
-    "option_left":"Temperature in Kelvin",
-    "correct_option":"option_left",
-    "explanation":"Kelvin scale reflects absolute temperature.",
-    "hint":"Absolute scale.",
-    "weight":0.31
-  },
-  {
-    "id":"SET_A_0304",
-    "set":"SET_A",
-    "category":"Physical Chemistry",
-    "question":"Kinetic molecular theory assumes negligible molecular volume.",
-    "option_up":"Molecules occupy significant volume",
-    "option_right":"Only valid for liquids",
-    "option_left":"Particle volume neglected",
-    "correct_option":"option_left",
-    "explanation":"Kinetic theory neglects molecular volume compared to container size.",
-    "hint":"Point particles.",
-    "weight":0.38
-  },
-  {
-    "id":"SET_A_0305",
-    "set":"SET_A",
-    "category":"Physical Chemistry",
-    "question":"Average kinetic energy of gas molecules depends only on temperature.",
-    "option_up":"Depends on gas mass",
-    "option_right":"Depends on pressure only",
-    "option_left":"Depends only on temperature",
-    "correct_option":"option_left",
-    "explanation":"Temperature alone determines average kinetic energy.",
-    "hint":"KE–T relation.",
-    "weight":0.34
-  },
-  {
-    "id":"SET_A_0306",
-    "set":"SET_A",
-    "category":"Physical Chemistry",
-    "question":"Root mean square speed increases with temperature.",
-    "option_up":"Decreases with temperature",
-    "option_right":"Independent of temperature",
-    "option_left":"Increases with temperature",
-    "correct_option":"option_left",
-    "explanation":"RMS speed rises as temperature increases.",
-    "hint":"Speed–T relation.",
-    "weight":0.40
-  },
-  {
-    "id":"SET_A_0307",
-    "set":"SET_A",
-    "category":"Thermodynamics",
-    "question":"Entropy is an extensive property.",
-    "option_up":"Independent of system size",
-    "option_right":"Depends on system size",
-    "option_left":"Always constant",
-    "correct_option":"option_right",
-    "explanation":"Entropy scales with the amount of substance.",
-    "hint":"Extensive vs intensive.",
-    "weight":0.35
-  },
-  {
-    "id":"SET_A_0308",
-    "set":"SET_A",
-    "category":"Thermodynamics",
-    "question":"Specific heat capacity is an intensive property.",
-    "option_up":"Depends on amount of substance",
-    "option_right":"Independent of mass",
-    "option_left":"Only pressure dependent",
-    "correct_option":"option_right",
-    "explanation":"Specific heat is independent of system size.",
-    "hint":"Normalized quantity.",
-    "weight":0.37
-  },
-  {
-    "id":"SET_A_0309",
-    "set":"SET_A",
-    "category":"Thermodynamics",
-    "question":"The efficiency of a heat engine is always less than 100%.",
-    "option_up":"Can reach 100%",
-    "option_right":"Depends only on fuel",
-    "option_left":"Always less than 100%",
-    "correct_option":"option_left",
-    "explanation":"No heat engine can be 100% efficient.",
-    "hint":"Second law.",
-    "weight":0.42
-  },
-  {
-    "id":"SET_A_0310",
-    "set":"SET_A",
-    "category":"Thermodynamics",
-    "question":"Carnot efficiency depends only on reservoir temperatures.",
-    "option_up":"Depends on working substance",
-    "option_right":"Depends on engine design",
-    "option_left":"Depends only on temperatures",
-    "correct_option":"option_left",
-    "explanation":"Carnot efficiency is determined solely by temperatures.",
-    "hint":"Carnot limit.",
-    "weight":0.39
-  },
-
-  {
-    "id":"SET_A_0311",
-    "set":"SET_A",
-    "category":"Kinetics",
-    "question":"The Arrhenius plot is a graph of ln k versus 1/T.",
-    "option_up":"k versus T",
-    "option_right":"ln k versus T",
-    "option_left":"ln k versus 1/T",
-    "correct_option":"option_left",
-    "explanation":"Arrhenius plot uses ln k against inverse temperature.",
-    "hint":"Arrhenius plot.",
-    "weight":0.33
-  },
-  {
-    "id":"SET_A_0312",
-    "set":"SET_A",
-    "category":"Kinetics",
-    "question":"A catalyst provides an alternative reaction pathway.",
-    "option_up":"Lowers ΔG",
-    "option_right":"Changes equilibrium constant",
-    "option_left":"Provides lower Ea pathway",
-    "correct_option":"option_left",
-    "explanation":"Catalysts offer a pathway with lower activation energy.",
-    "hint":"Energy pathway.",
-    "weight":0.36
-  },
-  {
-    "id":"SET_A_0313",
-    "set":"SET_A",
-    "category":"Kinetics",
-    "question":"Increasing surface area of a solid reactant increases reaction rate.",
-    "option_up":"Has no effect",
-    "option_right":"Decreases rate",
-    "option_left":"Increases rate",
-    "correct_option":"option_left",
-    "explanation":"More surface area allows more effective collisions.",
-    "hint":"Surface exposure.",
-    "weight":0.31
-  },
-
-  {
-    "id":"SET_A_0314",
-    "set":"SET_A",
-    "category":"Solutions",
-    "question":"Solubility of gases in liquids generally decreases with temperature.",
-    "option_up":"Always increases with temperature",
-    "option_right":"Independent of temperature",
-    "option_left":"Decreases with temperature",
-    "correct_option":"option_left",
-    "explanation":"Higher temperature reduces gas solubility in liquids.",
-    "hint":"Gas escape.",
-    "weight":0.38
-  },
-
-  {
-    "id":"SET_A_0315",
-    "set":"SET_A",
-    "category":"Solutions",
-    "question":"Solubility of most solids increases with temperature.",
-    "option_up":"Always decreases",
-    "option_right":"Independent of temperature",
-    "option_left":"Generally increases",
-    "correct_option":"option_left",
-    "explanation":"Most solids dissolve better at higher temperatures.",
-    "hint":"Dissolution trend.",
-    "weight":0.34
-  },
-
-  {
-    "id":"SET_A_0316",
-    "set":"SET_A",
-    "category":"Solutions",
-    "question":"The common ion effect reduces solubility of a salt.",
-    "option_up":"Increases solubility",
-    "option_right":"Has no effect",
-    "option_left":"Reduces solubility",
-    "correct_option":"option_left",
-    "explanation":"Common ions suppress solubility.",
-    "hint":"Le Châtelier.",
-    "weight":0.40
-  },
-
-  {
-    "id":"SET_A_0317",
-    "set":"SET_A",
-    "category":"Equilibrium",
-    "question":"Le Châtelier’s principle predicts response to stress.",
-    "option_up":"Predicts reaction rate",
-    "option_right":"Predicts equilibrium constant",
-    "option_left":"Predicts shift in equilibrium",
-    "correct_option":"option_left",
-    "explanation":"The principle predicts how equilibrium shifts.",
-    "hint":"Stress response.",
-    "weight":0.35
-  },
-
-  {
-    "id":"SET_A_0318",
-    "set":"SET_A",
-    "category":"Equilibrium",
-    "question":"Increasing pressure favors side with fewer gas moles.",
-    "option_up":"Side with more moles",
-    "option_right":"No effect ever",
-    "option_left":"Fewer gas moles",
-    "correct_option":"option_left",
-    "explanation":"Higher pressure favors fewer gas molecules.",
-    "hint":"Mole count.",
-    "weight":0.37
-  },
-
-  {
-    "id":"SET_A_0319",
-    "set":"SET_A",
-    "category":"Equilibrium",
-    "question":"Adding a catalyst does not shift equilibrium position.",
-    "option_up":"Shifts equilibrium",
-    "option_right":"Changes K value",
-    "option_left":"No shift in position",
-    "correct_option":"option_left",
-    "explanation":"Catalysts do not alter equilibrium position.",
-    "hint":"Rate vs equilibrium.",
-    "weight":0.42
-  },
-
-  {
-    "id":"SET_A_0320",
-    "set":"SET_A",
-    "category":"Equilibrium",
-    "question":"Equilibrium constants are independent of initial concentrations.",
-    "option_up":"Depend on starting amounts",
-    "option_right":"Depend on catalyst",
-    "option_left":"Independent of initial amounts",
-    "correct_option":"option_left",
-    "explanation":"K depends only on temperature.",
-    "hint":"K property.",
-    "weight":0.39
-  }
-
-   ,
-{
-  "id":"SET_A_0321",
-  "set":"SET_A",
-  "category":"Electrochemistry",
-  "question":"Oxidation number represents electron bookkeeping.",
-  "option_up":"Actual charge only",
-  "option_right":"Mass number",
-  "option_left":"Formal electron accounting",
-  "correct_option":"option_left",
-  "explanation":"Oxidation number tracks electrons formally.",
-  "hint":"Electron count.",
-  "weight":0.33
-},
-{
-  "id":"SET_A_0322",
-  "set":"SET_A",
-  "category":"Electrochemistry",
-  "question":"Electronegativity measures tendency to attract electrons.",
-  "option_up":"To lose electrons",
-  "option_right":"To attract electrons",
-  "option_left":"To gain protons",
-  "correct_option":"option_right",
-  "explanation":"Electronegativity reflects attraction for electrons.",
-  "hint":"Electron pull.",
-  "weight":0.36
-},
-{
-  "id":"SET_A_0323",
-  "set":"SET_A",
-  "category":"Electrochemistry",
-  "question":"Standard hydrogen electrode has potential defined as zero.",
-  "option_up":"Depends on conditions",
-  "option_right":"Nonzero reference",
-  "option_left":"Zero by definition",
-  "correct_option":"option_left",
-  "explanation":"SHE potential is defined as zero.",
-  "hint":"Reference electrode.",
-  "weight":0.31
-},
-{
-  "id":"SET_A_0324",
-  "set":"SET_A",
-  "category":"Electrochemistry",
-  "question":"Increasing temperature generally decreases cell potential.",
-  "option_up":"Always increases potential",
-  "option_right":"Has no effect",
-  "option_left":"Generally decreases potential",
-  "correct_option":"option_left",
-  "explanation":"Higher temperature often lowers cell potential.",
-  "hint":"Temperature effect.",
-  "weight":0.38
-},
-{
-  "id":"SET_A_0325",
-  "set":"SET_A",
-  "category":"Spectroscopy",
-  "question":"Beer–Lambert law can fail at high concentrations.",
-  "option_up":"Always holds",
-  "option_right":"Only fails at low concentration",
-  "option_left":"Deviates at high concentration",
-  "correct_option":"option_left",
-  "explanation":"High concentrations cause deviations.",
-  "hint":"Linearity limits.",
-  "weight":0.34
-},
-{
-  "id":"SET_A_0326",
-  "set":"SET_A",
-  "category":"Spectroscopy",
-  "question":"Absorbance is directly proportional to path length.",
-  "option_up":"Independent of path length",
-  "option_right":"Inversely proportional",
-  "option_left":"Directly proportional",
-  "correct_option":"option_left",
-  "explanation":"Absorbance increases linearly with path length.",
-  "hint":"Path length.",
-  "weight":0.40
-},
-{
-  "id":"SET_A_0327",
-  "set":"SET_A",
-  "category":"Spectroscopy",
-  "question":"In NMR, shielding shifts resonance upfield.",
-  "option_up":"Downfield shift",
-  "option_right":"No shift",
-  "option_left":"Upfield shift",
-  "correct_option":"option_left",
-  "explanation":"Shielding moves signals upfield.",
-  "hint":"Shielding.",
-  "weight":0.35
-},
-{
-  "id":"SET_A_0328",
-  "set":"SET_A",
-  "category":"Spectroscopy",
-  "question":"Deshielded protons resonate downfield.",
-  "option_up":"Upfield shift",
-  "option_right":"No shift",
-  "option_left":"Downfield shift",
-  "correct_option":"option_left",
-  "explanation":"Deshielding moves resonance downfield.",
-  "hint":"Chemical shift.",
-  "weight":0.37
-},
-{
-  "id":"SET_A_0329",
-  "set":"SET_A",
-  "category":"Mathematics for Chemists",
-  "question":"A straight line has constant first derivative.",
-  "option_up":"Variable derivative",
-  "option_right":"Zero derivative always",
-  "option_left":"Constant derivative",
-  "correct_option":"option_left",
-  "explanation":"Linear functions have constant first derivative.",
-  "hint":"Derivative concept.",
-  "weight":0.42
-},
-{
-  "id":"SET_A_0330",
-  "set":"SET_A",
-  "category":"Mathematics for Chemists",
-  "question":"The integral of a constant is a linear function.",
-  "option_up":"Quadratic function",
-  "option_right":"Exponential function",
-  "option_left":"Linear function",
-  "correct_option":"option_left",
-  "explanation":"Integrating a constant yields a linear function.",
-  "hint":"Integration result.",
-  "weight":0.39
-},
-{
-  "id":"SET_A_0331",
-  "set":"SET_A",
-  "category":"Environmental Chemistry",
-  "question":"Acidic oxides form acids in water.",
-  "option_up":"Form bases only",
-  "option_right":"Do not react with water",
-  "option_left":"Form acids",
-  "correct_option":"option_left",
-  "explanation":"Acidic oxides produce acids on hydration.",
-  "hint":"Oxide type.",
-  "weight":0.33
-},
-{
-  "id":"SET_A_0332",
-  "set":"SET_A",
-  "category":"Environmental Chemistry",
-  "question":"Basic oxides neutralize acids.",
-  "option_up":"Form acids",
-  "option_right":"Have no reaction",
-  "option_left":"Neutralize acids",
-  "correct_option":"option_left",
-  "explanation":"Basic oxides neutralize acidic substances.",
-  "hint":"Acid–base.",
-  "weight":0.36
-},
-{
-  "id":"SET_A_0333",
-  "set":"SET_A",
-  "category":"Environmental Chemistry",
-  "question":"Carbon cycle involves exchange of carbon among Earth systems.",
-  "option_up":"Only atmosphere",
-  "option_right":"Only oceans",
-  "option_left":"Multiple Earth systems",
-  "correct_option":"option_left",
-  "explanation":"Carbon cycles through atmosphere, biosphere, hydrosphere, and lithosphere.",
-  "hint":"Earth systems.",
-  "weight":0.31
-},
-{
-  "id":"SET_A_0334",
-  "set":"SET_A",
-  "category":"Biochemistry",
-  "question":"Metabolic pathways consist of sequential enzyme-catalyzed steps.",
-  "option_up":"Single-step reactions",
-  "option_right":"Random reactions",
-  "option_left":"Sequential enzyme steps",
-  "correct_option":"option_left",
-  "explanation":"Pathways involve ordered enzyme-catalyzed reactions.",
-  "hint":"Pathway flow.",
-  "weight":0.38
-},
-{
-  "id":"SET_A_0335",
-  "set":"SET_A",
-  "category":"Biochemistry",
-  "question":"ATP acts as the primary energy currency of the cell.",
-  "option_up":"Structural protein",
-  "option_right":"Genetic material",
-  "option_left":"Energy carrier",
-  "correct_option":"option_left",
-  "explanation":"ATP stores and transfers energy in cells.",
-  "hint":"Energy currency.",
-  "weight":0.34
-},
-{
-  "id":"SET_A_0336",
-  "set":"SET_A",
-  "category":"Biochemistry",
-  "question":"Coenzymes assist enzymes by carrying chemical groups.",
-  "option_up":"Replace enzymes",
-  "option_right":"Act independently",
-  "option_left":"Transfer groups or electrons",
-  "correct_option":"option_left",
-  "explanation":"Coenzymes shuttle groups or electrons during reactions.",
-  "hint":"Helper molecules.",
-  "weight":0.40
-},
-{
-  "id":"SET_A_0337",
-  "set":"SET_A",
-  "category":"Nuclear Chemistry",
-  "question":"Radioisotopes are used in medical imaging.",
-  "option_up":"Only in industry",
-  "option_right":"Only in power generation",
-  "option_left":"Medical diagnostics",
-  "correct_option":"option_left",
-  "explanation":"Radioisotopes help diagnose and image medical conditions.",
-  "hint":"Imaging use.",
-  "weight":0.35
-},
-{
-  "id":"SET_A_0338",
-  "set":"SET_A",
-  "category":"Nuclear Chemistry",
-  "question":"Radioactive tracers follow biochemical pathways.",
-  "option_up":"Destroy tissues",
-  "option_right":"Have no application",
-  "option_left":"Trace pathways",
-  "correct_option":"option_left",
-  "explanation":"Tracers help follow biochemical processes.",
-  "hint":"Tracing.",
-  "weight":0.37
-},
-{
-  "id":"SET_A_0339",
-  "set":"SET_A",
-  "category":"Materials Chemistry",
-  "question":"Superconductors exhibit zero electrical resistance.",
-  "option_up":"Very high resistance",
-  "option_right":"Low but nonzero resistance",
-  "option_left":"Zero resistance",
-  "correct_option":"option_left",
-  "explanation":"Superconductors conduct electricity with zero resistance.",
-  "hint":"Zero resistance.",
-  "weight":0.42
-},
-{
-  "id":"SET_A_0340",
-  "set":"SET_A",
-  "category":"Materials Chemistry",
-  "question":"Superconductivity occurs below a critical temperature.",
-  "option_up":"At any temperature",
-  "option_right":"Only at high temperature",
-  "option_left":"Below critical temperature",
-  "correct_option":"option_left",
-  "explanation":"Superconductivity appears below a critical temperature.",
-  "hint":"Critical temperature.",
-  "weight":0.39
-},
-{
-  "id":"SET_A_0341",
-  "set":"SET_A",
-  "category":"Polymers",
-  "question":"Polymer degradation can occur due to heat or UV exposure.",
-  "option_up":"Never degrades",
-  "option_right":"Only mechanical stress",
-  "option_left":"Heat or UV causes degradation",
-  "correct_option":"option_left",
-  "explanation":"Heat and UV radiation can break polymer chains.",
-  "hint":"Degradation factors.",
-  "weight":0.33
-},
-{
-  "id":"SET_A_0342",
-  "set":"SET_A",
-  "category":"Polymers",
-  "question":"Biodegradable polymers break down via biological processes.",
-  "option_up":"Never decompose",
-  "option_right":"Only chemically degrade",
-  "option_left":"Broken down biologically",
-  "correct_option":"option_left",
-  "explanation":"Biodegradable polymers decompose through biological action.",
-  "hint":"Biodegradation.",
-  "weight":0.36
-},
-{
-  "id":"SET_A_0343",
-  "set":"SET_A",
-  "category":"Surface Chemistry",
-  "question":"Heterogeneous catalysis occurs at the surface.",
-  "option_up":"In solution only",
-  "option_right":"In gas phase only",
-  "option_left":"At solid surface",
-  "correct_option":"option_left",
-  "explanation":"Heterogeneous catalysis occurs at solid surfaces.",
-  "hint":"Catalyst phase.",
-  "weight":0.31
-},
-{
-  "id":"SET_A_0344",
-  "set":"SET_A",
-  "category":"Surface Chemistry",
-  "question":"Homogeneous catalysis involves same phase catalyst and reactants.",
-  "option_up":"Different phases",
-  "option_right":"Only solids",
-  "option_left":"Same phase",
-  "correct_option":"option_left",
-  "explanation":"Homogeneous catalysis occurs in a single phase.",
-  "hint":"Same phase.",
-  "weight":0.38
-},
-{
-  "id":"SET_A_0345",
-  "set":"SET_A",
-  "category":"Colloids",
-  "question":"A sol is a colloidal dispersion of solid in liquid.",
-  "option_up":"Liquid in liquid",
-  "option_right":"Gas in liquid",
-  "option_left":"Solid in liquid",
-  "correct_option":"option_left",
-  "explanation":"Sols consist of solid particles dispersed in liquid.",
-  "hint":"Sol type.",
-  "weight":0.34
-},
-{
-  "id":"SET_A_0346",
-  "set":"SET_A",
-  "category":"Colloids",
-  "question":"A gel is a semi-solid colloidal system.",
-  "option_up":"Free-flowing liquid",
-  "option_right":"Gas dispersion",
-  "option_left":"Semi-solid network",
-  "correct_option":"option_left",
-  "explanation":"Gels form semi-solid networks.",
-  "hint":"Gel nature.",
-  "weight":0.40
-},
-{
-  "id":"SET_A_0347",
-  "set":"SET_A",
-  "category":"Electrochemistry",
-  "question":"Electroplating deposits a metal layer using electric current.",
-  "option_up":"Without electricity",
-  "option_right":"By chemical reduction only",
-  "option_left":"Using electric current",
-  "correct_option":"option_left",
-  "explanation":"Electric current drives metal deposition in electroplating.",
-  "hint":"Metal coating.",
-  "weight":0.35
-},
-{
-  "id":"SET_A_0348",
-  "set":"SET_A",
-  "category":"Electrochemistry",
-  "question":"Corrosion involves oxidation of metals.",
-  "option_up":"Reduction of metals",
-  "option_right":"No electron transfer",
-  "option_left":"Oxidation of metals",
-  "correct_option":"option_left",
-  "explanation":"Corrosion is an oxidation process of metals.",
-  "hint":"Metal loss.",
-  "weight":0.37
-},
-{
-  "id":"SET_A_0349",
-  "set":"SET_A",
-  "category":"Solutions",
-  "question":"Buffer solutions resist changes in pH.",
-  "option_up":"Cause rapid pH change",
-  "option_right":"Have no effect on pH",
-  "option_left":"Resist pH change",
-  "correct_option":"option_left",
-  "explanation":"Buffers resist changes in pH when small acids or bases are added.",
-  "hint":"pH stability.",
-  "weight":0.42
-},
-{
-  "id":"SET_A_0350",
-  "set":"SET_A",
-  "category":"Solutions",
-  "question":"A buffer contains a weak acid and its conjugate base.",
-  "option_up":"Strong acid only",
-  "option_right":"Strong base only",
-  "option_left":"Weak acid and conjugate base",
-  "correct_option":"option_left",
-  "explanation":"Buffers consist of a weak acid and its conjugate base.",
-  "hint":"Buffer pair.",
-  "weight":0.39
-}
-  /* … CONTINUES UP TO SET_A_0350 — structure identical */
+  /* 👉 YOUR FULL SET_A_0301 – SET_A_0350 JSON HERE
+     (unchanged structure) */
 ];
-  // 👉 paste remaining JSON objects here
 
-   /* ================================
-   OFFLINE QUIZ ENGINE (DATA BASED)
-   ================================ */
+/* ===============================
+   CONFIG – BACKEND LOGGING
+   =============================== */
+const LOG_ENDPOINT =
+"https://script.google.com/macros/s/AKfycbxMOVzmONXP6nAHNoN92nmO2MnMPek7omYcw0JCeizbsIOQZUik0VmUK0nT/exec";
 
+/* ===============================
+   STATE ENGINE
+   =============================== */
+let STATE = "SET";
+let CURRENT_SET = null;
+let CURRENT_TOPIC = null;
+let CURRENT_DEPTH = null;
+
+let POOL = [];
 let INDEX = 0;
-let START_Y = 0;
-let LOCKED = false;
+let SESSION_ID = "SESS_" + Math.random().toString(36).slice(2,7).toUpperCase();
 
-const stack = document.getElementById("stack");
+const titleEl = document.getElementById("title");
+const contentEl = document.getElementById("content");
 
-/* ---------- INIT ---------- */
-function initQuiz() {
-  renderCard();
+/* ===============================
+   INIT
+   =============================== */
+renderSet();
+
+/* ===============================
+   SET → TOPIC → DEPTH
+   =============================== */
+function renderSet(){
+  STATE="SET";
+  titleEl.innerText="Select Set";
+  contentEl.innerHTML="";
+  ["SET_A"].forEach(s=>{
+    makeTopic(s,()=>{CURRENT_SET=s;renderTopic();});
+  });
 }
 
-/* ---------- RENDER ---------- */
-function renderCard() {
-  stack.innerHTML = "";
+function renderTopic(){
+  STATE="TOPIC";
+  titleEl.innerText="Select Topic";
+  contentEl.innerHTML="";
+  unique(DATA.filter(q=>q.set===CURRENT_SET).map(q=>q.category))
+    .forEach(t=>makeTopic(t,()=>{CURRENT_TOPIC=t;renderDepth();}));
+}
 
-  if (INDEX >= DATA.length) {
-    stack.innerHTML = `<div class="card">
-        <div class="card-q">SESSION COMPLETE</div>
-      </div>`;
+function renderDepth(){
+  STATE="DEPTH";
+  titleEl.innerText="Select Depth";
+  contentEl.innerHTML="";
+  makeTopic("Concept",()=>startQuiz("CONCEPT"));
+  makeTopic("Application",()=>startQuiz("APPLICATION"));
+}
+
+function makeTopic(text,fn){
+  const d=document.createElement("div");
+  d.className="topic";
+  d.innerText=text;
+  d.onclick=fn;
+  contentEl.appendChild(d);
+}
+
+/* ===============================
+   QUIZ ENGINE
+   =============================== */
+function startQuiz(depth){
+  STATE="QUIZ";
+  CURRENT_DEPTH=depth;
+  INDEX=0;
+
+  POOL = shuffle(
+    DATA.filter(q =>
+      q.set===CURRENT_SET &&
+      q.category===CURRENT_TOPIC
+    )
+  );
+
+  renderQuestion();
+}
+
+function renderQuestion(){
+  contentEl.innerHTML="";
+  if(INDEX>=POOL.length){
+    titleEl.innerText="Session Complete";
+    makeTopic("Restart",restart);
     return;
   }
 
-  const q = DATA[INDEX];
+  const q=POOL[INDEX];
+  titleEl.innerText=CURRENT_TOPIC;
 
-  const card = document.createElement("div");
-  card.className = "card";
-  card.innerHTML = `
-    <div class="card-q">${q.question}</div>
+  const qEl=document.createElement("h2");
+  qEl.innerText=q.question;
+  contentEl.appendChild(qEl);
 
-    <div class="swipe-label sl-up">${q.option_up}</div>
-    <div class="swipe-label sl-right">${q.option_right}</div>
-    <div class="swipe-label sl-left">${q.option_left}</div>
-    <div class="swipe-label sl-down sl-down-hint">${q.hint}</div>
+  ["option_up","option_right","option_left"].forEach(k=>{
+    const o=document.createElement("div");
+    o.className="option";
+    o.innerText=q[k];
+    o.onclick=()=>answer(k,q,o);
+    contentEl.appendChild(o);
+  });
 
-    <div class="overlay">
-      <div class="overlay-label">EXPLANATION</div>
-      <div class="overlay-body">${q.explanation.replace(/\n/g,"<br>")}</div>
-      <button class="btn">CONTINUE</button>
-    </div>
-  `;
+  const hint=document.createElement("div");
+  hint.id="hint";
+  hint.innerText="Hint: "+q.hint;
+  contentEl.appendChild(hint);
 
-  stack.appendChild(card);
-  bindSwipe(card, q);
+  const exp=document.createElement("div");
+  exp.id="explanation";
+  contentEl.appendChild(exp);
+
+  const next=document.createElement("button");
+  next.innerText="NEXT";
+  next.style.display="none";
+  next.onclick=()=>{INDEX++;renderQuestion();};
+  contentEl.appendChild(next);
 }
 
-/* ---------- SWIPE HANDLING ---------- */
-function bindSwipe(card, data) {
-  const overlay = card.querySelector(".overlay");
-  const btn = overlay.querySelector(".btn");
+function answer(choice,q,el){
+  document.querySelectorAll(".option").forEach(o=>{
+    o.style.pointerEvents="none";
+    if(o.innerText===q[q.correct_option])o.classList.add("correct");
+  });
+  if(choice!==q.correct_option)el.classList.add("wrong");
 
-  btn.onclick = () => {
-    overlay.classList.remove("active");
-    next();
-  };
+  document.getElementById("explanation").innerText=q.explanation;
+  contentEl.querySelector("button").style.display="block";
 
-  card.ontouchstart = e => {
-    START_Y = e.touches[0].clientY;
-    LOCKED = false;
-  };
-
-  card.ontouchmove = e => {
-    if (LOCKED) return;
-    const dy = e.touches[0].clientY - START_Y;
-    if (Math.abs(dy) > 80) LOCKED = true;
-  };
-
-  card.ontouchend = e => {
-    if (!LOCKED) return;
-
-    const dy = e.changedTouches[0].clientY - START_Y;
-
-    if (dy < -80) handleAnswer("option_up", data, card);
-    else if (dy > 80) {
-      overlay.classList.add("active");
-    }
-  };
-
-  /* Horizontal swipe */
-  card.onpointerdown = e => {
-    START_Y = e.clientX;
-    LOCKED = false;
-  };
-
-  card.onpointerup = e => {
-    const dx = e.clientX - START_Y;
-    if (Math.abs(dx) < 80) return;
-
-    if (dx > 0) handleAnswer("option_right", data, card);
-    else handleAnswer("option_left", data, card);
-  };
+  logInteraction(q.id,choice);
 }
 
-/* ---------- ANSWER ---------- */
-function handleAnswer(choice, data, card) {
-  LOCKED = true;
-
-  const overlay = card.querySelector(".overlay");
-  overlay.classList.add("active");
+/* ===============================
+   BACKEND LOGGING
+   =============================== */
+function logInteraction(id,choice){
+  fetch(LOG_ENDPOINT,{
+    method:"POST",
+    body:JSON.stringify([{
+      id,
+      choice,
+      latency:0,
+      session:SESSION_ID
+    }])
+  }).catch(()=>{});
 }
 
-/* ---------- NEXT ---------- */
-function next() {
-  INDEX++;
-  renderCard();
+/* ===============================
+   UTILITIES
+   =============================== */
+function shuffle(a){
+  return a.map(v=>[Math.random(),v])
+          .sort((a,b)=>a[0]-b[0])
+          .map(v=>v[1]);
 }
+function unique(a){return [...new Set(a)];}
 
-/* ---------- START ---------- */
-window.onload = initQuiz;
-];
-
-// ---------------- ENGINE ----------------
-let index = 0;
-let locked = false;
-
-const qEl = document.getElementById("question");
-const opts = {
-  option_up: document.getElementById("up"),
-  option_right: document.getElementById("right"),
-  option_left: document.getElementById("left")
-};
-const hintEl = document.getElementById("hint");
-const expEl = document.getElementById("explanation");
-const nextBtn = document.getElementById("next");
-
-function render(){
-  locked = false;
-  nextBtn.style.display = "none";
-  expEl.innerText = "";
-  hintEl.innerText = "Hint: " + DATA[index].hint;
-
-  qEl.innerText = DATA[index].question;
-
-  for(const key in opts){
-    opts[key].className = "option";
-    opts[key].innerText = DATA[index][key];
-    opts[key].onclick = () => select(key);
-  }
+function restart(){
+  SESSION_ID="SESS_"+Math.random().toString(36).slice(2,7).toUpperCase();
+  renderSet();
 }
-
-function select(choice){
-  if(locked) return;
-  locked = true;
-
-  const correct = DATA[index].correct_option;
-
-  opts[correct].classList.add("correct");
-  if(choice !== correct){
-    opts[choice].classList.add("wrong");
-  }
-
-  expEl.innerText = DATA[index].explanation;
-  nextBtn.style.display = "block";
-}
-
-nextBtn.onclick = ()=>{
-  index++;
-  if(index >= DATA.length){
-    qEl.innerText = "Completed 🎉";
-    document.querySelectorAll(".option").forEach(o=>o.style.display="none");
-    nextBtn.style.display="none";
-    return;
-  }
-  render();
-};
-
-render();
 </script>
 </body>
 </html>
