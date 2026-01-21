@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist V81.16 - Abstract Motion</title>
+<title>Alchemist V81.19 - Trigger Lock</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 <style>
 /* --- LOCKED TO V81.4 UI ENGINE --- */
@@ -20,8 +20,13 @@ body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family
 .card { position: absolute; width: 100%; height: 100%; background: var(--card); border-radius: 40px; border: 1px solid #282828; padding: 30px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 20px 60px rgba(0,0,0,0.9); transform-origin: center center; will-change: transform; z-index: 1; }
 .card-q { font-family: var(--serif); font-size: clamp(1.2rem, 4.5vw, 1.7rem); line-height: 1.4; font-weight: 700; text-align: center; color: #f0f0f0; pointer-events: none; }
 
-/* AXIS-LOCKED LABELS - OUTSIDE CARD */
-.swipe-label { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.92); color: #fff; font-weight: 900; font-size: 1.8rem; text-transform: uppercase; border-radius: 40px; z-index: 2000; text-align: center; padding: 20px; will-change: transform, opacity; pointer-events: none; }
+/* RESTRAINED XY PLANE LABELS */
+.swipe-label { 
+    position: absolute; inset: 0; display: none; align-items: center; justify-content: center; 
+    background: rgba(0,0,0,0.92); color: #fff; font-weight: 900; font-size: 1.8rem; 
+    text-transform: uppercase; border-radius: 40px; z-index: 2000; text-align: center; padding: 20px; 
+    will-change: transform, opacity; pointer-events: none;
+}
 .sl-dn { flex-direction: column !important; }
 .sl-down-emoji { font-size: 4rem; margin-bottom: 15px; display: block; }
 .sl-down-hint-text { color: var(--blue) !important; font-size: 1.1rem; text-transform: none; font-family: var(--serif); font-weight: 400; line-height: 1.4; max-width: 80%; margin: 0 auto; }
@@ -46,7 +51,7 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 </head>
 <body>
 
-<div id="loader">ALCHEMIST V81.16</div>
+<div id="loader">ALCHEMIST V81.19</div>
 <div id="header">
     <div class="header-meta"><span>RANK: NOVICE</span><span id="xp-ui">0 XP</span></div>
     <div class="progress-track"><div id="progress-bar"></div></div>
@@ -113,49 +118,69 @@ function renderNext(){
 }
 
 function bindMainPhysics(el, qData){
-    let sx=0, sy=0, active=false, dir=null;
+    let sx=0, sy=0, active=false, dir=null, finalDist=0;
     const labels = { up: document.getElementById('sl-up'), dn: document.getElementById('sl-dn'), lt: document.getElementById('sl-lt'), rt: document.getElementById('sl-rt') };
 
     const start = e => { if(isTransitioning || el.querySelector('.overlay').classList.contains('active')) return; active=true; const p=e.touches?e.touches[0]:e; sx=p.clientX; sy=p.clientY; el.style.transition="none"; };
     
     const move = e => {
         if(!active) return; const p=e.touches?e.touches[0]:e;
-        const dx = p.clientX - sx, dy = p.clientY - sy, dist = Math.sqrt(dx*dx + dy*dy);
-        const op = Math.min(dist / OPACITY, 1);
+        const rawDx = p.clientX - sx;
+        const rawDy = p.clientY - sy;
+        finalDist = Math.sqrt(rawDx*rawDx + rawDy*rawDy);
+        const op = Math.min(finalDist / OPACITY, 1);
         
-        // UNIT CIRCLE METHOD - BACKEND PROCESS
-        let ang = Math.atan2(-dy, dx) * (180 / Math.PI); if(ang<0) ang+=360;
+        let ang = Math.atan2(-rawDy, rawDx) * (180 / Math.PI); if(ang<0) ang+=360;
         
-        Object.values(labels).forEach(l => { l.style.display = 'none'; l.style.opacity = 0; });
-
-        if(dist > 5){
-            let target = null;
-            // 4-SECTOR MAPPING
-            if(ang>=45&&ang<135) { target = labels.up; target.style.transform = `translate3d(0, ${dy}px, 0)`; dir="UP"; }
-            else if(ang>=135&&ang<225) { target = labels.lt; target.style.transform = `translate3d(${dx}px, 0, 0)`; dir="LEFT"; }
-            else if(ang>=225&&ang<315) { target = labels.dn; target.style.transform = `translate3d(0, ${dy}px, 0)`; dir="DOWN"; }
-            else { target = labels.rt; target.style.transform = `translate3d(${dx}px, 0, 0)`; dir="RIGHT"; }
-            
-            if(target) { target.style.display = 'flex'; target.style.opacity = op; }
-            if(dist < CLAMP) dir = null; // Lock trigger to Unit Circle distance
+        // RESTRAINT LOGIC: 32px Circular Limitation
+        let labelDx = rawDx;
+        let labelDy = rawDy;
+        if(finalDist > CLAMP) {
+            const ratio = CLAMP / finalDist;
+            labelDx = rawDx * ratio;
+            labelDy = rawDy * ratio;
         }
 
-        el.style.transform = `translate3d(${dx}px, ${dy}px, 0) rotate(${dx/25}deg)`;
+        Object.values(labels).forEach(l => { l.style.display = 'none'; l.style.opacity = 0; });
+
+        if(finalDist > 5){
+            let target = null;
+            if(ang>=45&&ang<135) { target = labels.up; dir="UP"; }
+            else if(ang>=135&&ang<225) { target = labels.lt; dir="LEFT"; }
+            else if(ang>=225&&ang<315) { target = labels.dn; dir="DOWN"; }
+            else { target = labels.rt; dir="RIGHT"; }
+            
+            if(target) { 
+                target.style.display = 'flex'; 
+                target.style.opacity = op; 
+                target.style.transform = `translate3d(${labelDx}px, ${labelDy}px, 0)`; 
+            }
+        }
+
+        el.style.transform = `translate3d(${rawDx}px, ${rawDy}px, 0) rotate(${rawDx/25}deg)`;
     };
 
     const end = () => {
         if(!active) return; active = false;
-        if(dir === "DOWN"){ 
-            const ov = el.querySelector('.overlay'); ov.classList.add('active');
-            bindOverlayPhysics(ov);
-            el.style.transition = "transform .3s"; el.style.transform = "translate3d(0,0,0) rotate(0deg)"; 
-        } else if(dir){
-            isTransitioning = true;
-            el.style.transition = "transform .4s ease-in"; el.style.transform = `translate3d(${dir==="LEFT"?-400:400}px, ${dir==="UP"?-400:400}px, 0)`;
-            if(dir === qData.c.toUpperCase()) SCORE += 10;
-            setTimeout(() => { isTransitioning = false; renderNext(); updateUI(); }, 300);
-        } else { el.style.transition = "transform .2s"; el.style.transform = "translate3d(0,0,0) rotate(0deg)"; }
+        
+        // TRIGGER LOCK: Only select swipe if distance is >= 32px
+        if(finalDist >= CLAMP && dir) {
+            if(dir === "DOWN"){ 
+                const ov = el.querySelector('.overlay'); ov.classList.add('active');
+                bindOverlayPhysics(ov);
+                el.style.transition = "transform .3s"; el.style.transform = "translate(0,0)"; 
+            } else {
+                isTransitioning = true;
+                el.style.transition = "transform .4s ease-in"; el.style.transform = `translate3d(${dir==="LEFT"?-400:400}px, ${dir==="UP"?-400:400}px, 0)`;
+                if(dir === qData.c.toUpperCase()) SCORE += 10;
+                setTimeout(() => { isTransitioning = false; renderNext(); updateUI(); }, 300);
+            }
+        } else {
+            // Cancel swipe and snap back
+            el.style.transition = "transform .2s"; el.style.transform = "translate3d(0,0,0) rotate(0deg)"; 
+        }
         Object.values(labels).forEach(l => { l.style.display = 'none'; });
+        finalDist = 0;
     };
     el.onmousedown=start; window.onmousemove=move; window.onmouseup=end; el.ontouchstart=start; el.ontouchmove=move; el.ontouchend=end;
 }
