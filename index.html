@@ -3,68 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Alchemist V81.26</title>
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <title>Alchemist V81.4</title>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #000; --card: #111; --gold: #ffd600; --border: #222; --serif: 'Libre Baskerville', serif; --ui: 'Outfit', sans-serif; --code: 'JetBrains Mono', monospace; }
+        :root { --bg: #000; --card: #111; --gold: #ffd600; --serif: 'Libre Baskerville', serif; --ui: 'Outfit', sans-serif; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family: var(--ui); overflow: hidden; touch-action: none; }
 
-        /* THE ATMOSPHERIC LAYER */
-        #header { width: 92%; margin: calc(20px + env(safe-area-inset-top)) auto 0; position: relative; z-index: 100; }
-        .header-meta { display: flex; justify-content: space-between; font-family: var(--code); font-size: 0.75rem; color: #444; letter-spacing: 2px; }
-        
-        /* THE STACK */
-        #stack { position: relative; width: 92%; max-width: 420px; height: 75vh; margin: 25px auto 0; perspective: 1200px; }
+        /* HEADER - V81.4 MINIMALISM */
+        #header { width: 90%; margin: 30px auto 0; position: relative; z-index: 100; text-align: center; }
+        .header-meta { font-size: 0.7rem; color: #444; letter-spacing: 4px; text-transform: uppercase; font-weight: 900; }
+
+        /* THE CARD STACK */
+        #stack { position: relative; width: 90%; max-width: 400px; height: 70vh; margin: 40px auto 0; perspective: 1000px; }
         
         .card { 
-            position: absolute; width: 100%; height: 100%; background: var(--card); border-radius: 32px; border: 1px solid var(--border); 
-            padding: 40px 30px; display: flex; flex-direction: column; justify-content: center; z-index: 5; 
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-            transition: filter 0.4s ease, opacity 0.4s ease, transform 0.3s cubic-bezier(0.17, 0.67, 0.83, 0.67); 
+            position: absolute; width: 100%; height: 100%; background: var(--card); border-radius: 24px; border: 1px solid #222; 
+            padding: 40px 25px; display: flex; flex-direction: column; justify-content: center; z-index: 5; 
+            transition: filter 0.4s ease, opacity 0.4s ease, transform 0.3s cubic-bezier(0.19, 1, 0.22, 1); 
         }
 
-        /* THE RIFT EFFECT */
-        .card.study-active { filter: blur(20px) brightness(0.2); opacity: 0.5; pointer-events: none; transform: scale(0.9) translateY(40px); }
-        .card-q { font-family: var(--serif); font-size: 1.6rem; line-height: 1.5; font-weight: 700; text-align: center; color: #fff; }
+        /* THE RIFT BLUR STATE */
+        .card.study-active { filter: blur(15px) brightness(0.3); opacity: 0.6; transform: scale(0.92) translateY(30px); pointer-events: none; }
+        .card-q { font-family: var(--serif); font-size: 1.5rem; line-height: 1.6; font-weight: 700; text-align: center; color: #fff; }
 
-        /* THE INTEGRATED STUDY DRAWER */
+        /* THE STUDY DRAWER (ANALYSIS) */
         .study-drawer { 
             position: absolute; inset: 0; padding: 40px 20px; z-index: 10; display: flex; flex-direction: column; 
-            opacity: 0; visibility: hidden; transform: translateY(30px); transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1); 
+            opacity: 0; visibility: hidden; transform: translateY(20px); transition: all 0.5s ease; 
         }
         .study-drawer.active { opacity: 1; visibility: visible; transform: translateY(0); }
         
-        .study-header { font-size: 0.7rem; color: #555; font-family: var(--code); letter-spacing: 4px; font-weight: 900; text-transform: uppercase; margin-bottom: 20px; }
-        .bullet-item { font-size: 1.1rem; line-height: 1.7; color: #ccc; font-family: var(--serif); margin-bottom: 20px; padding-left: 24px; position: relative; }
-        .bullet-item::before { content: ""; position: absolute; left: 0; top: 12px; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; }
+        .bullet-item { font-size: 1.05rem; line-height: 1.7; color: #bbb; font-family: var(--serif); margin-bottom: 15px; padding-left: 20px; position: relative; }
+        .bullet-item::before { content: ""; position: absolute; left: 0; top: 12px; width: 5px; height: 5px; background: var(--gold); border-radius: 50%; }
         
-        .principle-text { font-size: 1.3rem; line-height: 1.5; color: var(--gold); font-family: var(--serif); font-style: italic; border-top: 1px solid #222; padding-top: 20px; }
+        .principle-text { font-size: 1.2rem; line-height: 1.5; color: var(--gold); font-family: var(--serif); font-style: italic; border-top: 1px solid #222; padding-top: 20px; margin-top: 10px; }
 
-        #loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--gold); letter-spacing: 4px; }
+        /* LOADER CUE */
+        #loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--gold); letter-spacing: 5px; }
     </style>
 </head>
 <body>
 
-<div id="loader">ALCHEMIST V81.26</div>
+<div id="loader">ALCHEMIST V81.4</div>
 
 <div id="header">
-    <div class="header-meta"><span>STRESS TEST</span><span>V81.26</span></div>
+    <div class="header-meta">CORE PREP / V81.4</div>
 </div>
 
 <div id="stack">
     <div id="study-drawer" class="study-drawer">
-        <div class="study-header">Analysis</div>
         <div id="bullet-mount"></div>
         <div id="judgement-text" class="principle-text"></div>
     </div>
 </div>
 
 <script>
-    // V81.26 LEGACY CORE DATA
     var DATABASE = [
-        { "q": "Predict spontaneity: ΔH = -120 kJ, ΔS = -150 J/K at 298 K.", "bullets": ["ΔG = ΔH - TΔS", "Negative ΔG = Spontaneous", "Result: -75.3 kJ"], "j": "Exothermic release overcomes entropy loss at low temperatures." },
-        { "q": "Mechanism: (R)-2-bromobutane + aqueous NaOH?", "bullets": ["SN2 Backside Attack", "100% Walden Inversion"], "j": "The configuration flips like an umbrella in the wind." }
+        { "q": "Signs of ΔH and ΔS for spontaneity at all temps?", "bullets": ["ΔH < 0 (Exothermic)", "ΔS > 0 (Increased Disorder)"], "j": "Nature favors energy release and chaos." },
+        { "q": "Predict spontaneity: ΔH = -120 kJ, ΔS = -150 J/K at 298 K.", "bullets": ["ΔG = ΔH - TΔS", "Negative ΔG = Spontaneous"], "j": "Exothermic release can overcome entropy loss." }
     ];
 
     var POOL = DATABASE.slice(), sy = 0, isLocked = false;
@@ -73,13 +70,13 @@
         setTimeout(function() { 
             document.getElementById('loader').remove(); 
             renderNext(); 
-        }, 1000); 
+        }, 800); 
     }
 
     function renderNext() {
         var s = document.getElementById('stack');
         var existing = s.querySelector('.card'); if(existing) existing.remove();
-        if(!POOL.length) { s.innerHTML = '<div class="card">POOL COMPLETE</div>'; return; }
+        if(!POOL.length) { s.innerHTML = '<div class="card"><div class="card-q">POOL COMPLETE</div></div>'; return; }
         
         var q = POOL[0];
         var c = document.createElement('div'); c.className = "card";
@@ -101,7 +98,7 @@
         
         el.addEventListener('touchmove', function(e) {
             var dy = e.touches[0].clientY - sy;
-            if(!isLocked && dy > 100) {
+            if(!isLocked && dy > 80) { // Rift Activation
                 isLocked = true;
                 document.getElementById('study-drawer').classList.add('active');
                 el.classList.add('study-active');
@@ -111,9 +108,9 @@
 
         el.addEventListener('touchend', function(e) {
             var dy = e.changedTouches[0].clientY - sy;
-            if(isLocked && dy < -50) { // NEXT CARD TRIGGER
+            if(isLocked && dy < -40) { // Card Ejection
                 el.style.transition = "transform 0.4s ease-in, opacity 0.4s";
-                el.style.transform = "translateY(-800px)";
+                el.style.transform = "translateY(-600px)";
                 el.style.opacity = "0";
                 setTimeout(function() { POOL.shift(); renderNext(); }, 300);
             } else {
