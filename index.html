@@ -38,7 +38,7 @@ body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family
 
 <script>
 const DEPLOY_ID = "AKfycbzbTGbj7n8uHoT3T82BXhqgSWJfDGdpw13b5eRI7SzOlZUx9VlxsZxHKsoM_cdLfJyh";
-const DEPLOY_URL = `https://script.google.com/macros/s/${DEPLOY_ID}/exec`;
+const DEPLOY_URL = `https://script.google.com/macros/s/AKfycby5diLxLq--Y9iG1UMJBwYFDZiQ-tMGStxD0Xcj23-_qFPQs3wbGUHq3xb396ERqd0K/exec;
 
 const DATABASE = [
     { q: "Predict spontaneity: ΔH = -120 kJ/mol, ΔS = -150 J/K·mol at 298 K.", topic: "Thermo", difficulty: "B", bullets: ["ΔG = ΔH - TΔS", "ΔG = -120 - (298 * -0.150)", "ΔG = -75.3 kJ (Spontaneous)"], j: "Exothermic stability can overcome entropy loss." },
@@ -87,9 +87,21 @@ function bindPhysics(el, qData){
 }
 
 function submitToMatrix(qData) {
-    const query = `Question=${encodeURIComponent(qData.q)}&Topic=${encodeURIComponent(qData.topic)}&LuminousLatency=${latencyMS}&DifficultyLevel=${qData.difficulty}&TotalTimeTaken=${Date.now() - questionStartTime}`;
-    new Image().src = DEPLOY_URL + "?" + query;
-    console.log("ALCHEMIST: Pixel Dispatched");
+    // 1. Build the query string
+    const query = [
+        `Question=${encodeURIComponent(qData.q)}`,
+        `Topic=${encodeURIComponent(qData.topic)}`,
+        `Latency=${latencyMS}`,
+        `Difficulty=${qData.difficulty}`,
+        `TotalTime=${Date.now() - questionStartTime}`
+    ].join('&');
+
+    // 2. The Ghost Pixel Handshake
+    const img = new Image();
+    img.src = DEPLOY_URL + "?" + query; 
+    
+    console.log("ALCHEMIST: Data Dispatched via Image-Ping");
+}
 }
 
 window.onload = init;
