@@ -1,170 +1,155 @@
-/* --- V81.1 PRODUCTION CONFIG --- */
-var DEPLOY_URL = "https://script.google.com/macros/s/AKfycbxMOVzmONXP6nAHNoN92nmO2MnMPek7omYcw0JCeizbsIOQZUik0VmUK0nTfikIfFLm/exec";
+/* --- CONFIGURATION --- */
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbxMOVzmONXP6nAHNoN92nmO2MnMPek7omYcw0JCeizbsIOQZUik0VmUK0nTfikIfFLm/exec";
+let RAW_DATA = [...BACKUP_DATA], POOL=[], MISTAKES=[], SCORE=0, isTransitioning=false;
+let MODE="QUIZ", startTime=0, latency=0; 
 
-/* --- INDUSTRIAL DATASET (R1 MAPPED) --- */
-var DATASET = [
-  { 
-    "id": "SET_A_0301", 
-    "set": "SET_A", 
-    "category": "Gas Laws", 
-    "question": "The ideal gas constant R has the same value regardless of gas identity.", 
-    "option_up": "Depends on gas type", 
-    "option_right": "Universal constant", 
-    "option_left": "Changes with pressure", 
-    "correct_option": "option_right", 
-    "explanation": "R does not vary with gas identity. It is a universal constant for ideal gases.", 
-    "hint": "Universal constant.", 
-    "weight": 0.34 
-  },
-  { 
-    "id": "SET_A_0302", 
-    "set": "SET_A", 
-    "category": "Gas Laws", 
-    "question": "At constant volume an increase in temperature increases pressure.", 
-    "option_up": "Pressure decreases", 
-    "option_right": "Pressure remains same", 
-    "option_left": "Pressure increases", 
-    "correct_option": "option_left", 
-    "explanation": "Higher temperature increases molecular collisions, raising pressure.", 
-    "hint": "Gay-Lussac.", 
-    "weight": 0.36 
-  },
-  { 
-    "id": "SET_A_0303", 
-    "set": "SET_A", 
-    "category": "Gas Laws", 
-    "question": "Absolute temperature must be used in gas law calculations.", 
-    "option_up": "Celsius scale acceptable", 
-    "option_right": "Only Fahrenheit works", 
-    "option_left": "Temperature in Kelvin", 
-    "correct_option": "option_left", 
-    "explanation": "Kelvin scale reflects absolute temperature.", 
-    "hint": "Absolute scale.", 
-    "weight": 0.31 
-  }
-  /* ... Paste all 50 JSON objects here ... */
-];
+// PHYSICS CONSTANTS
+const CLAMP_DIST = 32;   
+const OPACITY_DIST = 24;  
 
-/* --- STATE ENGINE --- */
-var POOL = DATASET.slice();
-var sy = 0;
-var isLocked = false;
-var startTime = 0;
-var latency = 0;
+const formatChem = t => {
+    if(!t) return "";
+    return t.toString().replace(/([A-Z][a-z]?)(\d+)/g,'$1<sub>$2</sub>').replace(/(\d*)([+\-])/g, '<sup>$1$2</sup>');
+};
 
-/* --- BOOT SEQUENCE --- */
-function init() { 
-    console.log("ALCHEMIST: System Booting...");
-    setTimeout(function() { 
-        var loader = document.getElementById('loader');
-        if(loader) {
-            loader.style.opacity = '0';
-            setTimeout(function() { loader.remove(); }, 500);
-        }
-        render(); 
-    }, 1200); 
+/* --- SYSTEM INIT --- */
+async function init(){
+    const l = document.getElementById('loader');
+    // We default to the 50-question set provided in BACKUP_DATA
+    POOL = [...RAW_DATA].sort(() => Math.random() - .5);
+    if(l) l.remove();
+    renderNext();
 }
 
-/* --- RENDER ENGINE --- */
-function render() {
-    var s = document.getElementById('stack');
-    var existing = s.querySelector('.card');
-    if(existing) existing.remove();
+/* --- RENDER ENGINE (FIXED FOR YOUR DATA) --- */
+function renderNext(){
+    const s = document.getElementById('stack'); 
+    s.innerHTML = "";
     
-    if(!POOL.length) { 
-        s.innerHTML = '<div class="card"><div class="card-q" style="color:#ffd600">MISSION COMPLETE</div></div>'; 
-        return; 
-    }
+    if(!POOL.length){ renderEnd(); return; }
     
-    var d = POOL[0];
-    var card = document.createElement('div');
-    card.className = "card";
-    card.innerHTML = '<div class="card-q">' + d.question + '</div>';
-    s.appendChild(card);
+    const q = POOL[0]; // Peek at the first question
+    const c = document.createElement('div'); 
+    c.className = "card";
     
-    // UI HUD Update
-    document.getElementById('category-ui').innerText = d.category;
-    document.getElementById('id-ui').innerText = d.id;
-    document.getElementById('hint-ui').innerText = "HINT: " + d.hint;
-    
-    // Matrix Population
-    document.getElementById('opt-up').innerText = d.option_up;
-    document.getElementById('opt-right').innerText = d.option_right;
-    document.getElementById('opt-left').innerText = d.option_left;
-    document.getElementById('explanation-mount').innerText = d.explanation;
-
-    // Reset Lock & Transitions
-    document.getElementById('study-drawer').classList.remove('active');
-    isLocked = false;
-    bindPhysics(card);
+    // Mapped exactly to your R1 JSON structure
+    c.innerHTML = `
+        <div class="card-q">${formatChem(q.question)}</div>
+        <div class="swipe-label sl-up">${q.option_up}</div>
+        <div class="swipe-label sl-left">${q.option_left}</div>
+        <div class="swipe-label sl-right">${q.option_right}</div>
+        <div class="swipe-label sl-down" style="font-size:0.7rem; color:#ffd600;">HINT: ${q.hint}</div>
+        <div class="overlay">
+            <div class="overlay-label">LOGIC ANALYSIS</div>
+            <div class="overlay-body">${formatChem(q.explanation)}</div>
+            <button class="btn" onclick="this.parentElement.classList.remove('active')">CONTINUE</button>
+        </div>
+    `;
+    s.appendChild(c); 
+    bindPhysics(c, q);
 }
 
-/* --- TOUCH PHYSICS (V81.1 STABLE) --- */
-function bindPhysics(el) {
-    el.ontouchstart = function(e) { 
-        sy = e.touches[0].clientY; 
-        startTime = Date.now(); 
+/* --- PHYSICS ENGINE (V77.1 STABLE) --- */
+function bindPhysics(el, data){
+    let x=0, y=0, sx=0, sy=0, active=false, triggerDir=null;
+    const labels = {
+        up: el.querySelector('.sl-up'), 
+        dn: el.querySelector('.sl-down'), 
+        lt: el.querySelector('.sl-left'), 
+        rt: el.querySelector('.sl-right')
+    };
+
+    const start = e => { 
+        if(isTransitioning) return; 
+        active=true; 
+        const p = e.touches ? e.touches[0] : e; 
+        sx = p.clientX; sy = p.clientY; 
+        startTime = Date.now();
         el.style.transition = "none"; 
     };
     
-    el.ontouchmove = function(e) {
-        var dy = e.touches[0].clientY - sy;
+    const move = e => {
+        if(!active) return; 
+        const p = e.touches ? e.touches[0] : e;
+        const dx = p.clientX - sx;
+        const dy = p.clientY - sy;
+        const dist = Math.sqrt(dx*dx + dy*dy);
         
-        // Rift Trigger at 110px
-        if(!isLocked && dy > 110) { 
-            isLocked = true;
-            latency = Date.now() - startTime;
-            document.getElementById('study-drawer').classList.add('active');
-            el.classList.add('study-active');
+        const opacity = Math.min(dist / OPACITY_DIST, 1);
+        
+        // V77.1 Recession Logic
+        x = (dist > CLAMP_DIST) ? dx * (CLAMP_DIST/dist) : dx;
+        y = (dist > CLAMP_DIST) ? dy * (CLAMP_DIST/dist) : dy;
+
+        let ang = Math.atan2(-y, x) * (180/Math.PI); 
+        if(ang < 0) ang += 360;
+        
+        Object.values(labels).forEach(l => { if(l) l.style.opacity = 0; });
+
+        if(dist > 5){
+            let activeLabel = (ang>=45&&ang<135)?labels.up:(ang>=135&&ang<225)?labels.lt:(ang>=225&&ang<315)?labels.dn:labels.rt;
+            if(activeLabel) {
+                activeLabel.style.opacity = opacity;
+                activeLabel.style.transform = `scale(${0.85 + (opacity * 0.15)})`;
+            }
         }
+
+        el.style.transform = `translate3d(${x}px,${y}px,0) rotate(${x/25}deg)`;
         
-        // Pull Resistance
-        if(!isLocked && dy > 0) {
-            el.style.transform = "translateY(" + (dy * 0.22) + "px)";
+        if(dist >= CLAMP_DIST) {
+             triggerDir = (ang>=45&&ang<135)?"UP":(ang>=135&&ang<225)?"LEFT":(ang>=225&&ang<315)?"DOWN":"RIGHT";
+        } else {
+             triggerDir = null;
         }
     };
-
-    el.ontouchend = function(e) {
-        if(!isLocked) { 
-            el.style.transition = "transform 0.4s cubic-bezier(0.19, 1, 0.22, 1)"; 
-            el.style.transform = "translateY(0)"; 
-        }
-    };
-}
-
-/* --- BACKEND TRANSMISSION (GHOST PIXEL) --- */
-function submit(choice) {
-    var d = POOL[0];
-    var correct = (("option_" + choice.toLowerCase()) === d.correct_option);
     
-    // Construct Routing URL for Telemetry Sub-Sheet
-    var ping = DEPLOY_URL + 
-               "?target=Telemetry" + 
-               "&questionId=" + encodeURIComponent(d.id) + 
-               "&result=" + correct + 
-               "&vectorChoice=" + choice + 
-               "&latency=" + latency +
-               "&weight=" + d.weight;
-
-    // Execute Passive Ping (Ghost Pixel)
-    var img = new Image();
-    img.src = ping;
-
-    // Visual Feedback & Ejection
-    var card = document.querySelector('.card');
-    if(card) {
-        card.style.transition = "transform 0.5s ease-in, opacity 0.4s, filter 0.5s";
-        card.style.transform = "translateY(-800px) scale(1.1)";
-        card.style.opacity = "0";
-        card.style.filter = "blur(40px)";
-    }
-
-    // Shift to Next Question
-    setTimeout(function() { 
-        POOL.shift(); 
-        render(); 
-    }, 450);
+    const end = () => {
+        if(!active) return; 
+        active = false;
+        if(triggerDir){
+            if(triggerDir === "DOWN"){
+                latency = Date.now() - startTime;
+                el.querySelector('.overlay').classList.add('active');
+                el.style.transition = "transform .3s";
+                el.style.transform = "translate3d(0,0,0) rotate(0deg)";
+            } else {
+                handleAction(el, data, x, y, triggerDir);
+            }
+        } else {
+            el.style.transition = "transform .2s cubic-bezier(0.175, 0.885, 0.32, 1.275)"; 
+            el.style.transform = "translate3d(0,0,0) rotate(0deg)";
+        }
+    };
+    
+    el.onmousedown=start; window.onmousemove=move; window.onmouseup=end;
+    el.ontouchstart=start; el.ontouchmove=move; el.ontouchend=end;
 }
 
-// System Entry Point
+/* --- DATA HANDLING & BACKEND PING --- */
+function handleAction(el, data, x, y, dir){
+    isTransitioning = true;
+    
+    // Check Result
+    const userChoice = "option_" + dir.toLowerCase();
+    const isCorrect = (userChoice === data.correct_option);
+    
+    if(isCorrect) { SCORE += 10; } 
+    else { MISTAKES.push(data.id); }
+
+    // GHOST PIXEL TELEMETRY
+    const ping = `${ENDPOINT}?target=Telemetry&questionId=${data.id}&result=${isCorrect}&vectorChoice=${dir}&latency=${latency}`;
+    new Image().src = ping;
+
+    // V77.1 Exit Animation
+    el.style.transition = "transform .4s ease-in, opacity .4s";
+    el.style.transform = `translate3d(${x*10}px, ${y*10}px, 0) rotate(${x/2}deg)`;
+    el.style.opacity = "0";
+
+    setTimeout(() => {
+        POOL.shift();
+        renderNext();
+        isTransitioning = false;
+    }, 400);
+}
+
 window.onload = init;
