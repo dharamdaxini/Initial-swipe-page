@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist Mastery V81.1</title>
+<title>Alchemist V82.0 - The Architect</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,17 +11,17 @@
 
 <style>
 /* -----------------------------------------------------------
-   V81.1 "IRONCLAD" CSS STYLING
+   V82.0 "THE ARCHITECT" CSS
    ----------------------------------------------------------- */
 :root {
     --bg-color: #000000;
-    --card-bg: #111111;
+    --card-bg: #121212;
     --overlay-bg: #0d0d0d;
-    --border-color: #282828;
-    --accent-gold: #ffd600;
-    --hint-blue: #3498db;
+    --border-color: #333333;
+    --accent-gold: #ffcc00;
+    --hint-blue: #4dabf7;
+    --err-red: #ff4d4d;
     --text-main: #ffffff;
-    --text-muted: #555555;
     --font-serif: 'Libre Baskerville', serif;
     --font-ui: 'Outfit', sans-serif;
     --font-code: 'JetBrains Mono', monospace;
@@ -35,66 +35,67 @@ body {
     -webkit-user-select: none; touch-action: none;
 }
 
-sub { font-size: 0.7em; vertical-align: sub; line-height: 0; }
-sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
+sub { font-size: 0.75em; vertical-align: sub; line-height: 0; }
+sup { font-size: 0.75em; vertical-align: super; line-height: 0; }
 
-/* ---------------- HEADER UI ---------------- */
-#header { width: 90%; margin: calc(20px + env(safe-area-inset-top)) auto 0; z-index: 100; pointer-events: none; }
-.header-meta { display: flex; justify-content: space-between; font-family: var(--font-code); font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 1px; }
-.progress-track { width: 100%; height: 4px; background: #222; border-radius: 2px; overflow: hidden; }
-#progress-bar { height: 100%; background: var(--accent-gold); width: 0%; transition: width 0.4s ease; box-shadow: 0 0 10px rgba(255, 214, 0, 0.3); }
+/* ---------------- HEADER & XP TIER UI ---------------- */
+#header { width: 90%; margin: calc(20px + env(safe-area-inset-top)) auto 0; z-index: 100; pointer-events: none; position: relative; }
+.header-meta { display: flex; justify-content: space-between; font-family: var(--font-code); font-size: 0.75rem; color: #666; margin-bottom: 8px; letter-spacing: 0.5px; }
+.progress-track { width: 100%; height: 4px; background: #222; border-radius: 4px; overflow: hidden; }
+#progress-bar { height: 100%; background: var(--accent-gold); width: 0%; transition: width 0.4s ease; box-shadow: 0 0 12px rgba(255, 204, 0, 0.4); }
 
 /* ---------------- CARD STACK ---------------- */
 #stack {
     position: relative; width: 92%; max-width: 400px;
-    height: calc(100vh - 160px - env(safe-area-inset-top));
+    height: calc(100vh - 180px - env(safe-area-inset-top));
     margin: 25px auto 0; perspective: 1200px;
 }
 
 .card {
     position: absolute; width: 100%; height: 100%;
-    background: var(--card-bg); border-radius: 40px; border: 1px solid var(--border-color);
-    padding: 40px; display: flex; flex-direction: column; justify-content: center;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.9); transform-origin: center center;
+    background: var(--card-bg); border-radius: 32px; border: 1px solid var(--border-color);
+    padding: 30px; display: flex; flex-direction: column; justify-content: center; align-items: center;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.9); transform-origin: center center;
     will-change: transform; cursor: grab; transform: translate3d(0,0,0);
 }
 
 .card-q { 
-    font-family: var(--font-serif); font-size: clamp(1.4rem, 5vw, 2rem); 
-    line-height: 1.4; font-weight: 700; text-align: center; color: #f0f0f0; 
+    font-family: var(--font-serif); 
+    font-size: clamp(1.3rem, 5vw, 1.8rem); /* Adaptive Scaling */
+    line-height: 1.4; font-weight: 700; text-align: center; color: #e0e0e0;
 }
 
-/* ---------------- SWIPE FEEDBACK ---------------- */
+/* ---------------- SWIPE SYSTEM ---------------- */
 .swipe-label {
     position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-    background: #000; color: #fff; font-weight: 900; font-size: 2rem;
-    text-transform: uppercase; border-radius: 40px; z-index: 999; opacity: 0; 
+    background: rgba(0,0,0,0.95); color: #fff; font-weight: 900; font-size: 2.2rem;
+    text-transform: uppercase; border-radius: 32px; z-index: 999; opacity: 0; 
     pointer-events: none; text-align: center; padding: 20px;
 }
 .sl-down-hint { color: var(--hint-blue) !important; font-size: 1.4rem !important; text-transform: none !important; font-family: var(--font-serif) !important; }
 
-/* ---------------- OVERLAY ---------------- */
+/* ---------------- ANALYSIS MODAL ---------------- */
 .overlay {
     position: absolute; inset: 0; background: var(--overlay-bg); z-index: 1100; 
-    padding: 40px 30px; opacity: 0; pointer-events: none; border-radius: 40px; 
+    padding: 40px 30px; opacity: 0; pointer-events: none; border-radius: 32px; 
     transition: opacity 0.2s ease; display: flex; flex-direction: column; justify-content: center;
 }
 .overlay.active { opacity: 1; pointer-events: auto; }
 .overlay-label { font-size: 0.8rem; color: var(--accent-gold); font-family: var(--font-code); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 2px; }
-.overlay-body { font-size: 1.2rem; line-height: 1.6; color: #ccc; margin-bottom: 30px; font-family: var(--font-serif); }
+.overlay-body { font-size: 1.1rem; line-height: 1.6; color: #ccc; margin-bottom: 30px; font-family: var(--font-serif); }
 
 .btn { 
     width: 100%; padding: 20px; border-radius: 100px; border: none; 
-    background: #fff; color: #000; font-weight: 900; cursor: pointer; 
-    text-transform: uppercase; font-family: var(--font-ui); margin-top: 10px;
+    background: #fff; color: #000; font-weight: 800; cursor: pointer; 
+    text-transform: uppercase; font-family: var(--font-ui); margin-top: 10px; font-size: 0.9rem;
 }
 
-#loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: var(--font-ui); font-weight: 900; font-size: 1.5rem; letter-spacing: 4px; color: var(--accent-gold); }
+#loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: var(--font-ui); font-weight: 900; font-size: 1.5rem; letter-spacing: 4px; color: var(--accent-gold); flex-direction: column; }
 </style>
 </head>
 
 <body>
-<div id="loader">ALCHEMIST</div>
+<div id="loader">ALCHEMIST<br><span style="font-size:0.6rem; letter-spacing:1px; margin-top:10px; color:#444;">V82.0 ARCHITECT</span></div>
 
 <div id="header">
     <div class="header-meta"><span id="rank-ui">RANK: NOVICE</span><span id="xp-ui">0 XP</span></div>
@@ -105,20 +106,26 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 
 <script>
 // -----------------------------------------------------------
-// V81.1 "IRONCLAD" CHEMISTRY DATA
+// V82.0 CHEMISTRY DATASET
 // -----------------------------------------------------------
-const CHEMISTRY_DATA = [
-  { "dataset": "SET_A", "topic": "Physical", "q_type": "CONCEPT", "weight": 1, "question_text": "What does a negative ΔG signify?", "hint": "💡 Spontaneity.", "explanation": "✅ Spontaneous (ΔG < 0). ❌ Non-spontaneous (ΔG > 0). ❌ Equilibrium (ΔG = 0).", "swipe_up_label": "Spontaneous", "swipe_right_label": "Equilibrium", "swipe_down_label": "HINT", "swipe_left_label": "Non-Spont", "correct": "UP" },
-  { "dataset": "SET_A", "topic": "Organic", "q_type": "CONCEPT", "weight": 1, "question_text": "Hybridization of carbon in Ethene (C2H4)?", "hint": "💡 Double bond geometry.", "explanation": "✅ sp2 hybridization allows for trigonal planar geometry and pi bonding. ❌ sp3 is for alkanes.", "swipe_up_label": "sp", "swipe_right_label": "sp2", "swipe_down_label": "HINT", "swipe_left_label": "sp3", "correct": "RIGHT" },
-  { "dataset": "SET_B", "topic": "Inorganic", "q_type": "APPLICATION", "weight": 2, "question_text": "Metal used for Galvanization?", "hint": "💡 Sacrificial coating.", "explanation": "✅ Zinc protects Iron. ❌ Copper accelerates rust due to lower reactivity.", "swipe_up_label": "Iron", "swipe_right_label": "Zinc", "swipe_down_label": "HINT", "swipe_left_label": "Copper", "correct": "RIGHT" },
-  { "dataset": "SET_B", "topic": "Analytical", "q_type": "APPLICATION", "weight": 2, "question_text": "Method to separate pigments in ink?", "hint": "💡 Color writing.", "explanation": "✅ Chromatography separates dyes based on absorption rates. ❌ Filtration cannot separate solutes.", "swipe_up_label": "Chromatography", "swipe_right_label": "Filtration", "swipe_down_label": "HINT", "swipe_left_label": "Distillation", "correct": "UP" }
+const DATASET = [
+  { "q": "What does a negative ΔG signify?", "h": "💡 Spontaneity.", "e": "✅ Spontaneous (ΔG < 0). ❌ Non-spontaneous (ΔG > 0). ❌ Equilibrium (ΔG = 0).", "u": "Spontaneous", "r": "Equilibrium", "l": "Non-spont", "c": "UP", "w": 1 },
+  { "q": "Hybridization of carbon in Ethene (C2H4)?", "h": "💡 Double bond geometry.", "e": "✅ sp2 hybridization creates trigonal planar geometry. ❌ sp3 is for saturated alkanes.", "u": "sp", "r": "sp2", "l": "sp3", "c": "RIGHT", "w": 1 },
+  { "q": "Metal used for Galvanization?", "h": "💡 Sacrificial coating.", "e": "✅ Zinc protects Iron by corroding first. ❌ Copper accelerates rust in iron.", "u": "Iron", "r": "Zinc", "l": "Copper", "c": "RIGHT", "w": 2 },
+  { "q": "Formula for pH calculation?", "h": "💡 Logarithmic scale.", "e": "✅ pH = -log[H+]. It represents hydrogen ion activity.", "u": "-log[H+]", "r": "log[H+]", "l": "1/[H+]", "c": "UP", "w": 1 }
 ];
 
-let POOL = [...CHEMISTRY_DATA], SCORE = 0, isTransitioning = false;
-const CLAMP_DIST = 32, OPACITY_DIST = 24;
+let POOL = [...DATASET], SCORE = 0, isTransitioning = false;
+const CLAMP = 32, OPACITY = 24;
 
-// --- SMART FORMATTER ---
-const smartFormat = t => {
+// --- DYNAMIC TIER LOGIC ---
+function updateRank(xp) {
+    const rankUI = document.getElementById('rank-ui');
+    if (xp >= 30) rankUI.innerText = "RANK: ADEPT";
+    else if (xp >= 10) rankUI.innerText = "RANK: APPRENTICE";
+}
+
+const format = t => {
     if(!t) return "";
     return t.toString()
         .replace(/([A-Za-z)])(\d+)/g, '$1<sub>$2</sub>')
@@ -129,27 +136,27 @@ const smartFormat = t => {
 function init(){
     const l = document.getElementById('loader');
     POOL = POOL.sort(() => Math.random() - 0.5);
-    setTimeout(() => { l.remove(); renderNext(); }, 800);
+    setTimeout(() => { if(l) l.remove(); render(); }, 800);
 }
 
-function renderNext(){
+function render(){
     const s = document.getElementById('stack'); s.innerHTML = "";
-    if(!POOL.length){ s.innerHTML = `<div class="card"><div class="card-q">MISSION COMPLETE<br>${SCORE} XP</div><button class="btn" onclick="location.reload()">REPLAY</button></div>`; return; }
+    if(!POOL.length){ s.innerHTML = `<div class="card"><div class="card-q">SESSION ARCHIVED<br>${SCORE} XP</div><button class="btn" onclick="location.reload()">REBOOT</button></div>`; return; }
     
     const q = POOL.shift();
     const c = document.createElement('div'); c.className = "card";
     c.innerHTML = `
-        <div class="card-q">${smartFormat(q.question_text)}</div>
-        <div class="swipe-label sl-up">${smartFormat(q.swipe_up_label)}</div>
-        <div class="swipe-label sl-lt">${smartFormat(q.swipe_left_label)}</div>
-        <div class="swipe-label sl-rt">${smartFormat(q.swipe_right_label)}</div>
-        <div class="swipe-label sl-dn sl-down-hint">💡 ${smartFormat(q.hint)}</div>
-        <div class="overlay"><div class="overlay-label">LOGIC ANALYSIS</div><div class="overlay-body">${smartFormat(q.explanation)}</div><button class="btn" onclick="this.parentElement.classList.remove('active')">CONTINUE</button></div>
+        <div class="card-q">${format(q.q)}</div>
+        <div class="swipe-label sl-up">${format(q.u)}</div>
+        <div class="swipe-label sl-lt">${format(q.l)}</div>
+        <div class="swipe-label sl-rt">${format(q.r)}</div>
+        <div class="swipe-label sl-dn sl-down-hint">💡 ${format(q.h)}</div>
+        <div class="overlay"><div class="overlay-label">LOGIC ANALYSIS</div><div class="overlay-body">${format(q.e)}</div><button class="btn" onclick="this.parentElement.classList.remove('active')">CONTINUE</button></div>
     `;
-    s.appendChild(c); bindPhysics(c, q);
+    s.appendChild(c); bind(c, q);
 }
 
-function bindPhysics(el, data){
+function bind(el, data){
     let x=0, y=0, sx=0, sy=0, active=false, dir=null;
     const labels = { up: el.querySelector('.sl-up'), dn: el.querySelector('.sl-dn'), lt: el.querySelector('.sl-lt'), rt: el.querySelector('.sl-rt') };
 
@@ -158,7 +165,7 @@ function bindPhysics(el, data){
     const move = e => {
         if(!active) return; const p=e.touches?e.touches[0]:e;
         const dx = p.clientX - sx, dy = p.clientY - sy, dist = Math.sqrt(dx*dx + dy*dy);
-        const op = Math.min(dist / OPACITY_DIST, 1);
+        const op = Math.min(dist / OPACITY, 1);
         let ang = Math.atan2(-dy, dx) * (180 / Math.PI); if(ang<0) ang+=360;
         Object.values(labels).forEach(l => { if(l) l.style.opacity = 0; });
 
@@ -169,17 +176,17 @@ function bindPhysics(el, data){
             else labels.rt.style.opacity = op;
         }
 
-        el.style.transform = `translate3d(${Math.min(dist, CLAMP_DIST) * (dx/dist || 0)}px, ${Math.min(dist, CLAMP_DIST) * (dy/dist || 0)}px, 0) rotate(${dx/25}deg)`;
-        dir = (dist >= CLAMP_DIST) ? (ang>=45&&ang<135?"UP":ang>=135&&ang<225?"LEFT":ang>=225&&ang<315?"DOWN":"RIGHT") : null;
+        el.style.transform = `translate3d(${dx}px, ${dy}px, 0) rotate(${dx/25}deg)`;
+        dir = (dist >= CLAMP) ? (ang>=45&&ang<135?"UP":ang>=135&&ang<225?"LEFT":ang>=225&&ang<315?"DOWN":"RIGHT") : null;
     };
 
     const end = () => {
         if(!active) return; active = false;
         if(dir === "DOWN"){ el.querySelector('.overlay').classList.add('active'); el.style.transition="transform .3s"; el.style.transform="translate3d(0,0,0) rotate(0deg)"; }
         else if(dir){
-            isTransitioning = true; if(dir === data.correct.toUpperCase()) SCORE += 10;
+            isTransitioning = true; if(dir === data.c.toUpperCase()) SCORE += (10 * data.w);
             el.style.transition = "transform .4s ease-in"; el.style.transform = `translate3d(${dir==="LEFT"?-400:400}px, ${dir==="UP"?-400:400}px, 0)`;
-            setTimeout(() => { el.remove(); isTransitioning = false; renderNext(); updateUI(); }, 300);
+            setTimeout(() => { el.remove(); isTransitioning = false; render(); updateUI(); }, 300);
         } else { el.style.transition = "transform .2s"; el.style.transform = "translate3d(0,0,0) rotate(0deg)"; }
         Object.values(labels).forEach(l => { if(l) l.style.opacity = 0; });
     };
@@ -187,7 +194,11 @@ function bindPhysics(el, data){
     el.onmousedown=start; window.onmousemove=move; window.onmouseup=end; el.ontouchstart=start; el.ontouchmove=move; el.ontouchend=end;
 }
 
-function updateUI(){ document.getElementById('xp-ui').innerText = `${SCORE} XP`; document.getElementById('progress-bar').style.width = `${(SCORE % 100)}%`; }
+function updateUI(){ 
+    document.getElementById('xp-ui').innerText = `${SCORE} XP`; 
+    document.getElementById('progress-bar').style.width = `${(SCORE % 100)}%`;
+    updateRank(SCORE);
+}
 window.onload = init;
 </script>
 </body>
