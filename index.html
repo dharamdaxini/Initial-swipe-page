@@ -2,13 +2,137 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Alchemist Ironclad</title>
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600&family=Inter:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<title>IRONCLAD</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,600;1,600&family=Inter:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 
 <style>
-/* ===== CSS BELOW ===== */
+:root{
+  --bg:#000;
+  --card:#111;
+  --border:#222;
+  --gold:#ffd600;
+  --muted:#555;
+  --chem:'Crimson Text',serif;
+  --ui:'Inter',sans-serif;
+  --code:'JetBrains Mono',monospace;
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  margin:0;height:100vh;
+  background:var(--bg);color:#fff;
+  font-family:var(--ui);
+  overflow:hidden;touch-action:none;
+}
+
+#loader{
+  position:fixed;inset:0;
+  background:#000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:var(--code);
+  color:var(--gold);
+  letter-spacing:4px;
+  z-index:9999;
+}
+
+#header{
+  width:90%;
+  margin:20px auto 0;
+}
+
+.header-meta{
+  display:flex;
+  justify-content:space-between;
+  font-family:var(--code);
+  font-size:.75rem;
+  color:var(--muted);
+}
+
+.progress{
+  height:3px;
+  background:#222;
+  border-radius:2px;
+  overflow:hidden;
+}
+
+#progress-bar{
+  height:100%;
+  width:0%;
+  background:var(--gold);
+  transition:width .3s ease;
+}
+
+#stack{
+  position:relative;
+  width:92%;
+  max-width:420px;
+  height:calc(100vh - 140px);
+  margin:25px auto 0;
+}
+
+.card{
+  position:absolute;
+  inset:0;
+  background:var(--card);
+  border-radius:36px;
+  border:1px solid var(--border);
+  padding:40px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  box-shadow:0 30px 80px rgba(0,0,0,.9);
+  transform:translate3d(0,0,0);
+}
+
+.card-q{
+  font-family:var(--chem);
+  font-size:2rem;
+  line-height:1.35;
+}
+
+.swipe-label{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  font-size:1.6rem;
+  text-transform:uppercase;
+  opacity:0;
+  pointer-events:none;
+}
+
+.overlay{
+  position:absolute;
+  inset:0;
+  background:#0d0d0d;
+  border-radius:36px;
+  padding:40px;
+  opacity:0;
+  pointer-events:none;
+  transition:.25s;
+}
+
+.overlay.active{
+  opacity:1;
+  pointer-events:auto;
+}
+
+.btn{
+  margin-top:20px;
+  padding:16px;
+  border-radius:50px;
+  border:none;
+  font-weight:900;
+}
 </style>
 </head>
 
@@ -18,18 +142,103 @@
 
 <div id="header">
   <div class="header-meta">
-    <span id="xp-ui">0 XP</span>
-    <span>IRONCLAD</span>
+    <span id="rank">IRONCLAD</span>
+    <span id="xp">0 XP</span>
   </div>
-  <div class="progress-track">
-    <div id="progress-bar"></div>
-  </div>
+  <div class="progress"><div id="progress-bar"></div></div>
 </div>
 
 <div id="stack"></div>
 
 <script>
-/* ===== JS BELOW ===== */
+/* ---------------- CORE DATA (MINIMAL DEMO SET) ---------------- */
+const DATA = [
+ {q:"Negative ΔG means?", a:"Spontaneous"},
+ {q:"SN2 favoured by?", a:"Primary substrate"},
+ {q:"Hybridisation of ethene?", a:"sp2"}
+];
+
+/* ---------------- STATE ---------------- */
+let MODE="MENU";
+let INDEX=0;
+let SCORE=0;
+
+/* ---------------- INIT ---------------- */
+function init(){
+  renderMenu();
+  document.getElementById('loader').remove();
+}
+
+/* ---------------- RENDERERS ---------------- */
+function renderMenu(){
+  MODE="MENU";
+  mount(`
+    <div class="card-q">START IRONCLAD</div>
+    <div class="swipe-label">SWIPE UP</div>
+  `);
+}
+
+function renderQuestion(){
+  MODE="QUIZ";
+  if(INDEX>=DATA.length){renderEnd();return;}
+  mount(`
+    <div class="card-q">${DATA[INDEX].q}</div>
+    <div class="overlay">
+      <div class="card-q">${DATA[INDEX].a}</div>
+      <button class="btn" onclick="next()">NEXT</button>
+    </div>
+  `);
+}
+
+function renderEnd(){
+  MODE="END";
+  mount(`<div class="card-q">DONE<br>${SCORE} XP</div>`);
+}
+
+function mount(html){
+  const s=document.getElementById('stack');
+  s.innerHTML="";
+  const c=document.createElement('div');
+  c.className="card";
+  c.innerHTML=html;
+  s.appendChild(c);
+  bind(c);
+}
+
+/* ---------------- PHYSICS ---------------- */
+function bind(el){
+  let sy=0,active=false;
+  el.ontouchstart=e=>{
+    active=true;
+    sy=e.touches[0].clientY;
+  };
+  el.ontouchend=e=>{
+    if(!active)return;
+    active=false;
+    const dy=e.changedTouches[0].clientY-sy;
+    if(dy<-60){
+      if(MODE==="MENU") renderQuestion();
+      else if(MODE==="QUIZ"){
+        el.querySelector('.overlay').classList.add('active');
+        SCORE+=10;
+        updateUI();
+      }
+    }
+  };
+}
+
+function next(){
+  INDEX++;
+  renderQuestion();
+}
+
+/* ---------------- UI ---------------- */
+function updateUI(){
+  document.getElementById('xp').textContent=SCORE+" XP";
+  document.getElementById('progress-bar').style.width=((INDEX/DATA.length)*100)+"%";
+}
+
+window.onload=init;
 </script>
 
 </body>
