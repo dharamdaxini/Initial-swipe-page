@@ -3,115 +3,69 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist V89.0 - Cloud Core</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<title>Alchemist V88.0 - Prelude</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
-
 <style>
-/* -----------------------------------------------------------
-   V89.0 "CLOUD CORE" CSS
-   ----------------------------------------------------------- */
-:root {
-    --bg-color: #000000;
-    --card-bg: #121212;
-    --accent-gold: #ffcc00;
-    --hint-blue: #4dabf7;
-    --text-main: #ffffff;
-    --font-serif: 'Libre Baskerville', serif;
-    --font-ui: 'Outfit', sans-serif;
-    --font-code: 'JetBrains Mono', monospace;
-}
+/* V88.0 PRELUDE STYLING */
+:root { --bg: #000; --gold: #ffcc00; --card: #121212; --font-ui: 'Outfit', sans-serif; --font-code: 'JetBrains Mono', monospace; }
+body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family: var(--font-ui); overflow: hidden; touch-action: none; }
 
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-
-body {
-    margin: 0; height: 100vh; background: var(--bg-color); color: var(--text-main);
-    font-family: var(--font-ui); overflow: hidden; user-select: none; 
-    -webkit-user-select: none; touch-action: none;
-}
-
-#header { width: 90%; margin: calc(20px + env(safe-area-inset-top)) auto 0; position: relative; }
-.header-meta { display: flex; justify-content: space-between; font-family: var(--font-code); font-size: 0.75rem; color: #666; margin-bottom: 8px; }
-#progress-bar { height: 4px; background: var(--accent-gold); width: 0%; transition: width 0.4s ease; border-radius: 4px; }
-
-#stack { position: relative; width: 92%; max-width: 400px; height: calc(100vh - 180px - env(safe-area-inset-top)); margin: 25px auto 0; perspective: 1200px; }
-
-.card {
-    position: absolute; width: 100%; height: 100%;
-    background: var(--card-bg); border-radius: 32px; border: 1px solid #333;
-    padding: 30px; display: flex; flex-direction: column; justify-content: center; align-items: center;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.9); transform-origin: center center;
-}
-
-.card-q { font-family: var(--font-serif); font-size: 1.5rem; line-height: 1.4; font-weight: 700; text-align: center; color: #e0e0e0; }
-
-.swipe-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.95); font-weight: 900; font-size: 2rem; border-radius: 32px; opacity: 0; pointer-events: none; }
-
-.overlay { position: absolute; inset: 0; background: #0d0d0d; z-index: 1100; padding: 40px 30px; opacity: 0; pointer-events: none; border-radius: 32px; display: flex; flex-direction: column; justify-content: center; }
-.overlay.active { opacity: 1; pointer-events: auto; }
-
-.btn { width: 100%; padding: 20px; border-radius: 100px; border: none; background: #fff; color: #000; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-top: 10px; }
-
-/* --- THE LOADER WITH "CONNECTING..." --- */
+/* THE SPECIFIC V88 LOADER */
 #loader { 
-    position: fixed; inset: 0; background: #000; z-index: 5000; 
-    display: flex; align-items: center; justify-content: center; 
-    font-family: var(--font-ui); font-weight: 900; font-size: 1.5rem; 
-    letter-spacing: 4px; color: var(--accent-gold); flex-direction: column; 
+    position: fixed; inset: 0; background: #000; z-index: 9999; 
+    display: flex; flex-direction: column; align-items: center; justify-content: center; 
 }
-#status-msg { 
-    margin-top: 15px; font-size: 0.7rem; font-family: var(--font-code); 
-    color: #666; letter-spacing: 2px; text-transform: uppercase;
-}
+.logo-text { font-weight: 900; font-size: 1.8rem; letter-spacing: 5px; color: var(--gold); }
+.status-label { margin-top: 12px; font-family: var(--font-code); font-size: 0.65rem; color: #444; letter-spacing: 2px; }
+
+#header { width: 90%; margin: 20px auto 0; font-family: var(--font-code); font-size: 0.7rem; color: #666; display: flex; justify-content: space-between; }
+#stack { position: relative; width: 90%; max-width: 380px; height: 65vh; margin: 30px auto; }
+.card { position: absolute; inset: 0; background: var(--card); border: 1px solid #333; border-radius: 30px; display: flex; align-items: center; justify-content: center; padding: 30px; text-align: center; font-family: 'Libre Baskerville', serif; font-size: 1.4rem; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
 </style>
 </head>
-
 <body>
+
 <div id="loader">
-    ALCHEMIST
-    <div id="status-msg">CONNECTING...</div>
+    <div class="logo-text">ALCHEMIST</div>
+    <div class="status-label">CONNECTING...</div> 
 </div>
 
-<div id="header">
-    <div class="header-meta"><span id="rank-ui">RANK: NOVICE</span><span id="xp-ui">0 XP</span></div>
-    <div style="width:100%; height:4px; background:#222;"><div id="progress-bar"></div></div>
-</div>
-
+<div id="header"><span>RANK: NOVICE</span><span>0 XP</span></div>
 <div id="stack"></div>
 
 <script>
-// --- V89.0 BACKUP DATA ---
-const BACKUP = [
-    { "q": "Significance of negative ΔG?", "u": "Spontaneous", "r": "Equilibrium", "l": "Non-Spont", "c": "UP", "e": "✅ ΔG < 0 means spontaneous." }
+// V88.0 CORE LOGIC
+const DATA = [
+    { q: "What does negative ΔG signify?", c: "UP", txt: "Spontaneous" }
 ];
 
-// --- REPLACE WITH YOUR LIVE URL ---
-const ENDPOINT = "PASTE_YOUR_APPS_SCRIPT_URL_HERE"; 
+let POOL = [...DATA];
 
-let POOL = [], SCORE = 0;
+function init() {
+    const status = document.querySelector('.status-label');
+    
+    // Simulating the connection phase of V88
+    setTimeout(() => {
+        status.innerText = "INITIALIZING ENGINE...";
+        status.style.color = "#888";
+    }, 800);
 
-async function init() {
-    const loader = document.getElementById('loader');
-    const status = document.getElementById('status-msg');
-
-    try {
-        const response = await fetch(ENDPOINT);
-        const json = await response.json();
-        if(json.length > 0) {
-            POOL = json;
-            status.innerText = "SYNCED";
-        }
-    } catch(e) {
-        POOL = BACKUP;
-        status.innerText = "OFFLINE MODE";
-    }
-
-    setTimeout(() => { loader.remove(); render(); }, 1200);
+    setTimeout(() => {
+        document.getElementById('loader').style.display = 'none';
+        render();
+    }, 2000);
 }
 
-// ... rest of swipe logic ...
+function render() {
+    const stack = document.getElementById('stack');
+    if(!POOL.length) return;
+    const q = POOL.shift();
+    const card = document.createElement('div');
+    card.className = "card";
+    card.innerHTML = q.q;
+    stack.appendChild(card);
+}
+
 window.onload = init;
 </script>
 </body>
