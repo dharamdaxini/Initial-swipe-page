@@ -225,18 +225,8 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
    (NON-DESTRUCTIVE)
    ========================================= */
 
-/* Ensure cards never overflow screen height */
-.card {
-  max-height: 100%;
-  overflow: hidden;
-}
 
-/* Allow vertical scrolling inside cards if content is long */
-.card,
-.overlay {
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
+
 
 /* Prevent text from spilling outside card width */
 .card-q,
