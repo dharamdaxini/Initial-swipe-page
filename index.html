@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist V81.25 - Luminous Stage One</title>
+<title>Alchemist V81.26 - Luminous Alignment</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 <style>
 /* --- LOCKED TO V81.4 UI ENGINE --- */
@@ -23,8 +23,8 @@ body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family
 /* RESTRAINED XY PLANE LABELS */
 .swipe-label { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.95); color: #fff; font-weight: 900; font-size: 1.8rem; text-transform: uppercase; border-radius: 40px; z-index: 2000; text-align: center; padding: 20px; will-change: transform, opacity; pointer-events: none; }
 
-/* STAGE ONE DOWN-SWIPE LAYOUT */
-.sl-dn { flex-direction: column !important; justify-content: flex-start !important; padding-top: 80px; } /* Pinned to Blue Marked Location */
+/* BULB POSITION - UPPER MIDDLE MARKED AREA */
+.sl-dn { flex-direction: column !important; justify-content: flex-start !important; padding-top: 80px; } 
 .sl-down-emoji { font-size: 5.5rem; display: none; transition: filter 0.1s; will-change: filter; margin-bottom: 25px; }
 
 /* READABLE BULLET CONTEXT */
@@ -43,7 +43,7 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 </head>
 <body>
 
-<div id="loader">ALCHEMIST V81.25</div>
+<div id="loader">ALCHEMIST V81.26</div>
 <div id="header">
     <div class="header-meta"><span>RANK: NOVICE</span><span id="xp-ui">0 XP</span></div>
     <div class="progress-track"><div id="progress-bar"></div></div>
@@ -69,9 +69,10 @@ const DATABASE = [
 
 let POOL = [], SCORE = 0, isTransitioning = false;
 const CLAMP_UI = 32;
-const TRIGGER_BULB = 64; // 2 cm Appearance
-const TRIGGER_CONTEXT = 96; // 3 cm Reveal
-const OPACITY_START = 24;
+const TRIGGER_BULB = 64; // 2 cm
+const TRIGGER_OFFSET = 80; // 2.5 cm Offset Threshold
+const TRIGGER_CONTEXT = 96; // 3 cm
+const MAX_X_OFFSET = -16; // 0.5 cm Shift
 
 const format = t => {
     if(!t) return "";
@@ -117,7 +118,7 @@ function bindMainPhysics(el, qData){
         if(!active) return; const p=e.touches?e.touches[0]:e;
         const dx = p.clientX - sx; const dy = p.clientY - sy;
         finalDist = Math.sqrt(dx*dx + dy*dy);
-        const op = Math.min(finalDist / OPACITY_START, 1);
+        const op = Math.min(finalDist / 24, 1);
         let ang = Math.atan2(-dy, dx) * (180 / Math.PI); if(ang<0) ang+=360;
         
         let lDx = dx, lDy = dy;
@@ -131,22 +132,15 @@ function bindMainPhysics(el, qData){
             else if(ang>=135&&ang<225) { target = labels.lt; dir="LEFT"; }
             else if(ang>=225&&ang<315) { 
                 target = labels.dn; dir="DOWN"; 
-                // STAGE ONE PHYSICS
                 if(finalDist >= TRIGGER_BULB) {
                     bulb.style.display = 'block';
-                    // 0% to 50% glow intensity between 2cm and 3cm
                     const glowScale = Math.min(((finalDist - TRIGGER_BULB) / (TRIGGER_CONTEXT - TRIGGER_BULB)) * 25, 25);
                     bulb.style.filter = `drop-shadow(0 0 ${glowScale}px var(--gold)) brightness(${1 + glowScale/10})`;
                 } else {
                     bulb.style.display = 'none';
                 }
-                // TRIGGER CONTEXT
-                if(finalDist >= TRIGGER_CONTEXT) { 
-                    wrap.classList.add('active');
-                    bulb.style.filter = `drop-shadow(0 0 50px var(--gold)) brightness(2.5)`; 
-                } else {
-                    wrap.classList.remove('active');
-                }
+                if(finalDist >= TRIGGER_CONTEXT) wrap.classList.add('active');
+                else wrap.classList.remove('active');
             }
             else { target = labels.rt; dir="RIGHT"; }
             
@@ -155,19 +149,32 @@ function bindMainPhysics(el, qData){
                 target.style.transform = `translate3d(${lDx}px, ${lDy}px, 0)`; 
             }
         }
-        el.style.transform = `translate3d(${dx}px, ${dy}px, 0) rotate(${dx/25}deg)`;
+
+        // --- DYNAMIC CARD PHYSICS: ALIGN TO Y AXIS WITH X OFFSET ---
+        let cardX = dx;
+        let cardY = dy;
+
+        if(dir === "DOWN"){
+            // Force Y-Axis Alignment
+            cardX = 0; 
+            if(finalDist >= TRIGGER_OFFSET){
+                // Begin -X Offset after 2.5 cm
+                const offsetProgress = Math.min((finalDist - TRIGGER_OFFSET) / (TRIGGER_CONTEXT - TRIGGER_OFFSET), 1);
+                cardX = offsetProgress * MAX_X_OFFSET; // Stops at -0.5 cm
+            }
+        }
+
+        el.style.transform = `translate3d(${cardX}px, ${cardY}px, 0) rotate(${dir === "DOWN" ? 0 : dx/25}deg)`;
     };
 
     const end = () => {
         if(!active) return; active = false;
         if(dir === "DOWN"){
-            el.style.transition = "transform .3s"; el.style.transform = "translate(0,0)";
-            // Persistence logic: context stays if trigger was met
-            if(finalDist < TRIGGER_CONTEXT) wrap.classList.remove('active');
+            el.style.transition = "transform .3s"; 
+            el.style.transform = finalDist >= TRIGGER_CONTEXT ? `translate3d(${MAX_X_OFFSET}px, 0, 0)` : "translate(0,0)";
         } else if(dir && finalDist >= CLAMP_UI){
             isTransitioning = true;
             el.style.transition = "transform .4s ease-in"; el.style.transform = `translate3d(${dir==="LEFT"?-400:400}px, ${dir==="UP"?-400:400}px, 0)`;
-            if(dir === qData.c.toUpperCase()) SCORE += 10;
             setTimeout(() => { isTransitioning = false; wrap.classList.remove('active'); renderNext(); updateUI(); }, 300);
         } else {
             el.style.transition = "transform .2s"; el.style.transform = "translate3d(0,0,0) rotate(0deg)"; 
