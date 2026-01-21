@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist V81.56 - Blind Vault</title>
+<title>Alchemist V81.57 - Singular Intent</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 <style>
 /* --- CORE CSS ENGINE --- */
@@ -23,7 +23,7 @@ body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family
 
 .card-q { font-family: var(--serif); font-size: clamp(1.2rem, 4.5vw, 1.7rem); line-height: 1.4; font-weight: 700; text-align: center; color: #f0f0f0; pointer-events: none; transition: transform 0.25s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.15s ease; z-index: 5; }
 
-/* FEEDBACK LABELS - HIDDEN BY DEFAULT */
+/* SINGULAR LABEL - APPEARS ONLY AFTER RIFT */
 .swipe-label { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: transparent; z-index: 2000; pointer-events: none; opacity: 0; }
 .label-content { display: flex; flex-direction: column; align-items: center; gap: 10px; font-weight: 900; font-size: 1.6rem; text-transform: uppercase; color: var(--gold); }
 .arrow { font-size: 2.5rem; }
@@ -46,7 +46,7 @@ body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family
 </head>
 <body>
 
-<div id="loader">ALCHEMIST V81.56</div>
+<div id="loader">ALCHEMIST V81.57</div>
 <div id="header">
     <div class="header-meta"><span id="difficulty-ui">LEVEL: 1</span><span id="xp-ui">0 XP</span></div>
     <div class="progress-track"><div id="progress-bar"></div></div>
@@ -54,8 +54,6 @@ body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family
 
 <div id="stack">
     <div id="sl-up" class="swipe-label"><div class="label-content"><span class="arrow">↑</span><span>GOT IT</span></div></div>
-    <div id="sl-lt" class="swipe-label"><div class="label-content"><span class="arrow">←</span><span>CONFUSED</span></div></div>
-    <div id="sl-rt" class="swipe-label"><div class="label-content"><span class="arrow">→</span><span>NOT SURE</span></div></div>
     
     <div id="sl-dn" class="swipe-label">
         <div id="study-mount" class="study-wrap">
@@ -69,20 +67,22 @@ body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family
             </div>
         </div>
         <span id="bulb-element" class="sl-down-emoji">💡</span>
-        <div id="sl-dn-label" class="label-content" style="position:absolute; bottom:60px; display:none; opacity:0;"><span class="arrow">↓</span><span>MORE INFO</span></div>
     </div>
 </div>
 
 <script>
 const DEPLOY_URL = "https://script.google.com/macros/s/AKfycbzXysKDBmYF6cyPVG55ShZ1k0u0kK7vJQ7Vm65OqGUEGgEFdZdtfi7O1TRnodJh_GaG/exec";
 
+// CHEMISTRY STRESS TEST SET
 const DATABASE = [
     { "q": "Signs of ΔH and ΔS for spontaneity at all temps?", "topic": "Thermodynamics", "difficulty": "B", "c": "UP", "bullets": ["ΔH must be negative (Exothermic)", "ΔS must be positive (Increased entropy)"], "j": "Nature favors states of lower energy and higher chaos." },
-    { "q": "Condition for spontaneity when both ΔH & ΔS are positive?", "topic": "Thermodynamics", "difficulty": "C", "c": "UP", "bullets": ["TΔS must exceed ΔH", "Temperature must be high"], "j": "The 'Entropy Overdrive' threshold where heat fuels spontaneity." }
+    { "q": "Condition for spontaneity when both ΔH & ΔS are positive?", "topic": "Thermodynamics", "difficulty": "C", "c": "UP", "bullets": ["TΔS must exceed ΔH", "Temperature must be high"], "j": "The 'Entropy Overdrive' threshold where heat fuels spontaneity." },
+    { "q": "Order of reaction if doubling [A] increases rate 4x?", "topic": "Kinetics", "difficulty": "B", "c": "UP", "bullets": ["Rate = k[A]^2", "Square relationship (2^2 = 4)"], "j": "A standard second-order quadratic rate relationship." },
+    { "q": "How does a catalyst affect k and Ea?", "topic": "Kinetics", "difficulty": "C", "c": "UP", "bullets": ["Lowers Ea (pathway shift)", "Increases k exponentially"], "j": "Catalysts are molecular shortcuts, not energy sources." }
 ];
 
 let POOL = [...DATABASE], SCORE = 0, DIFFICULTY = 1, isTransitioning = false;
-let questionStartTime = 0, latencyMS = 0, confidenceRating = null, isLocked = false;
+let questionStartTime = 0, latencyMS = 0, isLocked = false;
 
 const CM_0_5 = 16, CM_1_0 = 32, CM_3_0 = 96;
 const MAX_TEXT_PX = 190, MAX_BULB_PX = 155;
@@ -112,7 +112,7 @@ function renderNext(){
 
 function bindPhysics(el, qData){
     let sx=0, sy=0, active=false, dir=null, finalDist=0;
-    const labels = { up: document.getElementById('sl-up'), dn: document.getElementById('sl-dn'), lt: document.getElementById('sl-lt'), rt: document.getElementById('sl-rt'), dnLab: document.getElementById('sl-dn-label') };
+    const labels = { up: document.getElementById('sl-up'), dn: document.getElementById('sl-dn') };
     const bulb = document.getElementById('bulb-element');
     const wrap = document.getElementById('study-mount');
     const queText = el.querySelector('.card-q');
@@ -126,16 +126,15 @@ function bindPhysics(el, qData){
         let ang = Math.atan2(-dy, dx) * (180 / Math.PI); if(ang<0) ang+=360;
 
         if(finalDist > 5) {
-            if(ang>=45&&ang<135) dir="UP"; else if(ang>=135&&ang<225) dir="LEFT"; else if(ang>=225&&ang<315) dir="DOWN"; else dir="RIGHT";
+            if(ang>=45&&ang<135) dir="UP"; else if(ang>=225&&ang<315) dir="DOWN"; else dir=null;
         }
 
-        // FORCE DOWN-SWIPE FIRST
+        // VERTICAL RAIL ENFORCEMENT
         if(!isLocked) {
             if(dir !== "DOWN") {
-                el.style.transform = `translate3d(${dx*0.2}px, ${dy*0.2}px, 0)`; // Resistance
+                el.style.transform = `translate3d(0, ${dy*0.2}px, 0)`; // Nullify dx
                 return;
             }
-            // Vertical Rift Logic
             labels.dn.style.display = 'flex'; labels.dn.style.opacity = Math.min(finalDist / 24, 1);
             if(finalDist >= CM_0_5) queText.style.transform = `translateY(-${Math.min((finalDist - CM_0_5) / 64, 1) * MAX_TEXT_PX}px)`;
             if(finalDist >= CM_1_0) {
@@ -149,12 +148,12 @@ function bindPhysics(el, qData){
                 queText.style.transform = `translateY(-${MAX_TEXT_PX}px)`;
             }
         } else {
-            // CARDINAL GRID ACTIVATED AFTER JUDGEMENT
-            el.style.transform = `translate3d(${dx}px, ${dy}px, 0) rotate(${dx/25}deg)`;
-            Object.values(labels).forEach(l => { if(l) { l.style.display = 'none'; l.style.opacity = 0; } });
-            let target = (dir === "DOWN") ? labels.dnLab : labels[dir.toLowerCase()];
-            if(target) { target.style.display = 'flex'; target.style.opacity = Math.min(finalDist / 40, 1); target.style.transform = `translate3d(${dx}px, ${dy}px, 0)`; }
-            labels.dn.style.display = 'flex'; // Keep rift visible
+            // SINGULAR UP-SWIPE ENABLED
+            el.style.transform = `translate3d(0, ${dy}px, 0)`;
+            labels.up.style.display = (dir === "UP") ? 'flex' : 'none';
+            labels.up.style.opacity = Math.min(finalDist / 40, 1);
+            labels.up.style.transform = `translate3d(0, ${dy}px, 0)`;
+            labels.dn.style.display = 'flex';
         }
     };
 
@@ -164,21 +163,22 @@ function bindPhysics(el, qData){
             queText.style.transition = "transform .22s"; queText.style.transform = `translateY(0)`;
             bulb.style.transition = "transform .22s, opacity .2s"; bulb.style.opacity = 0;
             el.style.transition = "transform .2s"; el.style.transform = "translate(0,0)";
-        } else if(dir && finalDist >= 32) {
+        } else if(dir === "UP" && finalDist >= 32) {
             isTransitioning = true;
-            submitToMatrix(qData, dir);
-            el.style.transition = "transform .4s ease-in"; el.style.transform = `translate3d(${dir==="LEFT"?-400:400}px, ${dir==="UP"?-400:400}px, 0)`;
-            if(dir === "UP") SCORE += 10;
+            submitToMatrix(qData);
+            el.style.transition = "transform .4s ease-in"; el.style.transform = `translate3d(0, -500px, 0)`;
+            SCORE += 10;
             setTimeout(() => { isTransitioning = false; POOL.shift(); renderNext(); }, 300);
         } else { el.style.transition = "transform .2s"; el.style.transform = "translate(0,0)"; }
+        labels.up.style.display = 'none';
     };
     el.ontouchstart=start; el.ontouchmove=move; el.ontouchend=end;
 }
 
-async function submitToMatrix(qData, finalDecision) {
+async function submitToMatrix(qData) {
     const payload = {
-        question: qData.q, topic: qData.topic, isCorrect: (finalDecision === "UP"),
-        confidence: "Low", decision: finalDecision, latency: latencyMS,
+        question: qData.q, topic: qData.topic, isCorrect: true,
+        confidence: "Low", decision: "GOT_IT", latency: latencyMS,
         difficulty: qData.difficulty, totalTime: Date.now() - questionStartTime
     };
     try { await fetch(DEPLOY_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) }); } catch (e) {}
