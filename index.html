@@ -54,7 +54,30 @@ body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family
 
 <script>
 // --- SANITIZED DEPLOYMENT LINK ---
-const DEPLOY_URL = "https://script.google.com/macros/s/AKfycbyugwMOsM5RFZ6xe3demJ_9QB5dl4gmS0UHBrckmp6zBRhNBNVt2lTiO0ttuZVGFn9f/exec";
+const DEPLOY_URL = "async function submitToMatrix(qData) {
+    const params = new URLSearchParams();
+    params.append("Timestamp", new Date().toISOString());
+    params.append("Question", qData.q || "Unknown");
+    params.append("Topic", qData.topic || "General");
+    params.append("Correct", "TRUE");
+    params.append("XP_Earned", "15");
+    params.append("ConfidenceStatus", "Low");
+    params.append("DecisionPath", "STUDY_DRAWER");
+    params.append("LuminousLatency", String(latencyMS || 0)); // Ensure it's a string/number
+    params.append("DifficultyLevel", qData.difficulty || "B");
+    params.append("TotalTimeTaken", String(Date.now() - questionStartTime));
+
+    try {
+        await fetch(DEPLOY_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+        });
+    } catch (e) {
+        console.error("ALCHEMIST: Post failed", e);
+    }
+}";
 
 const DATABASE = [
     { "q": "Signs of ΔH and ΔS for spontaneity at all temps?", "topic": "Thermodynamics", "difficulty": "B", "bullets": ["ΔH must be negative (Exothermic)", "ΔS must be positive (Increased entropy)", "ΔG must be negative for all T"], "j": "Nature favors states of lower energy and higher chaos." },
