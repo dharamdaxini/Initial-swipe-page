@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist V81.62 - Locked Handshake</title>
+<title>Alchemist V81.64 - Final Bridge</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 <style>
-/* --- MINIMALIST INDUSTRIAL CSS (V81.60 Inheritance) --- */
+/* --- INDUSTRIAL UI V81.60+ --- */
 :root { --bg: #000; --card: #111; --gold: #ffd600; --border: #222; --serif: 'Libre Baskerville', serif; --ui: 'Outfit', sans-serif; --code: 'JetBrains Mono', monospace; }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
 body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family: var(--ui); overflow: hidden; touch-action: none; }
@@ -36,20 +36,19 @@ body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family
 .principle-text { font-size: 1.3rem; line-height: 1.5; color: var(--gold); font-family: var(--serif); font-style: italic; font-weight: 400; }
 
 .swipe-label { position: absolute; top: 60px; left: 0; width: 100%; display: none; justify-content: center; font-weight: 900; font-size: 1.2rem; color: var(--gold); letter-spacing: 2px; z-index: 2000; opacity: 0; }
-
 #loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.5rem; letter-spacing: 4px; color: var(--gold); }
 </style>
 </head>
 <body>
 
-<div id="loader">ALCHEMIST V81.62</div>
+<div id="loader">ALCHEMIST V81.64</div>
 <div id="header">
     <div class="header-meta"><span id="difficulty-ui">SET B/C</span><span id="xp-ui">0 XP</span></div>
     <div class="progress-track"><div id="progress-bar"></div></div>
 </div>
 
 <div id="stack">
-    <div id="sl-up" class="swipe-label">↑ SUBMIT DATA</div>
+    <div id="sl-up" class="swipe-label">↑ SUBMIT TO MATRIX</div>
     <div id="study-drawer" class="study-drawer">
         <div class="study-header">Analysis</div>
         <div class="content-section">
@@ -63,13 +62,13 @@ body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family
 </div>
 
 <script>
-// --- SCRIPT URL GENERATION ---
+// --- CORE CONFIG ---
 const DEPLOY_ID = "AKfycby1KCqAjaEW61_jHV8D9vl8odhJi0yzcXdcpcBWl7PpRwgafuT4eplpzxxBBSrRwXAm";
 const DEPLOY_URL = `https://script.google.com/macros/s/${DEPLOY_ID}/exec`;
 
 const DATABASE = [
-    { "q": "Signs of ΔH and ΔS for spontaneity at all temps?", "topic": "Thermodynamics", "difficulty": "B", "bullets": ["ΔH must be negative (Exothermic)", "ΔS must be positive (Increased entropy)", "Gibbs Free Energy ΔG must be negative"], "j": "Nature favors energy release and maximum disorder." },
-    { "q": "When is +ΔH and +ΔS spontaneous?", "topic": "Thermodynamics", "difficulty": "C", "bullets": ["Only at High Temperatures", "TΔS term must overcome the ΔH barrier"], "j": "Heat fuels the entropy drive to overcome chemical stability." }
+    { "q": "Signs of ΔH and ΔS for spontaneity at all temps?", "topic": "Thermodynamics", "difficulty": "B", "bullets": ["ΔH must be negative (Exothermic)", "ΔS must be positive (Increased entropy)", "Gibbs Free Energy ΔG must be negative"], "j": "Nature favors processes that release energy and increase disorder simultaneously." },
+    { "q": "When is a reaction with +ΔH and +ΔS spontaneous?", "topic": "Thermodynamics", "difficulty": "C", "bullets": ["Only at High Temperatures", "TΔS term must overcome the positive ΔH barrier"], "j": "Heat energy provides the entropy push needed to overcome chemical stability." }
 ];
 
 let POOL = [...DATABASE], SCORE = 0, isTransitioning = false, questionStartTime = 0, latencyMS = 0, isLocked = false;
@@ -82,7 +81,7 @@ function init(){ setTimeout(() => { document.getElementById('loader').remove(); 
 function renderNext(){
     const s = document.getElementById('stack');
     const existing = s.querySelector('.card'); if(existing) existing.remove();
-    if(!POOL.length){ s.innerHTML = `<div class="card"><div class="card-q">STRESS TEST COMPLETE</div></div>`; return; }
+    if(!POOL.length){ s.innerHTML = `<div class="card"><div class="card-q">DATA LOGGED</div></div>`; return; }
     
     const q = POOL[0];
     const c = document.createElement('div'); c.className = "card";
@@ -132,41 +131,39 @@ function bindPhysics(el, qData){
         } else if(finalDist >= 32) {
             isTransitioning = true;
             submitToMatrix(qData);
-            el.style.transition = "transform .4s ease-in"; el.style.transform = "translate3d(0, -600px, 0)";
-            setTimeout(() => { isTransitioning = false; POOL.shift(); renderNext(); }, 300);
+            el.style.transition = "transform .4s ease-in"; el.style.transform = "translate3d(0, -700px, 0)";
+            setTimeout(() => { isTransitioning = false; POOL.shift(); renderNext(); }, 400);
         } else { el.style.transition = "transform .3s ease"; el.style.transform = "translate(0,0)"; }
         label.style.display = 'none';
     };
 }
 
-// --- DIAGNOSTIC HANDSHAKE (V81.61 logic) ---
+// --- ABSOLUTE BRIDGE (V81.63 logic) ---
 async function submitToMatrix(qData) {
-    const payload = {
-        Timestamp: new Date().toISOString(),
-        Question: qData.q,
-        Topic: qData.topic,
-        Correct: "TRUE",
-        XP_Earned: 15,
-        ConfidenceStatus: "Low",
-        DecisionPath: "STUDY_DRAWER",
-        LuminousLatency: latencyMS,
-        DifficultyLevel: qData.difficulty,
-        TotalTimeTaken: Date.now() - questionStartTime
-    };
+    const params = new URLSearchParams();
+    params.append("Timestamp", new Date().toISOString());
+    params.append("Question", qData.q);
+    params.append("Topic", qData.topic);
+    params.append("Correct", "TRUE");
+    params.append("XP_Earned", 15);
+    params.append("ConfidenceStatus", "Low");
+    params.append("DecisionPath", "STUDY_DRAWER");
+    params.append("LuminousLatency", latencyMS);
+    params.append("DifficultyLevel", qData.difficulty);
+    params.append("TotalTimeTaken", Date.now() - questionStartTime);
 
-    console.log("ALCHEMIST: Dispatching to Matrix...", payload);
+    console.log("ALCHEMIST: Pushing Data...", Object.fromEntries(params));
 
     try {
         await fetch(DEPLOY_URL, {
             method: 'POST',
             mode: 'no-cors',
-            cache: 'no-cache',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
         });
-        console.log("ALCHEMIST: Success. Check 'Stress Test Matrix' sheet.");
+        console.log("ALCHEMIST: Submission Sent. Check Sheet.");
     } catch (e) {
-        console.error("ALCHEMIST: Connection Failed.", e);
+        console.error("ALCHEMIST: Submission Failed.", e);
     }
 }
 
