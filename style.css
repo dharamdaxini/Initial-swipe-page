@@ -201,3 +201,42 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
     color: var(--gold); 
     letter-spacing: 5px; 
 }
+/* =========================================
+   V80.0 SAFE TEXT VISIBILITY PATCH
+   ========================================= */
+
+/* 1. Gesture-Safe Content Wrapping */
+.card-q, .overlay-body, .swipe-label {
+    overflow-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+    max-height: 80%; /* Ensures room for swipe labels */
+    overflow: hidden;
+}
+
+/* 2. Independent Overlay Physics */
+.overlay {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+/* 3. Small Screen Adaptive Scaling (Height-Based) */
+@media (max-height: 740px) {
+    #stack { margin: 20px auto 0; height: 75vh; }
+    .card { padding: 30px 25px; }
+    .card-q { font-size: 1.5rem; line-height: 1.3; }
+}
+
+@media (max-height: 600px) {
+    .card-q { font-size: 1.3rem; }
+    .header-meta { margin-bottom: 5px; font-size: 0.6rem; }
+    #header { margin-top: 15px; }
+}
+
+/* 4. Global Boundary Safety */
+body, html {
+    overflow: hidden;
+    position: fixed; /* Prevents "bounce" on iOS */
+    width: 100%;
+}
