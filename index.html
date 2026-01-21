@@ -188,4 +188,24 @@ function bindPhysics(el, data){
         if(!active) return; active = false;
         if(dir === "DOWN"){ 
             el.querySelector('.overlay').classList.add('active'); 
-            el.style.transition = "transform .3s"; el.style.transform = "translate3
+            el.style.transition = "transform .3s"; el.style.transform = "translate3d(0,0,0) rotate(0deg)"; 
+        } else if(dir){
+            isTransitioning = true; if(dir === data.c) SCORE += (10 * data.w);
+            el.style.transition = "transform .4s ease-in"; el.style.transform = `translate3d(${dir==="LEFT"?-400:400}px, ${dir==="UP"?-400:400}px, 0)`;
+            setTimeout(() => { el.remove(); isTransitioning = false; renderNext(); updateUI(); }, 300);
+        } else { el.style.transition = "transform .2s"; el.style.transform = "translate3d(0,0,0) rotate(0deg)"; }
+        Object.values(labels).forEach(l => { if(l) l.style.opacity = 0; });
+    };
+
+    el.onmousedown=start; window.onmousemove=move; window.onmouseup=end; el.ontouchstart=start; el.ontouchmove=move; el.ontouchend=end;
+}
+
+function updateUI(){ 
+    document.getElementById('xp-ui').innerText = `${SCORE} XP`; 
+    document.getElementById('progress-bar').style.width = `${(SCORE % 100)}%`; 
+}
+
+window.onload = init;
+</script>
+</body>
+</html>
