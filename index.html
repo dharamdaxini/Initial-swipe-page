@@ -3,176 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Alchemist V77.1 Master</title>
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <title>Alchemist V80.0 | Industrial</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@800&display=swap" rel="stylesheet">
+
     <style>
-        :root { 
-            --bg: #000; --card: #111; --gold: #ffd600; --border: #222;
-            --serif: 'Libre Baskerville', serif; --ui: 'Outfit', sans-serif; --code: 'JetBrains Mono', monospace;
+        :root {
+            --bg: #000000;
+            --card-bg: #111111;
+            --overlay-bg: #0d0d0d;
+            --border: #222222;
+            --gold: #ffd600;
+            --blue: #3498db;
+            --text: #ffffff;
+            --muted: #555555;
+            --font-chem: 'Crimson Text', serif;
+            --font-ui: 'Inter', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family: var(--ui); overflow: hidden; touch-action: none; }
-
-        /* V77.1 HEADER */
-        #header { width: 92%; margin: 30px auto 0; position: relative; z-index: 100; }
-        .header-meta { 
-            display: flex; justify-content: space-between;
-            font-family: var(--code); font-size: 0.75rem; color: #444; 
-            letter-spacing: 2px; text-transform: uppercase; font-weight: 900; 
+        body { 
+            margin: 0; height: 100vh; background: var(--bg); color: var(--text);
+            font-family: var(--font-ui); overflow: hidden; user-select: none;
+            -webkit-user-select: none; touch-action: none; 
         }
 
-        /* THE V77.1 STACK */
-        #stack { position: relative; width: 92%; max-width: 420px; height: 75vh; margin: 25px auto 0; perspective: 1500px; }
-        
+        /* Logic for Chemistry Formulas */
+        sub { font-size: 0.7em; vertical-align: sub; line-height: 0; }
+        sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
+
+        /* HUD ARCHITECTURE */
+        #header { width: 90%; margin: calc(25px + env(safe-area-inset-top)) auto 0; z-index: 100; position: relative; }
+        .header-meta { display: flex; justify-content: space-between; font-family: var(--font-code); font-size: 0.7rem; color: var(--muted); letter-spacing: 2px; }
+        .progress-track { width: 100%; height: 2px; background: #1a1a1a; margin-top: 10px; border-radius: 1px; overflow: hidden; }
+        #progress-bar { height: 100%; background: var(--gold); width: 0%; transition: width 0.4s ease; }
+
+        /* THE SINGULARITY STACK */
+        #stack { position: relative; width: 92%; max-width: 400px; height: 72vh; margin: 30px auto 0; perspective: 1200px; }
         .card { 
-            position: absolute; width: 100%; height: 100%; background: var(--card); border-radius: 32px; border: 1px solid var(--border); 
-            padding: 40px 25px; display: flex; flex-direction: column; justify-content: center; z-index: 5; 
-            box-shadow: 0 40px 80px rgba(0,0,0,0.8);
-            transition: filter 0.4s ease, opacity 0.4s ease, transform 0.3s cubic-bezier(0.19, 1, 0.22, 1); 
+            position: absolute; width: 100%; height: 100%; background: var(--card-bg); border-radius: 40px; border: 1px solid var(--border);
+            padding: 45px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 30px 90px rgba(0,0,0,0.9);
+            will-change: transform; cursor: grab; transform: translate3d(0,0,0);
         }
+        .card-q { font-family: var(--font-chem); font-size: 1.9rem; line-height: 1.4; font-style: italic; font-weight: 600; text-align: center; color: #f0f0f0; }
 
-        /* V77.1 RIFT PHYSICS (RECESSED SCALE) */
-        .card.study-active { filter: blur(20px) brightness(0.2); opacity: 0.5; transform: scale(0.85) translateY(40px); pointer-events: none; }
-        .card-q { font-family: var(--serif); font-size: 1.65rem; line-height: 1.5; font-weight: 700; text-align: center; color: #fff; }
-
-        /* STUDY DRAWER (ANALYSIS) */
-        .study-drawer { 
-            position: absolute; inset: 0; padding: 40px 20px; z-index: 10; display: flex; flex-direction: column; 
-            opacity: 0; visibility: hidden; transform: translateY(20px); transition: all 0.5s ease; 
+        /* VECTOR HUD LABELS */
+        .swipe-label {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            background: #000; color: #fff; font-weight: 900; font-size: 2rem; text-transform: uppercase;
+            border-radius: 40px; z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.1s;
         }
-        .study-drawer.active { opacity: 1; visibility: visible; transform: translateY(0); }
-        
-        .meta-label { font-family: var(--code); font-size: 0.65rem; color: #555; letter-spacing: 4px; margin-bottom: 25px; text-transform: uppercase; }
-        
-        /* OPTION GRID (V77.1 STACKED) */
-        .option-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 20px; }
-        .opt-item { 
-            font-size: 1rem; padding: 14px; background: #080808; border: 1px solid #1a1a1a; border-radius: 12px;
-            font-family: var(--serif); color: #ccc; display: flex; align-items: center; transition: 0.1s;
-        }
-        .opt-item span { font-family: var(--code); color: var(--gold); font-size: 0.65rem; margin-right: 15px; font-weight: 900; }
-        .opt-item:active { background: var(--gold); color: #000; }
+        .sl-down-hint { color: var(--blue) !important; font-size: 1.3rem !important; text-transform: none !important; font-family: var(--font-chem) !important; }
 
-        .explanation-text { 
-            font-size: 1.25rem; line-height: 1.5; color: var(--gold); font-family: var(--serif); font-style: italic; 
-            border-top: 1px solid #222; padding-top: 20px; margin-top: auto; 
+        /* LOGIC ANALYSIS OVERLAY */
+        .overlay {
+            position: absolute; inset: 0; background: var(--overlay-bg); z-index: 1100; padding: 40px;
+            opacity: 0; pointer-events: none; border-radius: 40px; transition: opacity 0.3s ease;
+            display: flex; flex-direction: column; justify-content: center;
         }
+        .overlay.active { opacity: 1; pointer-events: auto; }
+        .overlay-label { font-size: 0.7rem; color: var(--gold); font-family: var(--font-code); margin-bottom: 10px; letter-spacing: 2px; }
+        .overlay-body { font-size: 1.2rem; line-height: 1.6; color: #bbb; margin-bottom: 30px; font-family: var(--font-chem); }
+        .btn { width: 100%; padding: 20px; border-radius: 50px; border: none; background: #fff; color: #000; font-weight: 900; text-transform: uppercase; font-family: var(--font-ui); }
 
-        #loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--gold); letter-spacing: 5px; }
+        #loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: var(--font-code); color: var(--gold); letter-spacing: 5px; }
     </style>
 </head>
 <body>
 
-<div id="loader">ALCHEMIST V77.1</div>
+<div id="loader">SINGULARITY V80.0</div>
 
 <div id="header">
-    <div class="header-meta"><span id="category-ui">BOOT</span><span id="id-ui">V77.1</span></div>
+    <div class="header-meta">
+        <span id="id-ui">ID: ALPHA</span>
+        <span id="xp-ui">0 XP</span>
+    </div>
+    <div class="progress-track"><div id="progress-bar"></div></div>
 </div>
 
-<div id="stack">
-    <div id="study-drawer" class="study-drawer">
-        <div class="meta-label" id="hint-ui">HINT: READY</div>
-        <div class="option-grid">
-            <div class="opt-item" onclick="submit('UP')"><span>UP</span><div id="opt-up"></div></div>
-            <div class="opt-item" onclick="submit('RIGHT')"><span>RIGHT</span><div id="opt-right"></div></div>
-            <div class="opt-item" onclick="submit('LEFT')"><span>LEFT</span><div id="opt-left"></div></div>
-        </div>
-        <div id="explanation-mount" class="explanation-text"></div>
-    </div>
-</div>
+<div id="stack"></div>
 
 <script>
-    /* --- CONFIG --- */
-    var DEPLOY_URL = "https://script.google.com/macros/s/AKfycbxMOVzmONXP6nAHNoN92nmO2MnMPek7omYcw0JCeizbsIOQZUik0VmUK0nTfikIfFLm/exec";
-
-    /* --- INDUSTRIAL DATASET --- */
-    var DATASET = [
-      { "id": "SET_A_0301", "set": "SET_A", "category": "Gas Laws", "question": "The ideal gas constant R has the same value regardless of gas identity.", "option_up": "Depends on gas type", "option_right": "Universal constant", "option_left": "Changes with pressure", "correct_option": "option_right", "explanation": "R does not vary with gas identity. It is a universal constant for ideal gases.", "hint": "Universal constant.", "weight": 0.34 },
-      { "id": "SET_A_0302", "set": "SET_A", "category": "Gas Laws", "question": "At constant volume an increase in temperature increases pressure.", "option_up": "Pressure decreases", "option_right": "Pressure remains same", "option_left": "Pressure increases", "correct_option": "option_left", "explanation": "Higher temperature increases molecular collisions, raising pressure.", "hint": "Gay-Lussac.", "weight": 0.36 },
-      { "id": "SET_A_0303", "set": "SET_A", "category": "Gas Laws", "question": "Absolute temperature must be used in gas law calculations.", "option_up": "Celsius scale acceptable", "option_right": "Only Fahrenheit works", "option_left": "Temperature in Kelvin", "correct_option": "option_left", "explanation": "Kelvin scale reflects absolute temperature.", "hint": "Absolute scale.", "weight": 0.31 }
-      /* ... Rest of your 50 JSON objects go here ... */
+    /* --- MASTER CONFIG --- */
+    const ENDPOINT = "https://script.google.com/macros/s/AKfycbxMOVzmONXP6nAHNoN92nmO2MnMPek7omYcw0JCeizbsIOQZUik0VmUK0nTfikIfFLm/exec";
+    
+    // Industrial Dataset R1
+    const BACKUP_DATA = [
+        { "id": "SET_A_0301", "question": "The ideal gas constant R has the same value regardless of gas identity.", "option_up": "Depends on gas type", "option_right": "Universal constant", "option_left": "Changes with pressure", "correct_option": "option_right", "explanation": "R is a universal constant for ideal gases.", "hint": "Universal constant.", "weight": 1 },
+        { "id": "SET_A_0302", "question": "At constant volume an increase in temperature increases pressure.", "option_up": "Pressure decreases", "option_right": "Pressure remains same", "option_left": "Pressure increases", "correct_option": "option_left", "explanation": "Higher temperature increases molecular collisions, raising pressure.", "hint": "Gay-Lussac.", "weight": 1 }
+        /* Paste the remaining 48 questions here */
     ];
 
-    var POOL = DATASET.slice();
-    var sy = 0, isLocked = false, startTime = 0, latency = 0;
+    let POOL = [...BACKUP_DATA].sort(() => Math.random() - .5);
+    let SCORE = 0, isTransitioning = false, startTime = 0, latency = 0;
 
-    function init() { 
-        setTimeout(function() { 
-            var l = document.getElementById('loader');
-            if(l) l.remove();
-            render(); 
-        }, 1000); 
+    const formatChem = t => t.toString().replace(/([A-Z][a-z]?)(\d+)/g,'$1<sub>$2</sub>').replace(/(\d*)([+\-])/g, '<sup>$1$2</sup>');
+
+    async function init() {
+        setTimeout(() => { document.getElementById('loader').remove(); renderNext(); }, 1200);
     }
 
-    function render() {
-        var s = document.getElementById('stack');
-        var existing = s.querySelector('.card');
-        if(existing) existing.remove();
+    function renderNext() {
+        const s = document.getElementById('stack'); s.innerHTML = "";
+        if (!POOL.length) { renderEnd(); return; }
         
-        if(!POOL.length) { 
-            s.innerHTML = '<div class="card"><div class="card-q" style="color:#ffd600">STAY HUNGRY</div></div>'; 
-            return; 
-        }
-        
-        var d = POOL[0];
-        var card = document.createElement('div');
-        card.className = "card";
-        card.innerHTML = '<div class="card-q">' + d.question + '</div>';
-        s.appendChild(card);
-        
-        document.getElementById('category-ui').innerText = d.category;
-        document.getElementById('id-ui').innerText = d.id;
-        document.getElementById('hint-ui').innerText = "HINT: " + d.hint;
-        document.getElementById('opt-up').innerText = d.option_up;
-        document.getElementById('opt-right').innerText = d.option_right;
-        document.getElementById('opt-left').innerText = d.option_left;
-        document.getElementById('explanation-mount').innerText = d.explanation;
-
-        document.getElementById('study-drawer').classList.remove('active');
-        isLocked = false;
-        bindPhysics(card);
+        const q = POOL[0];
+        const c = document.createElement('div'); c.className = "card";
+        c.innerHTML = `
+            <div class="card-q">${formatChem(q.question)}</div>
+            <div class="swipe-label sl-up">${q.option_up}</div>
+            <div class="swipe-label sl-left">${q.option_left}</div>
+            <div class="swipe-label sl-right">${q.option_right}</div>
+            <div class="swipe-label sl-down sl-down-hint">${q.hint}</div>
+            <div class="overlay">
+                <div class="overlay-label">LOGIC ANALYSIS</div>
+                <div class="overlay-body">${formatChem(q.explanation)}</div>
+                <button class="btn" onclick="this.parentElement.classList.remove('active')">CONTINUE</button>
+            </div>
+        `;
+        s.appendChild(c);
+        document.getElementById('id-ui').innerText = q.id;
+        bindPhysics(c, q);
     }
 
-    function bindPhysics(el) {
-        el.ontouchstart = function(e) { sy = e.touches[0].clientY; startTime = Date.now(); el.style.transition = "none"; };
-        el.ontouchmove = function(e) {
-            var dy = e.touches[0].clientY - sy;
-            if(!isLocked && dy > 110) { 
-                isLocked = true;
-                latency = Date.now() - startTime;
-                document.getElementById('study-drawer').classList.add('active');
-                el.classList.add('study-active');
+    function bindPhysics(el, data) {
+        let x=0, y=0, sx=0, sy=0, active=false, triggerDir=null;
+        const labels = { up: el.querySelector('.sl-up'), dn: el.querySelector('.sl-down'), lt: el.querySelector('.sl-left'), rt: el.querySelector('.sl-right') };
+
+        const start = e => { 
+            if(isTransitioning) return; active=true; 
+            const p = e.touches ? e.touches[0] : e; sx=p.clientX; sy=p.clientY; 
+            startTime = Date.now(); el.style.transition="none"; 
+        };
+        
+        const move = e => {
+            if(!active) return; const p = e.touches ? e.touches[0] : e;
+            const dx = p.clientX - sx, dy = p.clientY - sy, dist = Math.sqrt(dx*dx + dy*dy);
+            const opacity = Math.min(dist/24, 1);
+            x = (dist > 32) ? dx * (32/dist) : dx; y = (dist > 32) ? dy * (32/dist) : dy;
+            let ang = Math.atan2(-y, x) * (180/Math.PI); if(ang<0) ang+=360;
+            
+            Object.values(labels).forEach(l => l.style.opacity = 0);
+            if(dist > 5) {
+                let L = (ang>=45&&ang<135)?labels.up:(ang>=135&&ang<225)?labels.lt:(ang>=225&&ang<315)?labels.dn:labels.rt;
+                L.style.opacity = opacity; L.style.transform = `scale(${0.85 + (opacity*0.15)})`;
             }
-            if(!isLocked && dy > 0) el.style.transform = "translateY(" + (dy * 0.22) + "px)";
+            el.style.transform = `translate3d(${x}px,${y}px,0) rotate(${x/25}deg)`;
+            triggerDir = (dist >= 32) ? ((ang>=45&&ang<135)?"UP":(ang>=135&&ang<225)?"LEFT":(ang>=225&&ang<315)?"DOWN":"RIGHT") : null;
         };
-        el.ontouchend = function(e) {
-            if(!isLocked) { el.style.transition = "transform 0.4s cubic-bezier(0.19, 1, 0.22, 1)"; el.style.transform = "translateY(0)"; }
+        
+        const end = () => {
+            if(!active) return; active=false;
+            if(triggerDir) {
+                if(triggerDir === "DOWN") {
+                    latency = Date.now() - startTime;
+                    el.querySelector('.overlay').classList.add('active');
+                    el.style.transition="transform .3s"; el.style.transform="translate3d(0,0,0)";
+                } else handleAction(el, data, x, y, triggerDir);
+            } else { el.style.transition="transform .2s"; el.style.transform="translate3d(0,0,0)"; }
         };
+        
+        el.onmousedown=start; window.onmousemove=move; window.onmouseup=end;
+        el.ontouchstart=start; el.ontouchmove=move; el.ontouchend=end;
     }
 
-    function submit(choice) {
-        var d = POOL[0];
-        var correct = (("option_" + choice.toLowerCase()) === d.correct_option);
+    function handleAction(el, data, x, y, dir) {
+        isTransitioning = true;
+        const correct = ("option_" + dir.toLowerCase()) === data.correct_option;
+        if(correct) SCORE += 10;
         
-        // GHOST PIXEL SUBMISSION (CONNECTED TO BACKEND)
-        var ping = DEPLOY_URL + "?target=Telemetry" + 
-                   "&questionId=" + encodeURIComponent(d.id) + 
-                   "&result=" + correct + 
-                   "&vectorChoice=" + choice + 
-                   "&latency=" + latency + 
-                   "&weight=" + d.weight;
-        new Image().src = ping;
+        new Image().src = `${ENDPOINT}?target=Telemetry&questionId=${data.id}&result=${correct}&vectorChoice=${dir}&latency=${latency}`;
+        
+        el.style.transition="transform .4s ease-in, opacity .4s";
+        el.style.transform=`translate3d(${x*12}px,${y*12}px,0) rotate(${x/2}deg)`; el.style.opacity="0";
+        
+        setTimeout(() => { POOL.shift(); updateUI(); renderNext(); isTransitioning=false; }, 400);
+    }
 
-        // V77.1 EJECT ANIMATION
-        var card = document.querySelector('.card');
-        if(card) {
-            card.style.transition = "transform 0.4s ease-in, opacity 0.4s";
-            card.style.transform = "translateY(-700px)";
-            card.style.opacity = "0";
-        }
+    function updateUI() {
+        document.getElementById('xp-ui').innerText = `${SCORE} XP`;
+        document.getElementById('progress-bar').style.width = `${(1 - POOL.length/BACKUP_DATA.length)*100}%`;
+    }
 
-        setTimeout(function() { POOL.shift(); render(); }, 400);
+    function renderEnd() {
+        const s = document.getElementById('stack');
+        s.innerHTML = `<div class="card"><div class="card-q">MISSION COMPLETE<br><span style="color:var(--gold)">${SCORE} XP EARNED</span></div><button class="btn" style="margin-top:20px" onclick="location.reload()">RESTART LOOP</button></div>`;
     }
 
     window.onload = init;
