@@ -1,3 +1,4 @@
+
 :root {
     /* Color Palette - Deep Dark Mode */
     --bg-color: #000000;
@@ -218,52 +219,4 @@ sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
     color: var(--accent-gold); 
     flex-direction: column; 
     text-align: center; 
-}
-
-/* =========================================
-   SAFE TEXT VISIBILITY PATCH (SWIPE-SAFE)
-   ========================================= */
-
-/* Overlay only may scroll */
-.overlay {
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Text wrapping only — no layout changes */
-.card-q,
-.overlay-body,
-.swipe-label {
-  overflow-wrap: break-word;
-  word-break: break-word;
-  hyphens: auto;
-}
-
-/* Small screens: reduce font, not layout */
-@media (max-height: 700px) {
-  .card-q {
-    font-size: 1.6rem;
-    line-height: 1.35;
-  }
-
-  .overlay-body {
-    font-size: 1.1rem;
-    line-height: 1.5;
-  }
-}
-
-/* Very small screens */
-@media (max-height: 600px) {
-  .card-q {
-    font-size: 1.4rem;
-  }
-
-  .overlay {
-    padding: 30px 25px;
-  }
-}
-
-/* Absolute safety */
-body {
-  overflow-x: hidden;
 }
