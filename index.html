@@ -1,20 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Ironclad – Alchemist</title>
+
+<style>
+/* ===== MASTER SaaS CSS (condensed, stable) ===== */
+:root {
+  --bg:#000;
+  --card:#111;
+  --border:#222;
+  --text:#fff;
+  --muted:#777;
+  --accent:#ffd600;
+}
+
+* { box-sizing:border-box; }
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:system-ui, -apple-system, BlinkMacSystemFont;
+  overflow:hidden;
+  touch-action:none;
+}
+
+#header{
+  padding:16px;
+  font-size:14px;
+  letter-spacing:1px;
+}
+
+#stack{
+  position:relative;
+  width:90%;
+  max-width:420px;
+  height:70vh;
+  margin:20px auto;
+}
+
+.card{
+  position:absolute;
+  inset:0;
+  background:var(--card);
+  border-radius:24px;
+  border:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:24px;
+  font-size:22px;
+  user-select:none;
+}
+
+.swipe-label{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:0;
+  font-size:18px;
+  font-weight:700;
+  text-transform:uppercase;
+  pointer-events:none;
+}
+
+.sl-up{color:#4caf50}
+.sl-down{color:#03a9f4}
+.sl-left{color:#ff9800}
+.sl-right{color:#e91e63}
+</style>
+</head>
+
+<body>
+
+<div id="header">
+  ALCHEMIST<br>
+  RANK: NOVICE <span id="xp">0 XP</span>
+</div>
+
+<div id="stack"></div>
+
 <script>
-/* ================== BOOTSTRAP FIX ================== */
+/* ===== MASTER JS ENGINE ===== */
 
-/* SAFETY: wait for DOM */
-window.onload = () => {
-    const loader = document.getElementById("loader");
+let MODE = "DATASET";
+let CURRENT_DATASET = "";
+let CURRENT_TOPIC = "";
+let CURRENT_DEPTH = "";
 
-    /* Fallback safety: always render something */
-    if (typeof renderDatasetSelect === "function") {
-        renderDatasetSelect();
-    } else {
-        console.error("renderDatasetSelect not found");
+const stack = document.getElementById("stack");
+
+/* ---------- RENDER HELPERS ---------- */
+function clearStack(){
+  stack.innerHTML="";
+}
+
+function makeCard(text, labels={}){
+  const c = document.createElement("div");
+  c.className="card";
+  c.innerHTML = `<div>${text}</div>`;
+
+  ["up","down","left","right"].forEach(d=>{
+    if(labels[d]){
+      const l=document.createElement("div");
+      l.className=`swipe-label sl-${d}`;
+      l.innerText=labels[d];
+      c.appendChild(l);
     }
+  });
 
-    /* Remove loader AFTER first paint */
-    setTimeout(() => {
-        if (loader) loader.remove();
-    }, 300);
-};
+  bindSwipe(c);
+  stack.appendChild(c);
+}
+
+/* ---------- SCREENS ---------- */
+
+function renderDataset(){
+  MODE="DATASET";
+  clearStack();
+  makeCard("SELECT CURRICULUM",{
+    up:"Core",
+    left:"Industrial",
+    right:"Revision",
+    down:"Expert"
+  });
+}
+
+function renderTopic(dataset){
+  MODE="TOPIC";
+  CURRENT_DATASET=dataset;
+  clearStack();
+  makeCard("SELECT TOPIC",{
+    up:"Physical",
+    left:"Organic",
+    right:"Inorganic",
+    down:"Analytical"
+  });
+}
+
+function renderDepth(topic){
+  MODE="DEPTH";
+  CURRENT_TOPIC=topic;
+  clearStack();
+  makeCard("SELECT DEPTH",{
+    up:"Concept",
+    down:"Application",
+    left:"Lab",
+    right:"PhD"
+  });
+}
+
+function renderComingSoon(label){
+  MODE="LOCKED";
+  clearStack();
+  makeCard(`${label}<br><br>🚧 COMING SOON 🚧`,{
+    down:"Back"
+  });
+}
+
+function renderQuiz(){
+  MODE="QUIZ";
+  clearStack();
+  makeCard("QUESTIONS START HERE",{ down:"Exit" });
+}
+
+/* ---------- SWIPE ENGINE ---------- */
+
+function bindSwipe(el){
+  let sx=0, sy=0, active=false;
+
+  el.addEventListener("touchstart",e=>{
+    active=true;
+    sx=e.touches[0].clientX;
+    sy=e.touches[0].clientY;
+  });
+
+  el.addEventListener("touchend",e=>{
+    if(!active) return;
+    active=false;
+
+    const dx=e.changedTouches[0].clientX - sx;
+    const dy=e.changedTouches[0].clientY - sy;
+
+    if(Math.abs(dx)<40 && Math.abs(dy)<40) return;
+
+    const dir = Math.abs(dx)>Math.abs(dy)
+      ? (dx>0?"RIGHT":"LEFT")
+      : (dy>0?"DOWN":"UP");
+
+    handleSwipe(dir);
+  });
+}
+
+/* ---------- LOGIC ---------- */
+
+function handleSwipe(dir){
+  if(MODE==="DATASET"){
+    renderTopic(dir==="UP"?"SET_A":dir==="LEFT"?"SET_B":dir==="RIGHT"?"SET_C":"SET_D");
+  }
+  else if(MODE==="TOPIC"){
+    renderDepth(dir==="UP"?"Physical":dir==="LEFT"?"Organic":dir==="RIGHT"?"Inorganic":"Analytical");
+  }
+  else if(MODE==="DEPTH"){
+    if(dir==="UP"||dir==="DOWN"){
+      CURRENT_DEPTH = dir==="UP"?"Concept":"Application";
+      renderQuiz();
+    }
+    else if(dir==="LEFT"){
+      renderComingSoon("LAB MODE");
+    }
+    else if(dir==="RIGHT"){
+      renderComingSoon("PhD MODE");
+    }
+  }
+  else if(MODE==="LOCKED"){
+    if(dir==="DOWN") renderDepth(CURRENT_TOPIC);
+  }
+  else if(MODE==="QUIZ"){
+    if(dir==="DOWN") renderDataset();
+  }
+}
+
+/* ---------- BOOTSTRAP ---------- */
+renderDataset();
 </script>
+
+</body>
+</html>
