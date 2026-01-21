@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist V81.37 - Spatial Separation</title>
+<title>Alchemist V81.55 - Ultimate Core</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 <style>
-/* --- LOCKED TO V81.4 UI ENGINE --- */
-:root { --bg: #000; --card: #111; --gold: #ffd600; --blue: #3498db; --serif: 'Libre Baskerville', serif; --ui: 'Outfit', sans-serif; --code: 'JetBrains Mono', monospace; }
+/* --- CORE CSS ENGINE --- */
+:root { --bg: #000; --card: #111; --gold: #ffd600; --serif: 'Libre Baskerville', serif; --ui: 'Outfit', sans-serif; --code: 'JetBrains Mono', monospace; }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
 body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family: var(--ui); overflow: hidden; touch-action: none; }
 
@@ -17,85 +17,108 @@ body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family
 #progress-bar { height: 100%; background: var(--gold); width: 0%; transition: width 0.4s ease; }
 
 #stack { position: relative; width: 92%; max-width: 400px; height: calc(100vh - 180px - env(safe-area-inset-top)); margin: 25px auto 0; perspective: 1200px; }
-.card { position: absolute; width: 100%; height: 100%; background: var(--card); border-radius: 40px; border: 1px solid #282828; padding: 30px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 20px 60px rgba(0,0,0,0.9); transform-origin: center center; will-change: transform; z-index: 1; }
+.card { position: absolute; width: 100%; height: 100%; background: var(--card); border-radius: 40px; border: 1px solid #282828; padding: 30px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 20px 60px rgba(0,0,0,0.9); transform-origin: center center; will-change: transform; z-index: 1; transition: backdrop-filter 0.8s ease-in-out; }
+.card.pulse { animation: blurPulse 1.6s ease-in-out infinite; }
+@keyframes blurPulse { 0%, 100% { backdrop-filter: blur(0px); } 50% { backdrop-filter: blur(8px); } }
 
-.card-q { font-family: var(--serif); font-size: clamp(1.2rem, 4.5vw, 1.7rem); line-height: 1.4; font-weight: 700; text-align: center; color: #f0f0f0; pointer-events: none; transition: transform 0.25s cubic-bezier(0.19, 1, 0.22, 1); will-change: transform; z-index: 5; }
+.card-q { font-family: var(--serif); font-size: clamp(1.2rem, 4.5vw, 1.7rem); line-height: 1.4; font-weight: 700; text-align: center; color: #f0f0f0; pointer-events: none; transition: transform 0.25s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.15s ease; will-change: transform, opacity; z-index: 5; }
 
-.swipe-label { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: transparent; z-index: 2000; pointer-events: none; }
-.sl-dn { flex-direction: column !important; justify-content: center !important; }
+.swipe-label { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: transparent; z-index: 2000; pointer-events: none; transition: transform 0.1s linear, opacity 0.2s ease; }
+.label-content { display: flex; flex-direction: column; align-items: center; gap: 10px; font-weight: 900; font-size: 1.6rem; text-transform: uppercase; color: var(--gold); }
+.arrow { font-size: 2.5rem; }
 
-/* BULB ORIGIN - FIXED */
-.sl-down-emoji { font-size: 4rem; display: none; opacity: 0; transition: filter 0.1s, opacity 0.2s; will-change: filter, transform, opacity; margin-top: 20px; z-index: 6; }
+.study-wrap { width: 100%; padding: 0 20px; position: absolute; top: 48%; left: 0; transform: translateY(-50%); z-index: 4; text-align: center; }
+.context-block, .judgement-block { opacity: 0; transform: translateY(10px); transition: all 0.6s cubic-bezier(0.19, 1, 0.22, 1); }
+.active .context-block { opacity: 1; transform: translateY(0); }
+.active .judgement-block { opacity: 1; transform: translateY(0); transition-delay: 0.3s; margin-top: 15px; padding-top: 15px; border-top: 1px solid #333; }
 
-/* CONTEXT MOUNT - SPATIAL FIX */
-.context-wrap { width: 100%; padding: 0 20px; opacity: 0; transition: opacity 0.3s ease; position: absolute; top: 48%; left: 0; transform: translateY(-50%); z-index: 4; }
-.context-wrap.active { opacity: 1; }
-
-.study-header { font-size: 0.75rem; color: var(--gold); font-family: var(--code); margin-bottom: 15px; letter-spacing: 2px; font-weight: 900; text-align: center; }
-.bullet-list { list-style: none; padding: 0; margin: 0; text-align: left; }
-.bullet-item { font-size: 1.1rem; line-height: 1.5; color: #eee; font-family: var(--serif); margin-bottom: 14px; position: relative; padding-left: 25px; }
+.study-header { font-size: 0.75rem; color: #666; font-family: var(--code); margin-bottom: 8px; letter-spacing: 2px; font-weight: 900; text-transform: uppercase; }
+.bullet-list { list-style: none; padding: 0; margin: 0; text-align: left; display: inline-block; }
+.bullet-item { font-size: 1.05rem; line-height: 1.5; color: #eee; font-family: var(--serif); margin-bottom: 10px; position: relative; padding-left: 25px; }
 .bullet-item::before { content: "•"; position: absolute; left: 0; color: var(--gold); font-size: 1.4rem; }
+.judgement-body { font-size: 1.1rem; line-height: 1.6; color: #ccc; font-family: var(--serif); font-style: italic; }
 
+.sl-dn { flex-direction: column !important; justify-content: center !important; }
+.sl-down-emoji { font-size: 4rem; display: none; opacity: 0; transition: filter 0.1s, opacity 0.2s; will-change: filter, transform, opacity; margin-top: 20px; z-index: 6; }
 #loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.5rem; letter-spacing: 4px; color: var(--gold); }
 </style>
 </head>
 <body>
 
-<div id="loader">ALCHEMIST V81.37</div>
+<div id="loader">ALCHEMIST V81.55</div>
 <div id="header">
-    <div class="header-meta"><span>RANK: NOVICE</span><span id="xp-ui">0 XP</span></div>
+    <div class="header-meta"><span id="difficulty-ui">LEVEL: 1</span><span id="xp-ui">0 XP</span></div>
     <div class="progress-track"><div id="progress-bar"></div></div>
 </div>
 
 <div id="stack">
-    <div id="sl-up" class="swipe-label" style="background: rgba(0,0,0,0.95);">UP</div>
-    <div id="sl-lt" class="swipe-label" style="background: rgba(0,0,0,0.95);">LEFT</div>
-    <div id="sl-rt" class="swipe-label" style="background: rgba(0,0,0,0.95);">RIGHT</div>
+    <div id="sl-up" class="swipe-label"><div class="label-content"><span class="arrow">↑</span><span>GOT IT</span></div></div>
+    <div id="sl-lt" class="swipe-label"><div class="label-content"><span class="arrow">←</span><span>CONFUSED</span></div></div>
+    <div id="sl-rt" class="swipe-label"><div class="label-content"><span class="arrow">→</span><span>NOT SURE</span></div></div>
     <div id="sl-dn" class="swipe-label">
-        <div id="context-mount" class="context-wrap">
-            <div class="study-header">CONTEXT</div>
-            <ul id="bullet-mount" class="bullet-list"></ul>
+        <div id="study-mount" class="study-wrap">
+            <div class="context-block">
+                <div class="study-header">Context</div>
+                <ul id="bullet-mount" class="bullet-list"></ul>
+            </div>
+            <div class="judgement-block">
+                <div class="study-header">Judgement</div>
+                <div id="judgement-text" class="judgement-body"></div>
+            </div>
         </div>
         <span id="bulb-element" class="sl-down-emoji">💡</span>
+        <div id="sl-dn-label" class="label-content" style="position:absolute; bottom:60px; display:none; opacity:0;"><span class="arrow">↓</span><span>MORE INFO</span></div>
     </div>
 </div>
 
 <script>
-const DATABASE = [{ "q": "What does a negative ΔG value signify?", "u": "Spontaneous", "r": "Equilibrium", "l": "Non-Spont", "c": "UP", "bullets": ["Naturally rolls down a slope", "Releases potential energy", "Needs no external push"] }];
-let POOL = [], SCORE = 0, isTransitioning = false;
-let confidenceRating = null; 
+// --- CONFIGURATION ---
+const DEPLOY_URL = "https://script.google.com/macros/s/AKfycbzXysKDBmYF6cyPVG55ShZ1k0u0kK7vJQ7Vm65OqGUEGgEFdZdtfi7O1TRnodJh_GaG/exec";
 
-const CM_0_5 = 16;  
-const CM_1_0 = 32;  // Bulb Entry
-const CM_2_5 = 80;  // Movement Stop (Phase C)
-const CM_3_0 = 96;  
-const MAX_TEXT_PX = 180; 
-const MAX_BULB_PX = 145; // Anchored deeper to prevent overlap
+// STRESS TEST DATASET (SET B/C CHEMISTRY)
+const DATABASE = [
+    { "q": "Signs of ΔH and ΔS for spontaneity at all temps?", "topic": "Thermodynamics", "difficulty": "B", "c": "UP", "bullets": ["ΔH must be negative (Exothermic)", "ΔS must be positive (Increased entropy)"], "j": "Nature favors states of lower energy and higher chaos." },
+    { "q": "Condition for spontaneity when both ΔH & ΔS are positive?", "topic": "Thermodynamics", "difficulty": "C", "c": "UP", "bullets": ["TΔS must exceed ΔH", "Temperature must be high"], "j": "The 'Entropy Overdrive' threshold where heat fuels spontaneity." },
+    { "q": "Order of reaction if doubling [A] increases rate 4x?", "topic": "Kinetics", "difficulty": "B", "c": "UP", "bullets": ["Rate = k[A]^2", "Square relationship (2^2 = 4)"], "j": "A standard second-order quadratic rate relationship." },
+    { "q": "How does a catalyst affect k and Ea?", "topic": "Kinetics", "difficulty": "C", "c": "UP", "bullets": ["Lowers Ea (pathway shift)", "Increases k exponentially"], "j": "Catalysts are molecular shortcuts, not energy sources." },
+    { "q": "Effect of increasing pressure on: N2 + 3H2 ⇌ 2NH3?", "topic": "Equilibrium", "difficulty": "B", "c": "UP", "bullets": ["Shifts Right (Forward)", "Favors side with fewer gas moles"], "j": "Le Chatelier's principle acts as a pressure-relief valve." },
+    { "q": "Does adding inert gas at constant volume shift equilibrium?", "topic": "Equilibrium", "difficulty": "C", "c": "UP", "bullets": ["No shift occurs", "Partial pressures stay constant"], "j": "Total pressure rises, but chemical 'tension' is unchanged." },
+    { "q": "Why do polar aprotic solvents favor SN2 reactions?", "topic": "Organic", "difficulty": "B", "c": "UP", "bullets": ["They don't solvate the nucleophile", "Keeps nucleophile 'naked'"], "j": "Solvent choice determines the speed of the backside attack." },
+    { "q": "Predicted stereochemistry of SN2 at a chiral center?", "topic": "Organic", "difficulty": "C", "c": "UP", "bullets": ["Walden Inversion", "100% inversion of configuration"], "j": "The spatial equivalent of an umbrella turning inside out." }
+];
+
+let POOL = [...DATABASE], SCORE = 0, DIFFICULTY = 1, isTransitioning = false;
+let questionStartTime = 0, latencyMS = 0, confidenceRating = null, isLocked = false, decisionPath = "";
+
+const CM_0_5 = 16, CM_1_0 = 32, CM_3_0 = 96;
+const MAX_TEXT_PX = 190, MAX_BULB_PX = 155;
 
 const format = t => t.toString().replace(/([A-Z][a-z]?)(\d+)/g,'$1<sub>$2</sub>').replace(/(\d*)([+\-])/g, '<sup>$1$2</sup>').replace(/Δ/g, '&Delta;');
 
-function init(){ POOL = [...DATABASE]; setTimeout(() => { document.getElementById('loader').remove(); renderNext(); }, 1000); }
+function init(){ setTimeout(() => { document.getElementById('loader').remove(); renderNext(); }, 1000); }
 
 function renderNext(){
     const s = document.getElementById('stack');
     const existing = s.querySelector('.card'); if(existing) existing.remove();
-    if(!POOL.length){ s.innerHTML = `<div class="card"><div class="card-q">COMPLETE</div></div>`; return; }
-    const q = POOL.shift();
+    if(!POOL.length){ s.innerHTML = `<div class="card"><div class="card-q">STRESS TEST COMPLETE</div></div>`; return; }
+    
+    const q = POOL[0];
     const c = document.createElement('div'); c.className = "card";
     c.innerHTML = `<div class="card-q">${format(q.q)}</div>`;
     s.appendChild(c); 
-    document.getElementById('sl-up').innerText = q.u;
-    document.getElementById('sl-lt').innerText = q.l;
-    document.getElementById('sl-rt').innerText = q.r;
+    
+    questionStartTime = Date.now(); latencyMS = 0; confidenceRating = null; isLocked = false; decisionPath = "";
     document.getElementById('bullet-mount').innerHTML = q.bullets.map(b => `<li class="bullet-item">${format(b)}</li>`).join('');
+    document.getElementById('judgement-text').innerText = q.j;
+    updateUI();
     bindPhysics(c, q);
 }
 
 function bindPhysics(el, qData){
     let sx=0, sy=0, active=false, dir=null, finalDist=0;
-    const labels = { up: document.getElementById('sl-up'), dn: document.getElementById('sl-dn'), lt: document.getElementById('sl-lt'), rt: document.getElementById('sl-rt') };
+    const labels = { up: document.getElementById('sl-up'), dn: document.getElementById('sl-dn'), lt: document.getElementById('sl-lt'), rt: document.getElementById('sl-rt'), dnLab: document.getElementById('sl-dn-label') };
     const bulb = document.getElementById('bulb-element');
-    const wrap = document.getElementById('context-mount');
+    const wrap = document.getElementById('study-mount');
     const queText = el.querySelector('.card-q');
 
     const start = e => { if(isTransitioning) return; active=true; const p=e.touches?e.touches[0]:e; sx=p.clientX; sy=p.clientY; el.style.transition="none"; queText.style.transition="none"; bulb.style.transition="none"; };
@@ -105,55 +128,78 @@ function bindPhysics(el, qData){
         const dx = p.clientX - sx, dy = p.clientY - sy;
         finalDist = Math.sqrt(dx*dx + dy*dy);
         let ang = Math.atan2(-dy, dx) * (180 / Math.PI); if(ang<0) ang+=360;
-        Object.values(labels).forEach(l => { l.style.display = 'none'; l.style.opacity = 0; });
-        if(finalDist > 5){
+
+        let prevDir = dir;
+        if(finalDist > 5) {
             if(ang>=45&&ang<135) dir="UP"; else if(ang>=135&&ang<225) dir="LEFT"; else if(ang>=225&&ang<315) dir="DOWN"; else dir="RIGHT";
         }
-        let cardX = (dir === "DOWN") ? 0 : dx;
-        let cardY = (dir === "DOWN") ? 0 : dy;
+
+        if(prevDir && prevDir !== "DOWN" && dir === "DOWN") {
+            labels[prevDir.toLowerCase()].style.transform = `translate3d(0, 0, 0)`; 
+            labels[prevDir.toLowerCase()].style.opacity = 0;
+            queText.style.opacity = 0;
+        }
+
+        if(isLocked) {
+            el.style.transform = `translate3d(${dx}px, ${dy}px, 0) rotate(${dx/25}deg)`;
+            Object.values(labels).forEach(l => { if(l) { l.style.display = 'none'; l.style.opacity = 0; } });
+            let target = (dir === "DOWN") ? labels.dnLab : labels[dir.toLowerCase()];
+            if(target) { target.style.display = 'flex'; target.style.opacity = Math.min(finalDist / 40, 1); target.style.transform = `translate3d(${dx}px, ${dy}px, 0)`; }
+            return;
+        }
+
+        let cardX = (dir === "DOWN") ? 0 : dx, cardY = (dir === "DOWN") ? 0 : dy;
         el.style.transform = `translate3d(${cardX}px, ${cardY}px, 0) rotate(${dir === "DOWN" ? 0 : dx/25}deg)`;
 
-        if(dir === "DOWN"){
-            labels.dn.style.display = 'flex';
-            labels.dn.style.opacity = Math.min(finalDist / 24, 1);
-            if(finalDist >= CM_0_5) {
-                const liftProg = Math.min((finalDist - CM_0_5) / 64, 1);
-                queText.style.transform = `translateY(-${liftProg * MAX_TEXT_PX}px)`;
-            }
+        if(dir === "DOWN") {
+            if(finalDist >= 20) queText.style.opacity = 1;
+            labels.dn.style.display = 'flex'; labels.dn.style.opacity = Math.min(finalDist / 24, 1);
+            if(finalDist >= CM_0_5) queText.style.transform = `translateY(-${Math.min((finalDist - CM_0_5) / 64, 1) * MAX_TEXT_PX}px)`;
             if(finalDist >= CM_1_0) {
-                bulb.style.display = 'block';
-                const bulbProg = Math.min((finalDist - CM_1_0) / 48, 1);
-                bulb.style.opacity = bulbProg;
-                // DEEP DESCENT TO PREVENT OVERLAP
-                bulb.style.transform = `translateY(${bulbProg * MAX_BULB_PX}px)`;
+                bulb.style.display = 'block'; bulb.style.opacity = Math.min((finalDist - CM_1_0) / 48, 1);
+                bulb.style.transform = `translateY(${Math.min((finalDist - CM_1_0) / 48, 1) * MAX_BULB_PX}px)`;
                 if(confidenceRating === null) confidenceRating = "High";
-            } else { bulb.style.opacity = 0; bulb.style.display = 'none'; }
-
+            }
             if(finalDist >= CM_3_0) {
-                wrap.classList.add('active');
+                isLocked = true; latencyMS = Date.now() - questionStartTime;
+                wrap.classList.add('active'); el.classList.add('pulse');
                 bulb.style.filter = `drop-shadow(0 0 30px var(--gold)) brightness(2.2)`;
                 confidenceRating = "Low";
-            } else { wrap.classList.remove('active'); bulb.style.filter = 'none'; }
+                queText.style.transform = `translateY(-${MAX_TEXT_PX}px)`; bulb.style.transform = `translateY(${MAX_BULB_PX}px)`;
+            }
         }
     };
 
     const end = () => {
         if(!active) return; active = false;
-        if(dir === "DOWN" && finalDist < CM_3_0){
-            queText.style.transition = "transform .22s cubic-bezier(0.19, 1, 0.22, 1)"; queText.style.transform = `translateY(0)`;
+        if(dir === "DOWN" && !isLocked) {
+            queText.style.transition = "transform .22s"; queText.style.transform = `translateY(0)`;
             bulb.style.transition = "transform .22s, opacity .2s"; bulb.style.transform = `translateY(0)`; bulb.style.opacity = 0;
             el.style.transition = "transform .2s"; el.style.transform = "translate(0,0)";
-        } else if(dir && finalDist >= 32){
+        } else if(dir && (finalDist >= 32 || isLocked)) {
             isTransitioning = true;
+            decisionPath = isLocked ? dir : "DIRECT";
+            submitToMatrix(qData);
             el.style.transition = "transform .4s ease-in"; el.style.transform = `translate3d(${dir==="LEFT"?-400:400}px, ${dir==="UP"?-400:400}px, 0)`;
-            if(dir === qData.c.toUpperCase()) SCORE += (confidenceRating === "High" ? 15 : 10);
-            setTimeout(() => { isTransitioning = false; confidenceRating = null; renderNext(); updateUI(); }, 300);
-        } else { el.style.transition = "transform .2s"; el.style.transform = "translate(0,0)"; queText.style.transform = `translateY(0)`; }
-        Object.values(labels).forEach(l => { if(l !== labels.dn || finalDist < CM_3_0) l.style.display = 'none'; });
+            if(dir === "UP") SCORE += (confidenceRating === "High" ? 15 : 10);
+            setTimeout(() => { isTransitioning = false; POOL.shift(); renderNext(); }, 300);
+        } else { el.style.transition = "transform .2s"; el.style.transform = "translate(0,0)"; queText.style.transform = `translateY(0)`; queText.style.opacity = 1; }
+        Object.values(labels).forEach(l => { if(l && (l !== labels.dn || !isLocked)) l.style.display = 'none'; });
     };
     el.ontouchstart=start; el.ontouchmove=move; el.ontouchend=end;
 }
-function updateUI(){ document.getElementById('xp-ui').innerText = `${SCORE} XP`; document.getElementById('progress-bar').style.width = `${(SCORE % 100)}%`; }
+
+async function submitToMatrix(qData) {
+    const payload = {
+        question: qData.q, topic: qData.topic, isCorrect: (dir === "UP"),
+        xpEarned: (confidenceRating === "High" ? 15 : 10), confidence: confidenceRating || "High",
+        decision: decisionPath, latency: latencyMS, difficulty: qData.difficulty,
+        totalTime: Date.now() - questionStartTime
+    };
+    try { await fetch(DEPLOY_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) }); } catch (e) { console.error(e); }
+}
+
+function updateUI(){ document.getElementById('xp-ui').innerText = `${SCORE} XP`; document.getElementById('difficulty-ui').innerText = `LEVEL: ${DIFFICULTY}`; document.getElementById('progress-bar').style.width = `${(SCORE % 100)}%`; }
 window.onload = init;
 </script>
 </body>
