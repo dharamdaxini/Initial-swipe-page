@@ -1,231 +1,139 @@
 :root {
-    /* ─── Core Palette ─── */
-    --bg: #000;
-    --card: #111;
-    --overlay: #0d0d0d;
-    --border: #282828;
-
-    /* Accents */
-    --gold: #ffd600;
-    --blue: #3498db;
-
-    /* Text */
-    --text-main: #fff;
-    --text-muted: #555;
-
-    /* Fonts */
-    --font-chem: 'Crimson Text', serif;
-    --font-ui: 'Inter', sans-serif;
-    --font-code: 'JetBrains Mono', monospace;
-
-    /* Motion */
-    --ease-out: cubic-bezier(0.19, 1, 0.22, 1);
+  --bg:#000;
+  --card:#111;
+  --border:#222;
+  --gold:#ffd600;
+  --muted:#555;
+  --chem:'Crimson Text', serif;
+  --ui:'Inter', sans-serif;
+  --code:'JetBrains Mono', monospace;
 }
 
-/* ─── Global Reset ─── */
-* {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-    outline: none;
-}
+* { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
 body {
-    margin: 0;
-    height: 100vh;
-    background: var(--bg);
-    color: var(--text-main);
-    font-family: var(--font-ui);
-    overflow: hidden;
-    user-select: none;
-    touch-action: none;
+  margin:0;
+  height:100vh;
+  background:var(--bg);
+  color:#fff;
+  font-family:var(--ui);
+  overflow:hidden;
+  touch-action:none;
 }
 
-/* Chemistry Typography Fix */
-sub, sup {
-    font-size: 0.7em;
-    line-height: 0;
+#loader {
+  position:fixed;
+  inset:0;
+  background:#000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:var(--code);
+  color:var(--gold);
+  letter-spacing:4px;
+  z-index:9999;
 }
-sub { vertical-align: sub; }
-sup { vertical-align: super; }
 
-/* ─── Header ─── */
 #header {
-    width: 90%;
-    margin: calc(20px + env(safe-area-inset-top)) auto 0;
-    z-index: 100;
-    pointer-events: none;
+  width:90%;
+  margin:20px auto 0;
+  pointer-events:none;
 }
 
 .header-meta {
-    display: flex;
-    justify-content: space-between;
-    font-family: var(--font-code);
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    letter-spacing: 1px;
-    margin-bottom: 8px;
+  display:flex;
+  justify-content:space-between;
+  font-family:var(--code);
+  font-size:.75rem;
+  color:var(--muted);
 }
 
 .progress-track {
-    height: 3px;
-    background: #222;
-    border-radius: 2px;
-    overflow: hidden;
+  height:3px;
+  background:#222;
+  margin-top:6px;
 }
 
 #progress-bar {
-    height: 100%;
-    width: 0%;
-    background: var(--gold);
-    transition: width 0.4s var(--ease-out);
-    box-shadow: 0 0 10px rgba(255,214,0,0.3);
+  height:100%;
+  width:0%;
+  background:var(--gold);
+  transition:width .3s ease;
 }
 
-/* ─── Card Stack ─── */
 #stack {
-    position: relative;
-    width: 92%;
-    max-width: 400px;
-    height: calc(100vh - 160px - env(safe-area-inset-top));
-    margin: 25px auto 0;
-    perspective: 1200px;
+  position:relative;
+  width:92%;
+  max-width:420px;
+  height:calc(100vh - 140px);
+  margin:25px auto 0;
+  perspective:1200px;
 }
 
 .card {
-    position: absolute;
-    inset: 0;
-    background: var(--card);
-    border-radius: 40px;
-    border: 1px solid var(--border);
-    padding: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.9);
-
-    transform: translate3d(0,0,0);
-    backface-visibility: hidden;
-    will-change: transform, filter, opacity;
-
-    cursor: grab;
+  position:absolute;
+  inset:0;
+  background:var(--card);
+  border-radius:36px;
+  border:1px solid var(--border);
+  padding:40px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 30px 80px rgba(0,0,0,.9);
+  will-change:transform;
 }
-
-.card:active { cursor: grabbing; }
 
 .card-q {
-    font-family: var(--font-chem);
-    font-size: 2rem;
-    line-height: 1.35;
-    font-style: italic;
-    font-weight: 600;
-    text-align: center;
-    color: #f0f0f0;
-    pointer-events: none;
+  font-family:var(--chem);
+  font-size:2rem;
+  text-align:center;
+  line-height:1.35;
 }
 
-/* ─── Swipe Labels ─── */
 .swipe-label {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #000;
-    color: #fff;
-    font-weight: 900;
-    font-size: 2.1rem;
-    text-transform: uppercase;
-    border-radius: 40px;
-    z-index: 999;
-    opacity: 0;
-    pointer-events: none;
-    padding: 20px;
-    transform: scale(0.85);
-    will-change: opacity, transform;
-    transition: opacity 0.08s linear;
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  font-size:2rem;
+  opacity:0;
+  pointer-events:none;
 }
 
-.sl-down-hint {
-    color: var(--blue);
-    font-size: 1.4rem;
-    text-transform: none;
-    font-family: var(--font-chem);
-}
+.sl-up { color:var(--gold); }
+.sl-down { color:#4aa3ff; font-size:1.4rem; }
 
-/* ─── Logic Overlay ─── */
 .overlay {
-    position: absolute;
-    inset: 0;
-    background: var(--overlay);
-    z-index: 1100;
-    padding: 45px 35px;
-    border-radius: 40px;
-
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.25s ease-out;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    overflow-y: auto;
+  position:absolute;
+  inset:0;
+  background:#0b0b0b;
+  border-radius:36px;
+  padding:40px;
+  opacity:0;
+  pointer-events:none;
+  transition:.25s;
 }
 
 .overlay.active {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.overlay-label {
-    font-family: var(--font-code);
-    font-size: 0.8rem;
-    color: var(--gold);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 15px;
+  opacity:1;
+  pointer-events:auto;
 }
 
 .overlay-body {
-    font-family: var(--font-chem);
-    font-size: 1.25rem;
-    line-height: 1.6;
-    color: #ccc;
-    margin-bottom: 30px;
+  font-family:var(--chem);
+  font-size:1.2rem;
+  line-height:1.6;
+  color:#ccc;
 }
 
-/* ─── Buttons ─── */
 .btn {
-    width: 100%;
-    padding: 18px;
-    border-radius: 60px;
-    border: none;
-    background: #fff;
-    color: #000;
-    font-weight: 900;
-    font-family: var(--font-ui);
-    text-transform: uppercase;
-    cursor: pointer;
-    margin-top: 10px;
-    box-shadow: 0 4px 15px rgba(255,255,255,0.1);
-}
-
-.btn:active {
-    transform: scale(0.98);
-}
-
-/* ─── Loader ─── */
-#loader {
-    position: fixed;
-    inset: 0;
-    background: #000;
-    z-index: 5000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-code);
-    font-size: 1.2rem;
-    letter-spacing: 5px;
-    color: var(--gold);
-    flex-direction: column;
-    text-align: center;
+  width:100%;
+  margin-top:25px;
+  padding:18px;
+  border-radius:40px;
+  border:none;
+  font-weight:900;
 }
