@@ -1,73 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-
-<title>Alchemist — Ironclad</title>
-
-<!-- Fonts -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,600;1,600&family=Inter:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
-
-<!-- ================= MASTER CSS ================= -->
-<style>
-/* ⬇️ PASTE THE MASTER CSS YOU JUST RECEIVED HERE ⬇️ */
-</style>
-</head>
-
-<body>
-
-<!-- ================= LOADER ================= -->
-<div id="loader">
-    ALCHEMIST
-</div>
-
-<!-- ================= HEADER ================= -->
-<header id="header">
-    <div class="header-meta">
-        <span id="rank-ui">RANK: NOVICE</span>
-        <span id="xp-ui">0 XP</span>
-    </div>
-    <div class="progress-track">
-        <div id="progress-bar"></div>
-    </div>
-</header>
-
-<!-- ================= MAIN STACK ================= -->
-<main id="stack">
-    <!--
-      Cards are injected here dynamically by JS.
-      Expected structure per card:
-
-      <div class="card">
-        <div class="card-q">Question</div>
-
-        <div class="swipe-label sl-up">UP</div>
-        <div class="swipe-label sl-left">LEFT</div>
-        <div class="swipe-label sl-right">RIGHT</div>
-        <div class="swipe-label sl-down sl-down-hint">HINT</div>
-
-        <div class="overlay">
-            <div class="overlay-label">LOGIC ANALYSIS</div>
-            <div class="overlay-body">Explanation</div>
-            <button class="btn">CONTINUE</button>
-        </div>
-      </div>
-    -->
-</main>
-
-<!-- ================= JAVASCRIPT ================= -->
 <script>
-/*
-=================================================
-PASTE YOUR FULL V77.1 / IRONCLAD JS ENGINE HERE
-(No CSS or HTML changes required)
-=================================================
-*/
-</script>
+/* ================== BOOTSTRAP FIX ================== */
 
-</body>
-</html>
+/* SAFETY: wait for DOM */
+window.onload = () => {
+    const loader = document.getElementById("loader");
+
+    /* Fallback safety: always render something */
+    if (typeof renderDatasetSelect === "function") {
+        renderDatasetSelect();
+    } else {
+        console.error("renderDatasetSelect not found");
+    }
+
+    /* Remove loader AFTER first paint */
+    setTimeout(() => {
+        if (loader) loader.remove();
+    }, 300);
+};
+</script>
