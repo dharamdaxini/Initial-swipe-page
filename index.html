@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist V81.57 - Singular Intent</title>
+<title>Alchemist V81.58 - Clarity First</title>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
 <style>
-/* --- CORE CSS ENGINE --- */
+/* --- UPDATED CLARITY CSS --- */
 :root { --bg: #000; --card: #111; --gold: #ffd600; --serif: 'Libre Baskerville', serif; --ui: 'Outfit', sans-serif; --code: 'JetBrains Mono', monospace; }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
 body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family: var(--ui); overflow: hidden; touch-action: none; }
@@ -17,36 +17,42 @@ body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family
 #progress-bar { height: 100%; background: var(--gold); width: 0%; transition: width 0.4s ease; }
 
 #stack { position: relative; width: 92%; max-width: 400px; height: calc(100vh - 180px - env(safe-area-inset-top)); margin: 25px auto 0; perspective: 1200px; }
-.card { position: absolute; width: 100%; height: 100%; background: var(--card); border-radius: 40px; border: 1px solid #282828; padding: 30px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 20px 60px rgba(0,0,0,0.9); transform-origin: center center; z-index: 1; transition: backdrop-filter 0.8s ease-in-out; }
-.card.pulse { animation: blurPulse 1.6s ease-in-out infinite; }
-@keyframes blurPulse { 0%, 100% { backdrop-filter: blur(0px); } 50% { backdrop-filter: blur(8px); } }
+.card { position: absolute; width: 100%; height: 100%; background: var(--card); border-radius: 40px; border: 1px solid #282828; padding: 30px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 20px 60px rgba(0,0,0,0.9); transform-origin: center center; z-index: 1; transition: backdrop-filter 0.5s ease; }
 
-.card-q { font-family: var(--serif); font-size: clamp(1.2rem, 4.5vw, 1.7rem); line-height: 1.4; font-weight: 700; text-align: center; color: #f0f0f0; pointer-events: none; transition: transform 0.25s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.15s ease; z-index: 5; }
+/* BLUR & DARKEN PULSE */
+.card.pulse { animation: focusState 1.6s ease-in-out infinite; }
+@keyframes focusState { 0%, 100% { backdrop-filter: blur(4px) brightness(0.6); } 50% { backdrop-filter: blur(12px) brightness(0.3); } }
 
-/* SINGULAR LABEL - APPEARS ONLY AFTER RIFT */
+.card-q { font-family: var(--serif); font-size: clamp(1.3rem, 5vw, 1.8rem); line-height: 1.4; font-weight: 700; text-align: center; color: #fff; pointer-events: none; transition: transform 0.25s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.2s ease; z-index: 5; }
+
 .swipe-label { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: transparent; z-index: 2000; pointer-events: none; opacity: 0; }
-.label-content { display: flex; flex-direction: column; align-items: center; gap: 10px; font-weight: 900; font-size: 1.6rem; text-transform: uppercase; color: var(--gold); }
-.arrow { font-size: 2.5rem; }
+.label-content { display: flex; flex-direction: column; align-items: center; gap: 10px; font-weight: 900; font-size: 1.6rem; text-transform: uppercase; color: var(--gold); text-shadow: 0 0 20px rgba(0,0,0,1); }
 
-.study-wrap { width: 100%; padding: 0 20px; position: absolute; top: 48%; left: 0; transform: translateY(-50%); z-index: 4; text-align: center; }
-.context-block, .judgement-block { opacity: 0; transform: translateY(10px); transition: all 0.6s cubic-bezier(0.19, 1, 0.22, 1); }
+/* CLARITY WRAPPER */
+.study-wrap { width: 90%; left: 5%; position: absolute; top: 50%; transform: translateY(-50%); z-index: 4; text-align: center; display: flex; flex-direction: column; gap: 25px; }
+
+.context-block, .judgement-block { opacity: 0; transform: translateY(20px); transition: all 0.7s cubic-bezier(0.19, 1, 0.22, 1); }
 .active .context-block { opacity: 1; transform: translateY(0); }
-.active .judgement-block { opacity: 1; transform: translateY(0); transition-delay: 0.3s; margin-top: 15px; padding-top: 15px; border-top: 1px solid #333; }
+.active .judgement-block { opacity: 1; transform: translateY(0); transition-delay: 0.2s; }
 
-.study-header { font-size: 0.75rem; color: #666; font-family: var(--code); margin-bottom: 8px; letter-spacing: 2px; font-weight: 900; text-transform: uppercase; }
-.bullet-list { list-style: none; padding: 0; margin: 0; text-align: left; display: inline-block; }
-.bullet-item { font-size: 1.05rem; line-height: 1.5; color: #eee; font-family: var(--serif); margin-bottom: 10px; position: relative; padding-left: 25px; }
-.bullet-item::before { content: "•"; position: absolute; left: 0; color: var(--gold); font-size: 1.4rem; }
-.judgement-body { font-size: 1.1rem; line-height: 1.6; color: #ccc; font-family: var(--serif); font-style: italic; }
+.study-header { font-size: 0.85rem; color: var(--gold); font-family: var(--code); margin-bottom: 12px; letter-spacing: 3px; font-weight: 900; text-transform: uppercase; text-shadow: 0 0 10px rgba(255, 214, 0, 0.3); }
+
+.bullet-list { list-style: none; padding: 0; margin: 0; text-align: left; width: 100%; }
+.bullet-item { font-size: 1.15rem; line-height: 1.6; color: #fff; font-family: var(--serif); margin-bottom: 15px; position: relative; padding-left: 30px; }
+.bullet-item::before { content: "•"; position: absolute; left: 0; color: var(--gold); font-size: 1.8rem; top: -4px; }
+
+/* THE GOLDEN BOX */
+.judgement-block { padding: 20px; border-radius: 20px; background: rgba(255, 214, 0, 0.05); border: 1px solid rgba(255, 214, 0, 0.2); }
+.judgement-body { font-size: 1.25rem; line-height: 1.5; color: #fff; font-family: var(--serif); font-style: italic; font-weight: 400; }
 
 .sl-dn { flex-direction: column !important; justify-content: center !important; }
-.sl-down-emoji { font-size: 4rem; display: none; opacity: 0; transition: filter 0.1s, opacity 0.2s; margin-top: 20px; z-index: 6; }
+.sl-down-emoji { font-size: 5rem; display: none; opacity: 0; transition: all 0.2s; margin-top: 30px; z-index: 6; filter: drop-shadow(0 0 20px var(--gold)); }
 #loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.5rem; letter-spacing: 4px; color: var(--gold); }
 </style>
 </head>
 <body>
 
-<div id="loader">ALCHEMIST V81.57</div>
+<div id="loader">ALCHEMIST V81.58</div>
 <div id="header">
     <div class="header-meta"><span id="difficulty-ui">LEVEL: 1</span><span id="xp-ui">0 XP</span></div>
     <div class="progress-track"><div id="progress-bar"></div></div>
@@ -54,15 +60,14 @@ body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family
 
 <div id="stack">
     <div id="sl-up" class="swipe-label"><div class="label-content"><span class="arrow">↑</span><span>GOT IT</span></div></div>
-    
     <div id="sl-dn" class="swipe-label">
         <div id="study-mount" class="study-wrap">
             <div class="context-block">
-                <div class="study-header">Context</div>
+                <div class="study-header">Context Analysis</div>
                 <ul id="bullet-mount" class="bullet-list"></ul>
             </div>
             <div class="judgement-block">
-                <div class="study-header">Judgement</div>
+                <div class="study-header">The Principle</div>
                 <div id="judgement-text" class="judgement-body"></div>
             </div>
         </div>
@@ -73,19 +78,16 @@ body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family
 <script>
 const DEPLOY_URL = "https://script.google.com/macros/s/AKfycbzXysKDBmYF6cyPVG55ShZ1k0u0kK7vJQ7Vm65OqGUEGgEFdZdtfi7O1TRnodJh_GaG/exec";
 
-// CHEMISTRY STRESS TEST SET
 const DATABASE = [
-    { "q": "Signs of ΔH and ΔS for spontaneity at all temps?", "topic": "Thermodynamics", "difficulty": "B", "c": "UP", "bullets": ["ΔH must be negative (Exothermic)", "ΔS must be positive (Increased entropy)"], "j": "Nature favors states of lower energy and higher chaos." },
-    { "q": "Condition for spontaneity when both ΔH & ΔS are positive?", "topic": "Thermodynamics", "difficulty": "C", "c": "UP", "bullets": ["TΔS must exceed ΔH", "Temperature must be high"], "j": "The 'Entropy Overdrive' threshold where heat fuels spontaneity." },
-    { "q": "Order of reaction if doubling [A] increases rate 4x?", "topic": "Kinetics", "difficulty": "B", "c": "UP", "bullets": ["Rate = k[A]^2", "Square relationship (2^2 = 4)"], "j": "A standard second-order quadratic rate relationship." },
-    { "q": "How does a catalyst affect k and Ea?", "topic": "Kinetics", "difficulty": "C", "c": "UP", "bullets": ["Lowers Ea (pathway shift)", "Increases k exponentially"], "j": "Catalysts are molecular shortcuts, not energy sources." }
+    { "q": "Signs of ΔH and ΔS for spontaneity at all temps?", "topic": "Thermodynamics", "difficulty": "B", "bullets": ["ΔH must be negative (Exothermic)", "ΔS must be positive (Increased entropy)"], "j": "Nature favors processes that release energy and increase disorder simultaneously." },
+    { "q": "When is a reaction with +ΔH and +ΔS spontaneous?", "topic": "Thermodynamics", "difficulty": "C", "bullets": ["Only at High Temperatures", "TΔS must be larger than ΔH"], "j": "Heat provides the energy needed to overcome the enthalpy barrier." }
 ];
 
 let POOL = [...DATABASE], SCORE = 0, DIFFICULTY = 1, isTransitioning = false;
 let questionStartTime = 0, latencyMS = 0, isLocked = false;
 
 const CM_0_5 = 16, CM_1_0 = 32, CM_3_0 = 96;
-const MAX_TEXT_PX = 190, MAX_BULB_PX = 155;
+const MAX_TEXT_PX = 220, MAX_BULB_PX = 180;
 
 const format = t => t.toString().replace(/([A-Z][a-z]?)(\d+)/g,'$1<sub>$2</sub>').replace(/(\d*)([+\-])/g, '<sup>$1$2</sup>').replace(/Δ/g, '&Delta;');
 
@@ -94,7 +96,7 @@ function init(){ setTimeout(() => { document.getElementById('loader').remove(); 
 function renderNext(){
     const s = document.getElementById('stack');
     const existing = s.querySelector('.card'); if(existing) existing.remove();
-    if(!POOL.length){ s.innerHTML = `<div class="card"><div class="card-q">STRESS TEST COMPLETE</div></div>`; return; }
+    if(!POOL.length){ s.innerHTML = `<div class="card"><div class="card-q">DATA LOGGED</div></div>`; return; }
     
     const q = POOL[0];
     const c = document.createElement('div'); c.className = "card";
@@ -121,20 +123,11 @@ function bindPhysics(el, qData){
     
     const move = e => {
         if(!active) return; const p=e.touches?e.touches[0]:e;
-        const dx = p.clientX - sx, dy = p.clientY - sy;
-        finalDist = Math.sqrt(dx*dx + dy*dy);
-        let ang = Math.atan2(-dy, dx) * (180 / Math.PI); if(ang<0) ang+=360;
+        const dy = p.clientY - sy; finalDist = Math.abs(dy);
+        dir = dy < 0 ? "UP" : "DOWN";
 
-        if(finalDist > 5) {
-            if(ang>=45&&ang<135) dir="UP"; else if(ang>=225&&ang<315) dir="DOWN"; else dir=null;
-        }
-
-        // VERTICAL RAIL ENFORCEMENT
         if(!isLocked) {
-            if(dir !== "DOWN") {
-                el.style.transform = `translate3d(0, ${dy*0.2}px, 0)`; // Nullify dx
-                return;
-            }
+            if(dir !== "DOWN") { el.style.transform = `translate3d(0, ${dy*0.2}px, 0)`; return; }
             labels.dn.style.display = 'flex'; labels.dn.style.opacity = Math.min(finalDist / 24, 1);
             if(finalDist >= CM_0_5) queText.style.transform = `translateY(-${Math.min((finalDist - CM_0_5) / 64, 1) * MAX_TEXT_PX}px)`;
             if(finalDist >= CM_1_0) {
@@ -144,33 +137,27 @@ function bindPhysics(el, qData){
             if(finalDist >= CM_3_0) {
                 isLocked = true; latencyMS = Date.now() - questionStartTime;
                 wrap.classList.add('active'); el.classList.add('pulse');
-                bulb.style.filter = `drop-shadow(0 0 30px var(--gold)) brightness(2.2)`;
                 queText.style.transform = `translateY(-${MAX_TEXT_PX}px)`;
             }
         } else {
-            // SINGULAR UP-SWIPE ENABLED
             el.style.transform = `translate3d(0, ${dy}px, 0)`;
-            labels.up.style.display = (dir === "UP") ? 'flex' : 'none';
-            labels.up.style.opacity = Math.min(finalDist / 40, 1);
-            labels.up.style.transform = `translate3d(0, ${dy}px, 0)`;
-            labels.dn.style.display = 'flex';
+            labels.up.style.display = (dy < 0) ? 'flex' : 'none';
+            labels.up.style.opacity = Math.min(Math.abs(dy) / 40, 1);
         }
     };
 
     const end = () => {
         if(!active) return; active = false;
         if(!isLocked) {
-            queText.style.transition = "transform .22s"; queText.style.transform = `translateY(0)`;
-            bulb.style.transition = "transform .22s, opacity .2s"; bulb.style.opacity = 0;
-            el.style.transition = "transform .2s"; el.style.transform = "translate(0,0)";
+            queText.style.transition = "transform .3s ease"; queText.style.transform = `translateY(0)`;
+            bulb.style.opacity = 0; el.style.transition = "transform .3s ease"; el.style.transform = "translate(0,0)";
         } else if(dir === "UP" && finalDist >= 32) {
             isTransitioning = true;
             submitToMatrix(qData);
-            el.style.transition = "transform .4s ease-in"; el.style.transform = `translate3d(0, -500px, 0)`;
+            el.style.transition = "transform .4s ease-in"; el.style.transform = `translate3d(0, -600px, 0)`;
             SCORE += 10;
             setTimeout(() => { isTransitioning = false; POOL.shift(); renderNext(); }, 300);
-        } else { el.style.transition = "transform .2s"; el.style.transform = "translate(0,0)"; }
-        labels.up.style.display = 'none';
+        } else { el.style.transition = "transform .3s ease"; el.style.transform = "translate(0,0)"; }
     };
     el.ontouchstart=start; el.ontouchmove=move; el.ontouchend=end;
 }
