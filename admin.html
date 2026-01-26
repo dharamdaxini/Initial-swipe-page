@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VIA.STACK | MASTER LAB v133.26</title>
+    <title>VIA.STACK | MASTER LAB v133.27</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -86,6 +86,7 @@
         }
         .log-entry { margin-bottom: 4px; border-bottom: 1px solid #111; padding-bottom: 4px; }
         .log-success { color: var(--green); }
+        .log-warn { color: var(--gold); }
         .log-err { color: var(--red); }
 
         /* GRID TILES */
@@ -131,7 +132,7 @@
 <body>
 
 <header>
-    <div class="brand">VIA.<span>STACK</span> <span style="font-weight:400; color:#666; font-size:0.7rem; margin-left:10px;">// MASTER LAB v133.26</span></div>
+    <div class="brand">VIA.<span>STACK</span> <span style="font-weight:400; color:#666; font-size:0.7rem; margin-left:10px;">// MASTER LAB v133.27</span></div>
     <div class="status-pill" onclick="checkLocalData()">
         <div class="dot" id="db-status-dot"></div>
         <span id="db-status-text">DB READY</span>
@@ -142,7 +143,7 @@
 
     <div class="zone">
         <div class="zone-title">01 // INGESTION ENGINE</div>
-        <textarea id="raw-input" class="ingest-box" placeholder=">> PASTE RAW TSV (EXCEL) DATA HERE...&#10;>> SYSTEM WILL AUTO-STRIP HEADERS (ID|SET...) AND DETECT COLLISIONS."></textarea>
+        <textarea id="raw-input" class="ingest-box" placeholder=">> PASTE RAW 25-COL TSV DATA HERE...&#10;>> AUTO-STRIPS HEADERS. ENFORCES 25-COL STRUCTURE."></textarea>
         
         <div class="action-bar">
             <button class="btn-pill" onclick="initiateAlignment()">INITIATE ALIGNMENT</button>
@@ -164,7 +165,7 @@
             </div>
             <div class="tile" onclick="exportPDF()">
                 <span class="tile-icon">📄</span>
-                <span class="tile-label">EXPORT PDF</span>
+                <span class="tile-label">EXPORT PROTOCOL (PDF)</span>
             </div>
             <div class="tile" onclick="exportTSV()">
                 <span class="tile-icon">📊</span>
@@ -172,7 +173,7 @@
             </div>
             <div class="tile" onclick="exportCSV()">
                 <span class="tile-icon">📑</span>
-                <span class="tile-label">EXPORT CSV</span>
+                <span class="tile-label">EXPORT MASTER CSV</span>
             </div>
         </div>
 
@@ -261,15 +262,18 @@
     
     const DB_KEY = 'ALCHEMIST_MASTER_DB';
     const USER_KEY = 'ALCHEMIST_USER_PROGRESS';
-    
-    // --- 1. GATEKEEPER & SURGEON v25 ---
+    const EXPECTED_COLS = 25; // UPDATED FOR RAW 25
+
+    // --- 1. GATEKEEPER v26 (25-COLUMN PROTOCOL) ---
     function initiateAlignment() {
         const raw = document.getElementById('raw-input').value;
         if(!raw.trim()) return log("NO INPUT DETECTED.", "err");
 
         // Pre-Process: Strip Headers
         RAW_LINES = raw.split('\n').filter(line => 
-            !line.toUpperCase().startsWith('ID\t') && line.trim() !== ""
+            !line.toUpperCase().startsWith('ID\t') && 
+            !line.toUpperCase().startsWith('DOM\t') && // Filter simpler headers too
+            line.trim() !== ""
         );
 
         runGatekeeper();
@@ -283,7 +287,8 @@
         for(let i=0; i<RAW_LINES.length; i++) {
             const cols = RAW_LINES[i].split('\t');
             
-            // CHECK STRUCTURE: ALLOW 24 OR 25 COLS
+            // CHECK STRUCTURE: ALLOW 24 OR 25
+            // If 24, we will auto-pad. If <24 or >25, Flag Drift.
             if(cols.length < 24 || cols.length > 25) {
                 drift = { index: i, line: RAW_LINES[i], len: cols.length };
                 break;
@@ -306,7 +311,7 @@
     function launchSurgeon(fault, type) {
         FAULTY_ROW_INDEX = fault.index;
         const msg = type === "DRIFT" 
-            ? `ROW ${fault.index+1} HAS ${fault.len} COLUMNS (EXPECTED 24-25).` 
+            ? `ROW ${fault.index+1} HAS ${fault.len} COLUMNS (EXPECTED 25).` 
             : `ID '${fault.id}' APPEARS TWICE.`;
         
         document.getElementById('surgeon-msg').innerText = msg;
@@ -339,13 +344,14 @@
             if(ansVal === "RIGHT" || ansVal === "R") realAnswer = cols[7];
             else if(ansVal === "LEFT" || ansVal === "L") realAnswer = cols[8];
             else if(ansVal === "UP" || ansVal === "U") realAnswer = cols[6];
-            // If explicit text is used, trust logic implicitly
 
             cleanData.push({
                 id: cols[0], set: cols[1], dom: cols[2], topic: cols[3], level: cols[4],
                 q: cols[5], u: cols[6], r: cols[7], l: cols[8],
-                correct: realAnswer, logic: cols[10], hint: cols[11], ctx: cols[12], trap: cols[17],
-                raw25: cols[24] ? cols[24].trim() : null // CAPTURE RAW 25
+                correct: realAnswer, logic: cols[10], hint: cols[11], ctx: cols[12], 
+                ref: cols[13], tags: cols[14], img: cols[15], link: cols[16], trap: cols[17],
+                date: cols[18], rev: cols[19], w_up: cols[20], w_side: cols[21],
+                s1: cols[22], s2: cols[23], raw25: cols[24] || "N/A"
             });
         });
 
@@ -356,17 +362,154 @@
     // --- 2. DEPLOYMENT ---
     function pushToIndex() {
         if(STAGED_DATA.length === 0) return log("STAGE EMPTY.", "err");
-        localStorage.setItem(DB_KEY, JSON.stringify(STAGED_DATA));
+        
+        // MERGE LOGIC: Get existing, remove duplicates based on ID, append new
+        const existingRaw = localStorage.getItem(DB_KEY);
+        let finalDB = STAGED_DATA;
+        
+        if(existingRaw) {
+            const existingDB = JSON.parse(existingRaw);
+            const newIDs = new Set(STAGED_DATA.map(i => i.id));
+            const keptOld = existingDB.filter(i => !newIDs.has(i.id));
+            finalDB = [...keptOld, ...STAGED_DATA];
+        }
+
+        localStorage.setItem(DB_KEY, JSON.stringify(finalDB));
         if(!localStorage.getItem("ACTIVE_SET_ID")) localStorage.setItem("ACTIVE_SET_ID", "SET_A");
         
-        log("PUSH SUCCESSFUL. DB UPDATED.", "success");
+        log(`PUSH SUCCESSFUL. TOTAL DB SIZE: ${finalDB.length} UNITS.`, "success");
         updateStatus("DB SYNCHRONIZED");
-        exportJSON(); 
+        // Don't auto-export JSON here to avoid annoying popups on every push
     }
 
-    // --- 3. OBSERVER (READ-ONLY FOR DEFAULTS) ---
+    // --- 3. EXPORT PROTOCOLS ---
+    
+    // PDF ENGINE (40/60 Split Protocol)
+    function exportPDF() {
+        const data = getDataFromStorage();
+        if(data.length === 0) return log("NO DATA.", "err");
+        
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const H = doc.internal.pageSize.getHeight();
+        const W = doc.internal.pageSize.getWidth();
+        let y = 15;
+
+        doc.setFontSize(14); doc.setFont("helvetica", "bold");
+        doc.text("ALCHEMIST RESEARCH PROTOCOL | v133.27", 14, y);
+        y += 10;
+
+        data.forEach((item, index) => {
+            if(y > H - 60) { doc.addPage(); y = 15; } // Page Break
+
+            // 1. Header
+            doc.setFontSize(10); doc.setFont("helvetica", "bold");
+            doc.text(`${item.id} // ${item.dom} > ${item.topic}`, 14, y);
+            y += 6;
+            doc.setLineWidth(0.2); doc.line(14, y, W-14, y);
+            y += 6;
+
+            // 2. Question
+            doc.setFontSize(11); doc.setFont("helvetica", "normal");
+            const qLines = doc.splitTextToSize(`Q: ${item.q}`, W - 28);
+            doc.text(qLines, 14, y);
+            y += (qLines.length * 5) + 4;
+
+            // 3. Split Block Layout
+            const leftX = 14; const rightX = 14 + (W*0.4);
+            const startY = y;
+
+            // LEFT BLOCK (40%) - Context
+            doc.setFontSize(8); doc.setTextColor(80);
+            const hintTxt = doc.splitTextToSize(`HINT: ${item.hint || '-'}`, (W*0.35));
+            doc.text(hintTxt, leftX, y); y += (hintTxt.length * 4);
+            
+            const ctxTxt = doc.splitTextToSize(`CTX: ${item.ctx || '-'}`, (W*0.35));
+            doc.text(ctxTxt, leftX, y); y += (ctxTxt.length * 4);
+
+            const noteTxt = doc.splitTextToSize(`NOTE: ${item.trap || '-'}`, (W*0.35));
+            doc.text(noteTxt, leftX, y); y += (noteTxt.length * 4);
+
+            doc.text(`REF: ${item.ref || '-'}`, leftX, y); y += 4;
+            doc.text(`TAGS: ${item.tags || '-'}`, leftX, y); 
+            
+            let endLeftY = y + 4;
+            
+            // RIGHT BLOCK (60%) - Interaction & Logic
+            y = startY; // Reset Y for right col
+            doc.setTextColor(0); doc.setFontSize(9);
+            doc.text(`(A) ${item.u}`, rightX, y); y += 5;
+            doc.text(`(B) ${item.r}`, rightX, y); y += 5;
+            doc.text(`(C) ${item.l}`, rightX, y); y += 5;
+            doc.setFont("helvetica", "bold");
+            doc.text(`ANS: ${item.correct}`, rightX, y); y += 6;
+            
+            doc.setFont("helvetica", "normal"); doc.setTextColor(0);
+            const logicLines = doc.splitTextToSize(`LOGIC: ${item.logic}`, (W*0.5));
+            doc.text(logicLines, rightX, y);
+            y += (logicLines.length * 4);
+            
+            let endRightY = y;
+
+            // 4. Metadata Stack Footer
+            y = Math.max(endLeftY, endRightY) + 6;
+            doc.setLineWidth(0.1); doc.setDrawColor(200); doc.line(14, y, W-14, y); y += 5;
+            
+            doc.setFontSize(7); doc.setTextColor(100);
+            // Left Meta
+            doc.text(`STEPS: 1=[${item.s1 || '-'}] 2=[${item.s2 || '-'}]`, 14, y); y+=4;
+            doc.text(`DATE: ${item.date || '-'} | REV: ${item.rev || '-'}`, 14, y); y+=4;
+            doc.text(`WEIGHTS: UP=[${item.w_up}] SIDE=[${item.w_side}] | RAW25: ${item.raw25}`, 14, y);
+            
+            // Right Meta (Link)
+            doc.textWithLink(`LINK: ${item.link ? 'EXTERNAL SOURCE' : 'NONE'}`, W-50, y-8, { url: item.link });
+            doc.text(`IMG: ${item.img || 'NONE'}`, W-50, y-4);
+
+            y += 10; // Spacing for next item
+            doc.setTextColor(0); // Reset color
+        });
+
+        doc.save(`ALCHEMIST_PROTOCOL_${getDateStr()}.pdf`);
+    }
+
+    // MASTER CSV EXPORTER (25 COLUMNS)
+    function exportCSV() {
+        const data = getDataFromStorage();
+        if(data.length === 0) return log("NO DATA.", "err");
+        
+        let csv = "ID,SET,DOM,TOPIC,LEVEL,Q,UP,RIGHT,LEFT,ANS,LOGIC,HINT,CTX,REF,TAGS,IMG,LINK,NOTE,DATE,REV,W_UP,W_SIDE,S1,S2,RAW25\n";
+        
+        data.forEach(r => {
+            const clean = (txt) => txt ? `"${String(txt).replace(/"/g, '""')}"` : '""';
+            csv += `${clean(r.id)},${clean(r.set)},${clean(r.dom)},${clean(r.topic)},${clean(r.level)},` +
+                   `${clean(r.q)},${clean(r.u)},${clean(r.r)},${clean(r.l)},${clean(r.correct)},` +
+                   `${clean(r.logic)},${clean(r.hint)},${clean(r.ctx)},${clean(r.ref)},${clean(r.tags)},` +
+                   `${clean(r.img)},${clean(r.link)},${clean(r.trap)},${clean(r.date)},${clean(r.rev)},` +
+                   `${clean(r.w_up)},${clean(r.w_side)},${clean(r.s1)},${clean(r.s2)},${clean(r.raw25)}\n`;
+        });
+        download(csv, `ALCHEMIST_MASTER_${getDateStr()}.csv`, 'csv');
+    }
+
+    function exportTSV() {
+        const data = getDataFromStorage();
+        if(data.length === 0) return log("NO DATA.", "err");
+        let tsv = "ID\tSET\tDOM\tTOPIC\tLEVEL\tQ\tUP\tRIGHT\tLEFT\tANS\tLOGIC\tHINT\tCTX\tREF\tTAGS\tIMG\tLINK\tNOTE\tDATE\tREV\tW_UP\tW_SIDE\tS1\tS2\tRAW25\n";
+        data.forEach(r => {
+            const c = (t) => (t || "").toString().replace(/\t/g, " ");
+            tsv += `${c(r.id)}\t${c(r.set)}\t${c(r.dom)}\t${c(r.topic)}\t${c(r.level)}\t${c(r.q)}\t${c(r.u)}\t${c(r.r)}\t${c(r.l)}\t${c(r.correct)}\t${c(r.logic)}\t${c(r.hint)}\t${c(r.ctx)}\t${c(r.ref)}\t${c(r.tags)}\t${c(r.img)}\t${c(r.link)}\t${c(r.trap)}\t${c(r.date)}\t${c(r.rev)}\t${c(r.w_up)}\t${c(r.w_side)}\t${c(r.s1)}\t${c(r.s2)}\t${c(r.raw25)}\n`;
+        });
+        download(tsv, `ALCHEMIST_SHEET.tsv`, 'tsv');
+    }
+
+    function exportJSON() {
+        const data = getDataFromStorage();
+        if(data.length === 0) return log("NO DATA.", "err");
+        download(JSON.stringify(data, null, 2), `MASTER_VAULT_${getDateStr()}.json`, 'json');
+    }
+
+    // --- 4. OBSERVER (READ-ONLY FOR DEFAULTS) ---
     function openObserver() {
-        const data = JSON.parse(localStorage.getItem(DB_KEY)||'[]');
+        const data = getDataFromStorage();
         const tbody = document.getElementById('observer-body');
         tbody.innerHTML = '';
         
@@ -387,44 +530,13 @@
         });
         document.getElementById('observer-layer').style.display = 'flex';
     }
-    
     function closeObserver() { document.getElementById('observer-layer').style.display = 'none'; }
 
-    // --- 4. EXPORTS ---
-    function exportJSON() {
-        const data = STAGED_DATA.length > 0 ? STAGED_DATA : JSON.parse(localStorage.getItem(DB_KEY)||'[]');
-        if(data.length === 0) return log("NO DATA.", "err");
-        download(JSON.stringify(data, null, 2), `MASTER_VAULT_${Date.now()}.json`, 'json');
+    // --- 5. UTILS ---
+    function getDataFromStorage() {
+        return JSON.parse(localStorage.getItem(DB_KEY)||'[]');
     }
 
-    function exportTSV() {
-        const data = STAGED_DATA.length > 0 ? STAGED_DATA : JSON.parse(localStorage.getItem(DB_KEY)||'[]');
-        if(data.length === 0) return log("NO DATA.", "err");
-        let tsv = "ID\tSET\tDOM\tTOPIC\tLEVEL\tQUESTION\tUP\tRIGHT\tLEFT\tANSWER\tLOGIC\tHINT\tCTX\tTRAP\tRAW25\n";
-        data.forEach(r => { tsv += `${r.id}\t${r.set}\t${r.dom}\t${r.topic}\t${r.level}\t${r.q}\t${r.u}\t${r.r}\t${r.l}\t${r.correct}\t${r.logic}\t${r.hint}\t${r.ctx}\t${r.trap}\t${r.raw25 || ''}\n`; });
-        download(tsv, `ALCHEMIST_SHEET.tsv`, 'tsv');
-    }
-
-    function exportCSV() {
-        const data = STAGED_DATA.length > 0 ? STAGED_DATA : JSON.parse(localStorage.getItem(DB_KEY)||'[]');
-        if(data.length === 0) return log("NO DATA.", "err");
-        let csv = "ID,SET,QUESTION,ANSWER,RAW25\n";
-        data.forEach(r => { csv += `${r.id},${r.set},"${r.q.replace(/"/g, '""')}","${r.correct}","${r.raw25||''}"\n`; });
-        download(csv, `ALCHEMIST_DATA.csv`, 'csv');
-    }
-
-    function exportPDF() {
-        const data = STAGED_DATA.length > 0 ? STAGED_DATA : JSON.parse(localStorage.getItem(DB_KEY)||'[]');
-        if(data.length === 0) return log("NO DATA.", "err");
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.setFontSize(10); doc.text("MASTER DATASET REPORT", 14, 15);
-        const rows = data.map(i => [i.id, i.set, i.q.substring(0,40)+"...", i.correct]);
-        doc.autoTable({ head: [['ID','SET','QUESTION','ANSWER']], body: rows, startY: 20 });
-        doc.save('MASTER_REPORT.pdf');
-    }
-
-    // --- 5. GOVERNANCE & UTILS ---
     function forceUnlock(setID) {
         let stats = JSON.parse(localStorage.getItem(USER_KEY) || '{"unlockedSets":["SET_A"]}');
         if(!stats.unlockedSets.includes(setID)) {
@@ -442,7 +554,6 @@
     }
 
     function initPurge() { document.getElementById('purge-modal').style.display = 'flex'; }
-    
     function executePurge() {
         if(document.getElementById('purge-code').value === 'DELETE') {
             localStorage.clear();
@@ -474,6 +585,8 @@
         const a = document.createElement('a');
         a.href = url; a.download = name; a.click();
     }
+
+    function getDateStr() { return new Date().toISOString().split('T')[0]; }
 
     window.onload = checkLocalData;
 
