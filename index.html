@@ -2,197 +2,182 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Alchemist V80.2 | Chemistry Master</title>
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,600;1,600&family=Inter:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <title>VIA.STACK | MASTER LAB</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,600;1,600&family=Inter:wght@400;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/auto-render.min.js"></script>
+
     <style>
         :root {
             --bg: #000; --card: #111; --border: #222; --gold: #ffd600; --blue: #3498db;
-            --font-chem: 'Crimson Text', serif; --font-ui: 'Inter', sans-serif; --font-code: 'JetBrains Mono', monospace;
+            --font-serif: 'Crimson Text', serif; --font-sans: 'Inter', sans-serif; --font-mono: 'JetBrains Mono', monospace;
         }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; -webkit-font-smoothing: antialiased; }
-        body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family: var(--font-ui); overflow: hidden; touch-action: none; display: flex; flex-direction: column; }
-        sub { font-size: 0.7em; vertical-align: sub; line-height: 0; }
-        sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
 
-        /* HUD */
-        #header { width: 90%; margin: 25px auto 0; z-index: 100; flex-shrink: 0; }
-        .header-meta { display: flex; justify-content: space-between; font-family: var(--font-code); font-size: 0.7rem; color: #555; letter-spacing: 2px; }
+        /* --- PHYSICS RESET --- */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        body { 
+            margin: 0; height: 100vh; background: var(--bg); color: #fff;
+            font-family: var(--font-sans); overflow: hidden; position: fixed; width: 100%;
+            user-select: none; -webkit-user-select: none; touch-action: none; 
+        }
+
+        /* --- HUD & TELEMETRY --- */
+        #header { width: 90%; margin: 35px auto 0; z-index: 100; position: relative; }
+        .header-meta { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.65rem; color: #555; letter-spacing: 2px; }
         .progress-track { width: 100%; height: 2px; background: #1a1a1a; margin-top: 10px; overflow: hidden; }
         #progress-bar { height: 100%; background: var(--gold); width: 0%; transition: width 0.4s ease; }
 
-        /* STACK ENGINE */
-        #stack { position: relative; width: 92%; max-width: 400px; height: 70vh; margin: auto; perspective: 1200px; display: flex; align-items: center; justify-content: center; }
+        /* --- THE STACK ENGINE --- */
+        #stack { position: relative; width: 92%; max-width: 400px; height: 72vh; margin: 30px auto 0; perspective: 1200px; }
         .card { 
-            position: absolute; width: 100%; height: 95%; background: var(--card); border-radius: 40px; border: 1px solid var(--border);
-            padding: 40px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 30px 90px rgba(0,0,0,0.9);
-            will-change: transform; transform: translate3d(0,0,0);
+            position: absolute; width: 100%; height: 100%; background: var(--card); border-radius: 40px; 
+            border: 1px solid var(--border); padding: 40px; display: flex; flex-direction: column; 
+            justify-content: center; box-shadow: 0 30px 90px rgba(0,0,0,0.9); will-change: transform; 
         }
-        .card.study-active { filter: blur(20px) brightness(0.2); opacity: 0.5; transform: scale(0.85) translateY(40px) !important; pointer-events: none; }
-        .card-q { font-family: var(--font-chem); font-size: 1.7rem; line-height: 1.4; font-style: italic; font-weight: 600; text-align: center; }
 
-        /* LABELS */
-        .swipe-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: #000; color: #fff; font-weight: 900; font-size: 1.8rem; text-transform: uppercase; border-radius: 40px; z-index: 999; opacity: 0; pointer-events: none; text-align: center; padding: 20px; }
-        
-        /* OVERLAY */
-        .overlay { position: absolute; inset: 0; background: #0d0d0d; z-index: 1100; padding: 40px; opacity: 0; pointer-events: none; border-radius: 40px; transition: opacity 0.3s ease; display: flex; flex-direction: column; justify-content: center; overflow-y: auto;}
+        /* --- VISUAL PROTOCOL WRAPPER --- */
+        .alch-card-visual {
+            width: 100%; text-align: center; font-family: var(--font-serif);
+            font-size: 1.6rem; line-height: 1.3; color: #f0f0f0;
+            overflow-wrap: break-word; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        /* HUD Gesture Labels */
+        .swipe-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: #000; color: #fff; font-weight: 900; font-size: 1.6rem; text-transform: uppercase; border-radius: 40px; z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.1s; }
+        .sl-do { color: var(--blue) !important; font-size: 1.2rem !important; text-transform: none !important; font-family: var(--font-serif) !important; }
+
+        /* Logic Well Overlay */
+        .overlay { position: absolute; inset: 0; background: #0d0d0d; z-index: 1100; padding: 40px; opacity: 0; pointer-events: none; border-radius: 40px; transition: opacity 0.3s ease; display: flex; flex-direction: column; justify-content: center; }
         .overlay.active { opacity: 1; pointer-events: auto; }
-        .overlay-body { font-size: 1.1rem; line-height: 1.6; color: #bbb; margin-bottom: 30px; font-family: var(--font-chem); }
-        .btn { width: 100%; padding: 18px; border-radius: 50px; border: none; background: #fff; color: #000; font-weight: 900; text-transform: uppercase; cursor: pointer;}
-        #loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: var(--font-code); color: var(--gold); letter-spacing: 5px; }
+        .overlay-body { font-size: 1.1rem; line-height: 1.6; color: #bbb; font-family: var(--font-serif); font-style: italic; }
+
+        .btn { width: 100%; padding: 18px; border-radius: 50px; border: none; background: #fff; color: #000; font-weight: 900; text-transform: uppercase; margin-top: 20px; cursor: pointer; }
+        #loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); color: var(--gold); letter-spacing: 5px; font-size: 0.8rem; }
+        
+        .katex { font-size: 1.1em !important; } /* Scientific Fidelity */
     </style>
 </head>
 <body>
 
-<div id="loader">ALCHEMIST NEXUS</div>
+<div id="loader">VIA.STACK // SYSTEM_BOOT</div>
+
 <div id="header">
-    <div class="header-meta"><span id="id-ui">ID: BOOT</span><span id="xp-ui">0 XP</span></div>
-    <div class="progress-track"><div id="progress-bar"></div></div>
+    <div class="header-meta">
+        <span id="id-display">MASTER_VAULT_CONNECT</span>
+        <span id="xp-display">000 XP</span>
+    </div>
+    <div class="progress-track">
+        <div id="progress-bar"></div>
+    </div>
 </div>
+
 <div id="stack"></div>
 
+<div id="alch-protocol" style="display:none;"></div>
+
 <script>
-    const ENDPOINT = "https://script.google.com/macros/s/AKfycbwv_n-Q0J0hwRPIzy2D0mx54-fKNDmvKG0kPgZZwoN5xZGloJbAFP-upgMbGf/exec";
+/* --- INTEGRATED LOGIC --- */
+const JSON_URL = "https://raw.githubusercontent.com/dharamdaxini/Initial-swipe-page/main/db/master.json";
 
-    /* --- DATA REPOSITORY --- */
-    const RAW_DATA = [
-        {"id": "SET_A_0001", "ds": "SET_A", "tp": "Analytical", "ty": "CONCEPT", "q": "Accuracy refers to closeness to the true value.", "u": "Repeatability", "r": "True value", "l": "Data spread", "c": "RIGHT", "ex": "❌ Repeatability defines precision. || ✅ Accuracy measures closeness to the true value.", "h": "True value."},
-        {"id": "SET_A_0002", "ds": "SET_A", "tp": "Analytical", "ty": "CONCEPT", "q": "Precision reflects reproducibility of measurements.", "u": "Accuracy", "r": "Reproducibility", "l": "Bias", "c": "RIGHT", "ex": "❌ Closeness defines accuracy. || ✅ Precision describes reproducibility.", "h": "Repeatability."},
-        {"id": "SET_A_0003", "ds": "SET_A", "tp": "Analytical", "ty": "CONCEPT", "q": "Systematic errors shift the mean of data.", "u": "Random scatter", "r": "Shift the mean", "l": "Cancel out", "c": "RIGHT", "ex": "✅ Systematic errors introduce a consistent shift in the mean.", "h": "Bias."},
-        {"id": "SET_A_0004", "ds": "SET_A", "tp": "Analytical", "ty": "CONCEPT", "q": "Random errors affect measurement precision.", "u": "Shift true value", "r": "Improve accuracy", "l": "Affect precision", "c": "LEFT", "ex": "✅ Random errors increase spread and reduce precision.", "h": "Noise."},
-        {"id": "SET_A_0005", "ds": "SET_A", "tp": "Analytical", "ty": "CONCEPT", "q": "Calibration curves relate signal to concentration.", "u": "Signal to time", "r": "Signal to concentration", "l": "Volume", "c": "RIGHT", "ex": "✅ Calibration curves map signal response versus concentration.", "h": "Calibration."},
-        {"id": "SET_A_0006", "ds": "SET_A", "tp": "Analytical", "ty": "CONCEPT", "q": "Linear calibration assumes proportional response.", "u": "Nonlinear", "r": "Proportional", "l": "Threshold", "c": "RIGHT", "ex": "✅ Linear calibration assumes proportionality.", "h": "Linearity."},
-        {"id": "SET_A_0007", "ds": "SET_A", "tp": "Analytical", "ty": "CONCEPT", "q": "Limit of detection is the lowest detectable signal.", "u": "Quantification", "r": "Detectable signal", "l": "Highest signal", "c": "RIGHT", "ex": "✅ LOD is the minimum signal distinguishable from noise.", "h": "Detection."},
-        {"id": "SET_A_0008", "ds": "SET_A", "tp": "Analytical", "ty": "CONCEPT", "q": "Limit of quantification exceeds limit of detection.", "u": "Lower than LOD", "r": "Equal to LOD", "l": "Higher than LOD", "c": "LEFT", "ex": "✅ LOQ is higher than LOD due to precision requirements.", "h": "Quantification."},
-        {"id": "SET_A_0009", "ds": "SET_A", "tp": "Analytical", "ty": "CONCEPT", "q": "Internal standards correct for sample loss.", "u": "Detector drift", "r": "Sample loss", "l": "Analyte chemistry", "c": "RIGHT", "ex": "✅ Internal standards compensate for losses during analysis.", "h": "IS method."},
-        {"id": "SET_A_0010", "ds": "SET_A", "tp": "Analytical", "ty": "CONCEPT", "q": "External calibration uses standards run separately.", "u": "Same sample", "r": "Separate standards", "l": "No standards", "c": "RIGHT", "ex": "✅ External calibration relies on separately prepared standards.", "h": "External cal."},
-        {"id": "SET_A_0011", "ds": "SET_A", "tp": "Statistics", "ty": "CONCEPT", "q": "Mean represents central tendency.", "u": "Data spread", "r": "Central tendency", "l": "Skewness", "c": "RIGHT", "ex": "✅ Mean is a measure of central tendency.", "h": "Average."},
-        {"id": "SET_A_0012", "ds": "SET_A", "tp": "Statistics", "ty": "CONCEPT", "q": "Median is resistant to outliers.", "u": "Highly sensitive", "r": "Resistant to outliers", "l": "Equals mean", "c": "RIGHT", "ex": "✅ Median is robust against outliers.", "h": "Robust statistic."},
-        {"id": "SET_A_0013", "ds": "SET_A", "tp": "Statistics", "ty": "CONCEPT", "q": "Variance is the square of standard deviation.", "u": "Square root", "r": "Square of SD", "l": "Same as SD", "c": "RIGHT", "ex": "✅ Variance equals the square of standard deviation.", "h": "σ²."},
-        {"id": "SET_A_0014", "ds": "SET_A", "tp": "Statistics", "ty": "CONCEPT", "q": "Standard deviation measures data dispersion.", "u": "Central value", "r": "Dispersion", "l": "Shape", "c": "RIGHT", "ex": "✅ Standard deviation quantifies dispersion.", "h": "Spread."},
-        {"id": "SET_A_0015", "ds": "SET_A", "tp": "Statistics", "ty": "CONCEPT", "q": "Normal distribution is symmetric.", "u": "Left-skewed", "r": "Right-skewed", "l": "Symmetric", "c": "LEFT", "ex": "✅ Normal distribution is symmetric about the mean.", "h": "Bell curve."},
-        {"id": "SET_A_0016", "ds": "SET_A", "tp": "Statistics", "ty": "CONCEPT", "q": "Confidence interval gives range of plausible values.", "u": "Single estimate", "r": "Exact value", "l": "Plausible range", "c": "LEFT", "ex": "✅ Confidence interval estimates a plausible parameter range.", "h": "Uncertainty."},
-        {"id": "SET_A_0017", "ds": "SET_A", "tp": "Statistics", "ty": "CONCEPT", "q": "p-value indicates evidence against null hypothesis.", "u": "Truth of null", "r": "Effect size", "l": "Evidence strength", "c": "LEFT", "ex": "✅ p-value measures evidence against the null hypothesis.", "h": "Hypothesis test."},
-        {"id": "SET_A_0018", "ds": "SET_A", "tp": "Statistics", "ty": "CONCEPT", "q": "Type I error is false positive.", "u": "False negative", "r": "False positive", "l": "Correct rejection", "c": "RIGHT", "ex": "✅ Type I error means rejecting a true null.", "h": "α error."},
-        {"id": "SET_A_0019", "ds": "SET_A", "tp": "Statistics", "ty": "CONCEPT", "q": "Type II error is false negative.", "u": "False positive", "r": "False negative", "l": "Correct acceptance", "c": "RIGHT", "ex": "✅ Type II error is failing to reject a false null.", "h": "β error."},
-        {"id": "SET_A_0020", "ds": "SET_A", "tp": "Statistics", "ty": "CONCEPT", "q": "Increasing sample size reduces standard error.", "u": "Increases error", "r": "No effect", "l": "Reduces error", "c": "LEFT", "ex": "✅ Increasing sample size reduces standard error.", "h": "Sample size."},
-        {"id": "SET_A_0021", "ds": "SET_A", "tp": "Physical", "ty": "CONCEPT", "q": "Enthalpy change equals heat at constant pressure.", "u": "Constant volume", "r": "Constant pressure", "l": "Work done", "c": "RIGHT", "ex": "✅ ΔH equals heat exchanged at constant pressure.", "h": "ΔH."},
-        {"id": "SET_A_0022", "id_copy": "SET_A_0022", "ds": "SET_A", "tp": "Physical", "ty": "CONCEPT", "q": "Exothermic reactions have negative ΔH.", "u": "Positive ΔH", "r": "Negative ΔH", "l": "Zero ΔH", "c": "RIGHT", "ex": "✅ Exothermic reactions release heat with negative ΔH.", "h": "Heat release."},
-        {"id": "SET_A_0023", "ds": "SET_A", "tp": "Physical", "ty": "CONCEPT", "q": "Endothermic reactions absorb heat.", "u": "Release heat", "r": "Absorb heat", "l": "No heat change", "c": "RIGHT", "ex": "✅ Endothermic reactions absorb heat from surroundings.", "h": "Heat absorption."},
-        {"id": "SET_A_0024", "ds": "SET_A", "tp": "Physical", "ty": "CONCEPT", "q": "Gibbs free energy predicts spontaneity.", "u": "Rate", "r": "Spontaneity", "l": "Mechanism", "c": "RIGHT", "ex": "✅ ΔG determines spontaneity under given conditions.", "h": "ΔG."},
-        {"id": "SET_A_0025", "ds": "SET_A", "tp": "Physical", "ty": "CONCEPT", "q": "Negative ΔG implies spontaneous process.", "u": "Nonspontaneous", "r": "Equilibrium", "l": "Spontaneous", "c": "LEFT", "ex": "✅ ΔG < 0 indicates a spontaneous process.", "h": "Thermodynamics."},
-        {"id": "SET_A_0026", "ds": "SET_A", "tp": "Physical", "ty": "CONCEPT", "q": "Entropy measures disorder or dispersal.", "u": "Energy", "r": "Disorder", "l": "Temperature", "c": "RIGHT", "ex": "✅ Entropy quantifies disorder or energy dispersal.", "h": "Entropy."},
-        {"id": "SET_A_0027", "ds": "SET_A", "tp": "Physical", "ty": "CONCEPT", "q": "Second law states total entropy increases.", "u": "Decreases", "r": "Remains constant", "l": "Increases overall", "c": "LEFT", "ex": "✅ Total entropy of universe increases for spontaneous processes.", "h": "Second law."},
-        {"id": "SET_A_0028", "ds": "SET_A", "tp": "Physical", "ty": "CONCEPT", "q": "State functions depend only on state.", "u": "Path dependent", "r": "State dependent", "l": "Time dependent", "c": "RIGHT", "ex": "✅ State functions depend only on initial and final states.", "h": "State function."},
-        {"id": "SET_A_0029", "ds": "SET_A", "tp": "Physical", "ty": "CONCEPT", "q": "Internal energy is a state function.", "u": "Path dependent", "r": "State function", "l": "Process dependent", "c": "RIGHT", "ex": "✅ Internal energy depends only on state.", "h": "U."},
-        {"id": "SET_A_0030", "ds": "SET_A", "tp": "Physical", "ty": "CONCEPT", "q": "Isothermal process occurs at constant temperature.", "u": "Constant pressure", "r": "Constant temperature", "l": "Constant volume", "c": "RIGHT", "ex": "✅ Isothermal means constant temperature.", "h": "Isothermal."},
-        {"id": "SET_A_0031", "ds": "SET_A", "tp": "Organic", "ty": "CONCEPT", "q": "Alkanes contain only single bonds.", "u": "Double bonds", "r": "Only single bonds", "l": "Aromatic", "c": "RIGHT", "ex": "✅ Alkanes consist solely of single C–C bonds.", "h": "Saturation."},
-        {"id": "SET_A_0032", "ds": "SET_A", "tp": "Organic", "ty": "CONCEPT", "q": "Alkenes contain a carbon–carbon double bond.", "u": "Single bond", "r": "Double bond", "l": "Triple bond", "c": "RIGHT", "ex": "✅ Alkenes are characterized by C=C bonds.", "h": "Unsaturation."},
-        {"id": "SET_A_0033", "ds": "SET_A", "tp": "Organic", "ty": "CONCEPT", "q": "Alkynes contain carbon–carbon triple bonds.", "u": "Single bonds", "r": "Double bonds", "l": "Triple bonds", "c": "LEFT", "ex": "✅ Alkynes feature C≡C triple bonds.", "h": "Unsaturation."},
-        {"id": "SET_A_0034", "ds": "SET_A", "tp": "Organic", "ty": "CONCEPT", "q": "Primary alcohols oxidize to aldehydes.", "u": "Ketones", "r": "Carboxylic acids", "l": "Aldehydes", "c": "LEFT", "ex": "✅ Primary alcohols oxidize to aldehydes under mild conditions.", "h": "Oxidation."},
-        {"id": "SET_A_0035", "ds": "SET_A", "tp": "Organic", "ty": "CONCEPT", "q": "Secondary alcohols oxidize to ketones.", "u": "Aldehydes", "r": "Carboxylic acids", "l": "Ketones", "c": "LEFT", "ex": "✅ Secondary alcohols oxidize to ketones.", "h": "Oxidation."},
-        {"id": "SET_A_0036", "ds": "SET_A", "tp": "Organic", "ty": "CONCEPT", "q": "Tertiary alcohols resist oxidation.", "u": "Easily oxidized", "r": "Resist oxidation", "l": "Oxidize to acids", "c": "RIGHT", "ex": "✅ Tertiary alcohols are resistant to oxidation.", "h": "Structure."},
-        {"id": "SET_A_0037", "ds": "SET_A", "tp": "Organic", "ty": "CONCEPT", "q": "SN1 reactions proceed via carbocation.", "u": "Concerted", "r": "Carbocation", "l": "Radical", "c": "RIGHT", "ex": "✅ SN1 reactions involve carbocation intermediates.", "h": "Mechanism."},
-        {"id": "SET_A_0038", "ds": "SET_A", "tp": "Organic", "ty": "CONCEPT", "q": "SN2 reactions are bimolecular.", "u": "Unimolecular", "r": "Bimolecular", "l": "Zero order", "c": "RIGHT", "ex": "✅ SN2 rate depends on two species.", "h": "Kinetics."},
-        {"id": "SET_A_0039", "ds": "SET_A", "tp": "Organic", "ty": "CONCEPT", "q": "SN2 reactions involve backside attack.", "u": "Frontside", "r": "Backside", "l": "Radical", "c": "RIGHT", "ex": "✅ SN2 requires backside nucleophilic attack.", "h": "Inversion."},
-        {"id": "SET_A_0040", "ds": "SET_A", "tp": "Organic", "ty": "CONCEPT", "q": "SN2 reactions show inversion of configuration.", "u": "Retention", "r": "Inversion", "l": "No change", "c": "RIGHT", "ex": "✅ SN2 leads to inversion of stereochemistry.", "h": "Walden inversion."},
-        {"id": "SET_A_0041", "ds": "SET_A", "tp": "Inorganic", "ty": "CONCEPT", "q": "Coordination number equals donor atoms.", "u": "Ligand count", "r": "Donor atoms", "l": "Oxidation state", "c": "RIGHT", "ex": "✅ Coordination number counts donor atoms bound to metal.", "h": "Coordination."},
-        {"id": "SET_A_0042", "ds": "SET_A", "tp": "Inorganic", "ty": "CONCEPT", "q": "Chelating ligands increase complex stability.", "u": "Decrease", "r": "Increase", "l": "No effect", "c": "RIGHT", "ex": "✅ Chelating ligands form more stable complexes.", "h": "Chelate effect."},
-        {"id": "SET_A_0043", "ds": "SET_A", "tp": "Inorganic", "ty": "CONCEPT", "q": "Crystal field splitting depends on ligand strength.", "u": "Metal mass", "r": "Ligand strength", "l": "Temperature", "c": "RIGHT", "ex": "✅ Ligand field strength affects splitting.", "h": "Δo."},
-        {"id": "SET_A_0044", "ds": "SET_A", "tp": "Inorganic", "ty": "CONCEPT", "q": "Octahedral complexes have coordination number six.", "u": "Four", "r": "Five", "l": "Six", "c": "LEFT", "ex": "✅ Octahedral geometry corresponds to CN=6.", "h": "Geometry."},
-        {"id": "SET_A_0045", "ds": "SET_A", "tp": "Inorganic", "ty": "CONCEPT", "q": "Weak-field ligands favor high-spin complexes.", "u": "Low-spin", "r": "High-spin", "l": "No effect", "c": "RIGHT", "ex": "✅ Weak-field ligands produce high-spin complexes.", "h": "Spin state."},
-        {"id": "SET_A_0046", "ds": "SET_A", "tp": "Electrochem", "ty": "CONCEPT", "q": "Oxidation occurs at the anode.", "u": "Cathode", "r": "Anode", "l": "Electrolyte", "c": "RIGHT", "ex": "✅ Oxidation always occurs at the anode.", "h": "Redox."},
-        {"id": "SET_A_0047", "ds": "SET_A", "tp": "Electrochem", "ty": "CONCEPT", "q": "Reduction occurs at the cathode.", "u": "Anode", "r": "Cathode", "l": "External circuit", "c": "RIGHT", "ex": "✅ Reduction takes place at the cathode.", "h": "Redox."},
-        {"id": "SET_A_0048", "ds": "SET_A", "tp": "Electrochem", "ty": "CONCEPT", "q": "Cell potential equals cathode minus anode potential.", "u": "Anode - Cathode", "r": "Sum", "l": "Cathode - Anode", "c": "LEFT", "ex": "✅ Ecell = Ecathode − Eanode.", "h": "Cell voltage."},
-        {"id": "SET_A_0049", "ds": "SET_A", "tp": "Electrochem", "ty": "CONCEPT", "q": "Positive cell potential indicates spontaneity.", "u": "Nonspontaneous", "r": "Spontaneous", "l": "Equilibrium", "c": "RIGHT", "ex": "✅ Positive potential implies spontaneous cell reaction.", "h": "Spontaneity."},
-        {"id": "SET_A_0050", "ds": "SET_A", "tp": "Electrochem", "ty": "CONCEPT", "q": "Nernst equation relates potential to concentration.", "u": "Temperature", "r": "Concentration", "l": "Pressure", "c": "RIGHT", "ex": "✅ Nernst links potential to ion concentration.", "h": "Nernst."}
-    ];
-
-    let POOL = [], SCORE = 0, isTransitioning = false, startTime = 0, latency = 0;
-    let MODE = "DATASET_SELECT", CUR_DATASET = "", CUR_TOPIC = "", CUR_GENRE = "";
-
-    const formatChem = t => t.toString().replace(/([A-Z][a-z]?)(\d+)/g,'$1<sub>$2</sub>').replace(/(\d*)([+\-])/g, '<sup>$1$2</sup>').replace(/\|\|/g, '<br><br>');
-
-    function init() { setTimeout(() => { document.getElementById('loader').remove(); renderDatasetSelect(); }, 800); }
-
-    function renderDatasetSelect() { MODE = "DATASET_SELECT"; renderMenu("CURRICULUM", "SET A", "", "", ""); }
-    function renderTopicSelect(ds) { MODE = "TOPIC_SELECT"; CUR_DATASET = ds; renderMenu("DOMAIN", "PHYSICAL", "ORGANIC", "INORGANIC", "ANALYTICAL"); }
-    function renderGenreSelect(tp) { MODE = "GENRE_SELECT"; CUR_TOPIC = tp; renderMenu("DEPTH", "CONCEPT", "", "", "APPLICATION"); }
-
-    function renderMenu(title, u, l, r, d) {
-        const s = document.getElementById('stack'); s.innerHTML = "";
-        const c = document.createElement('div'); c.className = "card";
-        c.innerHTML = `<div class="card-q">${title}</div><div class="swipe-label sl-up">${u}</div><div class="swipe-label sl-left">${l}</div><div class="swipe-label sl-right">${r}</div><div class="swipe-label sl-down">${d}</div>`;
-        s.appendChild(c); bindPhysics(c);
+/* 1. Scientific Normalizer */
+const ProtocolNormalizer = {
+    patterns: [
+        { regex: /([A-Z][a-z]?)(\d+)/g, replace: '$1_{$2}' }, 
+        { regex: /\]\^([\+\-\d]+)/g, replace: ']^{$1}' },           
+        { regex: /\b([n|l|m|s])\s?=/g, replace: '\\mathit{$1} =' },
+        { regex: /psi/g, replace: '\\psi' },                  
+        { regex: /E\^circ|E\*/g, replace: 'E^\\circ' }        
+    ],
+    apply(text) {
+        if (!text) return "";
+        let f = text.toString().trim().replace(/^\$+/, '').replace(/\$+$/, ''); // Strip double-delimiters
+        this.patterns.forEach(p => f = f.replace(p.regex, p.replace));
+        return `$${f}$`;
     }
+};
 
-    function startQuiz(genre) {
-        CUR_GENRE = genre;
-        POOL = RAW_DATA.filter(q => q.ds === CUR_DATASET && q.tp === CUR_TOPIC && q.ty === CUR_GENRE).sort(() => Math.random() - .5);
-        if(!POOL.length) { 
-            // SPECIAL CASE: If niche is empty, try mapping Analytical/Electrochem/Stats
-            POOL = RAW_DATA.filter(q => q.ds === CUR_DATASET && q.tp.includes(CUR_TOPIC)).sort(() => Math.random() - .5);
-        }
-        if(!POOL.length) { alert("Niche Empty. Try SET A -> Domain."); renderDatasetSelect(); return; }
-        renderNext();
+const VisualProtocol = { wrap(c) { return `<div class="alch-card-visual">${ProtocolNormalizer.apply(c)}</div>`; } };
+
+let RAW_DATA = [], POOL = [], SCORE = 0, isBusy = false, active = false, tx = 0, ty = 0, sx = 0, sy = 0;
+
+/* 2. System Initialization */
+async function init() {
+    try {
+        const r = await fetch(JSON_URL);
+        const data = await r.json();
+        RAW_DATA = data.map(q => ({
+            id: q.id,
+            q: VisualProtocol.wrap(q.question),
+            u: VisualProtocol.wrap(q.option_up),
+            r: VisualProtocol.wrap(q.option_right),
+            l: VisualProtocol.wrap(q.option_left),
+            ex: ProtocolNormalizer.apply(q.explanation),
+            h: q.hint || "Visual Prompt",
+            c: q.correct_option.replace('option_', '').toUpperCase()
+        }));
+        document.getElementById('loader').remove();
+        startSession();
+    } catch (e) { console.error("Cloud Sync Fail.", e); }
+}
+
+function startSession() { POOL = [...RAW_DATA].sort(() => Math.random() - 0.5); renderNext(); }
+
+function renderNext() {
+    const s = document.getElementById('stack'); s.innerHTML = "";
+    if (!POOL.length) { s.innerHTML = `<div class="card"><div class="alch-card-visual">VAULT DEPLETED</div><button class="btn" onclick="location.reload()">RE-BOOT</button></div>`; return; }
+    
+    const d = POOL.shift();
+    const c = document.createElement('div'); c.className = "card";
+    c.innerHTML = `
+        <div class="card-q">${d.q}</div>
+        <div class="swipe-label sl-up">${d.u}</div><div class="swipe-label sl-lt">${d.l}</div>
+        <div class="swipe-label sl-ri">${d.r}</div><div class="swipe-label sl-do sl-do-hint">HINT: ${d.h}</div>
+        <div class="overlay"><div class="overlay-body">${d.ex}</div><button class="btn" onclick="this.parentNode.classList.remove('active')">CONTINUE</button></div>`;
+    
+    s.appendChild(c); document.getElementById('id-display').innerText = d.id; bindPhysics(c, d);
+    renderMathInElement(c, { delimiters: [{ left: "$", right: "$", display: false }] });
+}
+
+/* 3. Physics & Handlers */
+function bindPhysics(el, data) {
+    const labels = { up: el.querySelector('.sl-up'), lt: el.querySelector('.sl-lt'), rt: el.querySelector('.sl-ri'), dn: el.querySelector('.sl-do') };
+    const start = e => { if (isBusy || el.querySelector('.overlay.active')) return; active = true; const p = e.touches ? e.touches[0] : e; sx = p.clientX; sy = p.clientY; el.style.transition = "none"; physicsLoop(el, labels); };
+    const move = e => { if (!active) return; const p = e.touches ? e.touches[0] : e; tx = p.clientX - sx; ty = p.clientY - sy; };
+    const end = () => {
+        if (!active) return; active = false; const dist = Math.sqrt(tx**2 + ty**2);
+        if (dist > 80) {
+            let ang = Math.atan2(-ty, tx) * (180 / Math.PI); if (ang < 0) ang += 360;
+            const dir = (ang>=45&&ang<135)?"UP":(ang>=135&&ang<225)?"LEFT":(ang>=225&&ang<315)?"DOWN":"RIGHT";
+            if (dir === "DOWN") { el.querySelector('.overlay').classList.add('active'); tx = 0; ty = 0; el.style.transition = "transform 0.3s ease"; el.style.transform = `translate3d(0,0,0)`; }
+            else handleSwipe(el, data, dir);
+        } else { tx = 0; ty = 0; el.style.transition = "transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)"; el.style.transform = `translate3d(0,0,0) rotate(0deg)`; }
+    };
+    el.onmousedown = start; window.onmousemove = move; window.onmouseup = end;
+    el.ontouchstart = start; el.ontouchmove = move; el.ontouchend = end;
+}
+
+function physicsLoop(el, labels) {
+    if (!active && !isBusy) return;
+    const dist = Math.sqrt(tx**2 + ty**2);
+    el.style.transform = `translate3d(${tx}px, ${ty}px, 0) rotate(${tx / 20}deg)`;
+    Object.values(labels).forEach(l => { if(l) l.style.opacity = 0; });
+    if (dist > 15) {
+        let ang = Math.atan2(-ty, tx) * (180 / Math.PI); if (ang < 0) ang += 360;
+        let L = (ang>=45&&ang<135)?labels.up:(ang>=135&&ang<225)?labels.lt:(ang>=225&&ang<315)?labels.dn:labels.rt;
+        if (L) L.style.opacity = Math.min(dist / 50, 1);
     }
+    requestAnimationFrame(() => physicsLoop(el, labels));
+}
 
-    function renderNext() {
-        MODE = "QUIZ"; const s = document.getElementById('stack'); s.innerHTML = "";
-        if(!POOL.length) { renderEnd(); return; }
-        const q = POOL[0]; const c = document.createElement('div'); c.className = "card";
-        c.innerHTML = `<div class="card-q">${formatChem(q.q)}</div><div class="swipe-label sl-up">${q.u}</div><div class="swipe-label sl-left">${q.l}</div><div class="swipe-label sl-right">${q.r}</div><div class="swipe-label sl-down" style="color:var(--blue)">HINT</div><div class="overlay"><div class="overlay-body">${formatChem(q.ex)}</div><button class="btn" onclick="this.parentElement.classList.remove('active')">NEXT</button></div>`;
-        s.appendChild(c); document.getElementById('id-ui').innerText = q.id; bindPhysics(c, q);
-    }
+function handleSwipe(el, data, dir) { isBusy = true; if (dir === data.c) SCORE += 10; updateHUD(); el.style.transition = "transform 0.5s ease-in, opacity 0.3s"; el.style.transform = `translate3d(${tx * 5}px, ${ty * 5}px, 0)`; el.style.opacity = "0"; setTimeout(() => { el.remove(); isBusy = false; renderNext(); }, 500); }
 
-    function bindPhysics(el, data) {
-        let x=0, y=0, sx=0, sy=0, active=false, triggerDir=null;
-        const labels = { up: el.querySelector('.sl-up'), dn: el.querySelector('.sl-down'), lt: el.querySelector('.sl-left'), rt: el.querySelector('.sl-right') };
-        const start = e => { if(isTransitioning) return; active=true; const p = e.touches ? e.touches[0] : e; sx=p.clientX; sy=p.clientY; startTime = Date.now(); el.style.transition="none"; };
-        const move = e => {
-            if(!active) return; const p = e.touches ? e.touches[0] : e; const dx = p.clientX - sx, dy = p.clientY - sy, dist = Math.sqrt(dx*dx + dy*dy);
-            x = (dist > 35) ? dx * (35/dist) : dx; y = (dist > 35) ? dy * (35/dist) : dy;
-            let ang = Math.atan2(-y, x) * (180/Math.PI); if(ang<0) ang+=360;
-            Object.values(labels).forEach(l => { if(l) l.style.opacity = 0; });
-            if(dist > 10) {
-                let L = (ang>=45&&ang<135)?labels.up:(ang>=135&&ang<225)?labels.lt:(ang>=225&&ang<315)?labels.dn:labels.rt;
-                if(L) { L.style.opacity = Math.min(dist/30, 1); }
-            }
-            if(MODE==="QUIZ" && triggerDir==="DOWN") el.classList.add('study-active'); else el.classList.remove('study-active');
-            el.style.transform = `translate3d(${x}px,${y}px,0) rotate(${x/20}deg)`;
-            triggerDir = (dist >= 35) ? ((ang>=45&&ang<135)?"UP":(ang>=135&&ang<225)?"LEFT":(ang>=225&&ang<315)?"DOWN":"RIGHT") : null;
-        };
-        const end = () => {
-            if(!active) return; active=false;
-            if(triggerDir) {
-                if(MODE==="QUIZ" && triggerDir==="DOWN") { el.querySelector('.overlay').classList.add('active'); el.style.transform="translate3d(0,0,0)"; }
-                else handleAction(el, data, x, y, triggerDir);
-            } else { el.style.transition="transform .4s"; el.style.transform="translate3d(0,0,0)"; el.classList.remove('study-active'); }
-        };
-        el.addEventListener('mousedown', start); window.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
-        el.addEventListener('touchstart', start); el.addEventListener('touchmove', move); el.addEventListener('touchend', end);
-    }
+function updateHUD() { document.getElementById('xp-display').innerText = `${SCORE} XP`; document.getElementById('progress-bar').style.width = `${(SCORE % 100)}%`; }
 
-    function handleAction(el, data, x, y, dir) {
-        isTransitioning = true;
-        if(MODE==="DATASET_SELECT") renderTopicSelect(dir === "UP" ? "SET_A" : "SET_A");
-        else if(MODE==="TOPIC_SELECT") {
-            const topicMap = { UP: "Physical", LEFT: "Organic", RIGHT: "Inorganic", DOWN: "Analytical" };
-            renderGenreSelect(topicMap[dir]);
-        }
-        else if(MODE==="GENRE_SELECT") startQuiz(dir === "UP" ? "CONCEPT" : "CONCEPT");
-        else if(MODE==="QUIZ") {
-            const correct = dir === data.c; if(correct) SCORE += 10;
-            new Image().src = `${ENDPOINT}?target=Telemetry&questionId=${data.id}&result=${correct}&vectorChoice=${dir}&latency=${Date.now()-startTime}`;
-            POOL.shift(); renderNext();
-        }
-        el.style.transition="transform .4s, opacity .3s"; el.style.transform=`translate3d(${x*10}px,${y*10}px,0)`; el.style.opacity="0";
-        setTimeout(() => { el.remove(); isTransitioning=false; updateUI(); }, 400);
-    }
-
-    function updateUI() { document.getElementById('xp-ui').innerText = `${SCORE} XP`; document.getElementById('progress-bar').style.width = `${(SCORE % 100)}%`; }
-    function renderEnd() { document.getElementById('stack').innerHTML = `<div class="card"><div class="card-q">NICHE DONE<br>${SCORE} XP</div><button class="btn" style="margin-top:20px" onclick="location.reload()">RESTART</button></div>`; }
-    window.onload = init;
+window.onload = init;
 </script>
 </body>
 </html>
