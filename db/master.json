@@ -1,0 +1,29 @@
+[
+  {
+    "id": "BOOT_0001",
+    "set": "SET_A",
+    "dom": "BOOT",
+    "topic": "SYSTEM_INIT",
+    "level": "L0",
+    "q": "System bootstrap verification question",
+    "u": "System online",
+    "r": "System offline",
+    "l": "Unknown state",
+    "correct": "System online",
+    "logic": "This record exists only to verify that the database pipeline is operational across devices.",
+    "hint": "If this loads, your backend is fixed.",
+    "ctx": "Operator bootstrap",
+    "ref": "internal",
+    "tags": "bootstrap,system",
+    "img": "",
+    "link": "",
+    "trap": "",
+    "date": "2026-01-26",
+    "rev": "v133.27",
+    "w_up": "1",
+    "w_side": "0",
+    "s1": "BOOT",
+    "s2": "VERIFY",
+    "raw25": "BOOTSTRAP_ROW"
+  }
+]
