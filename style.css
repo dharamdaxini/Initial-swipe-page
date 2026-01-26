@@ -1,16 +1,10 @@
 :root {
-    --bg: #000000;
-    --card-bg: #111111;
-    --border: #222222;
-    --gold: #ffd600;
-    --blue: #3498db;
-    --font-serif: 'Crimson Text', serif;
-    --font-sans: 'Inter', sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
+    --bg: #000000; --card-bg: #111111; --border: #222222;
+    --gold: #ffd600; --blue: #3498db;
+    --font-serif: 'Crimson Text', serif; --font-sans: 'Inter', sans-serif; --font-mono: 'JetBrains Mono', monospace;
 }
 
-/* Global Reset & Physics Safety */
-* { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body { 
     margin: 0; height: 100vh; background: var(--bg); color: #fff;
     font-family: var(--font-sans); overflow: hidden; position: fixed; width: 100%;
@@ -20,7 +14,7 @@ body {
 /* --- SINGULARITY STACK UI --- */
 #header { width: 90%; margin: 30px auto 0; z-index: 100; position: relative; }
 .header-meta { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.7rem; color: #555; letter-spacing: 2px; }
-.progress-track { width: 100%; height: 2px; background: #1a1a1a; margin-top: 10px; border-radius: 1px; overflow: hidden; }
+.progress-track { width: 100%; height: 2px; background: #1a1a1a; margin-top: 10px; }
 #progress-bar { height: 100%; background: var(--gold); width: 0%; transition: width 0.4s ease; }
 
 #stack { position: relative; width: 92%; max-width: 400px; height: 72vh; margin: 30px auto 0; perspective: 1200px; }
@@ -31,16 +25,13 @@ body {
     box-shadow: 0 30px 90px rgba(0,0,0,0.9); will-change: transform; cursor: grab; 
 }
 
+/* SCIENTIFIC TYPOGRAPHY */
 .card-q { font-family: var(--font-serif); font-size: 1.8rem; line-height: 1.4; text-align: center; font-style: italic; color: #f0f0f0; }
-
-/* SWIPE HUD */
 .swipe-label {
     position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
     background: #000; color: #fff; font-weight: 900; font-size: 1.8rem; text-transform: uppercase;
     border-radius: 40px; z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.1s;
-    text-align: center; padding: 20px;
 }
-.sl-down-hint { color: var(--blue) !important; font-size: 1.2rem !important; text-transform: none !important; font-family: var(--font-serif) !important; }
 
 /* LOGIC ANALYSIS OVERLAY */
 .overlay {
@@ -49,17 +40,5 @@ body {
     display: flex; flex-direction: column; justify-content: center;
 }
 .overlay.active { opacity: 1; pointer-events: auto; }
-.overlay-label { font-size: 0.7rem; color: var(--gold); font-family: var(--font-mono); margin-bottom: 10px; letter-spacing: 2px; }
-.overlay-body { font-size: 1.2rem; line-height: 1.6; color: #bbb; margin-bottom: 30px; font-family: var(--font-serif); }
-.btn { width: 100%; padding: 20px; border-radius: 50px; border: none; background: #fff; color: #000; font-weight: 900; text-transform: uppercase; font-family: var(--font-sans); cursor: pointer; }
-
-/* --- ALCHEMIST PROTOCOL (PRINT/PDF) --- */
-@media print {
-    body { background: #fff; color: #000; overflow: visible; position: static; }
-    #header, #stack, #loader { display: none !important; }
-    .alch-protocol { display: block !important; width: 210mm; margin: auto; padding: 20mm; }
-    .alch-card { border: 2px solid #000; padding: 15px; margin-bottom: 30px; page-break-inside: avoid; }
-    .alch-options { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid #000; border-bottom: 1px solid #000; margin: 15px 0; }
-    .alch-option { border-right: 1px solid #000; padding: 10px; text-align: center; }
-    .alch-option:last-child { border-right: none; }
-}
+.overlay-body { font-size: 1.2rem; line-height: 1.6; color: #bbb; font-family: var(--font-serif); }
+.btn { width: 100%; padding: 20px; border-radius: 50px; border: none; background: #fff; font-weight: 900; cursor: pointer; }
