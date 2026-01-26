@@ -1,131 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>VIA.STACK | MASTER LAB</title>
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/auto-render.min.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ALCHEMIST | Laboratory Standard Card</title>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,600;1,600&family=Inter:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --font-serif: "Crimson Text", serif;
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --blue: #2979ff;
+}
+
+/* ===== ALCHEMIST LAB STANDARD v132.50 ===== */
+
+body{
+  margin:0;
+  padding:30px;
+  background:#f4f4f4;
+}
+
+.alch-card {
+  border: 2px solid #222;
+  padding: 20px;
+  margin-bottom: 30px;
+  background: #fff;
+  color: #000;
+  font-family: var(--font-serif);
+}
+
+.alch-meta {
+  font-family: var(--font-mono);
+  font-size: 9pt;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.alch-question {
+  font-family: var(--font-serif);
+  font-size: 17pt;
+  margin: 15px 0;
+}
+
+.alch-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.alch-option {
+  border: 1px solid #333;
+  padding: 8px;
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: 10pt;
+}
+
+.alch-logic {
+  border-left: 5px solid var(--blue);
+  padding-left: 12px;
+  margin: 15px 0;
+  font-style: italic;
+}
+
+.alch-exec {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.alch-steps {
+  font-variant: small-caps;
+  color: var(--blue);
+}
+
+.alch-steps div {
+  margin-bottom: 8px;
+}
+
+.alch-anchor {
+  text-align: right;
+  font-family: var(--font-sans);
+  font-size: 9pt;
+}
+
+.alch-anchor div {
+  margin-bottom: 6px;
+}
+
+.alch-hint {
+  background: #000;
+  color: #fff;
+  padding: 10px;
+  margin-top: 15px;
+  font-family: var(--font-sans);
+  font-size: 10pt;
+}
+</style>
 </head>
+
 <body>
 
-<div id="loader">VIA.STACK // INITIALIZING</div>
+<!-- ===== INSERTED LAB CARD (UNCHANGED) ===== -->
 
-<div id="header">
-    <div class="header-meta">
-        <span id="id-display">PROTOCOL_INIT</span>
-        <span id="xp-display">000 XP</span>
+<div class="alch-card">
+
+  <div class="alch-meta">
+    Q.001 // CHEMISTRY > STOICHIOMETRY
+  </div>
+
+  <div class="alch-question">
+    What is the mass percentage of Oxygen in KMnO₄?
+  </div>
+
+  <div class="alch-options">
+    <div class="alch-option">40.5%</div>
+    <div class="alch-option">32%</div>
+    <div class="alch-option">10%</div>
+  </div>
+
+  <div class="alch-logic">
+    Molar mass = 158.03 g/mol<br>
+    Oxygen mass = 4 × 16.00 = 64.00<br>
+    %O = (64.00 / 158.03) × 100 ≈ 40.5%
+  </div>
+
+  <div class="alch-exec">
+    <div class="alch-steps">
+      <div>STEP 1 — Determine molar mass</div>
+      <div>STEP 2 — Calculate percentage contribution</div>
     </div>
-    <div class="progress-track">
-        <div id="progress-bar"></div>
+
+    <div class="alch-anchor">
+      <div>IMAGE: KMnO₄ lattice diagram</div>
+      <div>LINK: https://example.com/reference</div>
     </div>
+  </div>
+
+  <div class="alch-hint">
+    Divide the oxygen mass by the total molar mass.
+  </div>
+
 </div>
 
-<div id="stack"></div>
-
-<script>
-/* --- 1. THE SCIENTIFIC NORMALIZER --- */
-const ProtocolNormalizer = {
-    patterns: [
-        { regex: /([A-Z][a-z]?)(\d+)/g, replace: '$1_{$2}' }, 
-        { regex: /\]\^([\+\-\d]+)/g, replace: ']^{$1}' },           
-        { regex: /\b([n|l|m|s])\s?=/g, replace: '\\mathit{$1} =' },
-        { regex: /psi/g, replace: '\\psi' },                  
-        { regex: /pi/g, replace: '\\pi' },                    
-        { regex: /E\^circ|E\*/g, replace: 'E^\\circ' }        
-    ],
-    apply(text) {
-        if (!text) return "";
-        let f = text.toString().trim().replace(/^\$+/, '').replace(/\$+$/, '');
-        this.patterns.forEach(p => f = f.replace(p.regex, p.replace));
-        return `$${f}$`;
-    }
-};
-
-/* --- 2. CORE LOGIC --- */
-let RAW_DATA = [], POOL = [], SCORE = 0, MODE = "DATASET_SELECT", isTransitioning = false;
-const ENDPOINT = "https://script.google.com/macros/s/AKfycbxaMo1Gi8KjfYOr1_pHJI5XYJ1t9FK4PWkFCm8lU4MsCmUXvY0nSUIqYTAqhpumFRFL/exec";
-
-async function init() {
-    try {
-        const r = await fetch(ENDPOINT);
-        const json = await r.json();
-        RAW_DATA = (Array.isArray(json) && json.length > 0) ? json : BACKUP_DATA;
-    } catch(e) { RAW_DATA = BACKUP_DATA; }
-    
-    document.getElementById('loader').remove();
-    renderDatasetSelect();
-}
-
-function startQuiz(topic, genre) {
-    MODE = "QUIZ";
-    POOL = RAW_DATA.filter(q => {
-        const tMatch = (q.category || q.topic).toLowerCase().includes(topic.toLowerCase());
-        return tMatch;
-    }).map(q => ({
-        ...q,
-        q_text: ProtocolNormalizer.apply(q.question || q.question_text),
-        u_label: ProtocolNormalizer.apply(q.option_up || q.swipe_up_label),
-        r_label: ProtocolNormalizer.apply(q.option_right || q.swipe_right_label),
-        l_label: ProtocolNormalizer.apply(q.option_left || q.swipe_left_label),
-        explanation: ProtocolNormalizer.apply(q.explanation),
-        hint: ProtocolNormalizer.apply(q.hint || "Hint unavailable"),
-        correct: (q.correct_option?.toUpperCase().replace('OPTION_', '') || q.correct?.toUpperCase())
-    })).sort(() => Math.random() - 0.5);
-
-    renderNext();
-}
-
-function renderNext() {
-    const s = document.getElementById('stack'); s.innerHTML = "";
-    if (!POOL.length) { location.reload(); return; }
-    
-    const q = POOL[0];
-    const c = document.createElement('div'); c.className = "card";
-    c.innerHTML = `
-        <div class="card-q">${q.q_text}</div>
-        <div class="swipe-label sl-up">${q.u_label}</div>
-        <div class="swipe-label sl-left">${q.l_label}</div>
-        <div class="swipe-label sl-right">${q.r_label}</div>
-        <div class="swipe-label sl-down sl-down-hint">${q.hint}</div>
-        <div class="overlay">
-            <div class="overlay-label">LOGIC ANALYSIS</div>
-            <div class="overlay-body">${q.explanation}</div>
-            <button class="btn" onclick="this.parentElement.classList.remove('active')">CONTINUE</button>
-        </div>`;
-    
-    s.appendChild(c);
-    bindPhysics(c, q);
-
-    renderMathInElement(c, { delimiters: [{ left: "$", right: "$", display: false }] });
-}
-
-function handleAction(el, data, x, y, dir) {
-    if (isTransitioning) return;
-    isTransitioning = true;
-
-    if (MODE === "DATASET_SELECT") renderTopicSelect("SET_A");
-    else if (MODE === "TOPIC_SELECT") renderGenreSelect("Physical");
-    else if (MODE === "GENRE_SELECT") startQuiz("Physical", "CONCEPT");
-    else if (MODE === "QUIZ") {
-        if (dir === data.correct) { SCORE += 10; updateUI(); }
-        POOL.shift(); renderNext();
-    }
-
-    el.style.transition = "transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s";
-    el.style.transform = `translate3d(${x * 12}px, ${y * 12}px, 0) rotate(${x / 5}deg)`;
-    el.style.opacity = "0";
-    setTimeout(() => { el.remove(); isTransitioning = false; }, 400);
-}
-
-function updateUI() {
-    document.getElementById('xp-display').innerText = `${SCORE} XP`;
-    document.getElementById('progress-bar').style.width = `${(SCORE % 100)}%`;
-}
-
-window.onload = init;
-</script>
 </body>
 </html>
