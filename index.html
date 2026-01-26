@@ -17,7 +17,7 @@ body{
   margin:0;height:100vh;background:var(--bg);color:#fff;
   font-family:var(--font-ui);overflow:hidden;
   display:flex;flex-direction:column;
-  touch-action:manipulation; /* ✅ SWIPE FIX */
+  touch-action:manipulation; /* swipe enabled */
 }
 #loader{
   position:fixed;inset:0;background:#000;z-index:5000;
@@ -82,7 +82,7 @@ body{
 const SYS={
   DB_KEY:'ALCHEMIST_MASTER_DB',
   XP_KEY:'ALCH_V133_XP',
-  BUILD:'1'
+  BUILD:'3' // bump this when master.json updates
 };
 
 /* ---------- IndexedDB ---------- */
@@ -126,12 +126,10 @@ class AlchemistDB{
   }
 }
 
-/* ---------- Physics (UNCHANGED CORE) ---------- */
+/* ---------- Physics (Swipe) ---------- */
 class PhysicsController{
-  constructor(el,cb){
-    this.el=el;this.cb=cb;
-    this.active=false;this.start={x:0,y:0};
-    this.bind();
+  constructor(el){
+    this.el=el;this.active=false;this.start={x:0,y:0};this.bind();
   }
   bind(){
     const s=e=>this.onStart(e.touches?e.touches[0]:e);
@@ -147,8 +145,7 @@ class PhysicsController{
   onStart(p){this.active=true;this.start={x:p.clientX,y:p.clientY};this.el.style.transition='none'}
   onMove(p){
     if(!this.active)return;
-    const dx=p.clientX-this.start.x;
-    const dy=p.clientY-this.start.y;
+    const dx=p.clientX-this.start.x, dy=p.clientY-this.start.y;
     this.el.style.transform=`translate3d(${dx}px,${dy}px,0) rotate(${dx/20}deg)`;
   }
   onEnd(){
@@ -166,7 +163,6 @@ const UI={
   xp:document.getElementById('xp-ui'),
   bar:document.getElementById('progress-bar')
 };
-
 let STATE={score:parseInt(localStorage.getItem(SYS.XP_KEY)||'0')};
 
 function UpdateHUD(){
@@ -185,7 +181,7 @@ async function Boot(){
   el.className='card';
   el.innerHTML=`<div class="card-q">${all[0].q||all[0].set}</div>`;
   UI.stack.appendChild(el);
-  new PhysicsController(el,{});
+  new PhysicsController(el);
 }
 
 window.onload=Boot;
