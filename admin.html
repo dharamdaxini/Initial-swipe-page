@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VIA.STACK | MASTER LAB v133.26</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    
+    <style>
+        :root { 
+            --bg: #050505; --panel: #0a0a0a; --border: #222; 
+            --gold: #ffd600; --blue: #2979ff; --red: #ff4757; --green: #00e676;
+            --font-ui: 'Inter', sans-serif; --font-code: 'JetBrains Mono', monospace;
+        }
+        
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; background: var(--bg); color: #ccc; font-family: var(--font-ui); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* SCROLL CONTAINER */
+        #master-scroll { flex: 1; overflow-y: auto; scroll-behavior: smooth; padding-bottom: 80px; }
+        
+        /* HEADER */
+        header { 
+            position: sticky; top: 0; z-index: 100; background: rgba(5,5,5,0.98); 
+            border-bottom: 1px solid var(--border); padding: 15px 25px; 
+            display: flex; justify-content: space-between; align-items: center; 
+        }
+        .brand { font-size: 1.1rem; font-weight: 900; color: #fff; letter-spacing: -0.5px; }
+        .brand span { color: var(--gold); }
+        .status-pill { 
+            background: #111; border: 1px solid #333; padding: 6px 12px; 
+            border-radius: 4px; font-family: var(--font-code); font-size: 0.6rem; 
+            color: var(--green); display: flex; align-items: center; gap: 6px; cursor: pointer;
+        }
+        .dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; box-shadow: 0 0 8px var(--green); }
+        .dot.off { background: var(--red); box-shadow: none; }
+
+        /* ZONES */
+        .zone { padding: 30px; border-bottom: 1px dashed #222; position: relative; }
+        .zone-title { font-size: 0.7rem; font-weight: 900; color: #666; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* INGESTION INPUT */
+        .ingest-box {
+            width: 100%; height: 200px; background: #080808; border: 1px solid #333; 
+            border-radius: 12px; padding: 20px; font-family: var(--font-code); 
+            font-size: 0.7rem; color: var(--blue); resize: none; transition: 0.2s;
+            line-height: 1.5; white-space: pre; overflow: auto;
+        }
+        .ingest-box:focus { border-color: var(--gold); background: #0b0b0b; color: #fff; }
+        
+        /* BUTTONS */
+        .action-bar { display: flex; gap: 15px; margin-top: 20px; align-items: center; }
+        
+        .btn-pill { 
+            background: var(--gold); color: #000; border: none; padding: 12px 30px; 
+            border-radius: 50px; font-weight: 900; font-size: 0.8rem; cursor: pointer; 
+            text-transform: uppercase; transition: 0.2s; box-shadow: 0 5px 20px rgba(255, 214, 0, 0.2);
+        }
+        .btn-pill:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        
+        .btn-ghost { 
+            background: transparent; border: 1px solid #444; color: #888; 
+            padding: 10px 20px; border-radius: 50px; font-weight: 700; font-size: 0.7rem; 
+            cursor: pointer; text-transform: uppercase; transition: 0.2s; 
+        }
+        .btn-ghost:hover { border-color: #fff; color: #fff; }
+
+        /* PUSH BUTTON (ONE SCROLL ABOVE PURGE) */
+        .push-btn {
+            width: 100%; background: var(--green); color: #000; border: none;
+            padding: 20px; border-radius: 12px; font-weight: 900; font-size: 1rem;
+            text-transform: uppercase; letter-spacing: 1px; margin-top: 20px;
+            cursor: pointer; box-shadow: 0 10px 30px rgba(0, 230, 118, 0.2);
+            transition: 0.2s;
+        }
+        .push-btn:hover { transform: scale(1.02); box-shadow: 0 15px 40px rgba(0, 230, 118, 0.3); }
+
+        /* TERMINAL */
+        .terminal { 
+            background: #000; border: 1px solid #222; border-radius: 8px; padding: 15px; 
+            font-family: var(--font-code); font-size: 0.7rem; color: #666; height: 120px; 
+            overflow-y: auto; margin-top: 15px; 
+        }
+        .log-entry { margin-bottom: 4px; border-bottom: 1px solid #111; padding-bottom: 4px; }
+        .log-success { color: var(--green); }
+        .log-err { color: var(--red); }
+
+        /* GRID TILES */
+        .grid-6 { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 10px; }
+        .tile { 
+            background: #0e0e0e; border: 1px solid #222; padding: 20px; border-radius: 8px; 
+            text-align: center; cursor: pointer; transition: 0.2s; 
+        }
+        .tile:hover { border-color: var(--blue); background: #151515; }
+        .tile-icon { font-size: 1.2rem; margin-bottom: 8px; display: block; opacity: 0.8; }
+        .tile-label { font-size: 0.65rem; font-weight: 800; color: #aaa; text-transform: uppercase; }
+        .tile.gold-border { border-color: var(--gold); background: rgba(255, 214, 0, 0.05); }
+
+        /* MODALS */
+        .modal-overlay { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000; 
+            display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);
+        }
+        .modal-box { 
+            width: 90%; max-width: 500px; background: #111; border: 1px solid #333; padding: 25px; 
+            border-radius: 12px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+        .modal-header { font-size: 0.9rem; font-weight: 900; color: #fff; text-transform: uppercase; }
+        .modal-desc { font-family: var(--font-code); font-size: 0.7rem; color: #888; line-height: 1.4; }
+        .surgeon-input { 
+            width: 100%; height: 120px; background: #000; border: 1px solid var(--red); 
+            color: #fff; padding: 15px; font-family: var(--font-code); font-size: 0.75rem; resize: none;
+            line-height: 1.4;
+        }
+
+        /* OBSERVER LAYER */
+        #observer-layer { display:none; position:fixed; inset:0; background:var(--bg); z-index:5000; flex-direction:column; }
+        #observer-header { border-bottom:1px solid #222; padding:15px 25px; display:flex; justify-content:space-between; align-items:center; background: #000; }
+        #observer-grid { flex:1; overflow-y:auto; padding:20px; }
+        table { width:100%; border-collapse:collapse; font-family:var(--font-code); font-size:0.7rem; }
+        th { text-align:left; padding:10px; border-bottom:1px solid #444; color:var(--gold); position: sticky; top: 0; background: #000; }
+        td { padding:10px; border-bottom:1px solid #222; color: #aaa; }
+        tr:hover td { background: #111; color: #fff; }
+        .disabled-btn { opacity:0.3; pointer-events:none; }
+        
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="brand">VIA.<span>STACK</span> <span style="font-weight:400; color:#666; font-size:0.7rem; margin-left:10px;">// MASTER LAB v133.26</span></div>
+    <div class="status-pill" onclick="checkLocalData()">
+        <div class="dot" id="db-status-dot"></div>
+        <span id="db-status-text">DB READY</span>
+    </div>
+</header>
+
+<div id="master-scroll">
+
+    <div class="zone">
+        <div class="zone-title">01 // INGESTION ENGINE</div>
+        <textarea id="raw-input" class="ingest-box" placeholder=">> PASTE RAW TSV (EXCEL) DATA HERE...&#10;>> SYSTEM WILL AUTO-STRIP HEADERS (ID|SET...) AND DETECT COLLISIONS."></textarea>
+        
+        <div class="action-bar">
+            <button class="btn-pill" onclick="initiateAlignment()">INITIATE ALIGNMENT</button>
+            <button class="btn-ghost" onclick="document.getElementById('raw-input').value=''">CLEAR INPUT</button>
+        </div>
+
+        <div class="terminal" id="console-log">
+            <div class="log-entry">> WAITING FOR INPUT...</div>
+        </div>
+    </div>
+
+    <div class="zone">
+        <div class="zone-title">02 // DEPLOYMENT DOCK</div>
+        
+        <div class="grid-6">
+            <div class="tile gold-border" onclick="exportJSON()">
+                <span class="tile-icon">📦</span>
+                <span class="tile-label" style="color:var(--gold)">JS OBJECT (BACKUP)</span>
+            </div>
+            <div class="tile" onclick="exportPDF()">
+                <span class="tile-icon">📄</span>
+                <span class="tile-label">EXPORT PDF</span>
+            </div>
+            <div class="tile" onclick="exportTSV()">
+                <span class="tile-icon">📊</span>
+                <span class="tile-label">EXPORT TSV</span>
+            </div>
+            <div class="tile" onclick="exportCSV()">
+                <span class="tile-icon">📑</span>
+                <span class="tile-label">EXPORT CSV</span>
+            </div>
+        </div>
+
+        <button class="push-btn" onclick="pushToIndex()">
+            >>> PUSH TO OPERATOR INDEX >>>
+        </button>
+    </div>
+
+    <div class="zone">
+        <div class="zone-title">03 // PROGRESSION GOVERNANCE</div>
+        <div class="grid-6">
+            <div class="tile" onclick="openObserver()">
+                <span class="tile-icon">👁️</span>
+                <span class="tile-label">VAULT OBSERVER</span>
+            </div>
+            <div class="tile" onclick="forceUnlock('SET_B')">
+                <span class="tile-icon">🔓</span>
+                <span class="tile-label">UNLOCK SET_B</span>
+            </div>
+            <div class="tile" onclick="resetUserProgress()">
+                <span class="tile-icon">♻️</span>
+                <span class="tile-label">RESET USER XP</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="zone" style="border-bottom:none;">
+        <div class="zone-title" style="color:var(--red)">04 // DANGER ZONE</div>
+        <button class="btn-ghost" style="border-color:var(--red); color:var(--red); width:100%;" onclick="initPurge()">
+            PURGE SYSTEM MEMORY
+        </button>
+    </div>
+
+</div>
+
+<div id="surgeon-modal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <span style="color:var(--red)">⚠️ SURGICAL INTERVENTION REQUIRED</span>
+        </div>
+        <div class="modal-desc" id="surgeon-msg">Structural drift detected.</div>
+        <textarea id="surgeon-input" class="surgeon-input"></textarea>
+        <div class="action-bar" style="justify-content: flex-end;">
+            <button class="btn-ghost" onclick="closeSurgeon()">DISCARD ROW</button>
+            <button class="btn-pill" onclick="sutureRow()">SUTURE & RETRY</button>
+        </div>
+    </div>
+</div>
+
+<div id="observer-layer">
+    <div id="observer-header">
+        <div class="brand">VAULT.<span>OBSERVER</span></div>
+        <button class="btn-ghost" onclick="closeObserver()">EXIT VIEW</button>
+    </div>
+    <div id="observer-grid">
+        <table id="observer-table">
+            <thead>
+                <tr>
+                    <th width="10%">ID</th>
+                    <th width="10%">SET</th>
+                    <th width="50%">QUESTION</th>
+                    <th width="30%" style="text-align:right;">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody id="observer-body"></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="purge-modal" class="modal-overlay">
+    <div class="modal-box" style="text-align:center;">
+        <div class="modal-header" style="justify-content:center;">CONFIRM SYSTEM WIPE</div>
+        <div class="modal-desc">This destroys all data. Type 'DELETE' to confirm.</div>
+        <input type="text" id="purge-code" class="ingest-box" style="height:40px; text-align:center;" placeholder="DELETE">
+        <div class="action-bar" style="justify-content:center;">
+            <button class="btn-ghost" onclick="document.getElementById('purge-modal').style.display='none'">CANCEL</button>
+            <button class="btn-pill" style="background:var(--red); color:#fff;" onclick="executePurge()">CONFIRM</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let STAGED_DATA = [];
+    let FAULTY_ROW_INDEX = -1;
+    let RAW_LINES = [];
+    
+    const DB_KEY = 'ALCHEMIST_MASTER_DB';
+    const USER_KEY = 'ALCHEMIST_USER_PROGRESS';
+    
+    // --- 1. GATEKEEPER & SURGEON v25 ---
+    function initiateAlignment() {
+        const raw = document.getElementById('raw-input').value;
+        if(!raw.trim()) return log("NO INPUT DETECTED.", "err");
+
+        // Pre-Process: Strip Headers
+        RAW_LINES = raw.split('\n').filter(line => 
+            !line.toUpperCase().startsWith('ID\t') && line.trim() !== ""
+        );
+
+        runGatekeeper();
+    }
+
+    function runGatekeeper() {
+        const seenIDs = new Set();
+        let collision = null;
+        let drift = null;
+
+        for(let i=0; i<RAW_LINES.length; i++) {
+            const cols = RAW_LINES[i].split('\t');
+            
+            // CHECK STRUCTURE: ALLOW 24 OR 25 COLS
+            if(cols.length < 24 || cols.length > 25) {
+                drift = { index: i, line: RAW_LINES[i], len: cols.length };
+                break;
+            }
+
+            // CHECK COLLISION
+            const id = cols[0].trim();
+            if(seenIDs.has(id)) {
+                collision = { index: i, line: RAW_LINES[i], id: id };
+                break;
+            }
+            seenIDs.add(id);
+        }
+
+        if(drift) launchSurgeon(drift, "DRIFT");
+        else if(collision) launchSurgeon(collision, "COLLISION");
+        else finalizeStaging();
+    }
+
+    function launchSurgeon(fault, type) {
+        FAULTY_ROW_INDEX = fault.index;
+        const msg = type === "DRIFT" 
+            ? `ROW ${fault.index+1} HAS ${fault.len} COLUMNS (EXPECTED 24-25).` 
+            : `ID '${fault.id}' APPEARS TWICE.`;
+        
+        document.getElementById('surgeon-msg').innerText = msg;
+        document.getElementById('surgeon-input').value = fault.line;
+        document.getElementById('surgeon-modal').style.display = 'flex';
+    }
+
+    function sutureRow() {
+        const fixed = document.getElementById('surgeon-input').value;
+        RAW_LINES[FAULTY_ROW_INDEX] = fixed; 
+        document.getElementById('surgeon-modal').style.display = 'none';
+        runGatekeeper(); 
+    }
+
+    function closeSurgeon() {
+        RAW_LINES.splice(FAULTY_ROW_INDEX, 1);
+        document.getElementById('surgeon-modal').style.display = 'none';
+        runGatekeeper();
+    }
+
+    function finalizeStaging() {
+        const cleanData = [];
+        RAW_LINES.forEach(line => {
+            const cols = line.split('\t');
+            
+            // NORMALIZER (Fix 'UP'/'RIGHT'/'LEFT')
+            let ansVal = cols[9] ? cols[9].trim().toUpperCase() : "UP";
+            let realAnswer = cols[6]; 
+            
+            if(ansVal === "RIGHT" || ansVal === "R") realAnswer = cols[7];
+            else if(ansVal === "LEFT" || ansVal === "L") realAnswer = cols[8];
+            else if(ansVal === "UP" || ansVal === "U") realAnswer = cols[6];
+            // If explicit text is used, trust logic implicitly
+
+            cleanData.push({
+                id: cols[0], set: cols[1], dom: cols[2], topic: cols[3], level: cols[4],
+                q: cols[5], u: cols[6], r: cols[7], l: cols[8],
+                correct: realAnswer, logic: cols[10], hint: cols[11], ctx: cols[12], trap: cols[17],
+                raw25: cols[24] ? cols[24].trim() : null // CAPTURE RAW 25
+            });
+        });
+
+        STAGED_DATA = cleanData;
+        log(`ALIGNMENT COMPLETE: ${STAGED_DATA.length} UNITS READY.`, "success");
+    }
+
+    // --- 2. DEPLOYMENT ---
+    function pushToIndex() {
+        if(STAGED_DATA.length === 0) return log("STAGE EMPTY.", "err");
+        localStorage.setItem(DB_KEY, JSON.stringify(STAGED_DATA));
+        if(!localStorage.getItem("ACTIVE_SET_ID")) localStorage.setItem("ACTIVE_SET_ID", "SET_A");
+        
+        log("PUSH SUCCESSFUL. DB UPDATED.", "success");
+        updateStatus("DB SYNCHRONIZED");
+        exportJSON(); 
+    }
+
+    // --- 3. OBSERVER (READ-ONLY FOR DEFAULTS) ---
+    function openObserver() {
+        const data = JSON.parse(localStorage.getItem(DB_KEY)||'[]');
+        const tbody = document.getElementById('observer-body');
+        tbody.innerHTML = '';
+        
+        data.forEach((row, idx) => {
+            const isDefault = row.set.startsWith("SET_");
+            const btnStyle = isDefault ? "disabled-btn" : "";
+            const btnTxt = isDefault ? "LOCKED" : "EDIT";
+            
+            tbody.innerHTML += `
+            <tr>
+                <td style="color:var(--blue)">${row.id}</td>
+                <td>${row.set}</td>
+                <td>${row.q.substring(0,50)}...</td>
+                <td style="text-align:right;">
+                    <button class="btn-ghost ${btnStyle}" style="padding:5px 10px; font-size:0.6rem;">${btnTxt}</button>
+                </td>
+            </tr>`;
+        });
+        document.getElementById('observer-layer').style.display = 'flex';
+    }
+    
+    function closeObserver() { document.getElementById('observer-layer').style.display = 'none'; }
+
+    // --- 4. EXPORTS ---
+    function exportJSON() {
+        const data = STAGED_DATA.length > 0 ? STAGED_DATA : JSON.parse(localStorage.getItem(DB_KEY)||'[]');
+        if(data.length === 0) return log("NO DATA.", "err");
+        download(JSON.stringify(data, null, 2), `MASTER_VAULT_${Date.now()}.json`, 'json');
+    }
+
+    function exportTSV() {
+        const data = STAGED_DATA.length > 0 ? STAGED_DATA : JSON.parse(localStorage.getItem(DB_KEY)||'[]');
+        if(data.length === 0) return log("NO DATA.", "err");
+        let tsv = "ID\tSET\tDOM\tTOPIC\tLEVEL\tQUESTION\tUP\tRIGHT\tLEFT\tANSWER\tLOGIC\tHINT\tCTX\tTRAP\tRAW25\n";
+        data.forEach(r => { tsv += `${r.id}\t${r.set}\t${r.dom}\t${r.topic}\t${r.level}\t${r.q}\t${r.u}\t${r.r}\t${r.l}\t${r.correct}\t${r.logic}\t${r.hint}\t${r.ctx}\t${r.trap}\t${r.raw25 || ''}\n`; });
+        download(tsv, `ALCHEMIST_SHEET.tsv`, 'tsv');
+    }
+
+    function exportCSV() {
+        const data = STAGED_DATA.length > 0 ? STAGED_DATA : JSON.parse(localStorage.getItem(DB_KEY)||'[]');
+        if(data.length === 0) return log("NO DATA.", "err");
+        let csv = "ID,SET,QUESTION,ANSWER,RAW25\n";
+        data.forEach(r => { csv += `${r.id},${r.set},"${r.q.replace(/"/g, '""')}","${r.correct}","${r.raw25||''}"\n`; });
+        download(csv, `ALCHEMIST_DATA.csv`, 'csv');
+    }
+
+    function exportPDF() {
+        const data = STAGED_DATA.length > 0 ? STAGED_DATA : JSON.parse(localStorage.getItem(DB_KEY)||'[]');
+        if(data.length === 0) return log("NO DATA.", "err");
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(10); doc.text("MASTER DATASET REPORT", 14, 15);
+        const rows = data.map(i => [i.id, i.set, i.q.substring(0,40)+"...", i.correct]);
+        doc.autoTable({ head: [['ID','SET','QUESTION','ANSWER']], body: rows, startY: 20 });
+        doc.save('MASTER_REPORT.pdf');
+    }
+
+    // --- 5. GOVERNANCE & UTILS ---
+    function forceUnlock(setID) {
+        let stats = JSON.parse(localStorage.getItem(USER_KEY) || '{"unlockedSets":["SET_A"]}');
+        if(!stats.unlockedSets.includes(setID)) {
+            stats.unlockedSets.push(setID);
+            localStorage.setItem(USER_KEY, JSON.stringify(stats));
+            log(`UNLOCKED ${setID}.`, "success");
+        }
+    }
+
+    function resetUserProgress() {
+        if(confirm("RESET USER XP?")) {
+            localStorage.removeItem(USER_KEY);
+            log("USER DATA WIPED.", "log-warn");
+        }
+    }
+
+    function initPurge() { document.getElementById('purge-modal').style.display = 'flex'; }
+    
+    function executePurge() {
+        if(document.getElementById('purge-code').value === 'DELETE') {
+            localStorage.clear();
+            location.reload();
+        }
+    }
+
+    function log(msg, type) {
+        const t = document.getElementById('console-log');
+        t.innerHTML = `<div class="log-entry log-${type}">> ${msg}</div>` + t.innerHTML;
+    }
+
+    function updateStatus(msg) {
+        document.getElementById('db-status-text').innerText = msg;
+        document.getElementById('db-status-dot').classList.remove('off');
+    }
+
+    function checkLocalData() {
+        if(localStorage.getItem(DB_KEY)) updateStatus("DB CONNECTED");
+        else {
+            document.getElementById('db-status-text').innerText = "DB EMPTY";
+            document.getElementById('db-status-dot').classList.add('off');
+        }
+    }
+
+    function download(content, name, type) {
+        const blob = new Blob([content], { type: `text/${type}` });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = name; a.click();
+    }
+
+    window.onload = checkLocalData;
+
+</script>
+</body>
+</html>
