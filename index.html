@@ -1,317 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Alchemist V133.27-R | Operator Interface</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,600;1,600&family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-
-<style>
-:root {
-    --bg:#000; --card:#111; --border:#222; --gold:#ffd600; --blue:#3498db;
-    --font-book:'Crimson Text',serif;
-    --font-ui:'Inter',sans-serif;
-    --font-mono:'JetBrains Mono',monospace;
-}
-
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{
-    margin:0;height:100vh;background:var(--bg);color:#fff;
-    font-family:var(--font-ui);
-    overflow:hidden;
-    touch-action:manipulation;
-    display:flex;flex-direction:column;
-}
-
-sub{font-size:.75em} sup{font-size:.75em}
-
-#header{width:90%;margin:25px auto 0;z-index:100}
-.header-meta{
-    display:flex;justify-content:space-between;
-    font-family:var(--font-mono);
-    font-size:.7rem;color:#555;letter-spacing:2px
-}
-.progress-track{width:100%;height:2px;background:#1a1a1a;margin-top:10px}
-#progress-bar{height:100%;background:var(--gold);width:0%;transition:.4s}
-
-#stack{
-    position:relative;width:92%;max-width:400px;height:70vh;
-    margin:auto;perspective:1200px;
-    display:flex;align-items:center;justify-content:center
-}
-
-.card{
-    position:absolute;width:100%;height:95%;
-    background:var(--card);border-radius:40px;border:1px solid var(--border);
-    padding:40px;display:flex;flex-direction:column;justify-content:center;
-    box-shadow:0 30px 90px rgba(0,0,0,.9);
-    will-change:transform
-}
-
-.card.study-active{
-    filter:blur(20px) brightness(.2);
-    opacity:.5;
-    transform:scale(.85) translateY(40px)!important;
-    pointer-events:none
-}
-
-.card-q{
-    font-family:var(--font-book);
-    font-size:1.7rem;line-height:1.4;
-    font-style:italic;font-weight:600;text-align:center
-}
-
-.swipe-label{
-    position:absolute;inset:0;
-    display:flex;align-items:center;justify-content:center;
-    background:#000;color:#fff;font-weight:900;font-size:1.8rem;
-    text-transform:uppercase;border-radius:40px;
-    opacity:0;pointer-events:none;padding:20px
-}
-
-.overlay{
-    position:absolute;inset:0;background:#0d0d0d;
-    padding:40px;border-radius:40px;
-    opacity:0;pointer-events:none;transition:.3s;
-    display:flex;flex-direction:column;justify-content:center;overflow-y:auto
-}
-.overlay.active{opacity:1;pointer-events:auto}
-.overlay-body{
-    font-family:var(--font-book);
-    font-size:1.1rem;line-height:1.6;color:#bbb;margin-bottom:30px
-}
-
-.btn{
-    width:100%;padding:18px;border-radius:50px;
-    border:none;background:#fff;color:#000;
-    font-weight:900;text-transform:uppercase
-}
-
-#loader{
-    position:fixed;inset:0;background:#000;z-index:5000;
-    display:flex;align-items:center;justify-content:center;
-    font-family:var(--font-mono);color:var(--gold);letter-spacing:5px
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>VIA.STACK | MASTER LAB</title>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/auto-render.min.js"></script>
 </head>
-
 <body>
 
-<div id="loader">SYSTEM SYNC...</div>
+<div id="loader">VIA.STACK // INITIALIZING</div>
 
 <div id="header">
     <div class="header-meta">
-        <span id="id-ui">ID: BOOT</span>
-        <span id="xp-ui">0 XP</span>
+        <span id="id-display">PROTOCOL_INIT</span>
+        <span id="xp-display">000 XP</span>
     </div>
-    <div class="progress-track"><div id="progress-bar"></div></div>
+    <div class="progress-track">
+        <div id="progress-bar"></div>
+    </div>
 </div>
 
 <div id="stack"></div>
 
 <script>
-/* ================= CORE CONFIG ================= */
-const SYS={
-    DB_KEY:'ALCHEMIST_MASTER_DB',
-    PROGRESS_KEY:'ALCH_V133_XP',
-    BUILD:'7',
-    PHYSICS:{SWIPE_THRESHOLD:100,ROTATION_FACTOR:20,ANIM_DURATION:400}
+/* --- 1. THE SCIENTIFIC NORMALIZER --- */
+const ProtocolNormalizer = {
+    patterns: [
+        { regex: /([A-Z][a-z]?)(\d+)/g, replace: '$1_{$2}' }, 
+        { regex: /\]\^([\+\-\d]+)/g, replace: ']^{$1}' },           
+        { regex: /\b([n|l|m|s])\s?=/g, replace: '\\mathit{$1} =' },
+        { regex: /psi/g, replace: '\\psi' },                  
+        { regex: /pi/g, replace: '\\pi' },                    
+        { regex: /E\^circ|E\*/g, replace: 'E^\\circ' }        
+    ],
+    apply(text) {
+        if (!text) return "";
+        let f = text.toString().trim().replace(/^\$+/, '').replace(/\$+$/, '');
+        this.patterns.forEach(p => f = f.replace(p.regex, p.replace));
+        return `$${f}$`;
+    }
 };
 
-/* ================= DATA LAYER ================= */
-class AlchemistDB{
-    static async fetchAll(){
-        try{
-            const cached=localStorage.getItem(SYS.DB_KEY);
-            if(cached) return JSON.parse(cached);
+/* --- 2. CORE LOGIC --- */
+let RAW_DATA = [], POOL = [], SCORE = 0, MODE = "DATASET_SELECT", isTransitioning = false;
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbxaMo1Gi8KjfYOr1_pHJI5XYJ1t9FK4PWkFCm8lU4MsCmUXvY0nSUIqYTAqhpumFRFL/exec";
 
-            const r=await fetch(`db/master.json?v=${SYS.BUILD}`,{cache:'no-store'});
-            const d=await r.json();
-            if(Array.isArray(d)){
-                localStorage.setItem(SYS.DB_KEY,JSON.stringify(d));
-                return d;
-            }
-        }catch(e){}
-        return [];
-    }
+async function init() {
+    try {
+        const r = await fetch(ENDPOINT);
+        const json = await r.json();
+        RAW_DATA = (Array.isArray(json) && json.length > 0) ? json : BACKUP_DATA;
+    } catch(e) { RAW_DATA = BACKUP_DATA; }
+    
+    document.getElementById('loader').remove();
+    renderDatasetSelect();
 }
 
-/* ================= TEXT FORMAT ================= */
-const TextFormatter={
-    parse:t=>!t?'':t.toString()
-        .replace(/([A-Z][a-z]?)(\d+)/g,'$1<sub>$2</sub>')
-        .replace(/\^(\d+)/g,'<sup>$1</sup>')
-        .replace(/(\d+)([+\-])/g,'$1<sup>$2</sup>')
-};
+function startQuiz(topic, genre) {
+    MODE = "QUIZ";
+    POOL = RAW_DATA.filter(q => {
+        const tMatch = (q.category || q.topic).toLowerCase().includes(topic.toLowerCase());
+        return tMatch;
+    }).map(q => ({
+        ...q,
+        q_text: ProtocolNormalizer.apply(q.question || q.question_text),
+        u_label: ProtocolNormalizer.apply(q.option_up || q.swipe_up_label),
+        r_label: ProtocolNormalizer.apply(q.option_right || q.swipe_right_label),
+        l_label: ProtocolNormalizer.apply(q.option_left || q.swipe_left_label),
+        explanation: ProtocolNormalizer.apply(q.explanation),
+        hint: ProtocolNormalizer.apply(q.hint || "Hint unavailable"),
+        correct: (q.correct_option?.toUpperCase().replace('OPTION_', '') || q.correct?.toUpperCase())
+    })).sort(() => Math.random() - 0.5);
 
-/* ================= PHYSICS ================= */
-class PhysicsController{
-    constructor(el,cbs){
-        this.el=el;this.cbs=cbs;this.active=false;
-        this.start={x:0,y:0};
-        this.labels={
-            UP:el.querySelector('.sl-up'),
-            LEFT:el.querySelector('.sl-left'),
-            RIGHT:el.querySelector('.sl-right'),
-            DOWN:el.querySelector('.sl-down')
-        };
-        this.bind();
-    }
-    bind(){
-        const s=e=>this.startDrag(e.touches?e.touches[0]:e);
-        const m=e=>this.move(e.touches?e.touches[0]:e);
-        const e=()=>this.end();
-        this.el.addEventListener('mousedown',s);
-        window.addEventListener('mousemove',m);
-        window.addEventListener('mouseup',e);
-        this.el.addEventListener('touchstart',s,{passive:false});
-        this.el.addEventListener('touchmove',x=>{if(this.active)x.preventDefault();m(x)},{passive:false});
-        this.el.addEventListener('touchend',e);
-    }
-    startDrag(p){this.active=true;this.start={x:p.clientX,y:p.clientY};this.el.style.transition='none'}
-    move(p){
-        if(!this.active)return;
-        const dx=p.clientX-this.start.x,dy=p.clientY-this.start.y;
-        const d=Math.hypot(dx,dy);
-        this.el.style.transform=`translate3d(${dx}px,${dy}px,0) rotate(${dx/SYS.PHYSICS.ROTATION_FACTOR}deg)`;
-        const a=(Math.atan2(-dy,dx)*180/Math.PI+360)%360;
-        Object.values(this.labels).forEach(l=>l&&(l.style.opacity=0));
-        if(d>20){
-            const dir=this.dir(a);
-            this.labels[dir]&&(this.labels[dir].style.opacity=Math.min(d/50,1));
-            this.cbs.onPeek(dir);
-        }
-    }
-    end(){
-        if(!this.active)return;
-        this.active=false;
-        const m=new WebKitCSSMatrix(getComputedStyle(this.el).transform);
-        const d=Math.hypot(m.m41,m.m42);
-        if(d>SYS.PHYSICS.SWIPE_THRESHOLD){
-            const a=(Math.atan2(-m.m42,m.m41)*180/Math.PI+360)%360;
-            this.cbs.onCommit(this.dir(a),m.m41,m.m42);
-        }else{
-            this.el.style.transition=`transform ${SYS.PHYSICS.ANIM_DURATION}ms cubic-bezier(.175,.885,.32,1.275)`;
-            this.el.style.transform='translate3d(0,0,0)';
-            this.cbs.onCancel();
-        }
-    }
-    dir(a){
-        if(a>=45&&a<135)return'UP';
-        if(a>=135&&a<225)return'LEFT';
-        if(a>=225&&a<315)return'DOWN';
-        return'RIGHT';
-    }
+    renderNext();
 }
 
-/* ================= UI STATE ================= */
-const UI={
-    stack:document.getElementById('stack'),
-    loader:document.getElementById('loader'),
-    xp:document.getElementById('xp-ui'),
-    bar:document.getElementById('progress-bar'),
-    id:document.getElementById('id-ui')
-};
-
-let STATE={
-    pool:[],
-    score:parseInt(localStorage.getItem(SYS.PROGRESS_KEY)||'0')
-};
-
-/* ================= BOOT (BYPASS OFFLINE) ================= */
-async function Boot(){
-    UI.loader.style.display='flex';
-    const all=await AlchemistDB.fetchAll();
-    UI.loader.style.display='none';
-    UpdateHUD();
-    RenderLobby(all.length?all:[{set:'SET_A'}]);
-}
-
-/* ================= FLOW ================= */
-function RenderLobby(data){
-    const sets=[...new Set(data.map(i=>i.set||'SET_A'))];
-    const el=document.createElement('div');
-    el.className='card';
-    el.innerHTML=`
-        <div class="card-q">SELECT ACTIVE VAULT</div>
-        <div class="swipe-label sl-up">${sets[0]||'SET_A'}</div>
-        <div class="swipe-label sl-left">${sets[1]||'EMPTY'}</div>
-        <div class="swipe-label sl-right">${sets[2]||'EMPTY'}</div>
-        <div class="swipe-label sl-down">ALL VAULTS</div>`;
-    UI.stack.appendChild(el);
-    new PhysicsController(el,{
-        onPeek:()=>{},
-        onCancel:()=>{},
-        onCommit:(d,x,y)=>{
-            let s=d==='UP'?sets[0]:d==='LEFT'?sets[1]:d==='RIGHT'?sets[2]:null;
-            FlyOut(el,x,y,()=>StartQuiz(s));
-        }
-    });
-}
-
-async function StartQuiz(set){
-    const all=await AlchemistDB.fetchAll();
-    STATE.pool=all.filter(i=>!set||i.set===set);
-    STATE.pool.sort(()=>Math.random()-.5);
-    NextCard();
-}
-
-function NextCard(){
-    UI.stack.innerHTML='';
-    if(!STATE.pool.length){location.reload();return;}
-    const d=STATE.pool[0];
-    UI.id.innerText=d.id||'—';
-    const el=document.createElement('div');
-    el.className='card';
-    el.innerHTML=`
-        <div class="card-q">${TextFormatter.parse(d.q)}</div>
-        <div class="swipe-label sl-up">${TextFormatter.parse(d.u)}</div>
-        <div class="swipe-label sl-left">${TextFormatter.parse(d.l)}</div>
-        <div class="swipe-label sl-right">${TextFormatter.parse(d.r)}</div>
-        <div class="swipe-label sl-down" style="color:var(--blue)">HINT</div>
+function renderNext() {
+    const s = document.getElementById('stack'); s.innerHTML = "";
+    if (!POOL.length) { location.reload(); return; }
+    
+    const q = POOL[0];
+    const c = document.createElement('div'); c.className = "card";
+    c.innerHTML = `
+        <div class="card-q">${q.q_text}</div>
+        <div class="swipe-label sl-up">${q.u_label}</div>
+        <div class="swipe-label sl-left">${q.l_label}</div>
+        <div class="swipe-label sl-right">${q.r_label}</div>
+        <div class="swipe-label sl-down sl-down-hint">${q.hint}</div>
         <div class="overlay">
-            <div class="overlay-body">
-                <strong>THEORETICAL ANCHOR:</strong><br>${TextFormatter.parse(d.logic)}
-                <br><br><strong>TRAP ANALYSIS:</strong><br>${TextFormatter.parse(d.note)}
-            </div>
-            <button class="btn" onclick="this.parentElement.classList.remove('active')">RESUME</button>
+            <div class="overlay-label">LOGIC ANALYSIS</div>
+            <div class="overlay-body">${q.explanation}</div>
+            <button class="btn" onclick="this.parentElement.classList.remove('active')">CONTINUE</button>
         </div>`;
-    UI.stack.appendChild(el);
-    new PhysicsController(el,{
-        onPeek:dir=>dir==='DOWN'?el.classList.add('study-active'):el.classList.remove('study-active'),
-        onCancel:()=>el.classList.remove('study-active'),
-        onCommit:(dir,x,y)=>{
-            if(dir==='DOWN'){
-                el.querySelector('.overlay').classList.add('active');
-                el.style.transform='translate3d(0,0,0)';
-                el.classList.remove('study-active');
-            }else{
-                const ans=dir==='UP'?d.u:dir==='LEFT'?d.l:d.r;
-                if(ans===d.correct){
-                    STATE.score+=10;
-                    localStorage.setItem(SYS.PROGRESS_KEY,STATE.score);
-                    UpdateHUD();
-                }
-                FlyOut(el,x,y,()=>{STATE.pool.shift();NextCard();});
-            }
-        }
-    });
+    
+    s.appendChild(c);
+    bindPhysics(c, q);
+
+    renderMathInElement(c, { delimiters: [{ left: "$", right: "$", display: false }] });
 }
 
-function FlyOut(el,x,y,cb){
-    el.style.transition='transform .4s ease, opacity .3s';
-    el.style.transform=`translate3d(${x*1.5}px,${y*1.5}px,0)`;
-    el.style.opacity='0';
-    setTimeout(()=>{el.remove();cb();},400);
+function handleAction(el, data, x, y, dir) {
+    if (isTransitioning) return;
+    isTransitioning = true;
+
+    if (MODE === "DATASET_SELECT") renderTopicSelect("SET_A");
+    else if (MODE === "TOPIC_SELECT") renderGenreSelect("Physical");
+    else if (MODE === "GENRE_SELECT") startQuiz("Physical", "CONCEPT");
+    else if (MODE === "QUIZ") {
+        if (dir === data.correct) { SCORE += 10; updateUI(); }
+        POOL.shift(); renderNext();
+    }
+
+    el.style.transition = "transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s";
+    el.style.transform = `translate3d(${x * 12}px, ${y * 12}px, 0) rotate(${x / 5}deg)`;
+    el.style.opacity = "0";
+    setTimeout(() => { el.remove(); isTransitioning = false; }, 400);
 }
 
-function UpdateHUD(){
-    UI.xp.innerText=`${STATE.score} XP`;
-    UI.bar.style.width=`${STATE.score%100}%`;
+function updateUI() {
+    document.getElementById('xp-display').innerText = `${SCORE} XP`;
+    document.getElementById('progress-bar').style.width = `${(SCORE % 100)}%`;
 }
 
-window.onload=Boot;
+window.onload = init;
 </script>
 </body>
 </html>
