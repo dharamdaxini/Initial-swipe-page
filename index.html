@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
     <title>VIA.STACK | MASTER LAB</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,600;1,600&family=Inter:wght@400;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
@@ -13,11 +13,17 @@
 
     <style>
         :root {
-            --bg: #000; --card: #111; --border: #222; --gold: #ffd600; --blue: #3498db;
-            --font-serif: 'Crimson Text', serif; --font-sans: 'Inter', sans-serif; --font-mono: 'JetBrains Mono', monospace;
+            --bg: #000000;
+            --card-bg: #111111;
+            --border: #222222;
+            --gold: #ffd600;
+            --blue: #3498db;
+            --font-serif: 'Crimson Text', serif;
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
         }
 
-        /* --- PHYSICS RESET --- */
+        /* Physics & Safety Reset */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body { 
             margin: 0; height: 100vh; background: var(--bg); color: #fff;
@@ -25,40 +31,59 @@
             user-select: none; -webkit-user-select: none; touch-action: none; 
         }
 
-        /* --- HUD & TELEMETRY --- */
+        /* --- THE SINGULARITY HUD --- */
         #header { width: 90%; margin: 35px auto 0; z-index: 100; position: relative; }
         .header-meta { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.65rem; color: #555; letter-spacing: 2px; }
-        .progress-track { width: 100%; height: 2px; background: #1a1a1a; margin-top: 10px; overflow: hidden; }
+        .progress-track { width: 100%; height: 2px; background: #1a1a1a; margin-top: 10px; border-radius: 1px; overflow: hidden; }
         #progress-bar { height: 100%; background: var(--gold); width: 0%; transition: width 0.4s ease; }
 
-        /* --- THE STACK ENGINE --- */
+        /* --- THE STACK --- */
         #stack { position: relative; width: 92%; max-width: 400px; height: 72vh; margin: 30px auto 0; perspective: 1200px; }
         .card { 
-            position: absolute; width: 100%; height: 100%; background: var(--card); border-radius: 40px; 
-            border: 1px solid var(--border); padding: 40px; display: flex; flex-direction: column; 
-            justify-content: center; box-shadow: 0 30px 90px rgba(0,0,0,0.9); will-change: transform; 
+            position: absolute; width: 100%; height: 100%; background: var(--card-bg); 
+            border-radius: 40px; border: 1px solid var(--border); padding: 40px; 
+            display: flex; flex-direction: column; justify-content: center; 
+            box-shadow: 0 30px 90px rgba(0,0,0,0.9); will-change: transform; cursor: grab; 
         }
 
         /* --- VISUAL PROTOCOL WRAPPER --- */
         .alch-card-visual {
-            width: 100%; text-align: center; font-family: var(--font-serif);
-            font-size: 1.6rem; line-height: 1.3; color: #f0f0f0;
-            overflow-wrap: break-word; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 100%;
+            text-align: center;
+            font-family: var(--font-serif);
+            font-size: 1.6rem;
+            line-height: 1.3;
+            color: #f0f0f0;
+            /* Prevents long text from breaking the UI */
+            overflow-wrap: break-word;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* HUD Gesture Labels */
-        .swipe-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: #000; color: #fff; font-weight: 900; font-size: 1.6rem; text-transform: uppercase; border-radius: 40px; z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.1s; }
-        .sl-do { color: var(--blue) !important; font-size: 1.2rem !important; text-transform: none !important; font-family: var(--font-serif) !important; }
+        /* Swipe HUD Labels */
+        .swipe-label {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            background: #000; color: #fff; font-weight: 900; font-size: 1.6rem; text-transform: uppercase;
+            border-radius: 40px; z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.1s;
+        }
 
-        /* Logic Well Overlay */
-        .overlay { position: absolute; inset: 0; background: #0d0d0d; z-index: 1100; padding: 40px; opacity: 0; pointer-events: none; border-radius: 40px; transition: opacity 0.3s ease; display: flex; flex-direction: column; justify-content: center; }
+        /* Logic Overlay */
+        .overlay {
+            position: absolute; inset: 0; background: #0d0d0d; z-index: 1100; padding: 40px;
+            opacity: 0; pointer-events: none; border-radius: 40px; transition: opacity 0.3s ease;
+            display: flex; flex-direction: column; justify-content: center;
+        }
         .overlay.active { opacity: 1; pointer-events: auto; }
-        .overlay-body { font-size: 1.1rem; line-height: 1.6; color: #bbb; font-family: var(--font-serif); font-style: italic; }
+        .overlay-body { font-size: 1.1rem; line-height: 1.5; color: #bbb; font-family: var(--font-serif); font-style: italic; }
 
-        .btn { width: 100%; padding: 18px; border-radius: 50px; border: none; background: #fff; color: #000; font-weight: 900; text-transform: uppercase; margin-top: 20px; cursor: pointer; }
         #loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); color: var(--gold); letter-spacing: 5px; font-size: 0.8rem; }
         
-        .katex { font-size: 1.1em !important; } /* Scientific Fidelity */
+        .btn { width: 100%; padding: 18px; border-radius: 50px; border: none; background: #fff; color: #000; font-weight: 900; text-transform: uppercase; margin-top: 20px; }
+
+        /* KaTeX Adjustment for Mobile Subscripts */
+        .katex { font-size: 1.1em !important; }
     </style>
 </head>
 <body>
@@ -67,7 +92,7 @@
 
 <div id="header">
     <div class="header-meta">
-        <span id="id-display">MASTER_VAULT_CONNECT</span>
+        <span id="id-display">PROTOCOL_V133.40</span>
         <span id="xp-display">000 XP</span>
     </div>
     <div class="progress-track">
@@ -77,107 +102,7 @@
 
 <div id="stack"></div>
 
-<div id="alch-protocol" style="display:none;"></div>
+<div id="pdf-container" style="display:none;"></div>
 
-<script>
-/* --- INTEGRATED LOGIC --- */
-const JSON_URL = "https://raw.githubusercontent.com/dharamdaxini/Initial-swipe-page/main/db/master.json";
-
-/* 1. Scientific Normalizer */
-const ProtocolNormalizer = {
-    patterns: [
-        { regex: /([A-Z][a-z]?)(\d+)/g, replace: '$1_{$2}' }, 
-        { regex: /\]\^([\+\-\d]+)/g, replace: ']^{$1}' },           
-        { regex: /\b([n|l|m|s])\s?=/g, replace: '\\mathit{$1} =' },
-        { regex: /psi/g, replace: '\\psi' },                  
-        { regex: /E\^circ|E\*/g, replace: 'E^\\circ' }        
-    ],
-    apply(text) {
-        if (!text) return "";
-        let f = text.toString().trim().replace(/^\$+/, '').replace(/\$+$/, ''); // Strip double-delimiters
-        this.patterns.forEach(p => f = f.replace(p.regex, p.replace));
-        return `$${f}$`;
-    }
-};
-
-const VisualProtocol = { wrap(c) { return `<div class="alch-card-visual">${ProtocolNormalizer.apply(c)}</div>`; } };
-
-let RAW_DATA = [], POOL = [], SCORE = 0, isBusy = false, active = false, tx = 0, ty = 0, sx = 0, sy = 0;
-
-/* 2. System Initialization */
-async function init() {
-    try {
-        const r = await fetch(JSON_URL);
-        const data = await r.json();
-        RAW_DATA = data.map(q => ({
-            id: q.id,
-            q: VisualProtocol.wrap(q.question),
-            u: VisualProtocol.wrap(q.option_up),
-            r: VisualProtocol.wrap(q.option_right),
-            l: VisualProtocol.wrap(q.option_left),
-            ex: ProtocolNormalizer.apply(q.explanation),
-            h: q.hint || "Visual Prompt",
-            c: q.correct_option.replace('option_', '').toUpperCase()
-        }));
-        document.getElementById('loader').remove();
-        startSession();
-    } catch (e) { console.error("Cloud Sync Fail.", e); }
-}
-
-function startSession() { POOL = [...RAW_DATA].sort(() => Math.random() - 0.5); renderNext(); }
-
-function renderNext() {
-    const s = document.getElementById('stack'); s.innerHTML = "";
-    if (!POOL.length) { s.innerHTML = `<div class="card"><div class="alch-card-visual">VAULT DEPLETED</div><button class="btn" onclick="location.reload()">RE-BOOT</button></div>`; return; }
-    
-    const d = POOL.shift();
-    const c = document.createElement('div'); c.className = "card";
-    c.innerHTML = `
-        <div class="card-q">${d.q}</div>
-        <div class="swipe-label sl-up">${d.u}</div><div class="swipe-label sl-lt">${d.l}</div>
-        <div class="swipe-label sl-ri">${d.r}</div><div class="swipe-label sl-do sl-do-hint">HINT: ${d.h}</div>
-        <div class="overlay"><div class="overlay-body">${d.ex}</div><button class="btn" onclick="this.parentNode.classList.remove('active')">CONTINUE</button></div>`;
-    
-    s.appendChild(c); document.getElementById('id-display').innerText = d.id; bindPhysics(c, d);
-    renderMathInElement(c, { delimiters: [{ left: "$", right: "$", display: false }] });
-}
-
-/* 3. Physics & Handlers */
-function bindPhysics(el, data) {
-    const labels = { up: el.querySelector('.sl-up'), lt: el.querySelector('.sl-lt'), rt: el.querySelector('.sl-ri'), dn: el.querySelector('.sl-do') };
-    const start = e => { if (isBusy || el.querySelector('.overlay.active')) return; active = true; const p = e.touches ? e.touches[0] : e; sx = p.clientX; sy = p.clientY; el.style.transition = "none"; physicsLoop(el, labels); };
-    const move = e => { if (!active) return; const p = e.touches ? e.touches[0] : e; tx = p.clientX - sx; ty = p.clientY - sy; };
-    const end = () => {
-        if (!active) return; active = false; const dist = Math.sqrt(tx**2 + ty**2);
-        if (dist > 80) {
-            let ang = Math.atan2(-ty, tx) * (180 / Math.PI); if (ang < 0) ang += 360;
-            const dir = (ang>=45&&ang<135)?"UP":(ang>=135&&ang<225)?"LEFT":(ang>=225&&ang<315)?"DOWN":"RIGHT";
-            if (dir === "DOWN") { el.querySelector('.overlay').classList.add('active'); tx = 0; ty = 0; el.style.transition = "transform 0.3s ease"; el.style.transform = `translate3d(0,0,0)`; }
-            else handleSwipe(el, data, dir);
-        } else { tx = 0; ty = 0; el.style.transition = "transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)"; el.style.transform = `translate3d(0,0,0) rotate(0deg)`; }
-    };
-    el.onmousedown = start; window.onmousemove = move; window.onmouseup = end;
-    el.ontouchstart = start; el.ontouchmove = move; el.ontouchend = end;
-}
-
-function physicsLoop(el, labels) {
-    if (!active && !isBusy) return;
-    const dist = Math.sqrt(tx**2 + ty**2);
-    el.style.transform = `translate3d(${tx}px, ${ty}px, 0) rotate(${tx / 20}deg)`;
-    Object.values(labels).forEach(l => { if(l) l.style.opacity = 0; });
-    if (dist > 15) {
-        let ang = Math.atan2(-ty, tx) * (180 / Math.PI); if (ang < 0) ang += 360;
-        let L = (ang>=45&&ang<135)?labels.up:(ang>=135&&ang<225)?labels.lt:(ang>=225&&ang<315)?labels.dn:labels.rt;
-        if (L) L.style.opacity = Math.min(dist / 50, 1);
-    }
-    requestAnimationFrame(() => physicsLoop(el, labels));
-}
-
-function handleSwipe(el, data, dir) { isBusy = true; if (dir === data.c) SCORE += 10; updateHUD(); el.style.transition = "transform 0.5s ease-in, opacity 0.3s"; el.style.transform = `translate3d(${tx * 5}px, ${ty * 5}px, 0)`; el.style.opacity = "0"; setTimeout(() => { el.remove(); isBusy = false; renderNext(); }, 500); }
-
-function updateHUD() { document.getElementById('xp-display').innerText = `${SCORE} XP`; document.getElementById('progress-bar').style.width = `${(SCORE % 100)}%`; }
-
-window.onload = init;
-</script>
 </body>
 </html>
