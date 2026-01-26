@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Alchemist V131.99.12-R | Backend Upgrade</title>
+    <title>Alchemist V133.27-R | Operator Interface</title>
     <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,600;1,600&family=Inter:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -44,7 +44,7 @@
 </head>
 <body>
 
-<div id="loader">SYSTEM UPGRADE...</div>
+<div id="loader">SYSTEM SYNC...</div>
 <div id="header">
     <div class="header-meta"><span id="id-ui">ID: BOOT</span><span id="xp-ui">0 XP</span></div>
     <div class="progress-track"><div id="progress-bar"></div></div>
@@ -54,158 +54,54 @@
 <script>
 /**
  * ------------------------------------------------------------------
- * ALCHEMIST BACKEND CORE | V131.99.12-R
+ * ALCHEMIST BACKEND CORE | V133.27-R (COMPATIBILITY BRIDGE)
  * ------------------------------------------------------------------
- * UPGRADES:
- * 1. IndexedDB Hardening (AlchemistDB)
- * 2. Vault-Based Data Architecture
- * 3. Physics Engine (Atan2 Quadrants)
- * 4. Session-State Bridge
- * 5. Scientific Text Rendering
+ * Logic: Reads from Admin Console v133.27 LocalStorage Dataset.
+ * UI/UX: Preserved strictly from v131.99.12-R.
  * ------------------------------------------------------------------
  */
 
-/* --- 0. BOOT DATA (RAW INGEST SOURCE) --- */
-const RAW_DATA = [
-    {"id": "SET_A_0001", "ds": "SET_A", "tp": "Analytical", "ty": "CONCEPT", "q": "Accuracy refers to closeness to the true value.", "u": "Repeatability", "r": "True value", "l": "Data spread", "c": "RIGHT", "ex": "❌ Repeatability defines precision. || ✅ Accuracy measures closeness to the true value.", "h": "True value."},
-    {"id": "SET_A_0002", "ds": "SET_A", "tp": "Analytical", "ty": "CONCEPT", "q": "Precision reflects reproducibility of measurements.", "u": "Accuracy", "r": "Reproducibility", "l": "Bias", "c": "RIGHT", "ex": "❌ Closeness defines accuracy. || ✅ Precision describes reproducibility.", "h": "Repeatability."},
-    {"id": "SET_A_0003", "ds": "SET_A", "tp": "Analytical", "ty": "CONCEPT", "q": "Systematic errors shift the mean of data.", "u": "Random scatter", "r": "Shift the mean", "l": "Cancel out", "c": "RIGHT", "ex": "✅ Systematic errors introduce a consistent shift in the mean.", "h": "Bias."},
-    {"id": "SET_A_0004", "ds": "SET_A", "tp": "Analytical", "ty": "CONCEPT", "q": "Random errors affect measurement precision.", "u": "Shift true value", "r": "Improve accuracy", "l": "Affect precision", "c": "LEFT", "ex": "✅ Random errors increase spread and reduce precision.", "h": "Noise."},
-    {"id": "SET_A_0005", "ds": "SET_A", "tp": "Analytical", "ty": "CONCEPT", "q": "Calibration curves relate signal to concentration.", "u": "Signal to time", "r": "Signal to concentration", "l": "Volume", "c": "RIGHT", "ex": "✅ Calibration curves map signal response versus concentration.", "h": "Calibration."},
-    {"id": "SET_A_0006", "ds": "SET_A", "tp": "Analytical", "ty": "CONCEPT", "q": "Linear calibration assumes proportional response.", "u": "Nonlinear", "r": "Proportional", "l": "Threshold", "c": "RIGHT", "ex": "✅ Linear calibration assumes proportionality.", "h": "Linearity."},
-    {"id": "SET_A_0007", "ds": "SET_A", "tp": "Analytical", "ty": "CONCEPT", "q": "Limit of detection is the lowest detectable signal.", "u": "Quantification", "r": "Detectable signal", "l": "Highest signal", "c": "RIGHT", "ex": "✅ LOD is the minimum signal distinguishable from noise.", "h": "Detection."},
-    {"id": "SET_A_0008", "ds": "SET_A", "tp": "Analytical", "ty": "CONCEPT", "q": "Limit of quantification exceeds limit of detection.", "u": "Lower than LOD", "r": "Equal to LOD", "l": "Higher than LOD", "c": "LEFT", "ex": "✅ LOQ is higher than LOD due to precision requirements.", "h": "Quantification."},
-    {"id": "SET_A_0009", "ds": "SET_A", "tp": "Analytical", "ty": "CONCEPT", "q": "Internal standards correct for sample loss.", "u": "Detector drift", "r": "Sample loss", "l": "Analyte chemistry", "c": "RIGHT", "ex": "✅ Internal standards compensate for losses during analysis.", "h": "IS method."},
-    {"id": "SET_A_0010", "ds": "SET_A", "tp": "Analytical", "ty": "CONCEPT", "q": "External calibration uses standards run separately.", "u": "Same sample", "r": "Separate standards", "l": "No standards", "c": "RIGHT", "ex": "✅ External calibration relies on separately prepared standards.", "h": "External cal."},
-    {"id": "SET_A_0011", "ds": "SET_A", "tp": "Statistics", "ty": "CONCEPT", "q": "Mean represents central tendency.", "u": "Data spread", "r": "Central tendency", "l": "Skewness", "c": "RIGHT", "ex": "✅ Mean is a measure of central tendency.", "h": "Average."},
-    {"id": "SET_A_0012", "ds": "SET_A", "tp": "Statistics", "ty": "CONCEPT", "q": "Median is resistant to outliers.", "u": "Highly sensitive", "r": "Resistant to outliers", "l": "Equals mean", "c": "RIGHT", "ex": "✅ Median is robust against outliers.", "h": "Robust statistic."},
-    {"id": "SET_A_0013", "ds": "SET_A", "tp": "Statistics", "ty": "CONCEPT", "q": "Variance is the square of standard deviation.", "u": "Square root", "r": "Square of SD", "l": "Same as SD", "c": "RIGHT", "ex": "✅ Variance equals the square of standard deviation.", "h": "σ²."},
-    {"id": "SET_A_0014", "ds": "SET_A", "tp": "Statistics", "ty": "CONCEPT", "q": "Standard deviation measures data dispersion.", "u": "Central value", "r": "Dispersion", "l": "Shape", "c": "RIGHT", "ex": "✅ Standard deviation quantifies dispersion.", "h": "Spread."},
-    {"id": "SET_A_0015", "ds": "SET_A", "tp": "Statistics", "ty": "CONCEPT", "q": "Normal distribution is symmetric.", "u": "Left-skewed", "r": "Right-skewed", "l": "Symmetric", "c": "LEFT", "ex": "✅ Normal distribution is symmetric about the mean.", "h": "Bell curve."},
-    {"id": "SET_A_0016", "ds": "SET_A", "tp": "Statistics", "ty": "CONCEPT", "q": "Confidence interval gives range of plausible values.", "u": "Single estimate", "r": "Exact value", "l": "Plausible range", "c": "LEFT", "ex": "✅ Confidence interval estimates a plausible parameter range.", "h": "Uncertainty."},
-    {"id": "SET_A_0017", "ds": "SET_A", "tp": "Statistics", "ty": "CONCEPT", "q": "p-value indicates evidence against null hypothesis.", "u": "Truth of null", "r": "Effect size", "l": "Evidence strength", "c": "LEFT", "ex": "✅ p-value measures evidence against the null hypothesis.", "h": "Hypothesis test."},
-    {"id": "SET_A_0018", "ds": "SET_A", "tp": "Statistics", "ty": "CONCEPT", "q": "Type I error is false positive.", "u": "False negative", "r": "False positive", "l": "Correct rejection", "c": "RIGHT", "ex": "✅ Type I error means rejecting a true null.", "h": "α error."},
-    {"id": "SET_A_0019", "ds": "SET_A", "tp": "Statistics", "ty": "CONCEPT", "q": "Type II error is false negative.", "u": "False positive", "r": "False negative", "l": "Correct acceptance", "c": "RIGHT", "ex": "✅ Type II error is failing to reject a false null.", "h": "β error."},
-    {"id": "SET_A_0020", "ds": "SET_A", "tp": "Statistics", "ty": "CONCEPT", "q": "Increasing sample size reduces standard error.", "u": "Increases error", "r": "No effect", "l": "Reduces error", "c": "LEFT", "ex": "✅ Increasing sample size reduces standard error.", "h": "Sample size."},
-    {"id": "SET_A_0021", "ds": "SET_A", "tp": "Physical", "ty": "CONCEPT", "q": "Enthalpy change equals heat at constant pressure.", "u": "Constant volume", "r": "Constant pressure", "l": "Work done", "c": "RIGHT", "ex": "✅ ΔH equals heat exchanged at constant pressure.", "h": "ΔH."},
-    {"id": "SET_A_0022", "id_copy": "SET_A_0022", "ds": "SET_A", "tp": "Physical", "ty": "CONCEPT", "q": "Exothermic reactions have negative ΔH.", "u": "Positive ΔH", "r": "Negative ΔH", "l": "Zero ΔH", "c": "RIGHT", "ex": "✅ Exothermic reactions release heat with negative ΔH.", "h": "Heat release."},
-    {"id": "SET_A_0023", "ds": "SET_A", "tp": "Physical", "ty": "CONCEPT", "q": "Endothermic reactions absorb heat.", "u": "Release heat", "r": "Absorb heat", "l": "No heat change", "c": "RIGHT", "ex": "✅ Endothermic reactions absorb heat from surroundings.", "h": "Heat absorption."},
-    {"id": "SET_A_0024", "ds": "SET_A", "tp": "Physical", "ty": "CONCEPT", "q": "Gibbs free energy predicts spontaneity.", "u": "Rate", "r": "Spontaneity", "l": "Mechanism", "c": "RIGHT", "ex": "✅ ΔG determines spontaneity under given conditions.", "h": "ΔG."},
-    {"id": "SET_A_0025", "ds": "SET_A", "tp": "Physical", "ty": "CONCEPT", "q": "Negative ΔG implies spontaneous process.", "u": "Nonspontaneous", "r": "Equilibrium", "l": "Spontaneous", "c": "LEFT", "ex": "✅ ΔG < 0 indicates a spontaneous process.", "h": "Thermodynamics."},
-    {"id": "SET_A_0026", "ds": "SET_A", "tp": "Physical", "ty": "CONCEPT", "q": "Entropy measures disorder or dispersal.", "u": "Energy", "r": "Disorder", "l": "Temperature", "c": "RIGHT", "ex": "✅ Entropy quantifies disorder or energy dispersal.", "h": "Entropy."},
-    {"id": "SET_A_0027", "ds": "SET_A", "tp": "Physical", "ty": "CONCEPT", "q": "Second law states total entropy increases.", "u": "Decreases", "r": "Remains constant", "l": "Increases overall", "c": "LEFT", "ex": "✅ Total entropy of universe increases for spontaneous processes.", "h": "Second law."},
-    {"id": "SET_A_0028", "ds": "SET_A", "tp": "Physical", "ty": "CONCEPT", "q": "State functions depend only on state.", "u": "Path dependent", "r": "State dependent", "l": "Time dependent", "c": "RIGHT", "ex": "✅ State functions depend only on initial and final states.", "h": "State function."},
-    {"id": "SET_A_0029", "ds": "SET_A", "tp": "Physical", "ty": "CONCEPT", "q": "Internal energy is a state function.", "u": "Path dependent", "r": "State function", "l": "Process dependent", "c": "RIGHT", "ex": "✅ Internal energy depends only on state.", "h": "U."},
-    {"id": "SET_A_0030", "ds": "SET_A", "tp": "Physical", "ty": "CONCEPT", "q": "Isothermal process occurs at constant temperature.", "u": "Constant pressure", "r": "Constant temperature", "l": "Constant volume", "c": "RIGHT", "ex": "✅ Isothermal means constant temperature.", "h": "Isothermal."},
-    {"id": "SET_A_0031", "ds": "SET_A", "tp": "Organic", "ty": "CONCEPT", "q": "Alkanes contain only single bonds.", "u": "Double bonds", "r": "Only single bonds", "l": "Aromatic", "c": "RIGHT", "ex": "✅ Alkanes consist solely of single C–C bonds.", "h": "Saturation."},
-    {"id": "SET_A_0032", "ds": "SET_A", "tp": "Organic", "ty": "CONCEPT", "q": "Alkenes contain a carbon–carbon double bond.", "u": "Single bond", "r": "Double bond", "l": "Triple bond", "c": "RIGHT", "ex": "✅ Alkenes are characterized by C=C bonds.", "h": "Unsaturation."},
-    {"id": "SET_A_0033", "ds": "SET_A", "tp": "Organic", "ty": "CONCEPT", "q": "Alkynes contain carbon–carbon triple bonds.", "u": "Single bonds", "r": "Double bonds", "l": "Triple bonds", "c": "LEFT", "ex": "✅ Alkynes feature C≡C triple bonds.", "h": "Unsaturation."},
-    {"id": "SET_A_0034", "ds": "SET_A", "tp": "Organic", "ty": "CONCEPT", "q": "Primary alcohols oxidize to aldehydes.", "u": "Ketones", "r": "Carboxylic acids", "l": "Aldehydes", "c": "LEFT", "ex": "✅ Primary alcohols oxidize to aldehydes under mild conditions.", "h": "Oxidation."},
-    {"id": "SET_A_0035", "ds": "SET_A", "tp": "Organic", "ty": "CONCEPT", "q": "Secondary alcohols oxidize to ketones.", "u": "Aldehydes", "r": "Carboxylic acids", "l": "Ketones", "c": "LEFT", "ex": "✅ Secondary alcohols oxidize to ketones.", "h": "Oxidation."},
-    {"id": "SET_A_0036", "ds": "SET_A", "tp": "Organic", "ty": "CONCEPT", "q": "Tertiary alcohols resist oxidation.", "u": "Easily oxidized", "r": "Resist oxidation", "l": "Oxidize to acids", "c": "RIGHT", "ex": "✅ Tertiary alcohols are resistant to oxidation.", "h": "Structure."},
-    {"id": "SET_A_0037", "ds": "SET_A", "tp": "Organic", "ty": "CONCEPT", "q": "SN1 reactions proceed via carbocation.", "u": "Concerted", "r": "Carbocation", "l": "Radical", "c": "RIGHT", "ex": "✅ SN1 reactions involve carbocation intermediates.", "h": "Mechanism."},
-    {"id": "SET_A_0038", "ds": "SET_A", "tp": "Organic", "ty": "CONCEPT", "q": "SN2 reactions are bimolecular.", "u": "Unimolecular", "r": "Bimolecular", "l": "Zero order", "c": "RIGHT", "ex": "✅ SN2 rate depends on two species.", "h": "Kinetics."},
-    {"id": "SET_A_0039", "ds": "SET_A", "tp": "Organic", "ty": "CONCEPT", "q": "SN2 reactions involve backside attack.", "u": "Frontside", "r": "Backside", "l": "Radical", "c": "RIGHT", "ex": "✅ SN2 requires backside nucleophilic attack.", "h": "Inversion."},
-    {"id": "SET_A_0040", "ds": "SET_A", "tp": "Organic", "ty": "CONCEPT", "q": "SN2 reactions show inversion of configuration.", "u": "Retention", "r": "Inversion", "l": "No change", "c": "RIGHT", "ex": "✅ SN2 leads to inversion of stereochemistry.", "h": "Walden inversion."},
-    {"id": "SET_A_0041", "ds": "SET_A", "tp": "Inorganic", "ty": "CONCEPT", "q": "Coordination number equals donor atoms.", "u": "Ligand count", "r": "Donor atoms", "l": "Oxidation state", "c": "RIGHT", "ex": "✅ Coordination number counts donor atoms bound to metal.", "h": "Coordination."},
-    {"id": "SET_A_0042", "ds": "SET_A", "tp": "Inorganic", "ty": "CONCEPT", "q": "Chelating ligands increase complex stability.", "u": "Decrease", "r": "Increase", "l": "No effect", "c": "RIGHT", "ex": "✅ Chelating ligands form more stable complexes.", "h": "Chelate effect."},
-    {"id": "SET_A_0043", "ds": "SET_A", "tp": "Inorganic", "ty": "CONCEPT", "q": "Crystal field splitting depends on ligand strength.", "u": "Metal mass", "r": "Ligand strength", "l": "Temperature", "c": "RIGHT", "ex": "✅ Ligand field strength affects splitting.", "h": "Δo."},
-    {"id": "SET_A_0044", "ds": "SET_A", "tp": "Inorganic", "ty": "CONCEPT", "q": "Octahedral complexes have coordination number six.", "u": "Four", "r": "Five", "l": "Six", "c": "LEFT", "ex": "✅ Octahedral geometry corresponds to CN=6.", "h": "Geometry."},
-    {"id": "SET_A_0045", "ds": "SET_A", "tp": "Inorganic", "ty": "CONCEPT", "q": "Weak-field ligands favor high-spin complexes.", "u": "Low-spin", "r": "High-spin", "l": "No effect", "c": "RIGHT", "ex": "✅ Weak-field ligands produce high-spin complexes.", "h": "Spin state."},
-    {"id": "SET_A_0046", "ds": "SET_A", "tp": "Electrochem", "ty": "CONCEPT", "q": "Oxidation occurs at the anode.", "u": "Cathode", "r": "Anode", "l": "Electrolyte", "c": "RIGHT", "ex": "✅ Oxidation always occurs at the anode.", "h": "Redox."},
-    {"id": "SET_A_0047", "ds": "SET_A", "tp": "Electrochem", "ty": "CONCEPT", "q": "Reduction occurs at the cathode.", "u": "Anode", "r": "Cathode", "l": "External circuit", "c": "RIGHT", "ex": "✅ Reduction takes place at the cathode.", "h": "Redox."},
-    {"id": "SET_A_0048", "ds": "SET_A", "tp": "Electrochem", "ty": "CONCEPT", "q": "Cell potential equals cathode minus anode potential.", "u": "Anode - Cathode", "r": "Sum", "l": "Cathode - Anode", "c": "LEFT", "ex": "✅ Ecell = Ecathode − Eanode.", "h": "Cell voltage."},
-    {"id": "SET_A_0049", "ds": "SET_A", "tp": "Electrochem", "ty": "CONCEPT", "q": "Positive cell potential indicates spontaneity.", "u": "Nonspontaneous", "r": "Spontaneous", "l": "Equilibrium", "c": "RIGHT", "ex": "✅ Positive potential implies spontaneous cell reaction.", "h": "Spontaneity."},
-    {"id": "SET_A_0050", "ds": "SET_A", "tp": "Electrochem", "ty": "CONCEPT", "q": "Nernst equation relates potential to concentration.", "u": "Temperature", "r": "Concentration", "l": "Pressure", "c": "RIGHT", "ex": "✅ Nernst links potential to ion concentration.", "h": "Nernst."}
-];
-
-/* --- 1. SYSTEM CONFIGURATION --- */
 const SYS = {
-    DB_NAME: 'AlchemistDB_v1',
-    DB_STORE: 'Vaults',
+    DB_KEY: 'ALCHEMIST_MASTER_DB',
+    PROGRESS_KEY: 'ALCH_V133_XP',
     PHYSICS: {
-        SWIPE_THRESHOLD: 100, // px
-        ROTATION_FACTOR: 20,  // dx / 20
-        ANIM_DURATION: 400    // ms
-    },
-    SESSION_KEYS: {
-        XP: 'ALCH_XP',
-        LAST_VAULT: 'ALCH_VAULT'
+        SWIPE_THRESHOLD: 100,
+        ROTATION_FACTOR: 20,
+        ANIM_DURATION: 400
     }
 };
 
-/* --- 2. INDEXEDDB ENGINE (ALCHEMISTDB) --- */
+/* --- 1. DATA ADAPTER (LOCALSTORAGE BRIDGE) --- */
 class AlchemistDB {
-    static async connect() {
-        return new Promise((resolve, reject) => {
-            const req = indexedDB.open(SYS.DB_NAME, 1);
-            req.onupgradeneeded = (e) => {
-                const db = e.target.result;
-                if (!db.objectStoreNames.contains(SYS.DB_STORE)) {
-                    db.createObjectStore(SYS.DB_STORE, { keyPath: 'id' });
-                }
-            };
-            req.onsuccess = () => resolve(req.result);
-            req.onerror = () => reject('DB Connect Error');
-        });
+    static async fetchAll() {
+        const raw = localStorage.getItem(SYS.DB_KEY);
+        if(!raw) {
+            console.error("System Error: No Master DB found. Push from Admin Console first.");
+            return [];
+        }
+        return JSON.parse(raw);
     }
 
-    static async init(data) {
-        const db = await this.connect();
-        return new Promise((resolve) => {
-            const tx = db.transaction(SYS.DB_STORE, 'readwrite');
-            const store = tx.objectStore(SYS.DB_STORE);
-            // Count Check: Zero-State Logic
-            const countReq = store.count();
-            countReq.onsuccess = () => {
-                if (countReq.result === 0) {
-                    console.log('System: Cold Boot. Ingesting Raw Data...');
-                    data.forEach(item => store.put(item)); // Batch Ingest
-                    tx.oncomplete = () => resolve(true); // Ingested
-                } else {
-                    resolve(false); // Already Exists
-                }
-            };
-        });
-    }
-
-    static async fetch(dataset, topic) {
-        const db = await this.connect();
-        return new Promise((resolve) => {
-            const tx = db.transaction(SYS.DB_STORE, 'readonly');
-            const store = tx.objectStore(SYS.DB_STORE);
-            const req = store.getAll();
-            req.onsuccess = () => {
-                let res = req.result;
-                // Query Logic: Filter in memory (IndexedDB indexes are overkill for this scale)
-                if(dataset) res = res.filter(i => i.ds === dataset);
-                if(topic) res = res.filter(i => i.tp === topic);
-                resolve(res);
-            };
-        });
+    static async fetchFaceted(dataset, topic) {
+        let res = await this.fetchAll();
+        if(dataset) res = res.filter(i => i.set === dataset);
+        if(topic) res = res.filter(i => i.dom === topic);
+        return res;
     }
 }
 
-/* --- 3. SCIENTIFIC TEXT RENDERER (REGEX) --- */
+/* --- 2. SCIENTIFIC TEXT RENDERER --- */
 class TextFormatter {
     static parse(text) {
         if(!text) return '';
         return text.toString()
-            .replace(/\|\|/g, '<br><br>') // Line breaks
-            .replace(/([A-Z][a-z]?)(\d+)/g, '$1<sub>$2</sub>') // Subscripts (H20)
-            .replace(/\^(\d+)/g, '<sup>$1</sup>') // Superscripts (10^3)
-            .replace(/(\d+)([+\-])/g, '$1<sup>$2</sup>'); // Ionic charges (Fe2+)
+            .replace(/([A-Z][a-z]?)(\d+)/g, '$1<sub>$2</sub>') 
+            .replace(/\^(\d+)/g, '<sup>$1</sup>') 
+            .replace(/(\d+)([+\-])/g, '$1<sup>$2</sup>'); 
     }
 }
 
-/* --- 4. SESSION BRIDGE --- */
-class SessionBridge {
-    static getXP() { return parseInt(sessionStorage.getItem(SYS.SESSION_KEYS.XP) || '0'); }
-    static setXP(val) { sessionStorage.setItem(SYS.SESSION_KEYS.XP, val); }
-    static saveVault(v) { sessionStorage.setItem(SYS.SESSION_KEYS.LAST_VAULT, v); }
-}
-
-/* --- 5. PHYSICS ENGINE (MOBILE-SAFE) --- */
+/* --- 3. PHYSICS ENGINE (ORIGINAL) --- */
 class PhysicsController {
     constructor(element, callbacks) {
         this.el = element;
@@ -225,41 +121,24 @@ class PhysicsController {
         const start = (e) => this.onStart(e.touches ? e.touches[0] : e);
         const move = (e) => this.onMove(e.touches ? e.touches[0] : e);
         const end = () => this.onEnd();
-
         this.el.addEventListener('mousedown', start);
         window.addEventListener('mousemove', move);
         window.addEventListener('mouseup', end);
-
         this.el.addEventListener('touchstart', start, { passive: false });
-        this.el.addEventListener('touchmove', (e) => { 
-            if(this.active) e.preventDefault(); // Prevent scroll capture
-            move(e); 
-        }, { passive: false });
+        this.el.addEventListener('touchmove', (e) => { if(this.active) e.preventDefault(); move(e); }, { passive: false });
         this.el.addEventListener('touchend', end);
     }
 
-    onStart(p) {
-        if(this.isTransitioning) return;
-        this.active = true;
-        this.start = { x: p.clientX, y: p.clientY };
-        this.el.style.transition = 'none';
-    }
+    onStart(p) { this.active = true; this.start = { x: p.clientX, y: p.clientY }; this.el.style.transition = 'none'; }
 
     onMove(p) {
         if(!this.active) return;
         const dx = p.clientX - this.start.x;
         const dy = p.clientY - this.start.y;
         const dist = Math.sqrt(dx*dx + dy*dy);
-        
-        // Physics: Deterministic Rotation
-        const rot = dx / SYS.PHYSICS.ROTATION_FACTOR;
-        this.el.style.transform = `translate3d(${dx}px, ${dy}px, 0) rotate(${rot}deg)`;
-
-        // Quadrant Resolver (Atan2)
-        let angle = Math.atan2(-dy, dx) * (180 / Math.PI); // Standard Cartesian
+        this.el.style.transform = `translate3d(${dx}px, ${dy}px, 0) rotate(${dx / SYS.PHYSICS.ROTATION_FACTOR}deg)`;
+        let angle = Math.atan2(-dy, dx) * (180 / Math.PI);
         if(angle < 0) angle += 360;
-        
-        // Opacity Logic
         Object.values(this.labels).forEach(l => { if(l) l.style.opacity = 0; });
         if(dist > 20) {
             const dir = this.getDirection(angle);
@@ -271,21 +150,15 @@ class PhysicsController {
     onEnd() {
         if(!this.active) return;
         this.active = false;
-        
-        // Calculate final displacement
         const style = window.getComputedStyle(this.el);
         const matrix = new WebKitCSSMatrix(style.transform);
-        const dx = matrix.m41; 
-        const dy = matrix.m42;
+        const dx = matrix.m41; const dy = matrix.m42;
         const dist = Math.sqrt(dx*dx + dy*dy);
-
         if(dist > SYS.PHYSICS.SWIPE_THRESHOLD) {
             let angle = Math.atan2(-dy, dx) * (180 / Math.PI);
             if(angle < 0) angle += 360;
-            const dir = this.getDirection(angle);
-            this.cbs.onCommit(dir, dx, dy);
+            this.cbs.onCommit(this.getDirection(angle), dx, dy);
         } else {
-            // Elastic Rollback
             this.el.style.transition = `transform ${SYS.PHYSICS.ANIM_DURATION}ms cubic-bezier(0.175, 0.885, 0.32, 1.275)`;
             this.el.style.transform = 'translate3d(0,0,0)';
             this.cbs.onCancel();
@@ -300,7 +173,7 @@ class PhysicsController {
     }
 }
 
-/* --- 6. CORE LOGIC --- */
+/* --- 4. CORE ENGINE v133.27-R --- */
 const UI = {
     stack: document.getElementById('stack'),
     loader: document.getElementById('loader'),
@@ -310,68 +183,56 @@ const UI = {
 };
 
 let STATE = {
-    mode: 'BOOT', // BOOT -> MENU -> QUIZ
     pool: [],
-    score: SessionBridge.getXP()
+    score: parseInt(localStorage.getItem(SYS.PROGRESS_KEY) || '0')
 };
 
 async function Boot() {
     UI.loader.style.display = 'flex';
-    // 1. Ingest
-    await AlchemistDB.init(RAW_DATA);
-    // 2. Load
+    const all = await AlchemistDB.fetchAll();
+    if(all.length === 0) {
+        UI.loader.innerText = "NO DATABASE DETECTED";
+        return;
+    }
     UI.loader.style.display = 'none';
     UpdateHUD();
-    RenderMenu("SET_A"); 
+    RenderLobby(all);
 }
 
-function RenderMenu(dataset) {
-    STATE.mode = "MENU";
-    UI.stack.innerHTML = "";
-    
-    // Create Menu Card
+function RenderLobby(data) {
+    const sets = [...new Set(data.map(i => i.set))];
     const el = document.createElement('div');
     el.className = "card";
     el.innerHTML = `
-        <div class="card-q">SELECT DOMAIN</div>
-        <div class="swipe-label sl-up">PHYSICAL</div>
-        <div class="swipe-label sl-left">ORGANIC</div>
-        <div class="swipe-label sl-right">INORGANIC</div>
-        <div class="swipe-label sl-down">ANALYTICAL</div>
+        <div class="card-q">SELECT ACTIVE VAULT</div>
+        <div class="swipe-label sl-up">${sets[0] || 'SET_A'}</div>
+        <div class="swipe-label sl-left">${sets[1] || 'EMPTY'}</div>
+        <div class="swipe-label sl-right">${sets[2] || 'EMPTY'}</div>
+        <div class="swipe-label sl-down">ALL VAULTS</div>
     `;
     UI.stack.appendChild(el);
-    
     new PhysicsController(el, {
         onPeek: () => {},
         onCancel: () => {},
         onCommit: (dir, dx, dy) => {
-            const map = { UP: 'Physical', LEFT: 'Organic', RIGHT: 'Inorganic', DOWN: 'Analytical' };
-            FlyOut(el, dx, dy, () => StartQuiz(dataset, map[dir]));
+            let targetSet = null;
+            if(dir === 'UP') targetSet = sets[0];
+            if(dir === 'LEFT') targetSet = sets[1];
+            if(dir === 'RIGHT') targetSet = sets[2];
+            FlyOut(el, dx, dy, () => StartQuiz(targetSet));
         }
     });
 }
 
-async function StartQuiz(dataset, topic) {
-    STATE.mode = "QUIZ";
-    // Fetch from DB
-    STATE.pool = await AlchemistDB.fetch(dataset, topic);
-    
-    // Zero-State Detection
-    if(STATE.pool.length === 0) {
-        alert("Domain Empty in DB. Loading Main Vault fallback.");
-        STATE.pool = await AlchemistDB.fetch(dataset, null); // Fallback to all
-    }
-    
-    STATE.pool.sort(() => Math.random() - 0.5); // Shuffle
+async function StartQuiz(dataset) {
+    STATE.pool = await AlchemistDB.fetchFaceted(dataset, null);
+    STATE.pool.sort(() => Math.random() - 0.5);
     NextCard();
 }
 
 function NextCard() {
     UI.stack.innerHTML = "";
-    if(STATE.pool.length === 0) {
-        RenderEnd();
-        return;
-    }
+    if(STATE.pool.length === 0) { location.reload(); return; }
     
     const data = STATE.pool[0];
     UI.id.innerText = data.id;
@@ -385,7 +246,11 @@ function NextCard() {
         <div class="swipe-label sl-right">${TextFormatter.parse(data.r)}</div>
         <div class="swipe-label sl-down" style="color:var(--blue)">HINT</div>
         <div class="overlay">
-            <div class="overlay-body">${TextFormatter.parse(data.ex)}</div>
+            <div class="overlay-body">
+                <strong>THEORETICAL ANCHOR:</strong><br>${TextFormatter.parse(data.logic)}
+                <br><br>
+                <strong>TRAP ANALYSIS:</strong><br>${TextFormatter.parse(data.note)}
+            </div>
             <button class="btn" onclick="this.parentElement.classList.remove('active')">RESUME</button>
         </div>
     `;
@@ -399,18 +264,19 @@ function NextCard() {
         onCancel: () => el.classList.remove('study-active'),
         onCommit: (dir, dx, dy) => {
             if(dir === 'DOWN') {
-                // Hint Logic: Show Overlay, Reset Position
                 el.querySelector('.overlay').classList.add('active');
                 el.style.transform = 'translate3d(0,0,0)'; 
                 el.classList.remove('study-active');
-                // Note: Physics controller ends here, card is static until 'Resume' clicked? 
-                // We must re-bind or just leave it. The overlay blocks interaction.
             } else {
-                // Answer Logic
-                const correct = (dir === data.c);
-                if(correct) {
+                // Dynamic Correctness Resolver
+                let swipedText = "";
+                if(dir === 'UP') swipedText = data.u;
+                if(dir === 'LEFT') swipedText = data.l;
+                if(dir === 'RIGHT') swipedText = data.r;
+
+                if(swipedText === data.correct) {
                     STATE.score += 10;
-                    SessionBridge.setXP(STATE.score);
+                    localStorage.setItem(SYS.PROGRESS_KEY, STATE.score);
                     UpdateHUD();
                 }
                 FlyOut(el, dx, dy, () => {
@@ -422,21 +288,11 @@ function NextCard() {
     });
 }
 
-function FlyOut(el, dx, dy, callback) {
+function FlyOut(el, dx, dy, cb) {
     el.style.transition = "transform 0.4s ease, opacity 0.3s";
     el.style.transform = `translate3d(${dx*1.5}px, ${dy*1.5}px, 0)`;
     el.style.opacity = "0";
-    setTimeout(() => {
-        el.remove();
-        callback();
-    }, 400);
-}
-
-function RenderEnd() {
-    const el = document.createElement('div');
-    el.className = "card";
-    el.innerHTML = `<div class="card-q">VAULT COMPLETE<br>${STATE.score} XP</div><button class="btn" style="margin-top:20px" onclick="location.reload()">SYNC</button>`;
-    UI.stack.appendChild(el);
+    setTimeout(() => { el.remove(); cb(); }, 400);
 }
 
 function UpdateHUD() {
@@ -444,9 +300,7 @@ function UpdateHUD() {
     UI.bar.style.width = `${(STATE.score % 100)}%`;
 }
 
-// Execute
 window.onload = Boot;
-
 </script>
 </body>
 </html>
