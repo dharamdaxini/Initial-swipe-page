@@ -1,122 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VIA.STACK | MASTER LAB v133.27</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-    <style>
-        :root { --bg: #050505; --gold: #ffd600; --blue: #2979ff; --red: #ff4757; --green: #00e676; --font-ui: 'Inter', sans-serif; --font-code: 'JetBrains Mono', monospace; }
-        * { box-sizing: border-box; outline: none; }
-        body { margin: 0; background: var(--bg); color: #ccc; font-family: var(--font-ui); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        #master-scroll { flex: 1; overflow-y: auto; padding-bottom: 80px; }
-        header { position: sticky; top: 0; z-index: 100; background: rgba(5,5,5,0.98); border-bottom: 1px solid #222; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; }
-        .brand { font-size: 1.1rem; font-weight: 900; color: #fff; }
-        .brand span { color: var(--gold); }
-        .zone { padding: 30px; border-bottom: 1px dashed #222; }
-        .zone-title { font-size: 0.7rem; font-weight: 900; color: #666; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
-        .ingest-box { width: 100%; height: 200px; background: #080808; border: 1px solid #333; border-radius: 12px; padding: 20px; font-family: var(--font-code); font-size: 0.7rem; color: var(--blue); resize: none; white-space: pre; }
-        .btn-pill { background: var(--gold); color: #000; border: none; padding: 12px 30px; border-radius: 50px; font-weight: 900; font-size: 0.8rem; cursor: pointer; text-transform: uppercase; margin-top: 10px; }
-        .grid-6 { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 15px; }
-        .tile { background: #0e0e0e; border: 1px solid #222; padding: 20px; border-radius: 8px; text-align: center; cursor: pointer; transition: 0.2s; }
-        .tile:hover { border-color: var(--blue); }
-        .push-btn { width: 100%; background: var(--green); color: #000; padding: 20px; border-radius: 12px; font-weight: 900; text-transform: uppercase; margin-top: 20px; cursor: pointer; border: none; }
-        .terminal { background: #000; border: 1px solid #222; border-radius: 8px; padding: 15px; font-family: var(--font-code); font-size: 0.7rem; color: #666; height: 100px; overflow-y: auto; margin-top: 15px; }
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000; display: none; align-items: center; justify-content: center; }
-        .modal-box { width: 90%; max-width: 500px; background: #111; border: 1px solid #333; padding: 25px; border-radius: 12px; }
-        .surgeon-input { width: 100%; height: 120px; background: #000; border: 1px solid var(--red); color: #fff; padding: 10px; font-family: var(--font-code); font-size: 0.75rem; resize: none; }
-        #observer-layer { display:none; position:fixed; inset:0; background:var(--bg); z-index:5000; flex-direction:column; }
-        table { width:100%; border-collapse:collapse; font-family:var(--font-code); font-size:0.7rem; }
-        th { text-align:left; padding:10px; border-bottom:1px solid #444; color:var(--gold); position: sticky; top: 0; background: #000; }
-        td { padding:10px; border-bottom:1px solid #222; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>VIA.STACK | MASTER LAB v133.27</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#050505;--panel:#0b0b0b;--border:#222;
+  --gold:#ffd600;--blue:#3498db;--green:#2ecc71;--red:#ff4444;
+  --font-ui:'Inter',sans-serif;--font-mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  margin:0;background:var(--bg);color:#ccc;font-family:var(--font-ui);
+  height:100vh;display:flex;flex-direction:column;overflow:hidden;
+}
+header{
+  padding:20px;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.brand{font-weight:900;color:#fff}
+.brand span{color:var(--gold)}
+.status{font-family:var(--font-mono);font-size:.7rem;color:var(--green)}
+
+#workspace{flex:1;padding:20px;display:flex;flex-direction:column}
+textarea{
+  flex:1;background:#000;border:1px solid #333;border-radius:12px;
+  color:#ccc;font-family:var(--font-mono);font-size:12px;
+  padding:15px;resize:none;
+}
+
+.actions{display:grid;grid-template-columns:2fr 1fr;gap:15px;padding:20px}
+.btn{
+  padding:18px;border-radius:40px;border:2px solid var(--gold);
+  background:transparent;color:var(--gold);
+  font-weight:900;text-transform:uppercase;cursor:pointer;
+}
+.btn.secondary{border-color:#444;color:#777}
+
+.exports{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  padding:0 20px 20px;
+}
+.btn-export{
+  background:#111;border:1px solid #222;border-radius:16px;
+  padding:18px;color:#777;font-weight:700;font-size:.65rem;
+  text-transform:uppercase;cursor:pointer;
+}
+
+#overlay{
+  position:fixed;top:0;left:0;right:0;
+  padding:10px;text-align:center;
+  font-family:var(--font-mono);font-size:10px;font-weight:bold;
+  transform:translateY(-100%);transition:.3s;z-index:999;
+}
+#overlay.active{transform:translateY(0)}
+</style>
 </head>
+
 <body>
-<header><div class="brand">VIA.<span>STACK</span> LAB</div><div id="status">DB READY</div></header>
-<div id="master-scroll">
-    <div class="zone">
-        <div class="zone-title">01 // INGESTION (25-COL)</div>
-        <textarea id="raw-input" class="ingest-box" placeholder="PASTE TSV DATA..."></textarea>
-        <button class="btn-pill" onclick="initiateAlignment()">ALIGN DATA</button>
-        <div class="terminal" id="console-log"></div>
-    </div>
-    <div class="zone">
-        <div class="zone-title">02 // DEPLOYMENT</div>
-        <div class="grid-6">
-            <div class="tile" onclick="exportPDF()">📄 PDF PROTOCOL</div>
-            <div class="tile" onclick="exportCSV()">📑 MASTER CSV</div>
-            <div class="tile" onclick="openObserver()">👁️ OBSERVER</div>
-        </div>
-        <button class="push-btn" onclick="pushToIndex()">PUSH TO OPERATOR</button>
-    </div>
-    <div class="zone"><div class="zone-title" style="color:var(--red)">04 // DANGER</div><button class="btn-pill" style="background:var(--red); color:#fff; width:100%" onclick="localStorage.clear(); location.reload();">PURGE SYSTEM</button></div>
+
+<div id="overlay">PROCESSING…</div>
+
+<header>
+  <div class="brand">VIA.<span>STACK</span> // ADMIN</div>
+  <div class="status" id="sys">READY</div>
+</header>
+
+<div id="workspace">
+  <textarea id="raw" placeholder="PASTE TSV DATA (25-COLUMN CANONICAL)"></textarea>
 </div>
-<div id="surgeon-modal" class="modal-overlay">
-    <div class="modal-box"><div style="color:var(--red); font-weight:900; margin-bottom:10px;">SURGICAL INTERVENTION</div><textarea id="surgeon-input" class="surgeon-input"></textarea><div style="display:flex; gap:10px; margin-top:15px;"><button class="btn-pill" onclick="sutureRow()">SUTURE</button><button class="btn-pill" style="background:#333; color:#fff" onclick="closeSurgeon()">SKIP</button></div></div>
+
+<div class="actions">
+  <button class="btn" onclick="align()">INITIATE ALIGNMENT</button>
+  <button class="btn secondary" onclick="location.reload()">RESET</button>
 </div>
-<div id="observer-layer">
-    <div style="padding:20px; border-bottom:1px solid #222; display:flex; justify-content:space-between;"><div class="brand">VAULT.<span>OBSERVER</span></div><button onclick="closeObserver()">EXIT</button></div>
-    <div style="flex:1; overflow:auto; padding:20px;"><table id="observer-table"><thead><tr><th>ID</th><th>SET</th><th>QUESTION</th></tr></thead><tbody id="observer-body"></tbody></table></div>
+
+<div class="exports">
+  <button class="btn-export" onclick="exportPDF()">PDF</button>
+  <button class="btn-export" onclick="exportJSON()">JSON</button>
+  <button class="btn-export" onclick="exportTSV()">TSV</button>
+  <button class="btn-export" onclick="exportCSV()">CSV</button>
+  <button class="btn-export" onclick="exportJS()">JS</button>
+  <button class="btn-export" onclick="exportTXT()">TXT</button>
 </div>
+
 <script>
-    const DB_KEY = 'ALCHEMIST_MASTER_DB';
-    let STAGED = [], RAW_LINES = [], FAULTY_IDX = -1;
-    function log(m, t) { document.getElementById('console-log').innerHTML = `<div style="color:${t==='err'? 'var(--red)':'var(--green)'}">> ${m}</div>` + document.getElementById('console-log').innerHTML; }
-    function initiateAlignment() {
-        RAW_LINES = document.getElementById('raw-input').value.split('\n').filter(l => !l.toUpperCase().startsWith('ID\t') && l.trim() !== "");
-        runGatekeeper();
-    }
-    function runGatekeeper() {
-        const seen = new Set();
-        for(let i=0; i<RAW_LINES.length; i++) {
-            const c = RAW_LINES[i].split('\t');
-            if(c.length < 24 || c.length > 25) { launchSurgeon(i, `STRUCTURAL DRIFT: ${c.length} COLS`); return; }
-            if(seen.has(c[0])) { launchSurgeon(i, `ID COLLISION: ${c[0]}`); return; }
-            seen.add(c[0]);
-        }
-        finalize();
-    }
-    function launchSurgeon(i, m) { FAULTY_IDX = i; document.getElementById('surgeon-input').value = RAW_LINES[i]; document.getElementById('surgeon-modal').style.display='flex'; log(m, 'err'); }
-    function sutureRow() { RAW_LINES[FAULTY_IDX] = document.getElementById('surgeon-input').value; document.getElementById('surgeon-modal').style.display='none'; runGatekeeper(); }
-    function closeSurgeon() { RAW_LINES.splice(FAULTY_IDX, 1); document.getElementById('surgeon-modal').style.display='none'; runGatekeeper(); }
-    function finalize() {
-        STAGED = RAW_LINES.map(l => {
-            const c = l.split('\t');
-            return { id:c[0], set:c[1], dom:c[2], topic:c[3], level:c[4], q:c[5], u:c[6], r:c[7], l:c[8], correct:c[9], logic:c[10], hint:c[11], ctx:c[12], ref:c[13], tags:c[14], img:c[15], link:c[16], note:c[17], date:c[18], rev:c[19], w_up:c[20], w_side:c[21], s1:c[22], s2:c[23], raw25:c[24]||"N/A" };
-        });
-        log(`ALIGNMENT SUCCESS: ${STAGED.length} ROWS.`, 'ok');
-    }
-    function pushToIndex() { localStorage.setItem(DB_KEY, JSON.stringify(STAGED)); log("PUSHED TO OPERATOR.", 'ok'); }
-    function exportCSV() {
-        let csv = "ID,SET,DOM,TOPIC,LEVEL,Q,UP,RIGHT,LEFT,ANS,LOGIC,HINT,CTX,REF,TAGS,IMG,LINK,NOTE,DATE,REV,W_UP,W_SIDE,S1,S2,RAW25\n";
-        STAGED.forEach(r => { const q = (t) => `"${String(t).replace(/"/g, '""')}"`; csv += `${Object.values(r).map(q).join(',')}\n`; });
-        const blob = new Blob([csv], {type:'text/csv'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'MASTER.csv'; a.click();
-    }
-    function exportPDF() {
-        const { jsPDF } = window.jspdf; const doc = new jsPDF(); const W = doc.internal.pageSize.getWidth(); let y = 20;
-        STAGED.forEach(i => {
-            if(y > 250) { doc.addPage(); y = 20; }
-            doc.setFontSize(10); doc.setFont("helvetica", "bold"); doc.text(`${i.id} // ${i.dom} > ${i.topic}`, 15, y); y += 7;
-            doc.setFont("helvetica", "normal"); const qL = doc.splitTextToSize(`Q: ${i.q}`, W-30); doc.text(qL, 15, y); y += (qL.length*5)+5;
-            // Left 40%
-            doc.setFontSize(8); doc.setTextColor(100); doc.text(`HINT: ${i.hint}`, 15, y);
-            doc.text(`CTX: ${i.ctx}`, 15, y+5); doc.text(`REF: ${i.ref}`, 15, y+10);
-            // Right 60%
-            doc.setTextColor(0); doc.text(`(A) ${i.u} | (B) ${i.r} | (C) ${i.l}`, W*0.45, y);
-            doc.setFont("helvetica", "bold"); doc.text(`ANS: ${i.correct}`, W*0.45, y+5);
-            doc.setFont("helvetica", "normal"); const lG = doc.splitTextToSize(`LOGIC: ${i.logic}`, W*0.5); doc.text(lG, W*0.45, y+10);
-            y += Math.max(25, (lG.length*4)+15); doc.line(15, y, W-15, y); y += 10;
-        });
-        doc.save('PROTOCOL.pdf');
-    }
-    function openObserver() { 
-        const db = JSON.parse(localStorage.getItem(DB_KEY)||'[]'); 
-        document.getElementById('observer-body').innerHTML = db.map(r => `<tr><td>${r.id}</td><td>${r.set}</td><td>${r.q}</td></tr>`).join('');
-        document.getElementById('observer-layer').style.display='flex'; 
-    }
-    function closeObserver() { document.getElementById('observer-layer').style.display='none'; }
+/* ===================== CORE ===================== */
+const KEY_MAP={
+ ID:'id',SET:'set',DOM:'dom',TOPIC:'topic',LEVEL:'level',
+ Q:'q',UP:'u',RIGHT:'r',LEFT:'l',ANS:'correct',
+ LOGIC:'logic',HINT:'hint',CTX:'ctx',REF:'ref',
+ TAGS:'tags',IMG:'img',LINK:'link',NOTE:'note',
+ DATE:'date',REV:'rev',W_UP:'w_up',W_SIDE:'w_side',
+ S1:'s1',S2:'s2',RAW25:'raw25'
+};
+
+const UI={
+ raw:document.getElementById('raw'),
+ overlay:document.getElementById('overlay'),
+ sys:document.getElementById('sys')
+};
+
+let HEADERS=[],ROWS=[];
+
+/* ===================== FLOW ===================== */
+function align(){
+ const txt=UI.raw.value.trim();
+ if(!txt)return status('ERROR: NO DATA',true);
+ const lines=txt.split(/\r?\n/).filter(l=>l.trim());
+ HEADERS=lines[0].split('\t').map(h=>h.trim().toUpperCase());
+ ROWS=lines.slice(1).map(l=>l.split('\t'));
+ status(`ALIGNED ${ROWS.length} ROWS`);
+}
+
+function buildObjects(){
+ return ROWS.map(r=>{
+  const o={};
+  HEADERS.forEach((h,i)=>{
+    const k=KEY_MAP[h]||h.toLowerCase();
+    o[k]=r[i]||"";
+  });
+  return o;
+ });
+}
+
+/* ===================== EXPORTERS ===================== */
+function exportJSON(){
+ const data=buildObjects();
+ download(JSON.stringify(data,null,2),'master.json','application/json');
+}
+
+function exportJS(){
+ const data=buildObjects();
+ download(`const VAULT_DATA=${JSON.stringify(data,null,2)};`,'vault.js','application/javascript');
+}
+
+function exportCSV(){
+ const csv=[HEADERS.join(',')].concat(ROWS.map(r=>r.join(','))).join('\n');
+ download(csv,'vault.csv','text/csv');
+}
+
+function exportTSV(){
+ const tsv=[HEADERS.join('\t')].concat(ROWS.map(r=>r.join('\t'))).join('\n');
+ download(tsv,'vault.tsv','text/plain');
+}
+
+function exportTXT(){
+ const txt=ROWS.map(r=>r.join(' | ')).join('\n');
+ download(txt,'vault.txt','text/plain');
+}
+
+function exportPDF(){
+ const {jsPDF}=window.jspdf;
+ const doc=new jsPDF('l','mm','a4');
+ doc.setFontSize(10);
+ doc.text('VIA.STACK MASTER EXPORT',14,14);
+ doc.autoTable({
+  head:[HEADERS],
+  body:ROWS,
+  startY:20,
+  styles:{fontSize:6,overflow:'linebreak'},
+  theme:'grid'
+ });
+ doc.save('vault.pdf');
+ status('PDF EXPORTED');
+}
+
+/* ===================== UTILS ===================== */
+function download(content,name,type){
+ const b=new Blob([content],{type});
+ const u=URL.createObjectURL(b);
+ const a=document.createElement('a');
+ a.href=u;a.download=name;
+ document.body.appendChild(a);a.click();
+ setTimeout(()=>{
+  document.body.removeChild(a);
+  URL.revokeObjectURL(u);
+  status(`${name.toUpperCase()} EXPORTED`);
+ },500);
+}
+
+function status(msg,err){
+ UI.overlay.textContent=msg;
+ UI.overlay.style.background=err?'#ff4444':'var(--gold)';
+ UI.overlay.style.color=err?'#fff':'#000';
+ UI.overlay.classList.add('active');
+ setTimeout(()=>UI.overlay.classList.remove('active'),2000);
+ UI.sys.textContent=msg;
+}
 </script>
+
 </body>
 </html>
