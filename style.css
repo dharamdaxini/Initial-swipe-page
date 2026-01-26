@@ -320,3 +320,28 @@ body, html {
   font-family: "Inter", sans-serif;
   font-size: 10pt;
 }
+
+const puppeteer = require('puppeteer');
+
+async function generateProtocolPDF(htmlContent) {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    
+    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+    
+    // Wait for Fonts and MathJax
+    await page.evaluateHandle('document.fonts.ready');
+    await page.evaluate(() => {
+        // Trigger KaTeX or MathJax rendering here if not pre-rendered
+        return window.typesetPromise || Promise.resolve();
+    });
+
+    await page.pdf({
+        path: 'research_protocol_v132.pdf',
+        format: 'A4',
+        printBackground: true,
+        margin: { top: '0', right: '0', bottom: '0', left: '0' }
+    });
+
+    await browser.close();
+}
