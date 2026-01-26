@@ -3,74 +3,304 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Alchemist V133.27-H | Operator Interface</title>
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,600;1,600&family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <title>Alchemist V133.27-R | Operator Interface</title>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,600;1,600&family=Inter:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #000; --card: #111; --border: #222; --gold: #ffd600; --blue: #3498db;
-            --font-book: 'Crimson Text', serif; 
-            --font-ui: 'Inter', sans-serif; 
-            --font-mono: 'JetBrains Mono', monospace; 
+            --font-chem: 'Crimson Text', serif; --font-ui: 'Inter', sans-serif; --font-code: 'JetBrains Mono', monospace;
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; -webkit-font-smoothing: antialiased; }
         body { margin: 0; height: 100vh; background: var(--bg); color: #fff; font-family: var(--font-ui); overflow: hidden; touch-action: none; display: flex; flex-direction: column; }
-        sub { font-size: 0.75em; vertical-align: sub; line-height: 0; }
-        sup { font-size: 0.75em; vertical-align: super; line-height: 0; }
+        sub { font-size: 0.7em; vertical-align: sub; line-height: 0; }
+        sup { font-size: 0.7em; vertical-align: super; line-height: 0; }
+
+        /* HUD */
         #header { width: 90%; margin: 25px auto 0; z-index: 100; flex-shrink: 0; }
-        .header-meta { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.7rem; color: #555; letter-spacing: 2px; }
+        .header-meta { display: flex; justify-content: space-between; font-family: var(--font-code); font-size: 0.7rem; color: #555; letter-spacing: 2px; }
         .progress-track { width: 100%; height: 2px; background: #1a1a1a; margin-top: 10px; overflow: hidden; }
         #progress-bar { height: 100%; background: var(--gold); width: 0%; transition: width 0.4s ease; }
+
+        /* STACK ENGINE */
         #stack { position: relative; width: 92%; max-width: 400px; height: 70vh; margin: auto; perspective: 1200px; display: flex; align-items: center; justify-content: center; }
-        .card { position: absolute; width: 100%; height: 95%; background: var(--card); border-radius: 40px; border: 1px solid var(--border); padding: 40px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 30px 90px rgba(0,0,0,0.9); will-change: transform; transform: translate3d(0,0,0); }
+        .card { 
+            position: absolute; width: 100%; height: 95%; background: var(--card); border-radius: 40px; border: 1px solid var(--border);
+            padding: 40px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 30px 90px rgba(0,0,0,0.9);
+            will-change: transform; transform: translate3d(0,0,0);
+        }
         .card.study-active { filter: blur(20px) brightness(0.2); opacity: 0.5; transform: scale(0.85) translateY(40px) !important; pointer-events: none; }
-        .card-q { font-family: var(--font-book); font-size: 1.7rem; line-height: 1.4; font-style: italic; font-weight: 600; text-align: center; }
-        .swipe-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: #000; color: #fff; font-weight: 900; font-size: 1.8rem; text-transform: uppercase; border-radius: 40px; z-index: 999; opacity: 0; pointer-events: none; text-align: center; padding: 20px; font-family: var(--font-ui); }
+        .card-q { font-family: var(--font-chem); font-size: 1.7rem; line-height: 1.4; font-style: italic; font-weight: 600; text-align: center; }
+
+        /* LABELS */
+        .swipe-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: #000; color: #fff; font-weight: 900; font-size: 1.8rem; text-transform: uppercase; border-radius: 40px; z-index: 999; opacity: 0; pointer-events: none; text-align: center; padding: 20px; }
+        
+        /* OVERLAY */
         .overlay { position: absolute; inset: 0; background: #0d0d0d; z-index: 1100; padding: 40px; opacity: 0; pointer-events: none; border-radius: 40px; transition: opacity 0.3s ease; display: flex; flex-direction: column; justify-content: center; overflow-y: auto;}
         .overlay.active { opacity: 1; pointer-events: auto; }
-        .overlay-body { font-size: 1.1rem; line-height: 1.6; color: #bbb; margin-bottom: 30px; font-family: var(--font-book); }
-        .btn { width: 100%; padding: 18px; border-radius: 50px; border: none; background: #fff; color: #000; font-weight: 900; text-transform: uppercase; cursor: pointer; font-family: var(--font-ui); }
-        #loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); color: var(--gold); letter-spacing: 5px; }
+        .overlay-body { font-size: 1.1rem; line-height: 1.6; color: #bbb; margin-bottom: 30px; font-family: var(--font-chem); }
+        .btn { width: 100%; padding: 18px; border-radius: 50px; border: none; background: #fff; color: #000; font-weight: 900; text-transform: uppercase; cursor: pointer;}
+        #loader { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; font-family: var(--font-code); color: var(--gold); letter-spacing: 5px; }
     </style>
 </head>
 <body>
+
 <div id="loader">SYSTEM SYNC...</div>
-<div id="header"><div class="header-meta"><span id="id-ui">ID: BOOT</span><span id="xp-ui">0 XP</span></div><div class="progress-track"><div id="progress-bar"></div></div></div>
+<div id="header">
+    <div class="header-meta"><span id="id-ui">ID: BOOT</span><span id="xp-ui">0 XP</span></div>
+    <div class="progress-track"><div id="progress-bar"></div></div>
+</div>
 <div id="stack"></div>
+
 <script>
-    /* --- FINAL BACKEND LOGIC --- */
-    class TextFormatter {
-        static parse(text) {
-            if(!text) return '';
-            return text.toString()
-                .replace(/\|\|/g, '<br><br>') 
-                .replace(/(\d+)([+\-])/g, '<sup>$1$2</sup>')
-                .replace(/([A-Z][a-z]?)(\d+)/g, '$1<sub>$2</sub>') 
-                .replace(/\^([\-\d]+)/g, '<sup>$1</sup>') 
-                .replace(/Delta/g, '&Delta;');
+/**
+ * ------------------------------------------------------------------
+ * ALCHEMIST BACKEND CORE | V133.27-R (COMPATIBILITY BRIDGE)
+ * ------------------------------------------------------------------
+ * Logic: Reads from Admin Console v133.27 LocalStorage Dataset.
+ * UI/UX: Preserved strictly from v131.99.12-R.
+ * ------------------------------------------------------------------
+ */
+
+const SYS = {
+    DB_KEY: 'ALCHEMIST_MASTER_DB',
+    PROGRESS_KEY: 'ALCH_V133_XP',
+    PHYSICS: {
+        SWIPE_THRESHOLD: 100,
+        ROTATION_FACTOR: 20,
+        ANIM_DURATION: 400
+    }
+};
+
+/* --- 1. DATA ADAPTER (LOCALSTORAGE BRIDGE) --- */
+class AlchemistDB {
+    static async fetchAll() {
+        const raw = localStorage.getItem(SYS.DB_KEY);
+        if(!raw) {
+            console.error("System Error: No Master DB found. Push from Admin Console first.");
+            return [];
+        }
+        return JSON.parse(raw);
+    }
+
+    static async fetchFaceted(dataset, topic) {
+        let res = await this.fetchAll();
+        if(dataset) res = res.filter(i => i.set === dataset);
+        if(topic) res = res.filter(i => i.dom === topic);
+        return res;
+    }
+}
+
+/* --- 2. SCIENTIFIC TEXT RENDERER --- */
+class TextFormatter {
+    static parse(text) {
+        if(!text) return '';
+        return text.toString()
+            .replace(/([A-Z][a-z]?)(\d+)/g, '$1<sub>$2</sub>') 
+            .replace(/\^(\d+)/g, '<sup>$1</sup>') 
+            .replace(/(\d+)([+\-])/g, '$1<sup>$2</sup>'); 
+    }
+}
+
+/* --- 3. PHYSICS ENGINE (ORIGINAL) --- */
+class PhysicsController {
+    constructor(element, callbacks) {
+        this.el = element;
+        this.cbs = callbacks;
+        this.active = false;
+        this.start = { x: 0, y: 0 };
+        this.labels = {
+            UP: element.querySelector('.sl-up'),
+            DOWN: element.querySelector('.sl-down'),
+            LEFT: element.querySelector('.sl-left'),
+            RIGHT: element.querySelector('.sl-right')
+        };
+        this.bindEvents();
+    }
+
+    bindEvents() {
+        const start = (e) => this.onStart(e.touches ? e.touches[0] : e);
+        const move = (e) => this.onMove(e.touches ? e.touches[0] : e);
+        const end = () => this.onEnd();
+        this.el.addEventListener('mousedown', start);
+        window.addEventListener('mousemove', move);
+        window.addEventListener('mouseup', end);
+        this.el.addEventListener('touchstart', start, { passive: false });
+        this.el.addEventListener('touchmove', (e) => { if(this.active) e.preventDefault(); move(e); }, { passive: false });
+        this.el.addEventListener('touchend', end);
+    }
+
+    onStart(p) { this.active = true; this.start = { x: p.clientX, y: p.clientY }; this.el.style.transition = 'none'; }
+
+    onMove(p) {
+        if(!this.active) return;
+        const dx = p.clientX - this.start.x;
+        const dy = p.clientY - this.start.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        this.el.style.transform = `translate3d(${dx}px, ${dy}px, 0) rotate(${dx / SYS.PHYSICS.ROTATION_FACTOR}deg)`;
+        let angle = Math.atan2(-dy, dx) * (180 / Math.PI);
+        if(angle < 0) angle += 360;
+        Object.values(this.labels).forEach(l => { if(l) l.style.opacity = 0; });
+        if(dist > 20) {
+            const dir = this.getDirection(angle);
+            if(this.labels[dir]) this.labels[dir].style.opacity = Math.min(dist/50, 1);
+            this.cbs.onPeek(dir);
         }
     }
 
-    const SYS = { DB_KEY: 'ALCHEMIST_MASTER_DB', PROGRESS_KEY: 'ALCH_V133_XP', PHYSICS: { SWIPE_THRESHOLD: 100, ROTATION_FACTOR: 20, ANIM_DURATION: 400 } };
+    onEnd() {
+        if(!this.active) return;
+        this.active = false;
+        const style = window.getComputedStyle(this.el);
+        const matrix = new WebKitCSSMatrix(style.transform);
+        const dx = matrix.m41; const dy = matrix.m42;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if(dist > SYS.PHYSICS.SWIPE_THRESHOLD) {
+            let angle = Math.atan2(-dy, dx) * (180 / Math.PI);
+            if(angle < 0) angle += 360;
+            this.cbs.onCommit(this.getDirection(angle), dx, dy);
+        } else {
+            this.el.style.transition = `transform ${SYS.PHYSICS.ANIM_DURATION}ms cubic-bezier(0.175, 0.885, 0.32, 1.275)`;
+            this.el.style.transform = 'translate3d(0,0,0)';
+            this.cbs.onCancel();
+        }
+    }
+
+    getDirection(angle) {
+        if (angle >= 45 && angle < 135) return 'UP';
+        if (angle >= 135 && angle < 225) return 'LEFT';
+        if (angle >= 225 && angle < 315) return 'DOWN';
+        return 'RIGHT';
+    }
+}
+
+/* --- 4. CORE ENGINE v133.27-R --- */
+const UI = {
+    stack: document.getElementById('stack'),
+    loader: document.getElementById('loader'),
+    xp: document.getElementById('xp-ui'),
+    bar: document.getElementById('progress-bar'),
+    id: document.getElementById('id-ui')
+};
+
+let STATE = {
+    pool: [],
+    score: parseInt(localStorage.getItem(SYS.PROGRESS_KEY) || '0')
+};
+
+async function Boot() {
+    UI.loader.style.display = 'flex';
+    const all = await AlchemistDB.fetchAll();
+    if(all.length === 0) {
+        UI.loader.innerText = "NO DATABASE DETECTED";
+        return;
+    }
+    UI.loader.style.display = 'none';
+    UpdateHUD();
+    RenderLobby(all);
+}
+
+function RenderLobby(data) {
+    const sets = [...new Set(data.map(i => i.set))];
+    const el = document.createElement('div');
+    el.className = "card";
+    el.innerHTML = `
+        <div class="card-q">SELECT ACTIVE VAULT</div>
+        <div class="swipe-label sl-up">${sets[0] || 'SET_A'}</div>
+        <div class="swipe-label sl-left">${sets[1] || 'EMPTY'}</div>
+        <div class="swipe-label sl-right">${sets[2] || 'EMPTY'}</div>
+        <div class="swipe-label sl-down">ALL VAULTS</div>
+    `;
+    UI.stack.appendChild(el);
+    new PhysicsController(el, {
+        onPeek: () => {},
+        onCancel: () => {},
+        onCommit: (dir, dx, dy) => {
+            let targetSet = null;
+            if(dir === 'UP') targetSet = sets[0];
+            if(dir === 'LEFT') targetSet = sets[1];
+            if(dir === 'RIGHT') targetSet = sets[2];
+            FlyOut(el, dx, dy, () => StartQuiz(targetSet));
+        }
+    });
+}
+
+async function StartQuiz(dataset) {
+    STATE.pool = await AlchemistDB.fetchFaceted(dataset, null);
+    STATE.pool.sort(() => Math.random() - 0.5);
+    NextCard();
+}
+
+function NextCard() {
+    UI.stack.innerHTML = "";
+    if(STATE.pool.length === 0) { location.reload(); return; }
     
-    // ... [Original Physics and Session Bridge code remains identical] ...
+    const data = STATE.pool[0];
+    UI.id.innerText = data.id;
+    
+    const el = document.createElement('div');
+    el.className = "card";
+    el.innerHTML = `
+        <div class="card-q">${TextFormatter.parse(data.q)}</div>
+        <div class="swipe-label sl-up">${TextFormatter.parse(data.u)}</div>
+        <div class="swipe-label sl-left">${TextFormatter.parse(data.l)}</div>
+        <div class="swipe-label sl-right">${TextFormatter.parse(data.r)}</div>
+        <div class="swipe-label sl-down" style="color:var(--blue)">HINT</div>
+        <div class="overlay">
+            <div class="overlay-body">
+                <strong>THEORETICAL ANCHOR:</strong><br>${TextFormatter.parse(data.logic)}
+                <br><br>
+                <strong>TRAP ANALYSIS:</strong><br>${TextFormatter.parse(data.note)}
+            </div>
+            <button class="btn" onclick="this.parentElement.classList.remove('active')">RESUME</button>
+        </div>
+    `;
+    UI.stack.appendChild(el);
+    
+    new PhysicsController(el, {
+        onPeek: (dir) => {
+            if(dir === 'DOWN') el.classList.add('study-active');
+            else el.classList.remove('study-active');
+        },
+        onCancel: () => el.classList.remove('study-active'),
+        onCommit: (dir, dx, dy) => {
+            if(dir === 'DOWN') {
+                el.querySelector('.overlay').classList.add('active');
+                el.style.transform = 'translate3d(0,0,0)'; 
+                el.classList.remove('study-active');
+            } else {
+                // Dynamic Correctness Resolver
+                let swipedText = "";
+                if(dir === 'UP') swipedText = data.u;
+                if(dir === 'LEFT') swipedText = data.l;
+                if(dir === 'RIGHT') swipedText = data.r;
 
-    /* Logic: Bridge new 25-col DB to original UX */
-    async function Boot() {
-        const db = JSON.parse(localStorage.getItem(SYS.DB_KEY) || '[]');
-        document.getElementById('loader').style.display = 'none';
-        if(db.length > 0) Start(db);
-    }
+                if(swipedText === data.correct) {
+                    STATE.score += 10;
+                    localStorage.setItem(SYS.PROGRESS_KEY, STATE.score);
+                    UpdateHUD();
+                }
+                FlyOut(el, dx, dy, () => {
+                    STATE.pool.shift();
+                    NextCard();
+                });
+            }
+        }
+    });
+}
 
-    function Start(pool) {
-        if(pool.length === 0) return;
-        const d = pool[0];
-        document.getElementById('id-ui').innerText = d.id;
-        const el = document.createElement('div'); el.className = 'card';
-        el.innerHTML = `<div class="card-q">${TextFormatter.parse(d.q)}</div><div class="swipe-label sl-up">${TextFormatter.parse(d.u)}</div><div class="swipe-label sl-left">${TextFormatter.parse(d.l)}</div><div class="swipe-label sl-right">${TextFormatter.parse(d.r)}</div><div class="swipe-label sl-down">HINT</div><div class="overlay"><div class="overlay-body">${TextFormatter.parse(d.logic)}</div><button class="btn" onclick="location.reload()">RESUME</button></div>`;
-        document.getElementById('stack').appendChild(el);
-        // [Physics initialization]
-    }
-    window.onload = Boot;
+function FlyOut(el, dx, dy, cb) {
+    el.style.transition = "transform 0.4s ease, opacity 0.3s";
+    el.style.transform = `translate3d(${dx*1.5}px, ${dy*1.5}px, 0)`;
+    el.style.opacity = "0";
+    setTimeout(() => { el.remove(); cb(); }, 400);
+}
+
+function UpdateHUD() {
+    UI.xp.innerText = `${STATE.score} XP`;
+    UI.bar.style.width = `${(STATE.score % 100)}%`;
+}
+
+window.onload = Boot;
 </script>
 </body>
 </html>
