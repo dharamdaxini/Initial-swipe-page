@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALCHEMIST // DATASET PUSHER</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#050505; --panel:#111; --border:#222;
+  --gold:#ffd600; --green:#00e676; --red:#ff5252;
+  --font-ui:'Inter',sans-serif; --font-code:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:#eee;
+  font-family:var(--font-ui); padding:30px;
+}
+h1{font-size:18px;margin-bottom:10px}
+.panel{
+  background:var(--panel); border:1px solid var(--border);
+  border-radius:12px; padding:20px; margin-bottom:20px;
+}
+button{
+  background:var(--gold); color:#000;
+  border:none; padding:14px 20px;
+  font-weight:900; cursor:pointer; border-radius:8px;
+}
+button.secondary{
+  background:#222; color:#ccc; border:1px solid #333;
+}
+pre{
+  background:#000; border:1px solid #222;
+  padding:15px; border-radius:8px;
+  font-family:var(--font-code); font-size:11px;
+  max-height:260px; overflow:auto;
+}
+.ok{color:var(--green)}
+.err{color:var(--red)}
+</style>
+</head>
+
+<body>
+
+<h1>ALCHEMIST // FINAL DATASET PUSHER</h1>
+
+<div class="panel">
+  <input type="file" id="file" accept=".tsv,.txt">
+  <br><br>
+  <button onclick="parseTSV()">PARSE TSV</button>
+  <button class="secondary" onclick="exportJSON()">EXPORT master.json</button>
+</div>
+
+<div class="panel">
+  <pre id="log">> Waiting for TSV input…</pre>
+</div>
+
+<script>
+let DATA = [];
+
+const log = (msg, type="")=>{
+  const el=document.getElementById("log");
+  const line=document.createElement("div");
+  line.className=type;
+  line.textContent="> "+msg;
+  el.appendChild(line);
+  el.scrollTop=el.scrollHeight;
+};
+
+function clean(t){
+  return String(t||"").replace(/\s+/g," ").trim();
+}
+
+function stripMarkdownLink(url){
+  if(!url) return "";
+  return url.replace(/^\[|\]$|\(.*?\)/g,"").trim();
+}
+
+function parseTSV(){
+  const file=document.getElementById("file").files[0];
+  if(!file){ log("No file selected","err"); return; }
+
+  const reader=new FileReader();
+  reader.onload=e=>{
+    DATA=[];
+    const lines=e.target.result.split(/\r?\n/).filter(l=>l.trim());
+
+    for(let i=0;i<lines.length;i++){
+      const c=lines[i].split("\t");
+      if(c.length<25){ log(`Row ${i+1} skipped (column mismatch)`,"err"); continue; }
+
+      const optA=clean(c[6]);
+      const optB=clean(c[7]);
+      const optC=clean(c[8]);
+
+      let correctDir=clean(c[9]).toUpperCase();
+      let correct="";
+      if(correctDir==="UP"||correctDir==="A") correct=optA;
+      else if(correctDir==="LEFT"||correctDir==="B") correct=optB;
+      else if(correctDir==="RIGHT"||correctDir==="C") correct=optC;
+      else{
+        log(`Row ${c[0]} invalid correct flag`,"err");
+        continue;
+      }
+
+      if(![optA,optB,optC].includes(correct)){
+        log(`Row ${c[0]} correct mismatch`,"err");
+        continue;
+      }
+
+      DATA.push({
+        id: clean(c[0]),
+        set: clean(c[1]),
+        dom: clean(c[2]),
+        topic: clean(c[3]),
+        lvl: Number(c[4]),
+
+        q: clean(c[5]),
+        u: optA,
+        l: optB,
+        r: optC,
+
+        correct: correct,
+
+        logic: clean(c[10]),
+        hint: clean(c[11]),
+        trap: clean(c[18]),
+
+        s1: clean(c[23]),
+        s2: clean(c[24]),
+
+        ref: clean(c[14]),
+        link: stripMarkdownLink(clean(c[17])),
+
+        version: clean(c[20]||"1.0"),
+        active: 1,
+        deprecated: 0,
+        status: "VERIFIED"
+      });
+    }
+
+    log(`Parsed ${DATA.length} valid rows`,"ok");
+  };
+  reader.readAsText(file);
+}
+
+function exportJSON(){
+  if(!DATA.length){ log("Nothing to export","err"); return; }
+  const blob=new Blob([JSON.stringify(DATA,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="master.json";
+  a.click();
+  log("master.json exported","ok");
+}
+</script>
+
+</body>
+</html>
